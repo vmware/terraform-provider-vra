@@ -1,11 +1,11 @@
-package tango
+package cas
 
 import (
 	"fmt"
+	"github.com/vmware/terraform-provider-cas/sdk"
 	"regexp"
 	"strconv"
 	"strings"
-	"tango-terraform-provider/tango/client"
 	"testing"
 
 	"github.com/hashicorp/terraform/helper/acctest"

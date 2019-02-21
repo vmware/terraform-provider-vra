@@ -1,4 +1,4 @@
-# Terraform provider for VMware Cloud assembly 
+# Terraform provider for VMware Cloud Automation Services
 
 ### Contents
 - Test

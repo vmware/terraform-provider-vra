@@ -1,4 +1,4 @@
-package tango
+package cas
 
 func expandCustomProperties(configCustomProperties map[string]interface{}) map[string]string {
 	customProperties := make(map[string]string)

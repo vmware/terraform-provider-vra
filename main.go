@@ -1,7 +1,7 @@
 package main
 
 import (
-	"tango-terraform-provider/tango"
+	"github.com/vmware/terraform-provider-cas/cas"
 
 	"github.com/hashicorp/terraform/plugin"
 	"github.com/hashicorp/terraform/terraform"
@@ -10,7 +10,7 @@ import (
 func main() {
 	plugin.Serve(&plugin.ServeOpts{
 		ProviderFunc: func() terraform.ResourceProvider {
-			return tango.Provider()
+			return cas.Provider()
 		},
 	})
 }

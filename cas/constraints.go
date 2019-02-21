@@ -1,7 +1,7 @@
-package tango
+package cas
 
 import (
-	"tango-terraform-provider/tango/client"
+	"github.com/vmware/terraform-provider-cas/sdk"
 
 	"github.com/hashicorp/terraform/helper/schema"
 )
