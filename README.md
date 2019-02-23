@@ -1,7 +1,7 @@
-# VMware Terraform provider for vRealize Automation 7
+# VMware Terraform provider for Cloud Automation Services (CAS)
 [![Build Status](https://travis-ci.org/vmware/terraform-provider-cas.svg?branch=master)](https://travis-ci.org/vmware/terraform-provider-cas)
 
-A self-contained deployable integration between Terraform and vRealize Automation (vRA) which allows Terraform users to request/provision entitled vRA catalog items using Terraform. Supports Terraform destroying vRA provisioned resources.
+A self-contained deployable integration between Terraform and VMware Cloud Automation Services (CAS) which allows Terraform users to request/provision CAS resources such as machine, network, load_balancer, etc. Supports Terraform destroying CAS provisioned resources.
 
 ## Getting Started
 
@@ -9,7 +9,7 @@ These instructions will get you a copy of the project up and run on your local m
 
 ## Prerequisites
 
-To get the vRA plugin up and running you need the following things.
+To get the cas plugin up and running you need the following things.
 * [Terraform 0.9 or above](https://www.terraform.io/downloads.html)
 * [Go Language 1.11 or above](https://golang.org/dl/)
 
