@@ -46,10 +46,10 @@ func Provider() *schema.Provider {
 		},
 
 		ResourcesMap: map[string]*schema.Resource{
-			"tango_machine":       resourceMachine(),
-			"tango_network":       resourceNetwork(),
-			"tango_block_device":  resourceBlockDevice(),
-			"tango_load_balancer": resourceLoadBalancer(),
+			"cas_machine":       resourceMachine(),
+			"cas_network":       resourceNetwork(),
+			"cas_block_device":  resourceBlockDevice(),
+			"cas_load_balancer": resourceLoadBalancer(),
 		},
 
 		ConfigureFunc: configureProvider,

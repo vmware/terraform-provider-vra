@@ -22,7 +22,7 @@ func TestAccTangoLoadBalancer_Basic(t *testing.T) {
 		CheckDestroy: testAccCheckTangoLoadBalancerDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCheckTangoLoadBalancerConfig_basic(rInt),
+				Config: testAccCheckTangoLoadBalancerConfig(rInt),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					testAccCheckTangoLoadBalancerExists("tango_load_balancer.my_load_balancer"),
 					resource.TestMatchResourceAttr(
@@ -96,7 +96,7 @@ func testAccCheckTangoLoadBalancerDestroy(s *terraform.State) error {
 	return nil
 }
 
-func testAccCheckTangoLoadBalancerConfig_basic(rInt int) string {
+func testAccCheckTangoLoadBalancerConfig(rInt int) string {
 	return fmt.Sprintf(`
 resource "tango_network" "my_network" {
 	name = "terraform_tango_network"

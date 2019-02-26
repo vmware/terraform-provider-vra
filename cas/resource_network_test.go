@@ -22,7 +22,7 @@ func TestAccTangoNetwork_Basic(t *testing.T) {
 		CheckDestroy: testAccCheckTangoNetworkDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCheckTangoNetworkConfig_basic(rInt),
+				Config: testAccCheckTangoNetworkConfig(rInt),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					testAccCheckTangoNetworkExists("tango_network.my_network"),
 					resource.TestMatchResourceAttr(
@@ -84,7 +84,7 @@ func testAccCheckTangoNetworkDestroy(s *terraform.State) error {
 	return nil
 }
 
-func testAccCheckTangoNetworkConfig_basic(rInt int) string {
+func testAccCheckTangoNetworkConfig(rInt int) string {
 	return fmt.Sprintf(`
 resource "tango_network" "my_network" {
   name = "terraform_tango_network-%d"

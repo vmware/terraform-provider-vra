@@ -22,7 +22,7 @@ func TestAccTangoBlockDevice_Basic(t *testing.T) {
 		CheckDestroy: testAccCheckTangoBlockDeviceDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCheckTangoBlockDeviceConfig_basic(rInt),
+				Config: testAccCheckTangoBlockDeviceConfig(rInt),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					testAccCheckTangoBlockDeviceExists("tango_block_device.my_block_device"),
 					resource.TestMatchResourceAttr(
@@ -76,7 +76,7 @@ func testAccCheckTangoBlockDeviceDestroy(s *terraform.State) error {
 	return nil
 }
 
-func testAccCheckTangoBlockDeviceConfig_basic(rInt int) string {
+func testAccCheckTangoBlockDeviceConfig(rInt int) string {
 	return fmt.Sprintf(`
 resource "tango_block_device" "my_block_device" {
   name = "terraform_tango_block_device-%d"

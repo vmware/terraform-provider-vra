@@ -3,7 +3,6 @@ package cas
 import (
 	"fmt"
 	"log"
-	"regexp"
 	"strings"
 
 	"github.com/vmware/terraform-provider-cas/sdk"
@@ -265,24 +264,26 @@ func resourceMachineUpdate(d *schema.ResourceData, m interface{}) error {
 func resourceMachineDelete(d *schema.ResourceData, m interface{}) error {
 	client := m.(*tango.Client)
 
-	resourceObject, err := client.ReadResource(getSelfLink(d.Get("links").([]interface{})) + "/disks")
-	if err != nil {
-		return err
-	}
+	// TODO: Confirm that deleting the machine also deletes all the attached disks automatically.
+	// Commented the code as the machine deletion is failing while trying to detach the boot-disk.
+	//resourceObject, err := client.ReadResource(getSelfLink(d.Get("links").([]interface{})) + "/disks")
+	//if err != nil {
+	//	return err
+	//}
+	//
+	//machineAttachedDisksObject := resourceObject.(*tango.MachineAttachedDisks)
+	//
+	//peripheralDevicesRegex := regexp.MustCompile("^(CD/DVD|Floppy) drive")
+	//for _, blockDevice := range machineAttachedDisksObject.Content {
+	//	if blockDevice.Name != "boot-disk" && !peripheralDevicesRegex.MatchString(blockDevice.Name) {
+	//		err := client.DeleteResource(blockDevice.Links["self"].Href) // detach disks first
+	//		if err != nil {
+	//			return err
+	//		}
+	//	}
+	//}
 
-	machineAttachedDisksObject := resourceObject.(*tango.MachineAttachedDisks)
-
-	peripheralDevicesRegex := regexp.MustCompile("^(CD/DVD|Floppy) drive")
-	for _, blockDevice := range machineAttachedDisksObject.Content {
-		if blockDevice.Name != "boot-disk" && !peripheralDevicesRegex.MatchString(blockDevice.Name) {
-			err := client.DeleteResource(blockDevice.Links["self"].Href) // detach disks first
-			if err != nil {
-				return err
-			}
-		}
-	}
-
-	err = client.DeleteResource(getSelfLink(d.Get("links").([]interface{})))
+	err := client.DeleteResource(getSelfLink(d.Get("links").([]interface{})))
 
 	if err != nil && strings.Contains(err.Error(), "404") { // already deleted
 		return nil
