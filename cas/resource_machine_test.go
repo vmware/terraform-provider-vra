@@ -22,21 +22,21 @@ func TestAccTangoMachine_Basic(t *testing.T) {
 		CheckDestroy: testAccCheckTangoMachineDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCheckTangoMachineConfig_basic(rInt),
+				Config: testAccCheckTangoMachineConfig(rInt),
 				Check: resource.ComposeAggregateTestCheckFunc(
-					testAccCheckTangoMachineExists("tango_machine.my_machine"),
+					testAccCheckTangoMachineExists("cas_machine.my_machine"),
 					resource.TestMatchResourceAttr(
-						"tango_machine.my_machine", "name", regexp.MustCompile("^terraform_tango_machine-"+strconv.Itoa(rInt))),
+						"cas_machine.my_machine", "name", regexp.MustCompile("^terraform_cas_machine-"+strconv.Itoa(rInt))),
 					resource.TestCheckResourceAttr(
-						"tango_machine.my_machine", "image", "ubuntu"),
+						"cas_machine.my_machine", "image", "ubuntu"),
 					resource.TestCheckResourceAttr(
-						"tango_machine.my_machine", "flavor", "small"),
+						"cas_machine.my_machine", "flavor", "small"),
 					resource.TestCheckResourceAttr(
-						"tango_machine.my_machine", "tags.#", "1"),
+						"cas_machine.my_machine", "tags.#", "1"),
 					resource.TestCheckResourceAttr(
-						"tango_machine.my_machine", "tags.0.key", "stoyan"),
+						"cas_machine.my_machine", "tags.0.key", "stoyan"),
 					resource.TestCheckResourceAttr(
-						"tango_machine.my_machine", "tags.0.value", "genchev"),
+						"cas_machine.my_machine", "tags.0.value", "genchev"),
 				),
 			},
 		},
@@ -47,11 +47,11 @@ func testAccCheckTangoMachineExists(n string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmt.Errorf("not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No Machine ID is set")
+			return fmt.Errorf("no machine ID is set")
 		}
 
 		return nil
@@ -62,7 +62,7 @@ func testAccCheckTangoMachineDestroy(s *terraform.State) error {
 	client := testAccProvider.Meta().(*tango.Client)
 
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "tango_machine" {
+		if rs.Type != "cas_machine" {
 			continue
 		}
 
@@ -70,7 +70,7 @@ func testAccCheckTangoMachineDestroy(s *terraform.State) error {
 
 		if err != nil && !strings.Contains(err.Error(), "404") {
 			return fmt.Errorf(
-				"Error waiting for machine (%s) to be destroyed: %s",
+				"error waiting for machine (%s) to be destroyed: %s",
 				rs.Primary.ID, err)
 		}
 	}
@@ -78,10 +78,10 @@ func testAccCheckTangoMachineDestroy(s *terraform.State) error {
 	return nil
 }
 
-func testAccCheckTangoMachineConfig_basic(rInt int) string {
+func testAccCheckTangoMachineConfig(rInt int) string {
 	return fmt.Sprintf(`
-resource "tango_machine" "my_machine" {
-  name = "terraform_tango_machine-%d"
+resource "cas_machine" "my_machine" {
+  name = "terraform_cas_machine-%d"
   image = "ubuntu"
   flavor = "small"
 

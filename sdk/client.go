@@ -18,6 +18,7 @@ const (
 	loginEndpoint         = "/iaas/login"
 )
 
+// Client used to store the Cloud Automation Services (cas) client and the provider configuration.
 type Client struct {
 	client       *http.Client
 	base         string
@@ -26,14 +27,17 @@ type Client struct {
 	deploymentID string
 }
 
+// GetProjectID returns the "project_id" from "cas" provider configuration
 func (c *Client) GetProjectID() string {
 	return c.projectID
 }
 
+// GetDeploymentID returns the "deployment_id" from "cas" provider configuration
 func (c *Client) GetDeploymentID() string {
 	return c.deploymentID
 }
 
+// NewClientFromRefreshToken configures and returns a CAS "Client" struct using "refresh_token" from provider config
 func NewClientFromRefreshToken(url, refreshToken, projectID, deploymentID string) (interface{}, error) {
 	var netClient = &http.Client{
 		Timeout: time.Second * 20,
@@ -79,6 +83,7 @@ func NewClientFromRefreshToken(url, refreshToken, projectID, deploymentID string
 	return &Client{netClient, url, loginResponse.Token, projectID, deploymentID}, nil
 }
 
+// NewClientFromAccessToken configures and returns a CAS "Client" struct using "access_token" from provider config
 func NewClientFromAccessToken(url, accessToken, projectID, deploymentID string) (interface{}, error) {
 	var netClient = &http.Client{
 		Timeout: time.Second * 20,
@@ -109,6 +114,7 @@ func NewClientFromAccessToken(url, accessToken, projectID, deploymentID string) 
 	return &Client{netClient, url, accessToken, projectID, deploymentID}, nil
 }
 
+// CreateResource creates a cas resource with the given resource specification.
 func (c *Client) CreateResource(resourceSpecification ResourceSpecification) (interface{}, error) {
 	resourceSpecificationBytes, err := json.Marshal(resourceSpecification)
 	if err != nil {
@@ -156,6 +162,7 @@ func (c *Client) CreateResource(resourceSpecification ResourceSpecification) (in
 	return c.ReadResource(requestTrackerResponse.Resources[0])
 }
 
+// ReadResource returns the resource description for the given resource endpoint
 func (c *Client) ReadResource(resourceEndpoint string) (interface{}, error) {
 	request, err := http.NewRequest(http.MethodGet, c.base+resourceEndpoint, nil)
 	if err != nil {
@@ -189,6 +196,7 @@ func (c *Client) ReadResource(resourceEndpoint string) (interface{}, error) {
 	return resourceObject, nil
 }
 
+// DeleteResource deletes the given resource
 func (c *Client) DeleteResource(resourceEndpoint string) error {
 	request, err := http.NewRequest(http.MethodDelete, c.base+resourceEndpoint, nil)
 	if err != nil {

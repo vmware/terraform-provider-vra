@@ -24,7 +24,7 @@ func TestAccTangoWordpressInfrastructure_Basic(t *testing.T) {
 		CheckDestroy: testAccCheckTangoWordpressInfrastructureDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCheckTangoWordpressInfrastructureConfig_basic(nRint, mRInt, wRint),
+				Config: testAccCheckTangoWordpressInfrastructureConfig(nRint, mRInt, wRint),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					testAccCheckTangoWordpressInfrastructureResourceExists("tango_network.network"),
 					testAccCheckTangoWordpressInfrastructureResourceExists("tango_machine.mysql"),
@@ -105,7 +105,7 @@ func testAccCheckTangoWordpressInfrastructureDestroy(s *terraform.State) error {
 	return nil
 }
 
-func testAccCheckTangoWordpressInfrastructureConfig_basic(nRInt, mRInt, wRInt int) string {
+func testAccCheckTangoWordpressInfrastructureConfig(nRInt, mRInt, wRInt int) string {
 	return fmt.Sprintf(`
 resource "tango_network" "network" {
 	name = "terraform_tango_network-%d"
