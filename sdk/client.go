@@ -6,8 +6,13 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	neturl "net/url"
 	"strings"
 	"time"
+
+	httptransport "github.com/go-openapi/runtime/client"
+	"github.com/go-openapi/strfmt"
+	"github.com/vmware/cas-sdk-go/pkg/client"
 )
 
 const (
@@ -25,6 +30,7 @@ type Client struct {
 	token        string
 	projectID    string
 	deploymentID string
+	apiClient    *client.MulticloudIaaS
 }
 
 // GetProjectID returns the "project_id" from "cas" provider configuration
@@ -80,7 +86,7 @@ func NewClientFromRefreshToken(url, refreshToken, projectID, deploymentID string
 		return nil, err
 	}
 
-	return &Client{netClient, url, loginResponse.Token, projectID, deploymentID}, nil
+	return &Client{netClient, url, loginResponse.Token, projectID, deploymentID, getAPIClient(url, loginResponse.Token)}, nil
 }
 
 // NewClientFromAccessToken configures and returns a CAS "Client" struct using "access_token" from provider config
@@ -111,7 +117,24 @@ func NewClientFromAccessToken(url, accessToken, projectID, deploymentID string) 
 		return nil, fmt.Errorf(unsuccessfulRESTCall, cloudAccountsEndpoint+"\n"+formatRequest(request), response.StatusCode, string(contents))
 	}
 
-	return &Client{netClient, url, accessToken, projectID, deploymentID}, nil
+	return &Client{netClient, url, accessToken, projectID, deploymentID, getAPIClient(url, accessToken)}, nil
+}
+
+func getAPIClient(url string, token string) *client.MulticloudIaaS {
+	parsedURL, err := neturl.Parse(url)
+	if err != nil {
+		return nil
+	}
+	transport := httptransport.New(parsedURL.Host, "", nil)
+	transport.SetDebug(true)
+	transport.DefaultAuthentication = httptransport.APIKeyAuth("Authorization", "header", "Bearer "+token)
+	apiclient := client.New(transport, strfmt.Default)
+	return apiclient
+}
+
+// GetAPIClient returns the api client needed for the new CAS sdk
+func (c *Client) GetAPIClient() *client.MulticloudIaaS {
+	return c.apiClient
 }
 
 // CreateResource creates a cas resource with the given resource specification.
