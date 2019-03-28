@@ -5,8 +5,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 	neturl "net/url"
+	"os"
 	"strings"
 	"time"
 
@@ -120,14 +122,47 @@ func NewClientFromAccessToken(url, accessToken, projectID, deploymentID string) 
 	return &Client{netClient, url, accessToken, projectID, deploymentID, getAPIClient(url, accessToken)}, nil
 }
 
+// SwaggerLogger is the interface into the swagger logging facility which logs http traffic
+type SwaggerLogger struct{}
+
+// Printf is a swagger debug Printf
+func (SwaggerLogger) Printf(format string, args ...interface{}) {
+	s := fmt.Sprintf(format, args...)
+	// Handle and split mixed "\r\n" and "\n"
+	lines := strings.Split(strings.Replace(s, "\r\n", "\n", -1), "\n")
+
+	for _, l := range lines {
+		log.Printf("%s\n", l)
+	}
+}
+
+// Debugf is a swagger debug logger
+func (SwaggerLogger) Debugf(format string, args ...interface{}) {
+	s := fmt.Sprintf(format, args...)
+	// Handle and split mixed "\r\n" and "\n"
+	lines := strings.Split(strings.Replace(s, "\r\n", "\n", -1), "\n")
+
+	for _, l := range lines {
+		log.Printf("%s\n", l)
+	}
+}
+
 func getAPIClient(url string, token string) *client.MulticloudIaaS {
+	debug := false
+	if os.Getenv("CAS_DEBUG") != "" {
+		debug = true
+	}
+
 	parsedURL, err := neturl.Parse(url)
 	if err != nil {
 		return nil
 	}
 	transport := httptransport.New(parsedURL.Host, "", nil)
-	transport.SetDebug(true)
-	transport.DefaultAuthentication = httptransport.APIKeyAuth("Authorization", "header", "Bearer "+token)
+	transport.DefaultAuthentication = httptransport.APIKeyAuth("Authorization", "header", "bearer "+token)
+	if debug {
+		transport.SetDebug(debug)
+		transport.SetLogger(SwaggerLogger{})
+	}
 	apiclient := client.New(transport, strfmt.Default)
 	return apiclient
 }
