@@ -2,8 +2,9 @@ VERSION=0.0.1
 NAME=terraform-provider-cas
 
 SRC = $(shell find . -type f -name '*.go' -not -path "./vendor/*")
+TEST?=$(shell go list ./... |grep -v 'vendor')
 
-.PHONY: all build check clean dev fmt simplify race release
+.PHONY: all build check clean dev fmt simplify race release testacc
 
 all: check build
 
@@ -22,6 +23,10 @@ check:
 	@go tool vet cas
 	@go tool vet sdk
 	go test ./...
+
+testacc:
+	echo "TEST: " $(TEST)
+	TF_ACC=1 go test $(TEST) -v $(TESTARGS) -timeout 240m
 
 clean:
 	rm -rf pkg

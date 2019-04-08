@@ -2,7 +2,8 @@ package cas
 
 import (
 	"errors"
-	"github.com/vmware/terraform-provider-cas/sdk"
+
+	tango "github.com/vmware/terraform-provider-cas/sdk"
 
 	"github.com/hashicorp/terraform/helper/schema"
 )
@@ -33,23 +34,31 @@ func Provider() *schema.Provider {
 			},
 			"project_id": {
 				Type:        schema.TypeString,
-				Required:    true,
+				Optional:    true,
 				DefaultFunc: schema.EnvDefaultFunc("TANGO_PROJECT_ID", nil),
 				Description: "The project id to use for this template.",
 			},
 			"deployment_id": {
 				Type:        schema.TypeString,
-				Required:    true,
+				Optional:    true,
 				DefaultFunc: schema.EnvDefaultFunc("TANGO_DEPLOYMENT_ID", nil),
 				Description: "The deployment id to use for this template.",
 			},
 		},
 
+		DataSourcesMap: map[string]*schema.Resource{
+			"cas_cloud_account_aws": dataSourceCloudAccountAWS(),
+			"cas_region":            dataSourceRegion(),
+		},
+
 		ResourcesMap: map[string]*schema.Resource{
-			"cas_machine":       resourceMachine(),
-			"cas_network":       resourceNetwork(),
-			"cas_block_device":  resourceBlockDevice(),
-			"cas_load_balancer": resourceLoadBalancer(),
+			"cas_machine":           resourceMachine(),
+			"cas_network":           resourceNetwork(),
+			"cas_block_device":      resourceBlockDevice(),
+			"cas_load_balancer":     resourceLoadBalancer(),
+			"cas_cloud_account_aws": resourceCloudAccountAWS(),
+			"cas_project":           resourceProject(),
+			"cas_zone":              resourceZone(),
 		},
 
 		ConfigureFunc: configureProvider,
