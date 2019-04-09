@@ -48,6 +48,7 @@ func Provider() *schema.Provider {
 
 		DataSourcesMap: map[string]*schema.Resource{
 			"cas_cloud_account_aws": dataSourceCloudAccountAWS(),
+			"cas_image":             dataSourceImage(),
 			"cas_region":            dataSourceRegion(),
 		},
 
