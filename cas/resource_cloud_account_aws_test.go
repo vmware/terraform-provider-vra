@@ -34,6 +34,8 @@ func TestAccCASCloudAccountAWS_Basic(t *testing.T) {
 						"cas_cloud_account_aws.my-cloud-account", "access_key", os.Getenv("CAS_AWS_ACCESS_KEY_ID")),
 					resource.TestCheckResourceAttr(
 						"cas_cloud_account_aws.my-cloud-account", "secret_key", os.Getenv("CAS_AWS_SECRET_ACCESS_KEY")),
+					resource.TestCheckResourceAttr(
+						"cas_cloud_account_aws.my-cloud-account", "tags.#", "2"),
 				),
 			},
 			{
@@ -111,6 +113,14 @@ resource "cas_cloud_account_aws" "my-cloud-account" {
 	access_key = "%s"
 	secret_key = "%s"
 	regions = ["us-east-1"]
+	tags {
+		key = "foo"
+		value = "bar"
+	}
+	tags {
+		key = "where"
+		value = "waldo"
+	}
  }`, rInt, id, secret)
 }
 

@@ -49,6 +49,7 @@ func resourceCloudAccountAWS() *schema.Resource {
 				Required:  true,
 				Sensitive: true,
 			},
+			"tags": tagsSDKSchema(),
 		},
 	}
 }
@@ -63,6 +64,7 @@ func resourceCloudAccountAWSCreate(d *schema.ResourceData, m interface{}) error 
 	description := d.Get("description").(string)
 	name := d.Get("name").(string)
 	secretAccessKey := d.Get("secret_key").(string)
+	tags := expandSDKTags(d.Get("tags").(*schema.Set).List())
 
 	if v, ok := d.GetOk("regions"); ok {
 		if !compareUnique(v.([]interface{})) {
@@ -78,6 +80,7 @@ func resourceCloudAccountAWSCreate(d *schema.ResourceData, m interface{}) error 
 		Name:               &name,
 		SecretAccessKey:    &secretAccessKey,
 		RegionIds:          regions,
+		Tags:               tags,
 	}))
 
 	if err != nil {
@@ -91,6 +94,10 @@ func resourceCloudAccountAWSCreate(d *schema.ResourceData, m interface{}) error 
 		return err
 	}
 	d.Set("region_ids", regionsIds)
+
+	if err := d.Set("tags", flattenSDKTags(tags)); err != nil {
+		return fmt.Errorf("Error setting cloud account tags - error: %#v", err)
+	}
 	d.SetId(*createResp.Payload.ID)
 
 	return resourceCloudAccountAWSRead(d, m)
@@ -126,6 +133,10 @@ func resourceCloudAccountAWSRead(d *schema.ResourceData, m interface{}) error {
 	}
 	d.Set("region_ids", regionsIds)
 
+	if err := d.Set("tags", flattenSDKTags(awsAccount.Tags)); err != nil {
+		return fmt.Errorf("Error setting cloud account tags - error: %#v", err)
+	}
+
 	return nil
 }
 
@@ -140,6 +151,7 @@ func resourceCloudAccountAWSUpdate(d *schema.ResourceData, m interface{}) error 
 	description := d.Get("description").(string)
 	name := d.Get("name").(string)
 	secretAccessKey := d.Get("secret_key").(string)
+	tags := expandSDKTags(d.Get("tags").(*schema.Set).List())
 
 	if v, ok := d.GetOk("regions"); ok {
 		if !compareUnique(v.([]interface{})) {
@@ -154,6 +166,7 @@ func resourceCloudAccountAWSUpdate(d *schema.ResourceData, m interface{}) error 
 		Name:               &name,
 		PrivateKey:         &secretAccessKey,
 		RegionIds:          regions,
+		Tags:               tags,
 	}))
 	if err != nil {
 		return err
