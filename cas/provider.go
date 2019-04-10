@@ -49,16 +49,17 @@ func Provider() *schema.Provider {
 		DataSourcesMap: map[string]*schema.Resource{
 			"cas_cloud_account_aws": dataSourceCloudAccountAWS(),
 			"cas_image":             dataSourceImage(),
+			"cas_project":           dataSourceProject(),
 			"cas_region":            dataSourceRegion(),
 		},
 
 		ResourcesMap: map[string]*schema.Resource{
-			"cas_machine":           resourceMachine(),
-			"cas_network":           resourceNetwork(),
 			"cas_block_device":      resourceBlockDevice(),
-			"cas_load_balancer":     resourceLoadBalancer(),
 			"cas_cloud_account_aws": resourceCloudAccountAWS(),
 			"cas_flavor":            resourceFlavor(),
+			"cas_load_balancer":     resourceLoadBalancer(),
+			"cas_machine":           resourceMachine(),
+			"cas_network":           resourceNetwork(),
 			"cas_project":           resourceProject(),
 			"cas_zone":              resourceZone(),
 		},

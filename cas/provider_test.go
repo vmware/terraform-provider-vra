@@ -64,3 +64,13 @@ func testAccPreCheckAWS(t *testing.T) {
 		t.Fatal("TANCAS_AWS_SECRET_ACCESS_KEYGO_URL must be set for acceptance tests")
 	}
 }
+
+func testAccPreCheckCasProject(t *testing.T) {
+	if v := os.Getenv("TANGO_URL"); v == "" {
+		t.Fatal("TANGO_URL must be set for acceptance tests")
+	}
+
+	if os.Getenv("TANGO_REFRESH_TOKEN") == "" && os.Getenv("TANGO_ACCESS_TOKEN") == "" {
+		t.Fatal("TANGO_REFRESH_TOKEN or TANGO_ACCESS_TOKEN must be set for acceptance tests")
+	}
+}
