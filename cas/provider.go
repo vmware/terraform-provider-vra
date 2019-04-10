@@ -58,6 +58,7 @@ func Provider() *schema.Provider {
 			"cas_block_device":      resourceBlockDevice(),
 			"cas_load_balancer":     resourceLoadBalancer(),
 			"cas_cloud_account_aws": resourceCloudAccountAWS(),
+			"cas_flavor":            resourceFlavor(),
 			"cas_project":           resourceProject(),
 			"cas_zone":              resourceZone(),
 		},
