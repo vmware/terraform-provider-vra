@@ -2,6 +2,7 @@ package cas
 
 import (
 	"fmt"
+	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform/helper/acctest"
@@ -18,7 +19,11 @@ func TestAccDataSourceCASProject(t *testing.T) {
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataSourceCASProject(rInt),
+				Config:      testAccDataSourceCASProjectNoneConfig(rInt),
+				ExpectError: regexp.MustCompile("project invalid-name not found"),
+			},
+			{
+				Config: testAccDataSourceCASProjectOneConfig(rInt),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrPair(resourceName1, "description", dataSourceName1, "description"),
 					resource.TestCheckResourceAttrPair(resourceName1, "id", dataSourceName1, "id"),
@@ -35,9 +40,19 @@ func testAccDataSourceCASProject(rInt int) string {
 	resource "cas_project" "my-project" {
 		name = "my-project-%d"
 		description = "test project"
-	 }
-	 
-	 data "cas_project" "test-project" {
-     name = "${cas_project.my-project.name}"
 	 }`, rInt)
+}
+
+func testAccDataSourceCASProjectNoneConfig(rInt int) string {
+	return testAccDataSourceCASProject(rInt) + `
+		data "cas_project" "test-project" {
+			name = "invalid-name"
+		}`
+}
+
+func testAccDataSourceCASProjectOneConfig(rInt int) string {
+	return testAccDataSourceCASProject(rInt) + `
+		data "cas_project" "test-project" {
+			name = "${cas_project.my-project.name}"
+		}`
 }
