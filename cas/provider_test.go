@@ -65,6 +65,26 @@ func testAccPreCheckAWS(t *testing.T) {
 	}
 }
 
+func testAccPreCheckAzure(t *testing.T) {
+	if os.Getenv("TANGO_REFRESH_TOKEN") == "" && os.Getenv("TANGO_ACCESS_TOKEN") == "" {
+		t.Fatal("TANGO_REFRESH_TOKEN or TANGO_ACCESS_TOKEN must be set for acceptance tests")
+	}
+
+	envVars := [...]string{
+		"TANGO_URL",
+		"CAS_ARM_SUBSCRIPTION_ID",
+		"CAS_ARM_TENANT_ID",
+		"CAS_ARM_CLIENT_APP_ID",
+		"CAS_ARM_CLIENT_APP_KEY",
+	}
+
+	for _, name := range envVars {
+		if v := os.Getenv(name); v == "" {
+			t.Fatalf("%s must be set for acceptance tests\n", name)
+		}
+	}
+}
+
 func testAccPreCheckCasProject(t *testing.T) {
 	if v := os.Getenv("TANGO_URL"); v == "" {
 		t.Fatal("TANGO_URL must be set for acceptance tests")
