@@ -59,6 +59,7 @@ func Provider() *schema.Provider {
 			"cas_cloud_account_aws":   resourceCloudAccountAWS(),
 			"cas_cloud_account_azure": resourceCloudAccountAzure(),
 			"cas_flavor":              resourceFlavor(),
+			"cas_image_profile":       resourceImageProfile(),
 			"cas_load_balancer":       resourceLoadBalancer(),
 			"cas_machine":             resourceMachine(),
 			"cas_network":             resourceNetwork(),
