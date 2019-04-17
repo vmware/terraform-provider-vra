@@ -12,6 +12,10 @@ func withString(s string) *string {
 	return &s
 }
 
+func withBool(b bool) *bool {
+	return &b
+}
+
 // expandStringList will convert the interface list into a list of strings
 func expandStringList(slist []interface{}) []string {
 	vs := make([]string, 0, len(slist))
