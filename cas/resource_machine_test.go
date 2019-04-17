@@ -23,6 +23,10 @@ func TestAccTangoMachineBasic(t *testing.T) {
 		CheckDestroy: testAccCheckTangoMachineDestroy,
 		Steps: []resource.TestStep{
 			{
+				Config:      testAccCheckTangoMachineNoImageConfig(rInt),
+				ExpectError: regexp.MustCompile("image or image_ref required"),
+			},
+			{
 				Config: testAccCheckTangoMachineConfig(rInt),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					testAccCheckTangoMachineExists("cas_machine.my_machine"),
@@ -101,4 +105,20 @@ resource "cas_machine" "my_machine" {
     value = "bar"
   }
 }`, rInt, projectId, image, flavor)
+}
+
+func testAccCheckTangoMachineNoImageConfig(rInt int) string {
+	flavor := os.Getenv("CAS_FLAVOR")
+	projectId := os.Getenv("CAS_PROJECT_ID")
+	return fmt.Sprintf(`
+resource "cas_machine" "my_machine" {
+  name = "terraform_cas_machine-%d"
+  project_id = "%s"
+  flavor = "%s"
+
+  tags {
+	key = "description"
+    value = "Testing Terraform Provider for CAS"
+  }
+}`, rInt, projectId, flavor)
 }

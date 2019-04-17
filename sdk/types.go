@@ -6,10 +6,10 @@ import (
 )
 
 const (
-	machineEndpoint      = "/iaas/api/machines"
-	blockDeviceEndpoint  = "/iaas/api/block-devices"
-	networkEndpoint      = "/iaas/api/networks"
-	loadBalancerEndpoint = "/iaas/api/load-balancers"
+	machineEndpoint      = "/iaas/machines"
+	blockDeviceEndpoint  = "/iaas/block-devices"
+	networkEndpoint      = "/iaas/networks"
+	loadBalancerEndpoint = "/iaas/load-balancers"
 )
 
 var (

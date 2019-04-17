@@ -139,20 +139,6 @@ func resourceMachineCreate(d *schema.ResourceData, m interface{}) error {
 	client := m.(*tango.Client)
 	apiClient := client.GetAPIClient()
 
-	image, imageRef := "", ""
-
-	if v, ok := d.GetOk("image"); ok {
-		image = v.(string)
-	}
-
-	if v, ok := d.GetOk("image_ref"); ok {
-		imageRef = v.(string)
-	}
-
-	if image == "" && imageRef == "" {
-		return errors.New("image or image_ref required")
-	}
-
 	name := d.Get("name").(string)
 	flavor := d.Get("flavor").(string)
 	projectId := d.Get("project_id").(string)
@@ -164,8 +150,6 @@ func resourceMachineCreate(d *schema.ResourceData, m interface{}) error {
 
 	machineSpecification := models.MachineSpecification{
 		Name:             &name,
-		Image:            &image,
-		ImageRef:         &imageRef,
 		Flavor:           &flavor,
 		ProjectID:        &projectId,
 		Constraints:      constraints,
@@ -173,6 +157,21 @@ func resourceMachineCreate(d *schema.ResourceData, m interface{}) error {
 		CustomProperties: customProperties,
 		Nics:             nics,
 		Disks:            disks,
+	}
+
+	image, imageRef := "", ""
+	if v, ok := d.GetOk("image"); ok {
+		image = v.(string)
+		machineSpecification.Image = withString(image)
+	}
+
+	if v, ok := d.GetOk("image_ref"); ok {
+		imageRef = v.(string)
+		machineSpecification.ImageRef = withString(imageRef)
+	}
+
+	if image == "" && imageRef == "" {
+		return errors.New("image or image_ref required")
 	}
 
 	if v, ok := d.GetOk("description"); ok {
@@ -205,8 +204,6 @@ func resourceMachineCreate(d *schema.ResourceData, m interface{}) error {
 	}
 
 	resourceIds, err := stateChangeFunc.WaitForState()
-	log.Printf("Waitforstate returned: %T %+v %+v\n", resourceIds, resourceIds, err)
-
 	if err != nil {
 		return err
 	}
