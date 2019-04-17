@@ -2,10 +2,11 @@ package cas
 
 import (
 	"fmt"
+	"github.com/vmware/cas-sdk-go/pkg/client/compute"
 	"github.com/vmware/terraform-provider-cas/sdk"
+	"os"
 	"regexp"
 	"strconv"
-	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform/helper/acctest"
@@ -13,30 +14,33 @@ import (
 	"github.com/hashicorp/terraform/terraform"
 )
 
-func TestAccTangoMachine_Basic(t *testing.T) {
+func TestAccTangoMachineBasic(t *testing.T) {
 	rInt := acctest.RandInt()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
+		PreCheck:     func() { testAccPreCheckMachine(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckTangoMachineDestroy,
 		Steps: []resource.TestStep{
+			{
+				Config:      testAccCheckTangoMachineNoImageConfig(rInt),
+				ExpectError: regexp.MustCompile("image or image_ref required"),
+			},
 			{
 				Config: testAccCheckTangoMachineConfig(rInt),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					testAccCheckTangoMachineExists("cas_machine.my_machine"),
 					resource.TestMatchResourceAttr(
 						"cas_machine.my_machine", "name", regexp.MustCompile("^terraform_cas_machine-"+strconv.Itoa(rInt))),
+					// TODO: Enable when https://jira.eng.vmware.com/browse/VCOM-10339 is resolved.
+					//resource.TestCheckResourceAttr(
+					//	"cas_machine.my_machine", "description", "Created by terraform provider test"),
 					resource.TestCheckResourceAttr(
 						"cas_machine.my_machine", "image", "ubuntu"),
 					resource.TestCheckResourceAttr(
 						"cas_machine.my_machine", "flavor", "small"),
 					resource.TestCheckResourceAttr(
-						"cas_machine.my_machine", "tags.#", "1"),
-					resource.TestCheckResourceAttr(
-						"cas_machine.my_machine", "tags.0.key", "stoyan"),
-					resource.TestCheckResourceAttr(
-						"cas_machine.my_machine", "tags.0.value", "genchev"),
+						"cas_machine.my_machine", "tags.#", "2"),
 				),
 			},
 		},
@@ -59,19 +63,20 @@ func testAccCheckTangoMachineExists(n string) resource.TestCheckFunc {
 }
 
 func testAccCheckTangoMachineDestroy(s *terraform.State) error {
-	client := testAccProvider.Meta().(*tango.Client)
+	client := testAccProviderCAS.Meta().(*tango.Client)
+	apiClient := client.GetAPIClient()
 
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "cas_machine" {
-			continue
-		}
+		switch rs.Type {
+		case "cas_machine":
+			{
+				_, err := apiClient.Compute.GetMachine(compute.NewGetMachineParams().WithID(rs.Primary.ID))
 
-		_, err := client.ReadResource("/iaas/machines/" + rs.Primary.ID)
-
-		if err != nil && !strings.Contains(err.Error(), "404") {
-			return fmt.Errorf(
-				"error waiting for machine (%s) to be destroyed: %s",
-				rs.Primary.ID, err)
+				_, ok := err.(*compute.GetMachineNotFound)
+				if err != nil && !ok {
+					return fmt.Errorf("error waiting for machine (%s) to be destroyed: %s", rs.Primary.ID, err)
+				}
+			}
 		}
 	}
 
@@ -79,15 +84,41 @@ func testAccCheckTangoMachineDestroy(s *terraform.State) error {
 }
 
 func testAccCheckTangoMachineConfig(rInt int) string {
+	// Need valid details since this is using existing project
+	image := os.Getenv("CAS_IMAGE")
+	flavor := os.Getenv("CAS_FLAVOR")
+	projectId := os.Getenv("CAS_PROJECT_ID")
 	return fmt.Sprintf(`
 resource "cas_machine" "my_machine" {
   name = "terraform_cas_machine-%d"
-  image = "ubuntu"
-  flavor = "small"
+  project_id = "%s"
+  image = "%s"
+  flavor = "%s"
 
   tags {
-	key = "stoyan"
-    value = "genchev"
+	key = "description"
+    value = "Testing Terraform Provider for CAS"
   }
-}`, rInt)
+
+  tags {
+    key = "foo"
+    value = "bar"
+  }
+}`, rInt, projectId, image, flavor)
+}
+
+func testAccCheckTangoMachineNoImageConfig(rInt int) string {
+	flavor := os.Getenv("CAS_FLAVOR")
+	projectId := os.Getenv("CAS_PROJECT_ID")
+	return fmt.Sprintf(`
+resource "cas_machine" "my_machine" {
+  name = "terraform_cas_machine-%d"
+  project_id = "%s"
+  flavor = "%s"
+
+  tags {
+	key = "description"
+    value = "Testing Terraform Provider for CAS"
+  }
+}`, rInt, projectId, flavor)
 }

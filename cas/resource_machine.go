@@ -1,9 +1,16 @@
 package cas
 
 import (
+	"errors"
 	"fmt"
+	"github.com/hashicorp/terraform/helper/resource"
+	"github.com/vmware/cas-sdk-go/pkg/client"
+	"github.com/vmware/cas-sdk-go/pkg/client/compute"
+	"github.com/vmware/cas-sdk-go/pkg/client/request"
+	"github.com/vmware/cas-sdk-go/pkg/models"
 	"log"
 	"strings"
+	"time"
 
 	"github.com/vmware/terraform-provider-cas/sdk"
 
@@ -18,18 +25,22 @@ func resourceMachine() *schema.Resource {
 		Delete: resourceMachineDelete,
 
 		Schema: map[string]*schema.Schema{
-			"image": &schema.Schema{
-				Type:     schema.TypeString,
-				Required: true,
-			},
 			"flavor": &schema.Schema{
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			//"image_ref": &schema.Schema{
-			//	Type:     schema.TypeString,
-			//	Required: true,
-			//},
+			"image": &schema.Schema{
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"image_ref": &schema.Schema{
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"project_id": {
+				Type:     schema.TypeString,
+				Required: true,
+			},
 			"power_state": &schema.Schema{
 				Type:     schema.TypeString,
 				Computed: true,
@@ -38,21 +49,16 @@ func resourceMachine() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"machine_count": &schema.Schema{
-				Type:     schema.TypeInt,
-				Optional: true,
-				Default:  1,
-			},
-			"constraints": constraintsSchema(),
-			"tags":        tagsSchema(),
+			"constraints": constraintsSDKSchema(),
+			"tags":        tagsSDKSchema(),
 			"custom_properties": &schema.Schema{
 				Type:     schema.TypeMap,
 				Computed: true,
 				Optional: true,
 			},
-			"nics": nicsSchema(false),
+			"nics": nicsSDKSchema(false),
 			"disks": &schema.Schema{
-				Type:     schema.TypeList,
+				Type:     schema.TypeSet,
 				Optional: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -72,7 +78,7 @@ func resourceMachine() *schema.Resource {
 				},
 			},
 			"boot_config": &schema.Schema{
-				Type:     schema.TypeList,
+				Type:     schema.TypeSet,
 				Optional: true,
 				MaxItems: 1,
 				Elem: &schema.Resource{
@@ -107,10 +113,6 @@ func resourceMachine() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"self_link": &schema.Schema{
-				Type:     schema.TypeString,
-				Computed: true,
-			},
 			"created_at": &schema.Schema{
 				Type:     schema.TypeString,
 				Computed: true,
@@ -133,161 +135,245 @@ func resourceMachine() *schema.Resource {
 }
 
 func resourceMachineCreate(d *schema.ResourceData, m interface{}) error {
+	log.Printf("Starting to create cas_machine resource")
 	client := m.(*tango.Client)
+	apiClient := client.GetAPIClient()
 
-	machineSpecification := tango.MachineSpecification{
-		Name:             d.Get("name").(string),
-		Image:            d.Get("image").(string),
-		Flavor:           d.Get("flavor").(string),
-		ProjectID:        client.GetProjectID(),
-		MachineCount:     d.Get("machine_count").(int),
-		Constraints:      expandConstraints(d.Get("constraints").([]interface{})),
-		Tags:             expandTags(d.Get("tags").([]interface{})),
-		CustomProperties: expandCustomProperties(d.Get("custom_properties").(map[string]interface{})),
-		Nics:             expandNics(d.Get("nics").([]interface{})),
-		Disks:            expandDisks(d.Get("disks").([]interface{})),
+	name := d.Get("name").(string)
+	flavor := d.Get("flavor").(string)
+	projectId := d.Get("project_id").(string)
+	constraints := expandSDKConstraints(d.Get("constraints").(*schema.Set).List())
+	tags := expandSDKTags(d.Get("tags").(*schema.Set).List())
+	customProperties := expandCustomProperties(d.Get("custom_properties").(map[string]interface{}))
+	nics := expandSDKNics(d.Get("nics").(*schema.Set).List())
+	disks := expandSDKDisks(d.Get("disks").(*schema.Set).List())
+
+	machineSpecification := models.MachineSpecification{
+		Name:             &name,
+		Flavor:           &flavor,
+		ProjectID:        &projectId,
+		Constraints:      constraints,
+		Tags:             tags,
+		CustomProperties: customProperties,
+		Nics:             nics,
+		Disks:            disks,
 	}
 
-	machineSpecification.CustomProperties["__composition_context_id"] = client.GetDeploymentID()
+	image, imageRef := "", ""
+	if v, ok := d.GetOk("image"); ok {
+		image = v.(string)
+		machineSpecification.Image = withString(image)
+	}
+
+	if v, ok := d.GetOk("image_ref"); ok {
+		imageRef = v.(string)
+		machineSpecification.ImageRef = withString(imageRef)
+	}
+
+	if image == "" && imageRef == "" {
+		return errors.New("image or image_ref required")
+	}
 
 	if v, ok := d.GetOk("description"); ok {
 		machineSpecification.Description = v.(string)
 	}
 
 	if v, ok := d.GetOk("boot_config"); ok {
-		configBootConfig := v.([]interface{})[0].(map[string]interface{})
+		configBootConfig := v.(*schema.Set).List()[0].(map[string]interface{})
 
-		bootConfig := make(map[string]string)
-		bootConfig["content"] = configBootConfig["content"].(string)
+		bootConfig := models.MachineBootConfig{
+			Content: configBootConfig["content"].(string),
+		}
 
-		machineSpecification.BootConfig = bootConfig
+		machineSpecification.BootConfig = &bootConfig
 	}
 
-	log.Printf("[DEBUG] record create machine: %#v", machineSpecification)
-	resourceObject, err := client.CreateResource(machineSpecification)
+	log.Printf("[DEBUG] create machine: %#v", machineSpecification)
+	createMachineCreated, err := apiClient.Compute.CreateMachine(compute.NewCreateMachineParams().WithBody(&machineSpecification))
 	if err != nil {
 		return err
 	}
 
-	machineObject := resourceObject.(*tango.Machine)
-
-	d.SetId(machineObject.ID)
-	d.Set("name", machineObject.Name)
-	d.Set("power_state", machineObject.PowerState)
-	d.Set("address", machineObject.Address)
-	d.Set("external_zone_id", machineObject.ExternalZoneID)
-	d.Set("external_region_id", machineObject.ExternalRegionID)
-	d.Set("external_id", machineObject.ExternalID)
-	d.Set("self_link", machineObject.SelfLink)
-	d.Set("created_at", machineObject.CreatedAt)
-	d.Set("updated_at", machineObject.UpdatedAt)
-	d.Set("owner", machineObject.Owner)
-	d.Set("organization_id", machineObject.OrganizationID)
-	d.Set("custom_properties", machineObject.CustomProperties)
-
-	if err := d.Set("tags", flattenTags(machineObject.Tags)); err != nil {
-		return fmt.Errorf("Error setting Machine tags - error: %#v", err)
+	stateChangeFunc := resource.StateChangeConf{
+		Delay:      5 * time.Second,
+		Pending:    []string{models.RequestTrackerStatusINPROGRESS},
+		Refresh:    machineStateRefreshFunc(*apiClient, *createMachineCreated.Payload.ID),
+		Target:     []string{models.RequestTrackerStatusFINISHED},
+		Timeout:    5 * time.Minute,
+		MinTimeout: 5 * time.Second,
 	}
 
-	if err := d.Set("links", flattenLinks(machineObject.Links)); err != nil {
-		return fmt.Errorf("Error setting Machine links - error: %#v", err)
+	resourceIds, err := stateChangeFunc.WaitForState()
+	if err != nil {
+		return err
 	}
 
+	machineIds := resourceIds.([]string)
+	d.SetId(machineIds[0])
+	log.Printf("Finished to create cas_machine resource with name %s", d.Get("name"))
+
+	return resourceMachineRead(d, m)
+}
+
+func machineStateRefreshFunc(apiClient client.MulticloudIaaS, id string) resource.StateRefreshFunc {
+	return func() (interface{}, string, error) {
+		ret, err := apiClient.Request.GetRequestTracker(request.NewGetRequestTrackerParams().WithID(id))
+		if err != nil {
+			return "", models.RequestTrackerStatusFAILED, err
+		}
+
+		status := ret.Payload.Status
+		switch *status {
+		case models.RequestTrackerStatusFAILED:
+			return []string{""}, *status, fmt.Errorf(ret.Payload.Message)
+		case models.RequestTrackerStatusINPROGRESS:
+			return [...]string{id}, *status, nil
+		case models.RequestTrackerStatusFINISHED:
+			machineIds := make([]string, len(ret.Payload.Resources))
+			for i, r := range ret.Payload.Resources {
+				machineIds[i] = strings.TrimPrefix(r, "/iaas/api/machines/")
+			}
+			return machineIds, *status, nil
+		default:
+			return [...]string{id}, ret.Payload.Message, fmt.Errorf("machineStateRefreshFunc: unknown status %v", *status)
+		}
+	}
+}
+
+func resourceMachineRead(d *schema.ResourceData, m interface{}) error {
+	log.Printf("Reading the cas_machine resource with name %s", d.Get("name"))
+	client := m.(*tango.Client)
+	apiClient := client.GetAPIClient()
+
+	id := d.Id()
+	resp, err := apiClient.Compute.GetMachine(compute.NewGetMachineParams().WithID(id))
+	if err != nil {
+		switch err.(type) {
+		case *compute.GetMachineNotFound:
+			d.SetId("")
+			return nil
+		}
+		return err
+	}
+
+	machine := *resp.Payload
+	d.Set("name", machine.Name)
+	d.Set("description", machine.Description)
+	d.Set("power_state", machine.PowerState)
+	d.Set("address", machine.Address)
+	d.Set("project_id", machine.ProjectID)
+	d.Set("external_zone_id", machine.ExternalZoneID)
+	d.Set("external_region_id", machine.ExternalRegionID)
+	d.Set("external_id", machine.ExternalID)
+	d.Set("created_at", machine.CreatedAt)
+	d.Set("updated_at", machine.UpdatedAt)
+	d.Set("owner", machine.Owner)
+	d.Set("organization_id", machine.OrganizationID)
+	d.Set("custom_properties", machine.CustomProperties)
+
+	if err := d.Set("tags", flattenSDKTags(machine.Tags)); err != nil {
+		return fmt.Errorf("error setting machine tags - error: %v", err)
+	}
+
+	if err := d.Set("links", flattenSDKLinks(machine.Links)); err != nil {
+		return fmt.Errorf("error setting machine links - error: %#v", err)
+	}
+
+	log.Printf("Finished reading the cas_machine resource with name %s", d.Get("name"))
 	return nil
 }
 
-func expandDisks(configDisks []interface{}) []tango.Disk {
-	disks := make([]tango.Disk, 0, len(configDisks))
+func resourceMachineUpdate(d *schema.ResourceData, m interface{}) error {
+	log.Printf("Starting to update the cas_machine resource with name %s", d.Get("name"))
+	client := m.(*tango.Client)
+	apiClient := client.GetAPIClient()
+
+	image, imageRef := "", ""
+
+	if v, ok := d.GetOk("image"); ok {
+		image = v.(string)
+	}
+
+	if v, ok := d.GetOk("image_ref"); ok {
+		imageRef = v.(string)
+	}
+
+	id := d.Id()
+	name := d.Get("name").(string)
+	flavor := d.Get("flavor").(string)
+	projectId := d.Get("project_id").(string)
+	description := d.Get("description").(string)
+	constraints := expandSDKConstraints(d.Get("constraints").(*schema.Set).List())
+	tags := expandSDKTags(d.Get("tags").(*schema.Set).List())
+	customProperties := expandCustomProperties(d.Get("custom_properties").(map[string]interface{}))
+	nics := expandSDKNics(d.Get("nics").(*schema.Set).List())
+	disks := expandSDKDisks(d.Get("disks").(*schema.Set).List())
+
+	machineSpecification := models.MachineSpecification{
+		Name:             &name,
+		Image:            &image,
+		ImageRef:         &imageRef,
+		Description:      description,
+		Flavor:           &flavor,
+		ProjectID:        &projectId,
+		Constraints:      constraints,
+		Tags:             tags,
+		CustomProperties: customProperties,
+		Nics:             nics,
+		Disks:            disks,
+	}
+
+	log.Printf("[DEBUG] update machine: %#v", machineSpecification)
+	_, err := apiClient.Compute.UpdateMachine(compute.NewUpdateMachineParams().WithID(id).WithBody(&machineSpecification))
+	if err != nil {
+		return err
+	}
+
+	log.Printf("Finished updating the cas_machine resource with name %s", d.Get("name"))
+	return resourceMachineRead(d, m)
+}
+
+func resourceMachineDelete(d *schema.ResourceData, m interface{}) error {
+	log.Printf("Starting to delete the cas_machine resource with name %s", d.Get("name"))
+	client := m.(*tango.Client)
+	apiClient := client.GetAPIClient()
+
+	id := d.Id()
+	_, err := apiClient.Compute.DeleteMachine(compute.NewDeleteMachineParams().WithID(id))
+	if err != nil {
+		switch err.(type) {
+		case *compute.DeleteMachineNotFound:
+			d.SetId("")
+			return nil
+		}
+		return err
+	}
+
+	d.SetId("")
+	log.Printf("Finished deleting the cas_machine resource with name %s", d.Get("name"))
+	return nil
+}
+
+func expandSDKDisks(configDisks []interface{}) []*models.DiskAttachmentSpecification {
+	disks := make([]*models.DiskAttachmentSpecification, 0, len(configDisks))
 
 	for _, configDisk := range configDisks {
 		diskMap := configDisk.(map[string]interface{})
 
-		disk := tango.Disk{
-			BlockDeviceID: diskMap["block_device_id"].(string),
+		disk := models.DiskAttachmentSpecification{
+			BlockDeviceID: withString(diskMap["block_device_id"].(string)),
 		}
 
 		if v, ok := diskMap["name"].(string); ok && v != "" {
-			disk.Name = v
+			disk.Name = withString(v)
 		}
 
 		if v, ok := diskMap["description"].(string); ok && v != "" {
 			disk.Description = v
 		}
 
-		disks = append(disks, disk)
+		disks = append(disks, &disk)
 	}
 
 	return disks
-}
-
-func resourceMachineRead(d *schema.ResourceData, m interface{}) error {
-	client := m.(*tango.Client)
-
-	resourceObject, err := client.ReadResource(getSelfLink(d.Get("links").([]interface{})))
-	if err != nil {
-		d.SetId("")
-		return nil
-	}
-
-	machineObject := resourceObject.(*tango.Machine)
-
-	d.Set("power_state", machineObject.PowerState)
-	d.Set("address", machineObject.Address)
-	d.Set("external_zone_id", machineObject.ExternalZoneID)
-	d.Set("external_region_id", machineObject.ExternalRegionID)
-	d.Set("external_id", machineObject.ExternalID)
-	d.Set("name", machineObject.Name)
-	d.Set("description", machineObject.Description)
-	d.Set("self_link", machineObject.SelfLink)
-	d.Set("created_at", machineObject.CreatedAt)
-	d.Set("updated_at", machineObject.UpdatedAt)
-	d.Set("owner", machineObject.Owner)
-	d.Set("organization_id", machineObject.OrganizationID)
-	d.Set("custom_properties", machineObject.CustomProperties)
-
-	if err := d.Set("tags", flattenTags(machineObject.Tags)); err != nil {
-		return fmt.Errorf("Error setting Machine tags - error: %#v", err)
-	}
-
-	if err := d.Set("links", flattenLinks(machineObject.Links)); err != nil {
-		return fmt.Errorf("Error setting Machine links - error: %#v", err)
-	}
-
-	return nil
-}
-
-func resourceMachineUpdate(d *schema.ResourceData, m interface{}) error {
-
-	return nil
-}
-
-func resourceMachineDelete(d *schema.ResourceData, m interface{}) error {
-	client := m.(*tango.Client)
-
-	// TODO: Confirm that deleting the machine also deletes all the attached disks automatically.
-	// Commented the code as the machine deletion is failing while trying to detach the boot-disk.
-	//resourceObject, err := client.ReadResource(getSelfLink(d.Get("links").([]interface{})) + "/disks")
-	//if err != nil {
-	//	return err
-	//}
-	//
-	//machineAttachedDisksObject := resourceObject.(*tango.MachineAttachedDisks)
-	//
-	//peripheralDevicesRegex := regexp.MustCompile("^(CD/DVD|Floppy) drive")
-	//for _, blockDevice := range machineAttachedDisksObject.Content {
-	//	if blockDevice.Name != "boot-disk" && !peripheralDevicesRegex.MatchString(blockDevice.Name) {
-	//		err := client.DeleteResource(blockDevice.Links["self"].Href) // detach disks first
-	//		if err != nil {
-	//			return err
-	//		}
-	//	}
-	//}
-
-	err := client.DeleteResource(getSelfLink(d.Get("links").([]interface{})))
-
-	if err != nil && strings.Contains(err.Error(), "404") { // already deleted
-		return nil
-	}
-
-	return err
 }

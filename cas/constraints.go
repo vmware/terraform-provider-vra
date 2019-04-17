@@ -1,6 +1,7 @@
 package cas
 
 import (
+	"github.com/vmware/cas-sdk-go/pkg/models"
 	"github.com/vmware/terraform-provider-cas/sdk"
 
 	"github.com/hashicorp/terraform/helper/schema"
@@ -44,6 +45,62 @@ func expandConstraints(configConstraints []interface{}) []tango.Constraint {
 }
 
 func flattenConstraints(constraints []tango.Constraint) []interface{} {
+	if len(constraints) == 0 {
+		return make([]interface{}, 0)
+	}
+
+	configConstraints := make([]interface{}, 0, len(constraints))
+
+	for _, constraint := range constraints {
+		helper := make(map[string]interface{})
+		helper["mandatory"] = constraint.Mandatory
+		helper["expression"] = constraint.Expression
+
+		configConstraints = append(configConstraints, helper)
+	}
+
+	return configConstraints
+}
+
+// constraintsSDKSchema returns the schema to use for the constraints property
+func constraintsSDKSchema() *schema.Schema  {
+	return &schema.Schema{
+		Type: schema.TypeSet,
+		Optional: true,
+		Elem: &schema.Resource{
+			Schema: map[string]*schema.Schema{
+				"mandatory": {
+					Type: schema.TypeBool,
+					Required: true,
+				},
+				"expression": {
+					Type: schema.TypeString,
+					Required: true,
+				},
+			},
+		},
+	}
+}
+
+
+func expandSDKConstraints(configConstraints []interface{}) []*models.Constraint {
+	constraints := make([]*models.Constraint, 0, len(configConstraints))
+
+	for _, configConstraint := range configConstraints {
+		constraintMap := configConstraint.(map[string]interface{})
+
+		constraint := models.Constraint{
+			Mandatory:  withBool(constraintMap["mandatory"].(bool)),
+			Expression: withString(constraintMap["expression"].(string)),
+		}
+
+		constraints = append(constraints, &constraint)
+	}
+
+	return constraints
+}
+
+func flattenSDKConstraints(constraints []*models.Constraint) []interface{} {
 	if len(constraints) == 0 {
 		return make([]interface{}, 0)
 	}
