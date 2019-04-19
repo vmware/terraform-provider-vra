@@ -158,7 +158,7 @@ func getAPIClient(url string, token string) *client.MulticloudIaaS {
 		return nil
 	}
 	transport := httptransport.New(parsedURL.Host, "", nil)
-	transport.DefaultAuthentication = httptransport.APIKeyAuth("Authorization", "header", "bearer "+token)
+	transport.DefaultAuthentication = httptransport.APIKeyAuth("Authorization", "header", "Bearer "+token)
 	if debug {
 		transport.SetDebug(debug)
 		transport.SetLogger(SwaggerLogger{})
