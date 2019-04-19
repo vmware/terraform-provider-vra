@@ -1,7 +1,12 @@
 package cas
 
 import (
+	"fmt"
+
+	"github.com/go-openapi/strfmt"
 	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/vmware/cas-sdk-go/pkg/client"
+	"github.com/vmware/cas-sdk-go/pkg/client/deployments"
 	"github.com/vmware/cas-sdk-go/pkg/client/project"
 	"github.com/vmware/cas-sdk-go/pkg/models"
 
@@ -143,6 +148,9 @@ func resourceProjectDelete(d *schema.ResourceData, m interface{}) error {
 
 	id := d.Id()
 
+	// Workaround by deleting deployments out of the project to allow it to be deleted
+	deleteDeployments(apiClient, id)
+
 	// Workaround an issue where the cloud regions need to be removed before the project can be deleted.
 	_, err := apiClient.Project.UpdateProject(project.NewUpdateProjectParams().WithID(id).WithBody(&models.ProjectSpecification{
 		ZoneAssignmentConfigurations: []*models.ZoneAssignmentConfig{},
@@ -157,6 +165,44 @@ func resourceProjectDelete(d *schema.ResourceData, m interface{}) error {
 	}
 
 	d.SetId("")
+
+	return nil
+}
+
+func deleteDeployments(apiClient *client.MulticloudIaaS, id string) error {
+	deploymentsResponse, err := apiClient.Deployments.GetDeploymentsUsingGET(deployments.NewGetDeploymentsUsingGETParams())
+	if err != nil {
+		return err
+	}
+
+	for _, deployment := range deploymentsResponse.Payload.Content {
+		if deployment.ProjectID == id {
+			actionsResponse, err := apiClient.Deployments.GetDeploymentActionsUsingGET(deployments.NewGetDeploymentActionsUsingGETParams().WithDepID(deployment.ID))
+			if err != nil {
+				return err
+			}
+			var deleteUUID strfmt.UUID
+			actions := actionsResponse.Payload
+			for _, action := range actions {
+				if action.Name == "Delete" {
+					deleteUUID = action.ID
+				}
+			}
+			if deleteUUID.String() == "" {
+				return fmt.Errorf("Could not find delete action for deployment %s (%s)", *deployment.Name, deployment.ID)
+			}
+
+			// Delete the deployment
+			actionRequest := models.ResourceActionRequest{
+				ActionID: deleteUUID,
+				Reason:   "Deleting deployment via terraform destroy project",
+			}
+			_, _, err = apiClient.Deployments.SubmitDeploymentActionRequestUsingPOST(deployments.NewSubmitDeploymentActionRequestUsingPOSTParams().WithDepID(deployment.ID).WithActionRequest(&actionRequest))
+			if err != nil {
+				return err
+			}
+		}
+	}
 
 	return nil
 }
