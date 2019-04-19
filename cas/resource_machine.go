@@ -339,13 +339,27 @@ func resourceMachineDelete(d *schema.ResourceData, m interface{}) error {
 	apiClient := client.GetAPIClient()
 
 	id := d.Id()
-	_, err := apiClient.Compute.DeleteMachine(compute.NewDeleteMachineParams().WithID(id))
+	deleteMachine, err := apiClient.Compute.DeleteMachine(compute.NewDeleteMachineParams().WithID(id))
 	if err != nil {
 		switch err.(type) {
 		case *compute.DeleteMachineNotFound:
 			d.SetId("")
 			return nil
 		}
+		return err
+	}
+
+	stateChangeFunc := resource.StateChangeConf{
+		Delay:      5 * time.Second,
+		Pending:    []string{models.RequestTrackerStatusINPROGRESS},
+		Refresh:    machineStateRefreshFunc(*apiClient, *deleteMachine.Payload.ID),
+		Target:     []string{models.RequestTrackerStatusFINISHED},
+		Timeout:    5 * time.Minute,
+		MinTimeout: 5 * time.Second,
+	}
+
+	_, err = stateChangeFunc.WaitForState()
+	if err != nil {
 		return err
 	}
 
