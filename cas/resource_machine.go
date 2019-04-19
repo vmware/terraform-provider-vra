@@ -3,16 +3,16 @@ package cas
 import (
 	"errors"
 	"fmt"
+	"log"
+	"strings"
+	"time"
+
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/vmware/cas-sdk-go/pkg/client"
 	"github.com/vmware/cas-sdk-go/pkg/client/compute"
 	"github.com/vmware/cas-sdk-go/pkg/client/request"
 	"github.com/vmware/cas-sdk-go/pkg/models"
-	"log"
-	"strings"
-	"time"
-
-	"github.com/vmware/terraform-provider-cas/sdk"
+	tango "github.com/vmware/terraform-provider-cas/sdk"
 
 	"github.com/hashicorp/terraform/helper/schema"
 )
@@ -141,7 +141,7 @@ func resourceMachineCreate(d *schema.ResourceData, m interface{}) error {
 
 	name := d.Get("name").(string)
 	flavor := d.Get("flavor").(string)
-	projectId := d.Get("project_id").(string)
+	projectID := d.Get("project_id").(string)
 	constraints := expandSDKConstraints(d.Get("constraints").(*schema.Set).List())
 	tags := expandSDKTags(d.Get("tags").(*schema.Set).List())
 	customProperties := expandCustomProperties(d.Get("custom_properties").(map[string]interface{}))
@@ -151,7 +151,7 @@ func resourceMachineCreate(d *schema.ResourceData, m interface{}) error {
 	machineSpecification := models.MachineSpecification{
 		Name:             &name,
 		Flavor:           &flavor,
-		ProjectID:        &projectId,
+		ProjectID:        &projectID,
 		Constraints:      constraints,
 		Tags:             tags,
 		CustomProperties: customProperties,
@@ -301,7 +301,7 @@ func resourceMachineUpdate(d *schema.ResourceData, m interface{}) error {
 	id := d.Id()
 	name := d.Get("name").(string)
 	flavor := d.Get("flavor").(string)
-	projectId := d.Get("project_id").(string)
+	projectID := d.Get("project_id").(string)
 	description := d.Get("description").(string)
 	constraints := expandSDKConstraints(d.Get("constraints").(*schema.Set).List())
 	tags := expandSDKTags(d.Get("tags").(*schema.Set).List())
@@ -315,7 +315,7 @@ func resourceMachineUpdate(d *schema.ResourceData, m interface{}) error {
 		ImageRef:         &imageRef,
 		Description:      description,
 		Flavor:           &flavor,
-		ProjectID:        &projectId,
+		ProjectID:        &projectID,
 		Constraints:      constraints,
 		Tags:             tags,
 		CustomProperties: customProperties,

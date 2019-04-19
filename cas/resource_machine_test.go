@@ -2,12 +2,13 @@ package cas
 
 import (
 	"fmt"
-	"github.com/vmware/cas-sdk-go/pkg/client/compute"
-	"github.com/vmware/terraform-provider-cas/sdk"
 	"os"
 	"regexp"
 	"strconv"
 	"testing"
+
+	"github.com/vmware/cas-sdk-go/pkg/client/compute"
+	tango "github.com/vmware/terraform-provider-cas/sdk"
 
 	"github.com/hashicorp/terraform/helper/acctest"
 	"github.com/hashicorp/terraform/helper/resource"
@@ -87,7 +88,7 @@ func testAccCheckTangoMachineConfig(rInt int) string {
 	// Need valid details since this is using existing project
 	image := os.Getenv("CAS_IMAGE")
 	flavor := os.Getenv("CAS_FLAVOR")
-	projectId := os.Getenv("CAS_PROJECT_ID")
+	projectID := os.Getenv("CAS_PROJECT_ID")
 	return fmt.Sprintf(`
 resource "cas_machine" "my_machine" {
   name = "terraform_cas_machine-%d"
@@ -104,12 +105,12 @@ resource "cas_machine" "my_machine" {
     key = "foo"
     value = "bar"
   }
-}`, rInt, projectId, image, flavor)
+}`, rInt, projectID, image, flavor)
 }
 
 func testAccCheckTangoMachineNoImageConfig(rInt int) string {
 	flavor := os.Getenv("CAS_FLAVOR")
-	projectId := os.Getenv("CAS_PROJECT_ID")
+	projectID := os.Getenv("CAS_PROJECT_ID")
 	return fmt.Sprintf(`
 resource "cas_machine" "my_machine" {
   name = "terraform_cas_machine-%d"
@@ -120,5 +121,5 @@ resource "cas_machine" "my_machine" {
 	key = "description"
     value = "Testing Terraform Provider for CAS"
   }
-}`, rInt, projectId, flavor)
+}`, rInt, projectID, flavor)
 }
