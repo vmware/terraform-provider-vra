@@ -15,7 +15,7 @@ func TestAccDataSourceCASProject(t *testing.T) {
 	dataSourceName1 := "data.cas_project.test-project"
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheckCasProject(t) },
+		PreCheck:  func() { testAccPreCheckCas(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{

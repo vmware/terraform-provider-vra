@@ -52,6 +52,7 @@ func Provider() *schema.Provider {
 			"cas_image":               dataSourceImage(),
 			"cas_project":             dataSourceProject(),
 			"cas_region":              dataSourceRegion(),
+			"cas_network":             dataSourceNetwork(),
 		},
 
 		ResourcesMap: map[string]*schema.Resource{

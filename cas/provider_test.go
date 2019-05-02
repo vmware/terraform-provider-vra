@@ -107,7 +107,7 @@ func testAccPreCheckAzure(t *testing.T) {
 	}
 }
 
-func testAccPreCheckCasProject(t *testing.T) {
+func testAccPreCheckCas(t *testing.T) {
 	if v := os.Getenv("TANGO_URL"); v == "" {
 		t.Fatal("TANGO_URL must be set for acceptance tests")
 	}

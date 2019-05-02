@@ -63,25 +63,24 @@ func flattenConstraints(constraints []tango.Constraint) []interface{} {
 }
 
 // constraintsSDKSchema returns the schema to use for the constraints property
-func constraintsSDKSchema() *schema.Schema  {
+func constraintsSDKSchema() *schema.Schema {
 	return &schema.Schema{
-		Type: schema.TypeSet,
+		Type:     schema.TypeSet,
 		Optional: true,
 		Elem: &schema.Resource{
 			Schema: map[string]*schema.Schema{
 				"mandatory": {
-					Type: schema.TypeBool,
+					Type:     schema.TypeBool,
 					Required: true,
 				},
 				"expression": {
-					Type: schema.TypeString,
+					Type:     schema.TypeString,
 					Required: true,
 				},
 			},
 		},
 	}
 }
-
 
 func expandSDKConstraints(configConstraints []interface{}) []*models.Constraint {
 	constraints := make([]*models.Constraint, 0, len(configConstraints))
