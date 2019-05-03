@@ -15,10 +15,6 @@ func dataSourceNetwork() *schema.Resource {
 	return &schema.Resource{
 		Read: dataSourceNetworkRead,
 		Schema: map[string]*schema.Schema{
-			"cidr": &schema.Schema{
-				Type:     schema.TypeString,
-				Computed: true,
-			},
 			"id": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -31,6 +27,10 @@ func dataSourceNetwork() *schema.Resource {
 				DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
 					return !strings.HasPrefix(new, old)
 				},
+			},
+			"cidr": &schema.Schema{
+				Type:     schema.TypeString,
+				Computed: true,
 			},
 			"description": &schema.Schema{
 				Type:     schema.TypeString,
@@ -98,16 +98,16 @@ func dataSourceNetworkRead(d *schema.ResourceData, meta interface{}) error {
 	setFields := func(network *models.Network) {
 		d.SetId(*network.ID)
 		d.Set("cidr", network.Cidr)
-		d.Set("project_id", network.ProjectID)
-		d.Set("external_zone_id", network.ExternalZoneID)
-		d.Set("external_id", network.ExternalID)
-		d.Set("name", network.Name)
-		d.Set("description", network.Description)
-		d.Set("updated_at", network.UpdatedAt)
-		d.Set("owner", network.Owner)
-		d.Set("organization_id", network.OrganizationID)
 		d.Set("custom_properties", network.CustomProperties)
+		d.Set("description", network.Description)
+		d.Set("external_id", network.ExternalID)
+		d.Set("external_zone_id", network.ExternalZoneID)
+		d.Set("name", network.Name)
+		d.Set("organization_id", network.OrganizationID)
+		d.Set("owner", network.Owner)
+		d.Set("project_id", network.ProjectID)
 		d.Set("tags", network.Tags)
+		d.Set("updated_at", network.UpdatedAt)
 	}
 	for _, network := range getResp.Payload.Content {
 		if idOk && network.ID == id {
