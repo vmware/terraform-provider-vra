@@ -151,7 +151,7 @@ func nicsSDKSchema(isRequired bool) *schema.Schema {
 	}
 }
 
-func expandSDKNics(configNics []interface{}) []*models.NetworkInterfaceSpecification{
+func expandSDKNics(configNics []interface{}) []*models.NetworkInterfaceSpecification {
 	nics := make([]*models.NetworkInterfaceSpecification, 0, len(configNics))
 
 	for _, configNic := range configNics {
