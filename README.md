@@ -19,4 +19,4 @@ The terraform-provider-cas project team welcomes contributions from the communit
 
 ## License
 
-terraform-provider-cas is available under the [MIT license](LICENSE).
+terraform-provider-cas is available under the [Mozilla Public License, version 2.0 license](LICENSE).
