@@ -89,7 +89,7 @@ func resourceCloudAccountAWSCreate(d *schema.ResourceData, m interface{}) error 
 
 	// The returned EnabledRegionIds and Hrefs containing the region ids can be in a different order than the request order.
 	// Call a routine to normalize the order to correspond with the users region order.
-	regionsIds, err := flattenAndNormalizeCLoudAccountRegionIds(regions, createResp.Payload)
+	regionsIds, err := flattenAndNormalizeCLoudAccountAWSRegionIds(regions, createResp.Payload)
 	if err != nil {
 		return err
 	}
