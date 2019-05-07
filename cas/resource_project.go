@@ -2,10 +2,13 @@ package cas
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/go-openapi/strfmt"
+	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/vmware/cas-sdk-go/pkg/client"
+	"github.com/vmware/cas-sdk-go/pkg/client/deployment_requests"
 	"github.com/vmware/cas-sdk-go/pkg/client/deployments"
 	"github.com/vmware/cas-sdk-go/pkg/client/project"
 	"github.com/vmware/cas-sdk-go/pkg/models"
@@ -159,7 +162,7 @@ func resourceProjectDelete(d *schema.ResourceData, m interface{}) error {
 		return err
 	}
 
-	_, err = apiClient.Project.DeleteProject(project.NewDeleteProjectParams().WithID(id))
+	_, _, err = apiClient.Project.DeleteProject(project.NewDeleteProjectParams().WithID(id))
 	if err != nil {
 		return err
 	}
@@ -197,7 +200,20 @@ func deleteDeployments(apiClient *client.MulticloudIaaS, id string) error {
 				ActionID: deleteUUID,
 				Reason:   "Deleting deployment via terraform destroy project",
 			}
-			_, _, err = apiClient.Deployments.SubmitDeploymentActionRequestUsingPOST(deployments.NewSubmitDeploymentActionRequestUsingPOSTParams().WithDepID(deployment.ID).WithActionRequest(&actionRequest))
+			requestObj, _, err := apiClient.Deployments.SubmitDeploymentActionRequestUsingPOST(deployments.NewSubmitDeploymentActionRequestUsingPOSTParams().WithDepID(deployment.ID).WithActionRequest(&actionRequest))
+			if err != nil {
+				return err
+			}
+			stateChangeFunc := resource.StateChangeConf{
+				Delay:      5 * time.Second,
+				Pending:    []string{models.DeploymentRequestStatusINPROGRESS},
+				Refresh:    deploymentStateRefreshFunc(*apiClient, requestObj.Payload.ID),
+				Target:     []string{models.DeploymentRequestStatusSUCCESSFUL},
+				Timeout:    5 * time.Minute,
+				MinTimeout: 5 * time.Second,
+			}
+
+			_, err = stateChangeFunc.WaitForState()
 			if err != nil {
 				return err
 			}
@@ -205,6 +221,27 @@ func deleteDeployments(apiClient *client.MulticloudIaaS, id string) error {
 	}
 
 	return nil
+}
+
+func deploymentStateRefreshFunc(apiClient client.MulticloudIaaS, id strfmt.UUID) resource.StateRefreshFunc {
+	return func() (interface{}, string, error) {
+		ret, err := apiClient.DeploymentRequests.GetDeploymentRequestUsingGET(deployment_requests.NewGetDeploymentRequestUsingGETParams().WithRequestID(id))
+		if err != nil {
+			return "", models.DeploymentRequestStatusFAILED, err
+		}
+
+		status := ret.Payload.Status
+		switch status {
+		case models.DeploymentRequestStatusFAILED:
+			return id.String(), status, fmt.Errorf(ret.Payload.StatusDetails)
+		case models.DeploymentRequestStatusINPROGRESS:
+			return id.String(), status, nil
+		case models.DeploymentRequestStatusSUCCESSFUL:
+			return ret.Payload.DeploymentID, status, nil
+		default:
+			return id.String(), ret.Payload.StatusDetails, fmt.Errorf("deploymentStateRefreshFunc: unknown status %v", status)
+		}
+	}
 }
 
 func expandUserList(userList []interface{}) []*models.User {
