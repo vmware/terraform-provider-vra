@@ -4,9 +4,16 @@ import (
 	"fmt"
 	"log"
 	"strings"
+	"time"
 
-	"github.com/vmware/terraform-provider-cas/sdk"
+	"github.com/vmware/cas-sdk-go/pkg/client"
+	"github.com/vmware/cas-sdk-go/pkg/client/load_balancer"
+	"github.com/vmware/cas-sdk-go/pkg/client/request"
+	"github.com/vmware/cas-sdk-go/pkg/models"
 
+	tango "github.com/vmware/terraform-provider-cas/sdk"
+
+	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
 )
 
@@ -18,10 +25,6 @@ func resourceLoadBalancer() *schema.Resource {
 		Delete: resourceLoadBalancerDelete,
 
 		Schema: map[string]*schema.Schema{
-			"address": &schema.Schema{
-				Type:     schema.TypeString,
-				Computed: true,
-			},
 			"name": &schema.Schema{
 				Type:     schema.TypeString,
 				Required: true,
@@ -29,16 +32,30 @@ func resourceLoadBalancer() *schema.Resource {
 					return !strings.HasPrefix(new, old)
 				},
 			},
-			"description": &schema.Schema{
+			"nics": nicsSDKSchema(true),
+			"project_id": &schema.Schema{
 				Type:     schema.TypeString,
-				Optional: true,
+				Required: true,
 			},
-			"tags": tagsSchema(),
+			"routes": routesSDKSchema(true),
 			"custom_properties": &schema.Schema{
 				Type:     schema.TypeMap,
 				Computed: true,
 				Optional: true,
 			},
+			"deployment_id": &schema.Schema{
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"description": &schema.Schema{
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"internet_facing": &schema.Schema{
+				Type:     schema.TypeBool,
+				Optional: true,
+			},
+			"tags": tagsSDKSchema(),
 			"target_links": &schema.Schema{
 				Type:     schema.TypeList,
 				Optional: true,
@@ -46,85 +63,7 @@ func resourceLoadBalancer() *schema.Resource {
 					Type: schema.TypeString,
 				},
 			},
-			"internet_facing": &schema.Schema{
-				Type:     schema.TypeBool,
-				Optional: true,
-			},
-			"nics": nicsSchema(true),
-			"routes": &schema.Schema{
-				Type:     schema.TypeList,
-				Required: true,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"protocol": &schema.Schema{
-							Type:     schema.TypeString,
-							Required: true,
-						},
-						"port": &schema.Schema{
-							Type:     schema.TypeString,
-							Required: true,
-						},
-						"member_protocol": &schema.Schema{
-							Type:     schema.TypeString,
-							Required: true,
-						},
-						"member_port": &schema.Schema{
-							Type:     schema.TypeString,
-							Required: true,
-						},
-						"health_check_configuration": &schema.Schema{
-							Type:     schema.TypeList,
-							Optional: true,
-							MaxItems: 1,
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"protocol": &schema.Schema{
-										Type:     schema.TypeString,
-										Required: true,
-									},
-									"port": &schema.Schema{
-										Type:     schema.TypeString,
-										Required: true,
-									},
-									"url_path": &schema.Schema{
-										Type:     schema.TypeString,
-										Optional: true,
-									},
-									"interval_seconds": &schema.Schema{
-										Type:     schema.TypeInt,
-										Optional: true,
-									},
-									"timeout_seconds": &schema.Schema{
-										Type:     schema.TypeInt,
-										Optional: true,
-									},
-									"unhealthy_threshold": &schema.Schema{
-										Type:     schema.TypeInt,
-										Optional: true,
-									},
-									"healthy_threshold": &schema.Schema{
-										Type:     schema.TypeInt,
-										Optional: true,
-									},
-								},
-							},
-						},
-					},
-				},
-			},
-			"external_zone_id": &schema.Schema{
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"external_region_id": &schema.Schema{
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"external_id": &schema.Schema{
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"self_link": &schema.Schema{
+			"address": &schema.Schema{
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -132,7 +71,20 @@ func resourceLoadBalancer() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"updated_at": &schema.Schema{
+			"external_id": &schema.Schema{
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"external_region_id": &schema.Schema{
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"external_zone_id": &schema.Schema{
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"links": linksSDKSchema(),
+			"organization_id": &schema.Schema{
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -140,28 +92,42 @@ func resourceLoadBalancer() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"organization_id": &schema.Schema{
+			"self_link": &schema.Schema{
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"links": linksSchema(),
+			"updated_at": &schema.Schema{
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 		},
 	}
 }
 
 func resourceLoadBalancerCreate(d *schema.ResourceData, m interface{}) error {
+	log.Printf("Starting to create cas_load_balancer resource")
 	client := m.(*tango.Client)
+	apiClient := client.GetAPIClient()
 
-	loadBalancerSpecification := tango.LoadBalancerSpecification{
-		Name:             d.Get("name").(string),
-		ProjectID:        client.GetProjectID(),
-		Nics:             expandNics(d.Get("nics").([]interface{})),
-		Routes:           expandRoutes(d.Get("routes").([]interface{})),
-		CustomProperties: expandCustomProperties(d.Get("custom_properties").(map[string]interface{})),
-		Tags:             expandTags(d.Get("tags").([]interface{})),
+	name := d.Get("name").(string)
+	projectID := d.Get("project_id").(string)
+	tags := expandSDKTags(d.Get("tags").(*schema.Set).List())
+	customProperties := expandCustomProperties(d.Get("custom_properties").(map[string]interface{}))
+	nics := expandSDKNics(d.Get("nics").(*schema.Set).List())
+	routes := expandSDKRoutes(d.Get("routes").(*schema.Set).List())
+
+	loadBalancerSpecification := models.LoadBalancerSpecification{
+		Name:             &name,
+		ProjectID:        &projectID,
+		Routes:           routes,
+		Tags:             tags,
+		CustomProperties: customProperties,
+		Nics:             nics,
 	}
 
-	loadBalancerSpecification.CustomProperties["__composition_context_id"] = client.GetDeploymentID()
+	if v, ok := d.GetOk("deployment_id"); ok {
+		loadBalancerSpecification.DeploymentID = v.(string)
+	}
 
 	if v, ok := d.GetOk("description"); ok {
 		loadBalancerSpecification.Description = v.(string)
@@ -180,177 +146,141 @@ func resourceLoadBalancerCreate(d *schema.ResourceData, m interface{}) error {
 		loadBalancerSpecification.TargetLinks = targetLinks
 	}
 
-	log.Printf("[DEBUG] record create load balancer: %#v", loadBalancerSpecification)
-	resourceObject, err := client.CreateResource(loadBalancerSpecification)
+	log.Printf("[DEBUG] create load lalancer: %#v", loadBalancerSpecification)
+	createLoadBalancerCreated, err := apiClient.LoadBalancer.CreateLoadBalancer(load_balancer.NewCreateLoadBalancerParams().WithBody(&loadBalancerSpecification))
 	if err != nil {
 		return err
 	}
 
-	loadBalancerObject := resourceObject.(*tango.LoadBalancer)
-
-	d.SetId(loadBalancerObject.ID)
-	d.Set("address", loadBalancerObject.Address)
-	d.Set("name", loadBalancerObject.Name)
-	d.Set("external_zone_id", loadBalancerObject.ExternalZoneID)
-	d.Set("external_region_id", loadBalancerObject.ExternalRegionID)
-	d.Set("external_id", loadBalancerObject.ExternalID)
-	d.Set("self_link", loadBalancerObject.SelfLink)
-	d.Set("created_at", loadBalancerObject.CreatedAt)
-	d.Set("updated_at", loadBalancerObject.UpdatedAt)
-	d.Set("owner", loadBalancerObject.Owner)
-	d.Set("organization_id", loadBalancerObject.OrganizationID)
-	d.Set("custom_properties", loadBalancerObject.CustomProperties)
-
-	if err := d.Set("tags", flattenTags(loadBalancerObject.Tags)); err != nil {
-		return fmt.Errorf("Error setting Load Balancer tags - error: %#v", err)
+	stateChangeFunc := resource.StateChangeConf{
+		Delay:      5 * time.Second,
+		Pending:    []string{models.RequestTrackerStatusINPROGRESS},
+		Refresh:    loadBalancerStateRefreshFunc(*apiClient, *createLoadBalancerCreated.Payload.ID),
+		Target:     []string{models.RequestTrackerStatusFINISHED},
+		Timeout:    5 * time.Minute,
+		MinTimeout: 5 * time.Second,
 	}
 
-	if err := d.Set("routes", flattenRoutes(loadBalancerObject.Routes)); err != nil {
-		return fmt.Errorf("Error setting Load Balancer routes - error: %#v", err)
+	resourceIDs, err := stateChangeFunc.WaitForState()
+	if err != nil {
+		return err
 	}
 
-	if err := d.Set("links", flattenLinks(loadBalancerObject.Links)); err != nil {
-		return fmt.Errorf("Error setting Load Balancer links - error: %#v", err)
-	}
+	loadBalancerIDs := resourceIDs.([]string)
+	i := strings.LastIndex(loadBalancerIDs[0], "/")
+	loadBalancerID := loadBalancerIDs[0][i+1 : len(loadBalancerIDs[0])]
+	d.SetId(loadBalancerID)
+	log.Printf("Finished to create cas_load_balancer resource with name %s", d.Get("name"))
 
-	return nil
+	return resourceLoadBalancerRead(d, m)
 }
 
-func expandRoutes(configRoutes []interface{}) []tango.Route {
-	routes := make([]tango.Route, 0, len(configRoutes))
-
-	for _, configRoute := range configRoutes {
-		routeMap := configRoute.(map[string]interface{})
-
-		route := tango.Route{
-			Protocol:       routeMap["protocol"].(string),
-			Port:           routeMap["port"].(string),
-			MemberProtocol: routeMap["member_protocol"].(string),
-			MemberPort:     routeMap["member_port"].(string),
+func loadBalancerStateRefreshFunc(apiClient client.MulticloudIaaS, id string) resource.StateRefreshFunc {
+	return func() (interface{}, string, error) {
+		ret, err := apiClient.Request.GetRequestTracker(request.NewGetRequestTrackerParams().WithID(id))
+		if err != nil {
+			return "", models.RequestTrackerStatusFAILED, err
 		}
 
-		if v, ok := routeMap["health_check_configuration"].([]interface{}); ok && len(v) == 1 {
-			configHCC := v[0].(map[string]interface{})
-
-			healthCheckConfiguration := &tango.HealthCheckConfiguration{
-				Protocol: configHCC["protocol"].(string),
-				Port:     configHCC["port"].(string),
+		status := ret.Payload.Status
+		switch *status {
+		case models.RequestTrackerStatusFAILED:
+			return []string{""}, *status, fmt.Errorf(ret.Payload.Message)
+		case models.RequestTrackerStatusINPROGRESS:
+			return [...]string{id}, *status, nil
+		case models.RequestTrackerStatusFINISHED:
+			loadBalancerIDs := make([]string, len(ret.Payload.Resources))
+			for i, r := range ret.Payload.Resources {
+				loadBalancerIDs[i] = strings.TrimPrefix(r, "/iaas/api/load-balancer/")
 			}
-
-			if v, ok := configHCC["url_path"].(string); ok && v != "" {
-				healthCheckConfiguration.URLPath = v
-			}
-
-			if v, ok := configHCC["interval_seconds"].(int); ok && v != 0 {
-				healthCheckConfiguration.IntervalSeconds = v
-			}
-
-			if v, ok := configHCC["timeout_seconds"].(int); ok && v != 0 {
-				healthCheckConfiguration.TimeoutSeconds = v
-			}
-
-			if v, ok := configHCC["unhealthy_threshold"].(int); ok && v != 0 {
-				healthCheckConfiguration.UnhealthThreshold = v
-			}
-
-			if v, ok := configHCC["healthy_threshold"].(int); ok && v != 0 {
-				healthCheckConfiguration.HealthThreshold = v
-			}
-
-			route.HCC = healthCheckConfiguration
+			return loadBalancerIDs, *status, nil
+		default:
+			return [...]string{id}, ret.Payload.Message, fmt.Errorf("loadBalancerStateRefreshFunc: unknown status %v", *status)
 		}
-
-		routes = append(routes, route)
 	}
-
-	return routes
-}
-
-func flattenRoutes(routes []tango.Route) []map[string]interface{} {
-	if len(routes) == 0 {
-		return make([]map[string]interface{}, 0)
-	}
-
-	configRoutes := make([]map[string]interface{}, 0, len(routes))
-
-	for _, route := range routes {
-		helper := make(map[string]interface{})
-		helper["protocol"] = route.Protocol
-		helper["port"] = route.Port
-		helper["member_protocol"] = route.MemberProtocol
-		helper["member_port"] = route.MemberPort
-
-		if route.HCC != nil {
-			hccs := [1]map[string]interface{}{}
-			hccs[0] = make(map[string]interface{})
-			hccs[0]["protocol"] = route.HCC.Protocol
-			hccs[0]["port"] = route.HCC.Port
-			hccs[0]["url_path"] = route.HCC.URLPath
-			hccs[0]["interval_seconds"] = route.HCC.IntervalSeconds
-			hccs[0]["timeout_seconds"] = route.HCC.TimeoutSeconds
-			hccs[0]["unhealthy_threshold"] = route.HCC.UnhealthThreshold
-			hccs[0]["healthy_threshold"] = route.HCC.HealthThreshold
-
-			helper["health_check_configuration"] = hccs
-		}
-
-		configRoutes = append(configRoutes, helper)
-	}
-
-	return configRoutes
 }
 
 func resourceLoadBalancerRead(d *schema.ResourceData, m interface{}) error {
+	log.Printf("Reading the cas_load_balancer resource with name %s", d.Get("name"))
 	client := m.(*tango.Client)
+	apiClient := client.GetAPIClient()
 
-	resourceObject, err := client.ReadResource(getSelfLink(d.Get("links").([]interface{})))
+	id := d.Id()
+	resp, err := apiClient.LoadBalancer.GetLoadBalancer(load_balancer.NewGetLoadBalancerParams().WithID(id))
 	if err != nil {
-		d.SetId("")
-		return nil
+		switch err.(type) {
+		case *load_balancer.GetLoadBalancerNotFound:
+			d.SetId("")
+			return nil
+		}
+		return err
 	}
 
-	loadBalancerObject := resourceObject.(*tango.LoadBalancer)
+	loadBalancer := *resp.Payload
+	d.Set("address", loadBalancer.Address)
+	d.Set("created_at", loadBalancer.CreatedAt)
+	d.Set("custom_properties", loadBalancer.CustomProperties)
+	d.Set("deployment_id", loadBalancer.DeploymentID)
+	d.Set("description", loadBalancer.Description)
+	d.Set("external_id", loadBalancer.ExternalID)
+	d.Set("external_region_id", loadBalancer.ExternalRegionID)
+	d.Set("external_zone_id", loadBalancer.ExternalZoneID)
+	d.Set("name", loadBalancer.Name)
+	d.Set("organization_id", loadBalancer.OrganizationID)
+	d.Set("owner", loadBalancer.Owner)
+	d.Set("project_id", loadBalancer.ProjectID)
+	d.Set("updated_at", loadBalancer.UpdatedAt)
 
-	d.Set("address", loadBalancerObject.Address)
-	d.Set("external_zone_id", loadBalancerObject.ExternalZoneID)
-	d.Set("external_region_id", loadBalancerObject.ExternalRegionID)
-	d.Set("external_id", loadBalancerObject.ExternalID)
-	d.Set("name", loadBalancerObject.Name)
-	d.Set("description", loadBalancerObject.Description)
-	d.Set("self_link", loadBalancerObject.SelfLink)
-	d.Set("created_at", loadBalancerObject.CreatedAt)
-	d.Set("updated_at", loadBalancerObject.UpdatedAt)
-	d.Set("owner", loadBalancerObject.Owner)
-	d.Set("organization_id", loadBalancerObject.OrganizationID)
-	d.Set("custom_properties", loadBalancerObject.CustomProperties)
-
-	if err := d.Set("tags", flattenTags(loadBalancerObject.Tags)); err != nil {
-		return fmt.Errorf("Error setting Load Balancer tags - error: %#v", err)
+	if err := d.Set("tags", flattenSDKTags(loadBalancer.Tags)); err != nil {
+		return fmt.Errorf("error setting machine tags - error: %v", err)
+	}
+	if err := d.Set("routes", flattenSDKRoutes(loadBalancer.Routes)); err != nil {
+		return fmt.Errorf("error setting machine tags - error: %v", err)
 	}
 
-	if err := d.Set("routes", flattenRoutes(loadBalancerObject.Routes)); err != nil {
-		return fmt.Errorf("Error setting Load Balancer routes - error: %#v", err)
+	if err := d.Set("links", flattenSDKLinks(loadBalancer.Links)); err != nil {
+		return fmt.Errorf("error setting machine links - error: %#v", err)
 	}
 
-	if err := d.Set("links", flattenLinks(loadBalancerObject.Links)); err != nil {
-		return fmt.Errorf("Error setting Load Balancer links - error: %#v", err)
-	}
-
+	log.Printf("Finished reading the cas_machine resource with name %s", d.Get("name"))
 	return nil
 }
 
 func resourceLoadBalancerUpdate(d *schema.ResourceData, m interface{}) error {
 
-	return nil
+	return fmt.Errorf("Updating a load balancer resource is not allowed")
 }
 
 func resourceLoadBalancerDelete(d *schema.ResourceData, m interface{}) error {
+	log.Printf("Starting to delete the cas_load_balancer resource with name %s", d.Get("name"))
 	client := m.(*tango.Client)
-	err := client.DeleteResource(getSelfLink(d.Get("links").([]interface{})))
+	apiClient := client.GetAPIClient()
 
-	if err != nil && strings.Contains(err.Error(), "404") { // already deleted
-		return nil
+	id := d.Id()
+	deleteLoadBalancer, err := apiClient.LoadBalancer.DeleteLoadBalancer(load_balancer.NewDeleteLoadBalancerParams().WithID(id))
+	if err != nil {
+		switch err.(type) {
+		case *load_balancer.DeleteLoadBalancerNotFound:
+			d.SetId("")
+			return nil
+		}
+		return err
+	}
+	stateChangeFunc := resource.StateChangeConf{
+		Delay:      5 * time.Second,
+		Pending:    []string{models.RequestTrackerStatusINPROGRESS},
+		Refresh:    loadBalancerStateRefreshFunc(*apiClient, *deleteLoadBalancer.Payload.ID),
+		Target:     []string{models.RequestTrackerStatusFINISHED},
+		Timeout:    5 * time.Minute,
+		MinTimeout: 5 * time.Second,
 	}
 
-	return err
+	_, err = stateChangeFunc.WaitForState()
+	if err != nil {
+		return err
+	}
+
+	d.SetId("")
+	log.Printf("Finished deleting the cas_load_balancer resource with name %s", d.Get("name"))
+	return nil
 }
