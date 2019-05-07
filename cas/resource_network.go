@@ -4,10 +4,16 @@ import (
 	"fmt"
 	"log"
 	"strings"
+	"time"
 
-	"github.com/vmware/terraform-provider-cas/sdk"
+	"github.com/vmware/cas-sdk-go/pkg/client/network"
 
+	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/vmware/cas-sdk-go/pkg/client"
+	"github.com/vmware/cas-sdk-go/pkg/client/request"
+	"github.com/vmware/cas-sdk-go/pkg/models"
+	tango "github.com/vmware/terraform-provider-cas/sdk"
 )
 
 func resourceNetwork() *schema.Resource {
@@ -16,12 +22,7 @@ func resourceNetwork() *schema.Resource {
 		Read:   resourceNetworkRead,
 		Update: resourceNetworkUpdate,
 		Delete: resourceNetworkDelete,
-
 		Schema: map[string]*schema.Schema{
-			"cidr": &schema.Schema{
-				Type:     schema.TypeString,
-				Computed: true,
-			},
 			"name": &schema.Schema{
 				Type:     schema.TypeString,
 				Required: true,
@@ -29,26 +30,43 @@ func resourceNetwork() *schema.Resource {
 					return !strings.HasPrefix(new, old)
 				},
 			},
-			"description": &schema.Schema{
+			"project_id": &schema.Schema{
 				Type:     schema.TypeString,
-				Optional: true,
+				Required: true,
 			},
+			"constraints": constraintsSDKSchema(),
 			"custom_properties": &schema.Schema{
 				Type:     schema.TypeMap,
 				Computed: true,
 				Optional: true,
 			},
-			"constraints": constraintsSchema(),
-			"tags":        tagsSchema(),
+			"description": &schema.Schema{
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 			"outbound_access": &schema.Schema{
 				Type:     schema.TypeBool,
 				Optional: true,
+			},
+			"tags": tagsSDKSchema(),
+			"cidr": &schema.Schema{
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"external_id": &schema.Schema{
+				Type:     schema.TypeString,
+				Computed: true,
 			},
 			"external_zone_id": &schema.Schema{
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"external_id": &schema.Schema{
+			"links": linksSDKSchema(),
+			"organization_id": &schema.Schema{
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"owner": &schema.Schema{
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -60,31 +78,27 @@ func resourceNetwork() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"owner": &schema.Schema{
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"organization_id": &schema.Schema{
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"links": linksSchema(),
 		},
 	}
 }
 
 func resourceNetworkCreate(d *schema.ResourceData, m interface{}) error {
+	log.Printf("Starting to create cas_network resource")
 	client := m.(*tango.Client)
+	apiClient := client.GetAPIClient()
+	name := d.Get("name").(string)
+	projectID := d.Get("project_id").(string)
+	constraints := expandSDKConstraints(d.Get("constraints").(*schema.Set).List())
+	tags := expandSDKTags(d.Get("tags").(*schema.Set).List())
+	customProperties := expandCustomProperties(d.Get("custom_properties").(map[string]interface{}))
 
-	networkSpecification := tango.NetworkSpecification{
-		Name:             d.Get("name").(string),
-		ProjectID:        client.GetProjectID(),
-		Constraints:      expandConstraints(d.Get("constraints").([]interface{})),
-		Tags:             expandTags(d.Get("tags").([]interface{})),
-		CustomProperties: expandCustomProperties(d.Get("custom_properties").(map[string]interface{})),
+	networkSpecification := models.NetworkSpecification{
+		Name:             &name,
+		ProjectID:        &projectID,
+		Constraints:      constraints,
+		Tags:             tags,
+		CustomProperties: customProperties,
 	}
-
-	networkSpecification.CustomProperties["__composition_context_id"] = client.GetDeploymentID()
 
 	if v, ok := d.GetOk("description"); ok {
 		networkSpecification.Description = v.(string)
@@ -93,83 +107,132 @@ func resourceNetworkCreate(d *schema.ResourceData, m interface{}) error {
 	if v, ok := d.GetOk("outbound_access"); ok {
 		networkSpecification.OutboundAccess = v.(bool)
 	}
+	log.Printf("[DEBUG] create network: %#v", networkSpecification)
+	createNetworkCreated, err := apiClient.Network.CreateNetwork(network.NewCreateNetworkParams().WithBody(&networkSpecification))
+	if err != nil {
+		return err
+	}
+	stateChangeFunc := resource.StateChangeConf{
+		Delay:      5 * time.Second,
+		Pending:    []string{models.RequestTrackerStatusINPROGRESS},
+		Refresh:    networkStateRefreshFunc(*apiClient, *createNetworkCreated.Payload.ID),
+		Target:     []string{models.RequestTrackerStatusFINISHED},
+		Timeout:    5 * time.Minute,
+		MinTimeout: 5 * time.Second,
+	}
+	resourceIds, err := stateChangeFunc.WaitForState()
+	log.Printf("Waitforstate returned: %T %+v %+v\n", resourceIds, resourceIds, err)
 
-	log.Printf("[DEBUG] record create network: %#v", networkSpecification)
-	resourceObject, err := client.CreateResource(networkSpecification)
 	if err != nil {
 		return err
 	}
 
-	networkObject := resourceObject.(*tango.Network)
+	networkIDs := resourceIds.([]string)
+	d.SetId(networkIDs[0])
+	log.Printf("Finished to create cas_network resource with name %s", d.Get("name"))
 
-	d.SetId(networkObject.ID)
-	d.Set("name", networkObject.Name)
-	d.Set("cidr", networkObject.CIDR)
-	d.Set("external_zone_id", networkObject.ExternalZoneID)
-	d.Set("external_id", networkObject.ExternalID)
-	d.Set("self_link", networkObject.SelfLink)
-	d.Set("updated_at", networkObject.UpdatedAt)
-	d.Set("owner", networkObject.Owner)
-	d.Set("organization_id", networkObject.OrganizationID)
-	d.Set("custom_properties", networkObject.CustomProperties)
+	return resourceNetworkRead(d, m)
+}
 
-	if err := d.Set("tags", flattenTags(networkObject.Tags)); err != nil {
-		return fmt.Errorf("Error setting Network tags - error: %#v", err)
+func networkStateRefreshFunc(apiClient client.MulticloudIaaS, id string) resource.StateRefreshFunc {
+	return func() (interface{}, string, error) {
+		ret, err := apiClient.Request.GetRequestTracker(request.NewGetRequestTrackerParams().WithID(id))
+		if err != nil {
+			return "", models.RequestTrackerStatusFAILED, err
+		}
+
+		status := ret.Payload.Status
+		switch *status {
+		case models.RequestTrackerStatusFAILED:
+			return []string{""}, *status, fmt.Errorf(ret.Payload.Message)
+		case models.RequestTrackerStatusINPROGRESS:
+			return [...]string{id}, *status, nil
+		case models.RequestTrackerStatusFINISHED:
+			networkIDs := make([]string, len(ret.Payload.Resources))
+			for i, r := range ret.Payload.Resources {
+				networkIDs[i] = strings.TrimPrefix(r, "/iaas/api/networks/")
+			}
+			return networkIDs, *status, nil
+		default:
+			return [...]string{id}, ret.Payload.Message, fmt.Errorf("networkStateRefreshFunc: unknown status %v", *status)
+		}
 	}
-
-	if err := d.Set("links", flattenLinks(networkObject.Links)); err != nil {
-		return fmt.Errorf("Error setting Network links - error: %#v", err)
-	}
-
-	return nil
 }
 
 func resourceNetworkRead(d *schema.ResourceData, m interface{}) error {
+	log.Printf("Reading the cas_network resource with name %s", d.Get("name"))
 	client := m.(*tango.Client)
+	apiClient := client.GetAPIClient()
 
-	resourceObject, err := client.ReadResource(getSelfLink(d.Get("links").([]interface{})))
+	id := d.Id()
+	resp, err := apiClient.Network.GetNetwork(network.NewGetNetworkParams().WithID(id))
 	if err != nil {
-		d.SetId("")
-		return nil
+		switch err.(type) {
+		case *network.GetNetworkNotFound:
+			d.SetId("")
+			return nil
+		}
+		return err
 	}
 
-	networkObject := resourceObject.(*tango.Network)
+	network := *resp.Payload
+	d.Set("cidr", network.Cidr)
+	d.Set("custom_properties", network.CustomProperties)
+	d.Set("description", network.Description)
+	d.Set("external_id", network.ExternalID)
+	d.Set("external_zone_id", network.ExternalZoneID)
+	d.Set("name", network.Name)
+	d.Set("organization_id", network.OrganizationID)
+	d.Set("owner", network.Owner)
+	d.Set("project_id", network.ProjectID)
+	d.Set("updated_at", network.UpdatedAt)
 
-	d.Set("cidr", networkObject.CIDR)
-	d.Set("project_id", networkObject.ProjectID)
-	d.Set("external_zone_id", networkObject.ExternalZoneID)
-	d.Set("external_id", networkObject.ExternalID)
-	d.Set("name", networkObject.Name)
-	d.Set("description", networkObject.Description)
-	d.Set("self_link", networkObject.SelfLink)
-	d.Set("updated_at", networkObject.UpdatedAt)
-	d.Set("owner", networkObject.Owner)
-	d.Set("organization_id", networkObject.OrganizationID)
-	d.Set("custom_properties", networkObject.CustomProperties)
-
-	if err := d.Set("tags", flattenTags(networkObject.Tags)); err != nil {
-		return fmt.Errorf("Error setting Network tags - error: %#v", err)
+	if err := d.Set("tags", flattenSDKTags(network.Tags)); err != nil {
+		return fmt.Errorf("error setting network tags - error: %v", err)
 	}
 
-	if err := d.Set("links", flattenLinks(networkObject.Links)); err != nil {
-		return fmt.Errorf("Error setting Network links - error: %#v", err)
+	if err := d.Set("links", flattenSDKLinks(network.Links)); err != nil {
+		return fmt.Errorf("error setting network links - error: %#v", err)
 	}
 
+	log.Printf("Finished reading the cas_network resource with name %s", d.Get("name"))
 	return nil
 }
 
 func resourceNetworkUpdate(d *schema.ResourceData, m interface{}) error {
-
-	return nil
+	return fmt.Errorf("Updating a network resource is not allowed")
 }
 
 func resourceNetworkDelete(d *schema.ResourceData, m interface{}) error {
+	log.Printf("Starting to delete the cas_network resource with name %s", d.Get("name"))
 	client := m.(*tango.Client)
-	err := client.DeleteResource(getSelfLink(d.Get("links").([]interface{})))
+	apiClient := client.GetAPIClient()
 
-	if err != nil && strings.Contains(err.Error(), "404") { // already deleted
-		return nil
+	id := d.Id()
+	deleteNetwork, err := apiClient.Network.DeleteNetwork(network.NewDeleteNetworkParams().WithID(id))
+	if err != nil {
+		switch err.(type) {
+		case *network.DeleteNetworkNotFound:
+			d.SetId("")
+			return nil
+		}
+		return err
+	}
+	stateChangeFunc := resource.StateChangeConf{
+		Delay:      5 * time.Second,
+		Pending:    []string{models.RequestTrackerStatusINPROGRESS},
+		Refresh:    networkStateRefreshFunc(*apiClient, *deleteNetwork.Payload.ID),
+		Target:     []string{models.RequestTrackerStatusFINISHED},
+		Timeout:    5 * time.Minute,
+		MinTimeout: 5 * time.Second,
 	}
 
-	return err
+	_, err = stateChangeFunc.WaitForState()
+	if err != nil {
+		return err
+	}
+
+	d.SetId("")
+	log.Printf("Finished deleting the cas_network resource with name %s", d.Get("name"))
+	return nil
 }
