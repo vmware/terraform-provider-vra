@@ -1,0 +1,100 @@
+package cas
+
+import (
+	"fmt"
+	"strings"
+
+	"github.com/vmware/cas-sdk-go/pkg/client/security_group"
+	tango "github.com/vmware/terraform-provider-cas/sdk"
+
+	"github.com/hashicorp/terraform/helper/schema"
+)
+
+func dataSourceSecurityGroup() *schema.Resource {
+	return &schema.Resource{
+		Read: dataSourceSecurityGroupRead,
+		Schema: map[string]*schema.Schema{
+			"filter": {
+				Type:     schema.TypeString,
+				Required: true,
+			},
+			"created_at": &schema.Schema{
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"description": &schema.Schema{
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"egress": rulesSDKSchema(false),
+			"external_id": &schema.Schema{
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"external_region_id": &schema.Schema{
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"id": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"ingress": rulesSDKSchema(false),
+			"links":   linksSDKSchema(),
+			"name": &schema.Schema{
+				Type:     schema.TypeString,
+				Computed: true,
+				DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
+					return !strings.HasPrefix(new, old)
+				},
+			},
+			"organization_id": &schema.Schema{
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"owner": &schema.Schema{
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"updated_at": &schema.Schema{
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+		},
+	}
+}
+
+func dataSourceSecurityGroupRead(d *schema.ResourceData, meta interface{}) error {
+	client := meta.(*tango.Client)
+	apiClient := client.GetAPIClient()
+
+	filter := d.Get("filter").(string)
+
+	getResp, err := apiClient.SecurityGroup.GetSecurityGroups(security_group.NewGetSecurityGroupsParams().WithDollarFilter(withString(filter)))
+	if err != nil {
+		return err
+	}
+
+	securityGroups := getResp.Payload
+	if len(securityGroups.Content) > 1 {
+		return fmt.Errorf("cas_security_group must filter to a single security group")
+	}
+	if len(securityGroups.Content) == 0 {
+		return fmt.Errorf("as_security_group filter did not match any security groups")
+	}
+
+	securityGroup := securityGroups.Content[0]
+	d.SetId(*securityGroup.ID)
+	d.Set("created_at", securityGroup.CreatedAt)
+	d.Set("description", securityGroup.Description)
+	d.Set("egress", securityGroup.Egress)
+	d.Set("external_id", securityGroup.ExternalID)
+	d.Set("external_region_id", securityGroup.ExternalRegionID)
+	d.Set("ingress", securityGroup.Ingress)
+	d.Set("name", securityGroup.Name)
+	d.Set("organization_id", securityGroup.OrganizationID)
+	d.Set("owner", securityGroup.Owner)
+	d.Set("updated_at", securityGroup.UpdatedAt)
+
+	return nil
+}
