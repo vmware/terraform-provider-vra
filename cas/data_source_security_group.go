@@ -2,7 +2,6 @@ package cas
 
 import (
 	"fmt"
-	"strings"
 
 	"github.com/vmware/cas-sdk-go/pkg/client/security_group"
 	tango "github.com/vmware/terraform-provider-cas/sdk"
@@ -44,9 +43,6 @@ func dataSourceSecurityGroup() *schema.Resource {
 			"name": &schema.Schema{
 				Type:     schema.TypeString,
 				Computed: true,
-				DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
-					return !strings.HasPrefix(new, old)
-				},
 			},
 			"organization_id": &schema.Schema{
 				Type:     schema.TypeString,
