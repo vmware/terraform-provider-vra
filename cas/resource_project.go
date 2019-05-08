@@ -162,7 +162,7 @@ func resourceProjectDelete(d *schema.ResourceData, m interface{}) error {
 		return err
 	}
 
-	_, _, err = apiClient.Project.DeleteProject(project.NewDeleteProjectParams().WithID(id))
+	_, err = apiClient.Project.DeleteProject(project.NewDeleteProjectParams().WithID(id))
 	if err != nil {
 		return err
 	}
