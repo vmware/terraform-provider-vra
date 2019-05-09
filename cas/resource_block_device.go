@@ -4,9 +4,15 @@ import (
 	"fmt"
 	"log"
 	"strings"
+	"time"
 
-	"github.com/vmware/terraform-provider-cas/sdk"
+	"github.com/vmware/cas-sdk-go/pkg/client"
+	"github.com/vmware/cas-sdk-go/pkg/client/disk"
+	"github.com/vmware/cas-sdk-go/pkg/client/request"
+	"github.com/vmware/cas-sdk-go/pkg/models"
+	tango "github.com/vmware/terraform-provider-cas/sdk"
 
+	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
 )
 
@@ -22,6 +28,31 @@ func resourceBlockDevice() *schema.Resource {
 				Type:     schema.TypeInt,
 				Required: true,
 			},
+			"name": &schema.Schema{
+				Type:     schema.TypeString,
+				Required: true,
+				DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
+					return !strings.HasPrefix(new, old)
+				},
+			},
+			"project_id": &schema.Schema{
+				Type:     schema.TypeString,
+				Required: true,
+			},
+			"constraints": constraintsSDKSchema(),
+			"custom_properties": &schema.Schema{
+				Type:     schema.TypeMap,
+				Computed: true,
+				Optional: true,
+			},
+			"description": &schema.Schema{
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"disk_content_base_64": &schema.Schema{
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 			"encrypted": &schema.Schema{
 				Type:     schema.TypeBool,
 				Optional: true,
@@ -30,26 +61,12 @@ func resourceBlockDevice() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"disk_content_base_64": &schema.Schema{
-				Type:     schema.TypeString,
-				Optional: true,
-			},
-			"status": &schema.Schema{
+			"tags": tagsSDKSchema(),
+			"created_at": &schema.Schema{
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"custom_properties": &schema.Schema{
-				Type:     schema.TypeMap,
-				Computed: true,
-				Optional: true,
-			},
-			"constraints": constraintsSchema(),
-			"tags":        tagsSchema(),
-			"external_zone_id": &schema.Schema{
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"external_region_id": &schema.Schema{
+			"deployment_id": &schema.Schema{
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -57,30 +74,11 @@ func resourceBlockDevice() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"name": &schema.Schema{
-				Type:     schema.TypeString,
-				Required: true,
-				DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
-					return !strings.HasPrefix(new, old)
-				},
-			},
-			"description": &schema.Schema{
-				Type:     schema.TypeString,
-				Optional: true,
-			},
-			"self_link": &schema.Schema{
+			"external_region_id": &schema.Schema{
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"created_at": &schema.Schema{
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"updated_at": &schema.Schema{
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"owner": &schema.Schema{
+			"external_zone_id": &schema.Schema{
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -88,24 +86,55 @@ func resourceBlockDevice() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"links": linksSchema(),
+			"owner": &schema.Schema{
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"links": linksSDKSchema(),
+			"self_link": &schema.Schema{
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"status": &schema.Schema{
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"updated_at": &schema.Schema{
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 		},
 	}
 }
 
 func resourceBlockDeviceCreate(d *schema.ResourceData, m interface{}) error {
+	log.Printf("Starting to create cas_block_device resource")
 	client := m.(*tango.Client)
+	apiClient := client.GetAPIClient()
 
-	blockDeviceSpecification := tango.BlockDeviceSpecification{
-		Name:             d.Get("name").(string),
-		ProjectID:        client.GetProjectID(),
-		CapacityInGB:     d.Get("capacity_in_gb").(int),
-		Constraints:      expandConstraints(d.Get("constraints").([]interface{})),
-		Tags:             expandTags(d.Get("tags").([]interface{})),
-		CustomProperties: expandCustomProperties(d.Get("custom_properties").(map[string]interface{})),
+	capacityInGB := int32(d.Get("capacity_in_gb").(int))
+	name := d.Get("name").(string)
+	projectID := d.Get("project_id").(string)
+	constraints := expandSDKConstraints(d.Get("constraints").(*schema.Set).List())
+	customProperties := expandCustomProperties(d.Get("custom_properties").(map[string]interface{}))
+	tags := expandSDKTags(d.Get("tags").(*schema.Set).List())
+
+	blockDeviceSpecification := models.BlockDeviceSpecification{
+		CapacityInGB:     &capacityInGB,
+		Name:             &name,
+		ProjectID:        &projectID,
+		Constraints:      constraints,
+		CustomProperties: customProperties,
+		Tags:             tags,
 	}
 
-	blockDeviceSpecification.CustomProperties["__composition_context_id"] = client.GetDeploymentID()
+	if v, ok := d.GetOk("deployment_id"); ok {
+		blockDeviceSpecification.DeploymentID = v.(string)
+	}
+
+	if v, ok := d.GetOk("description"); ok {
+		blockDeviceSpecification.Description = v.(string)
+	}
 
 	if v, ok := d.GetOk("encrypted"); ok {
 		blockDeviceSpecification.Encrypted = v.(bool)
@@ -119,91 +148,127 @@ func resourceBlockDeviceCreate(d *schema.ResourceData, m interface{}) error {
 		blockDeviceSpecification.DiskContentBase64 = v.(string)
 	}
 
-	if v, ok := d.GetOk("description"); ok {
-		blockDeviceSpecification.Description = v.(string)
-	}
-
-	log.Printf("[DEBUG] record create block device: %#v", blockDeviceSpecification)
-	resourceObject, err := client.CreateResource(blockDeviceSpecification)
+	log.Printf("[DEBUG] create block device: %#v", blockDeviceSpecification)
+	createBlockDeviceCreated, err := apiClient.Disk.CreateBlockDevice(disk.NewCreateBlockDeviceParams().WithBody(&blockDeviceSpecification))
 	if err != nil {
 		return err
 	}
 
-	blockDeviceObject := resourceObject.(*tango.BlockDevice)
-
-	d.SetId(blockDeviceObject.ID)
-	d.Set("name", blockDeviceObject.Name)
-	d.Set("capacity_in_gb", blockDeviceObject.CapacityInGB)
-	d.Set("status", blockDeviceObject.Status)
-	d.Set("external_zone_id", blockDeviceObject.ExternalZoneID)
-	d.Set("external_region_id", blockDeviceObject.ExternalRegionID)
-	d.Set("external_id", blockDeviceObject.ExternalID)
-	d.Set("self_link", blockDeviceObject.SelfLink)
-	d.Set("created_at", blockDeviceObject.CreatedAt)
-	d.Set("updated_at", blockDeviceObject.UpdatedAt)
-	d.Set("owner", blockDeviceObject.Owner)
-	d.Set("organization_id", blockDeviceObject.OrganizationID)
-	d.Set("custom_properties", blockDeviceObject.CustomProperties)
-
-	if err := d.Set("tags", flattenTags(blockDeviceObject.Tags)); err != nil {
-		return fmt.Errorf("Error setting Block Device tags - error: %#v", err)
+	stateChangeFunc := resource.StateChangeConf{
+		Delay:      5 * time.Second,
+		Pending:    []string{models.RequestTrackerStatusINPROGRESS},
+		Refresh:    blockDeviceStateRefreshFunc(*apiClient, *createBlockDeviceCreated.Payload.ID),
+		Target:     []string{models.RequestTrackerStatusFINISHED},
+		Timeout:    5 * time.Minute,
+		MinTimeout: 5 * time.Second,
 	}
 
-	if err := d.Set("links", flattenLinks(blockDeviceObject.Links)); err != nil {
-		return fmt.Errorf("Error setting Block Device links - error: %#v", err)
+	resourceIDs, err := stateChangeFunc.WaitForState()
+	if err != nil {
+		return err
 	}
 
-	return nil
+	blockDeviceIDs := resourceIDs.([]string)
+	i := strings.LastIndex(blockDeviceIDs[0], "/")
+	blockDeviceID := blockDeviceIDs[0][i+1 : len(blockDeviceIDs[0])]
+	d.SetId(blockDeviceID)
+	log.Printf("Finished to create cas_block_device resource with name %s", d.Get("name"))
+
+	return resourceBlockDeviceRead(d, m)
+}
+
+func blockDeviceStateRefreshFunc(apiClient client.MulticloudIaaS, id string) resource.StateRefreshFunc {
+	return func() (interface{}, string, error) {
+		ret, err := apiClient.Request.GetRequestTracker(request.NewGetRequestTrackerParams().WithID(id))
+		if err != nil {
+			return "", models.RequestTrackerStatusFAILED, err
+		}
+
+		status := ret.Payload.Status
+		switch *status {
+		case models.RequestTrackerStatusFAILED:
+			return []string{""}, *status, fmt.Errorf(ret.Payload.Message)
+		case models.RequestTrackerStatusINPROGRESS:
+			return [...]string{id}, *status, nil
+		case models.RequestTrackerStatusFINISHED:
+			loadBalancerIDs := make([]string, len(ret.Payload.Resources))
+			for i, r := range ret.Payload.Resources {
+				loadBalancerIDs[i] = strings.TrimPrefix(r, "/iaas/api/block-device/")
+			}
+			return loadBalancerIDs, *status, nil
+		default:
+			return [...]string{id}, ret.Payload.Message, fmt.Errorf("blockDeviceStateRefreshFunc: unknown status %v", *status)
+		}
+	}
 }
 
 func resourceBlockDeviceRead(d *schema.ResourceData, m interface{}) error {
+	log.Printf("Reading the cas_block_device resource with name %s", d.Get("name"))
 	client := m.(*tango.Client)
+	apiClient := client.GetAPIClient()
 
-	resourceObject, err := client.ReadResource(getSelfLink(d.Get("links").([]interface{})))
+	id := d.Id()
+	resp, err := apiClient.Disk.GetBlockDevice(disk.NewGetBlockDeviceParams().WithID(id))
 	if err != nil {
-		d.SetId("")
-		return nil
+		return err
 	}
 
-	blockDeviceObject := resourceObject.(*tango.BlockDevice)
+	blockDevice := *resp.Payload
+	d.Set("capacity_in_gb", blockDevice.CapacityInGB)
+	d.Set("created_at", blockDevice.CreatedAt)
+	d.Set("custom_properties", blockDevice.CustomProperties)
+	d.Set("description", blockDevice.Description)
+	d.Set("external_id", blockDevice.ExternalID)
+	d.Set("external_region_id", blockDevice.ExternalRegionID)
+	d.Set("external_zone_id", blockDevice.ExternalZoneID)
+	d.Set("name", blockDevice.Name)
+	d.Set("organization_id", blockDevice.OrganizationID)
+	d.Set("owner", blockDevice.Owner)
+	d.Set("status", blockDevice.Status)
+	d.Set("updated_at", blockDevice.UpdatedAt)
 
-	d.Set("capacity_in_gb", blockDeviceObject.CapacityInGB)
-	d.Set("status", blockDeviceObject.Status)
-	d.Set("external_zone_id", blockDeviceObject.ExternalZoneID)
-	d.Set("external_region_id", blockDeviceObject.ExternalRegionID)
-	d.Set("external_id", blockDeviceObject.ExternalID)
-	d.Set("name", blockDeviceObject.Name)
-	d.Set("description", blockDeviceObject.Description)
-	d.Set("self_link", blockDeviceObject.SelfLink)
-	d.Set("created_at", blockDeviceObject.CreatedAt)
-	d.Set("updated_at", blockDeviceObject.UpdatedAt)
-	d.Set("owner", blockDeviceObject.Owner)
-	d.Set("organization_id", blockDeviceObject.OrganizationID)
-	d.Set("custom_properties", blockDeviceObject.CustomProperties)
-
-	if err := d.Set("tags", flattenTags(blockDeviceObject.Tags)); err != nil {
-		return fmt.Errorf("Error setting Block Device tags - error: %#v", err)
+	if err := d.Set("tags", flattenSDKTags(blockDevice.Tags)); err != nil {
+		return fmt.Errorf("error setting block device tags - error: %v", err)
 	}
 
-	if err := d.Set("links", flattenLinks(blockDeviceObject.Links)); err != nil {
-		return fmt.Errorf("Error setting Block Device links - error: %#v", err)
+	if err := d.Set("links", flattenSDKLinks(blockDevice.Links)); err != nil {
+		return fmt.Errorf("error setting block device links - error: %#v", err)
 	}
 
+	log.Printf("Finished reading the cas_block_device resource with name %s", d.Get("name"))
 	return nil
 }
 
 func resourceBlockDeviceUpdate(d *schema.ResourceData, m interface{}) error {
 
-	return nil
+	return fmt.Errorf("Updating a block device resource is not allowed")
 }
 
 func resourceBlockDeviceDelete(d *schema.ResourceData, m interface{}) error {
+	log.Printf("Starting to delete the cas_block_device resource with name %s", d.Get("name"))
 	client := m.(*tango.Client)
-	err := client.DeleteResource(getSelfLink(d.Get("links").([]interface{})))
+	apiClient := client.GetAPIClient()
 
-	if err != nil && strings.Contains(err.Error(), "404") { // already deleted
-		return nil
+	id := d.Id()
+	deleteBlockDevice, err := apiClient.Disk.DeleteBlockDevice(disk.NewDeleteBlockDeviceParams().WithID(id))
+	if err != nil {
+		return err
+	}
+	stateChangeFunc := resource.StateChangeConf{
+		Delay:      5 * time.Second,
+		Pending:    []string{models.RequestTrackerStatusINPROGRESS},
+		Refresh:    blockDeviceStateRefreshFunc(*apiClient, *deleteBlockDevice.Payload.ID),
+		Target:     []string{models.RequestTrackerStatusFINISHED},
+		Timeout:    5 * time.Minute,
+		MinTimeout: 5 * time.Second,
 	}
 
-	return err
+	_, err = stateChangeFunc.WaitForState()
+	if err != nil {
+		return err
+	}
+
+	d.SetId("")
+	log.Printf("Finished deleting the cas_block_device resource with name %s", d.Get("name"))
+	return nil
 }
