@@ -8,12 +8,12 @@ import (
 	tango "github.com/vmware/terraform-provider-cas/sdk"
 )
 
-func resourceFlavor() *schema.Resource {
+func resourceFlavorProfile() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceFlavorCreate,
-		Read:   resourceFlavorRead,
-		Update: resourceFlavorUpdate,
-		Delete: resourceFlavorDelete,
+		Create: resourceFlavorProfileCreate,
+		Read:   resourceFlavorProfileRead,
+		Update: resourceFlavorProfileUpdate,
+		Delete: resourceFlavorProfileDelete,
 
 		Schema: map[string]*schema.Schema{
 			"description": &schema.Schema{
@@ -56,7 +56,7 @@ func resourceFlavor() *schema.Resource {
 	}
 }
 
-func resourceFlavorCreate(d *schema.ResourceData, m interface{}) error {
+func resourceFlavorProfileCreate(d *schema.ResourceData, m interface{}) error {
 	client := m.(*tango.Client)
 	apiClient := client.GetAPIClient()
 
@@ -77,10 +77,10 @@ func resourceFlavorCreate(d *schema.ResourceData, m interface{}) error {
 
 	d.SetId(*createResp.Payload.ID)
 
-	return resourceFlavorRead(d, m)
+	return resourceFlavorProfileRead(d, m)
 }
 
-func resourceFlavorRead(d *schema.ResourceData, m interface{}) error {
+func resourceFlavorProfileRead(d *schema.ResourceData, m interface{}) error {
 	client := m.(*tango.Client)
 	apiClient := client.GetAPIClient()
 
@@ -102,7 +102,7 @@ func resourceFlavorRead(d *schema.ResourceData, m interface{}) error {
 	return nil
 }
 
-func resourceFlavorUpdate(d *schema.ResourceData, m interface{}) error {
+func resourceFlavorProfileUpdate(d *schema.ResourceData, m interface{}) error {
 	client := m.(*tango.Client)
 	apiClient := client.GetAPIClient()
 
@@ -122,10 +122,10 @@ func resourceFlavorUpdate(d *schema.ResourceData, m interface{}) error {
 		return err
 	}
 
-	return resourceFlavorRead(d, m)
+	return resourceFlavorProfileRead(d, m)
 }
 
-func resourceFlavorDelete(d *schema.ResourceData, m interface{}) error {
+func resourceFlavorProfileDelete(d *schema.ResourceData, m interface{}) error {
 	client := m.(*tango.Client)
 	apiClient := client.GetAPIClient()
 

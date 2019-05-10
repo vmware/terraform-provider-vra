@@ -13,37 +13,37 @@ import (
 	tango "github.com/vmware/terraform-provider-cas/sdk"
 )
 
-func TestAccCASFlavorBasic(t *testing.T) {
+func TestAccCASFlavorProfileBasic(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckAWS(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckCASFlavorDestroy,
+		CheckDestroy: testAccCheckCASFlavorProfileDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCheckCASFlavorConfig(),
+				Config: testAccCheckCASFlavorProfileConfig(),
 				Check: resource.ComposeAggregateTestCheckFunc(
-					testAccCheckCASFlavorExists("cas_flavor.my-flavor"),
+					testAccCheckCASFlavorProfileExists("cas_flavor_profile.my-flavor-profile"),
 					resource.TestCheckResourceAttr(
-						"cas_flavor.my-flavor", "name", "AWS"),
+						"cas_flavor_profile.my-flavor-profile", "name", "AWS"),
 					resource.TestCheckResourceAttr(
-						"cas_flavor.my-flavor", "description", "my flavor"),
+						"cas_flavor_profile.my-flavor-profile", "description", "my flavor"),
 					resource.TestCheckResourceAttr(
-						"cas_flavor.my-flavor", "flavor_mapping.#", "2"),
+						"cas_flavor_profile.my-flavor-profile", "flavor_mapping.#", "2"),
 					resource.TestCheckResourceAttr(
-						"cas_flavor.my-flavor", "flavor_mapping.2163174927.name", "small"),
+						"cas_flavor_profile.my-flavor-profile", "flavor_mapping.2163174927.name", "small"),
 					resource.TestCheckResourceAttr(
-						"cas_flavor.my-flavor", "flavor_mapping.2163174927.instance_type", "t2.small"),
+						"cas_flavor_profile.my-flavor-profile", "flavor_mapping.2163174927.instance_type", "t2.small"),
 					resource.TestCheckResourceAttr(
-						"cas_flavor.my-flavor", "flavor_mapping.310071531.name", "medium"),
+						"cas_flavor_profile.my-flavor-profile", "flavor_mapping.310071531.name", "medium"),
 					resource.TestCheckResourceAttr(
-						"cas_flavor.my-flavor", "flavor_mapping.310071531.instance_type", "t2.medium"),
+						"cas_flavor_profile.my-flavor-profile", "flavor_mapping.310071531.instance_type", "t2.medium"),
 				),
 			},
 		},
 	})
 }
 
-func testAccCheckCASFlavorExists(n string) resource.TestCheckFunc {
+func testAccCheckCASFlavorProfileExists(n string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
@@ -51,14 +51,14 @@ func testAccCheckCASFlavorExists(n string) resource.TestCheckFunc {
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("no flavor ID is set")
+			return fmt.Errorf("no flavor profile ID is set")
 		}
 
 		return nil
 	}
 }
 
-func testAccCheckCASFlavorDestroy(s *terraform.State) error {
+func testAccCheckCASFlavorProfileDestroy(s *terraform.State) error {
 	client := testAccProviderCAS.Meta().(*tango.Client)
 	apiClient := client.GetAPIClient()
 
@@ -69,10 +69,10 @@ func testAccCheckCASFlavorDestroy(s *terraform.State) error {
 				return fmt.Errorf("Resource 'cas_cloud_account_aws' still exists with id %s", rs.Primary.ID)
 			}
 		}
-		if rs.Type == "cas_flavor" {
+		if rs.Type == "cas_flavor_profile" {
 			_, err := apiClient.FlavorProfile.GetFlavorProfile(flavor_profile.NewGetFlavorProfileParams().WithID(rs.Primary.ID))
 			if err == nil {
-				return fmt.Errorf("Resource 'cas_Flavor' still exists with id %s", rs.Primary.ID)
+				return fmt.Errorf("Resource 'cas_flavor_profile' still exists with id %s", rs.Primary.ID)
 			}
 		}
 	}
@@ -80,7 +80,7 @@ func testAccCheckCASFlavorDestroy(s *terraform.State) error {
 	return nil
 }
 
-func testAccCheckCASFlavorConfig() string {
+func testAccCheckCASFlavorProfileConfig() string {
 	// Need valid credentials since this is creating a real cloud account
 	id := os.Getenv("CAS_AWS_ACCESS_KEY_ID")
 	secret := os.Getenv("CAS_AWS_SECRET_ACCESS_KEY")
@@ -104,7 +104,7 @@ resource "cas_zone" "my-zone" {
 	region_id = "${data.cas_region.us-east-1-region.id}"
 }
 
-resource "cas_flavor" "my-flavor" {
+resource "cas_flavor_profile" "my-flavor-profile" {
 	name = "AWS"
 	description = "my flavor"
 	region_id = "${data.cas_region.us-east-1-region.id}"
