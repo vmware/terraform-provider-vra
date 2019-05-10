@@ -40,9 +40,9 @@ resource "cas_project" "my-project" {
     }
 }
 
-resource "cas_flavor" "my-flavor" {
-	name = "tf-cas-flavor"
-	description = "my terraform test flavor"
+resource "cas_flavor_profile" "my-flavor-profile" {
+	name = "tf-cas-flavor-profile"
+	description = "my terraform test flavor profile"
 	region_id = "${data.cas_region.us-east-1-region.id}"
 	flavor_mapping {
 		name = "small"
