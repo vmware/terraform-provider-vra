@@ -2,10 +2,8 @@ package cas
 
 import (
 	"fmt"
-	"github.com/vmware/terraform-provider-cas/sdk"
 	"regexp"
 	"strconv"
-	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform/helper/acctest"
@@ -13,43 +11,43 @@ import (
 	"github.com/hashicorp/terraform/terraform"
 )
 
-func TestAccTangoNetwork_Basic(t *testing.T) {
+func TestAccCASNetwork_Basic(t *testing.T) {
 	rInt := acctest.RandInt()
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckTangoNetworkDestroy,
+		CheckDestroy: testAccCheckCASNetworkDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCheckTangoNetworkConfig(rInt),
+				Config: testAccCheckCASNetworkConfig(rInt),
 				Check: resource.ComposeAggregateTestCheckFunc(
-					testAccCheckTangoNetworkExists("tango_network.my_network"),
+					testAccCheckCASNetworkExists("cas_network.my_network"),
 					resource.TestMatchResourceAttr(
-						"tango_network.my_network", "name", regexp.MustCompile("^terraform_tango_network-"+strconv.Itoa(rInt))),
+						"cas_network.my_network", "name", regexp.MustCompile("^terraform_cas_network-"+strconv.Itoa(rInt))),
 					resource.TestCheckResourceAttr(
-						"tango_network.my_network", "outbound_access", "false"),
+						"cas_network.my_network", "outbound_access", "false"),
 					resource.TestCheckResourceAttr(
-						"tango_network.my_network", "constraints.#", "1"),
+						"cas_network.my_network", "constraints.#", "1"),
 					resource.TestCheckResourceAttr(
-						"tango_network.my_network", "constraints.0.mandatory", "true"),
+						"cas_network.my_network", "constraints.0.mandatory", "true"),
 					resource.TestCheckResourceAttr(
-						"tango_network.my_network", "constraints.0.expression", "pci"),
+						"cas_network.my_network", "constraints.0.expression", "pci"),
 
 					// Currently not working as expected - possible bug on Provisioning service's side
 					resource.TestCheckResourceAttr(
-						"tango_network.my_network", "tags.#", "1"),
+						"cas_network.my_network", "tags.#", "1"),
 					resource.TestCheckResourceAttr(
-						"tango_network.my_network", "tags.0.key", "stoyan"),
+						"cas_network.my_network", "tags.0.key", "stoyan"),
 					resource.TestCheckResourceAttr(
-						"tango_network.my_network", "tags.0.value", "genchev"),
+						"cas_network.my_network", "tags.0.value", "genchev"),
 				),
 			},
 		},
 	})
 }
 
-func testAccCheckTangoNetworkExists(n string) resource.TestCheckFunc {
+func testAccCheckCASNetworkExists(n string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
@@ -64,30 +62,32 @@ func testAccCheckTangoNetworkExists(n string) resource.TestCheckFunc {
 	}
 }
 
-func testAccCheckTangoNetworkDestroy(s *terraform.State) error {
-	client := testAccProvider.Meta().(*tango.Client)
+func testAccCheckCASNetworkDestroy(s *terraform.State) error {
+	/*
+		apiClient := testAccProviderCAS.Meta().(*Client).apiClient
 
-	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "tango_network" {
-			continue
+		for _, rs := range s.RootModule().Resources {
+			if rs.Type != "cas_network" {
+				continue
+			}
+
+			_, err := apiClient.ReadResource("/iaas/networks/" + rs.Primary.ID)
+
+			if err != nil && !strings.Contains(err.Error(), "404") {
+				return fmt.Errorf(
+					"Error waiting for network (%s) to be destroyed: %s",
+					rs.Primary.ID, err)
+			}
 		}
-
-		_, err := client.ReadResource("/iaas/networks/" + rs.Primary.ID)
-
-		if err != nil && !strings.Contains(err.Error(), "404") {
-			return fmt.Errorf(
-				"Error waiting for network (%s) to be destroyed: %s",
-				rs.Primary.ID, err)
-		}
-	}
+	*/
 
 	return nil
 }
 
-func testAccCheckTangoNetworkConfig(rInt int) string {
+func testAccCheckCASNetworkConfig(rInt int) string {
 	return fmt.Sprintf(`
-resource "tango_network" "my_network" {
-  name = "terraform_tango_network-%d"
+resource "cas_network" "my_network" {
+  name = "terraform_cas_network-%d"
   outbound_access = false
 
   tags {

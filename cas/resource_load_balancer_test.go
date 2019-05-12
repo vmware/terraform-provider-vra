@@ -2,10 +2,8 @@ package cas
 
 import (
 	"fmt"
-	"github.com/vmware/terraform-provider-cas/sdk"
 	"regexp"
 	"strconv"
-	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform/helper/acctest"
@@ -13,55 +11,55 @@ import (
 	"github.com/hashicorp/terraform/terraform"
 )
 
-func TestAccTangoLoadBalancer_Basic(t *testing.T) {
+func TestAccCASLoadBalancer_Basic(t *testing.T) {
 	rInt := acctest.RandInt()
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckTangoLoadBalancerDestroy,
+		CheckDestroy: testAccCheckCASLoadBalancerDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCheckTangoLoadBalancerConfig(rInt),
+				Config: testAccCheckCASLoadBalancerConfig(rInt),
 				Check: resource.ComposeAggregateTestCheckFunc(
-					testAccCheckTangoLoadBalancerExists("tango_load_balancer.my_load_balancer"),
+					testAccCheckCASLoadBalancerExists("cas_load_balancer.my_load_balancer"),
 					resource.TestMatchResourceAttr(
-						"tango_load_balancer.my_load_balancer", "name", regexp.MustCompile("^terraformtangoloadbalancer-"+strconv.Itoa(rInt))),
+						"cas_load_balancer.my_load_balancer", "name", regexp.MustCompile("^terraformcasloadbalancer-"+strconv.Itoa(rInt))),
 					resource.TestCheckResourceAttr(
-						"tango_load_balancer.my_load_balancer", "nics.#", "1"),
+						"cas_load_balancer.my_load_balancer", "nics.#", "1"),
 					resource.TestCheckResourceAttr(
-						"tango_load_balancer.my_load_balancer", "target_links.#", "1"),
+						"cas_load_balancer.my_load_balancer", "target_links.#", "1"),
 					resource.TestCheckResourceAttr(
-						"tango_load_balancer.my_load_balancer", "routes.#", "1"),
+						"cas_load_balancer.my_load_balancer", "routes.#", "1"),
 					resource.TestCheckResourceAttr(
-						"tango_load_balancer.my_load_balancer", "routes.0.port", "80"),
+						"cas_load_balancer.my_load_balancer", "routes.0.port", "80"),
 					resource.TestCheckResourceAttr(
-						"tango_load_balancer.my_load_balancer", "routes.0.protocol", "TCP"),
+						"cas_load_balancer.my_load_balancer", "routes.0.protocol", "TCP"),
 					resource.TestCheckResourceAttr(
-						"tango_load_balancer.my_load_balancer", "routes.0.member_port", "80"),
+						"cas_load_balancer.my_load_balancer", "routes.0.member_port", "80"),
 					resource.TestCheckResourceAttr(
-						"tango_load_balancer.my_load_balancer", "routes.0.member_protocol", "TCP"),
+						"cas_load_balancer.my_load_balancer", "routes.0.member_protocol", "TCP"),
 					resource.TestCheckResourceAttr(
-						"tango_load_balancer.my_load_balancer", "routes.0.health_check_configuration.#", "1"),
+						"cas_load_balancer.my_load_balancer", "routes.0.health_check_configuration.#", "1"),
 					resource.TestCheckResourceAttr(
-						"tango_load_balancer.my_load_balancer", "routes.0.health_check_configuration.0.port", "80"),
+						"cas_load_balancer.my_load_balancer", "routes.0.health_check_configuration.0.port", "80"),
 					resource.TestCheckResourceAttr(
-						"tango_load_balancer.my_load_balancer", "routes.0.health_check_configuration.0.protocol", "TCP"),
+						"cas_load_balancer.my_load_balancer", "routes.0.health_check_configuration.0.protocol", "TCP"),
 					resource.TestCheckResourceAttr(
-						"tango_load_balancer.my_load_balancer", "routes.0.health_check_configuration.0.unhealthy_threshold", "2"),
+						"cas_load_balancer.my_load_balancer", "routes.0.health_check_configuration.0.unhealthy_threshold", "2"),
 					resource.TestCheckResourceAttr(
-						"tango_load_balancer.my_load_balancer", "routes.0.health_check_configuration.0.timeout_seconds", "5"),
+						"cas_load_balancer.my_load_balancer", "routes.0.health_check_configuration.0.timeout_seconds", "5"),
 					resource.TestCheckResourceAttr(
-						"tango_load_balancer.my_load_balancer", "routes.0.health_check_configuration.0.interval_seconds", "30"),
+						"cas_load_balancer.my_load_balancer", "routes.0.health_check_configuration.0.interval_seconds", "30"),
 					resource.TestCheckResourceAttr(
-						"tango_load_balancer.my_load_balancer", "routes.0.health_check_configuration.0.healthy_threshold", "10"),
+						"cas_load_balancer.my_load_balancer", "routes.0.health_check_configuration.0.healthy_threshold", "10"),
 				),
 			},
 		},
 	})
 }
 
-func testAccCheckTangoLoadBalancerExists(n string) resource.TestCheckFunc {
+func testAccCheckCASLoadBalancerExists(n string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
@@ -76,30 +74,33 @@ func testAccCheckTangoLoadBalancerExists(n string) resource.TestCheckFunc {
 	}
 }
 
-func testAccCheckTangoLoadBalancerDestroy(s *terraform.State) error {
-	client := testAccProvider.Meta().(*tango.Client)
+func testAccCheckCASLoadBalancerDestroy(s *terraform.State) error {
+	/*
+		apiClient := testAccProviderCAS.Meta().(*Client).apiClient
 
-	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "tango_load_balancer" {
-			continue
+
+		for _, rs := range s.RootModule().Resources {
+			if rs.Type != "cas_load_balancer" {
+				continue
+			}
+
+			_, err := client.ReadResource("/iaas/load-balancers/" + rs.Primary.ID)
+
+			if err != nil && !strings.Contains(err.Error(), "404") {
+				return fmt.Errorf(
+					"Error waiting for load balancer (%s) to be destroyed: %s",
+					rs.Primary.ID, err)
+			}
 		}
-
-		_, err := client.ReadResource("/iaas/load-balancers/" + rs.Primary.ID)
-
-		if err != nil && !strings.Contains(err.Error(), "404") {
-			return fmt.Errorf(
-				"Error waiting for load balancer (%s) to be destroyed: %s",
-				rs.Primary.ID, err)
-		}
-	}
+	*/
 
 	return nil
 }
 
-func testAccCheckTangoLoadBalancerConfig(rInt int) string {
+func testAccCheckCASLoadBalancerConfig(rInt int) string {
 	return fmt.Sprintf(`
-resource "tango_network" "my_network" {
-	name = "terraform_tango_network"
+resource "cas_network" "my_network" {
+	name = "terraform_cas_network"
 
 	constraints {
 		mandatory = true
@@ -107,22 +108,22 @@ resource "tango_network" "my_network" {
 	}
 }
 
-resource "tango_machine" "my_machine" {
-	name = "terraform_tango_machine"
+resource "cas_machine" "my_machine" {
+	name = "terraform_cas_machine"
 	
 	image = "ubuntu"
 	flavor = "small"	
 
 	nics {
-        network_id = "${tango_network.my_network.id}"
+        network_id = "${cas_network.my_network.id}"
     }
 }	
 
-resource "tango_load_balancer" "my_load_balancer" {
-	name = "terraformtangoloadbalancer-%d"
+resource "cas_load_balancer" "my_load_balancer" {
+	name = "terraformcasloadbalancer-%d"
 
     nics {
-        network_id = "${tango_network.my_network.id}"
+        network_id = "${cas_network.my_network.id}"
     }
 
     routes {
@@ -140,6 +141,6 @@ resource "tango_load_balancer" "my_load_balancer" {
 		}
     }
 
-    target_links = ["${tango_machine.my_machine.self_link}"]
+    target_links = ["${cas_machine.my_machine.self_link}"]
 }`, rInt)
 }

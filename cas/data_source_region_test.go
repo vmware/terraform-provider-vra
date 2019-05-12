@@ -10,7 +10,6 @@ import (
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
 	"github.com/vmware/cas-sdk-go/pkg/client/cloud_account"
-	tango "github.com/vmware/terraform-provider-cas/sdk"
 )
 
 func TestAccDataSourceCASRegionBasic(t *testing.T) {
@@ -97,8 +96,7 @@ func testAccDataSourceCASRegionInvalidConfig(rInt int) string {
 }
 
 func testAccCheckCASRegionDestroy(s *terraform.State) error {
-	client := testAccProviderCAS.Meta().(*tango.Client)
-	apiClient := client.GetAPIClient()
+	apiClient := testAccProviderCAS.Meta().(*Client).apiClient
 
 	for _, rs := range s.RootModule().Resources {
 		if rs.Type != "cas_cloud_account_aws" {

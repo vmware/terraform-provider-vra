@@ -7,8 +7,8 @@ import (
 	"github.com/vmware/cas-sdk-go/pkg/models"
 )
 
-// nicsSDKSchema returns the schema to use for the nics property
-func routesSDKSchema(isRequired bool) *schema.Schema {
+// routesSchema returns the schema to use for the routes property
+func routesSchema(isRequired bool) *schema.Schema {
 	return &schema.Schema{
 		Type:     schema.TypeSet,
 		Required: true,
@@ -71,7 +71,7 @@ func routesSDKSchema(isRequired bool) *schema.Schema {
 	}
 }
 
-func expandSDKRoutes(configRoutes []interface{}) []*models.RouteConfiguration {
+func expandRoutes(configRoutes []interface{}) []*models.RouteConfiguration {
 	routes := make([]*models.RouteConfiguration, 0, len(configRoutes))
 
 	for _, configRoutes := range configRoutes {
@@ -120,7 +120,7 @@ func expandSDKRoutes(configRoutes []interface{}) []*models.RouteConfiguration {
 	return routes
 }
 
-func flattenSDKRoutes(routes []*models.RouteConfiguration) []map[string]interface{} {
+func flattenRoutes(routes []*models.RouteConfiguration) []map[string]interface{} {
 	if len(routes) == 0 {
 		return make([]map[string]interface{}, 0)
 	}

@@ -5,7 +5,6 @@ import (
 	"strings"
 
 	"github.com/vmware/cas-sdk-go/pkg/client/cloud_account"
-	tango "github.com/vmware/terraform-provider-cas/sdk"
 
 	"github.com/hashicorp/terraform/helper/schema"
 )
@@ -33,8 +32,7 @@ func dataSourceRegion() *schema.Resource {
 }
 
 func dataSourceRegionRead(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*tango.Client)
-	apiClient := client.GetAPIClient()
+	apiClient := meta.(*Client).apiClient
 
 	cloudAccountID := d.Get("cloud_account_id").(string)
 	region := d.Get("region").(string)

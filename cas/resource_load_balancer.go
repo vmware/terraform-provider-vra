@@ -11,8 +11,6 @@ import (
 	"github.com/vmware/cas-sdk-go/pkg/client/request"
 	"github.com/vmware/cas-sdk-go/pkg/models"
 
-	tango "github.com/vmware/terraform-provider-cas/sdk"
-
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
 )
@@ -32,12 +30,12 @@ func resourceLoadBalancer() *schema.Resource {
 					return !strings.HasPrefix(new, old)
 				},
 			},
-			"nics": nicsSDKSchema(true),
+			"nics": nicsSchema(true),
 			"project_id": &schema.Schema{
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"routes": routesSDKSchema(true),
+			"routes": routesSchema(true),
 			"custom_properties": &schema.Schema{
 				Type:     schema.TypeMap,
 				Computed: true,
@@ -55,7 +53,7 @@ func resourceLoadBalancer() *schema.Resource {
 				Type:     schema.TypeBool,
 				Optional: true,
 			},
-			"tags": tagsSDKSchema(),
+			"tags": tagsSchema(),
 			"target_links": &schema.Schema{
 				Type:     schema.TypeList,
 				Optional: true,
@@ -83,7 +81,7 @@ func resourceLoadBalancer() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"links": linksSDKSchema(),
+			"links": linksSchema(),
 			"organization_id": &schema.Schema{
 				Type:     schema.TypeString,
 				Computed: true,
@@ -106,15 +104,14 @@ func resourceLoadBalancer() *schema.Resource {
 
 func resourceLoadBalancerCreate(d *schema.ResourceData, m interface{}) error {
 	log.Printf("Starting to create cas_load_balancer resource")
-	client := m.(*tango.Client)
-	apiClient := client.GetAPIClient()
+	apiClient := m.(*Client).apiClient
 
 	name := d.Get("name").(string)
 	projectID := d.Get("project_id").(string)
-	tags := expandSDKTags(d.Get("tags").(*schema.Set).List())
+	tags := expandTags(d.Get("tags").(*schema.Set).List())
 	customProperties := expandCustomProperties(d.Get("custom_properties").(map[string]interface{}))
-	nics := expandSDKNics(d.Get("nics").(*schema.Set).List())
-	routes := expandSDKRoutes(d.Get("routes").(*schema.Set).List())
+	nics := expandNics(d.Get("nics").(*schema.Set).List())
+	routes := expandRoutes(d.Get("routes").(*schema.Set).List())
 
 	loadBalancerSpecification := models.LoadBalancerSpecification{
 		Name:             &name,
@@ -202,8 +199,7 @@ func loadBalancerStateRefreshFunc(apiClient client.MulticloudIaaS, id string) re
 
 func resourceLoadBalancerRead(d *schema.ResourceData, m interface{}) error {
 	log.Printf("Reading the cas_load_balancer resource with name %s", d.Get("name"))
-	client := m.(*tango.Client)
-	apiClient := client.GetAPIClient()
+	apiClient := m.(*Client).apiClient
 
 	id := d.Id()
 	resp, err := apiClient.LoadBalancer.GetLoadBalancer(load_balancer.NewGetLoadBalancerParams().WithID(id))
@@ -231,14 +227,14 @@ func resourceLoadBalancerRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("project_id", loadBalancer.ProjectID)
 	d.Set("updated_at", loadBalancer.UpdatedAt)
 
-	if err := d.Set("tags", flattenSDKTags(loadBalancer.Tags)); err != nil {
+	if err := d.Set("tags", flattenTags(loadBalancer.Tags)); err != nil {
 		return fmt.Errorf("error setting machine tags - error: %v", err)
 	}
-	if err := d.Set("routes", flattenSDKRoutes(loadBalancer.Routes)); err != nil {
+	if err := d.Set("routes", flattenRoutes(loadBalancer.Routes)); err != nil {
 		return fmt.Errorf("error setting machine tags - error: %v", err)
 	}
 
-	if err := d.Set("links", flattenSDKLinks(loadBalancer.Links)); err != nil {
+	if err := d.Set("links", flattenLinks(loadBalancer.Links)); err != nil {
 		return fmt.Errorf("error setting machine links - error: %#v", err)
 	}
 
@@ -253,8 +249,7 @@ func resourceLoadBalancerUpdate(d *schema.ResourceData, m interface{}) error {
 
 func resourceLoadBalancerDelete(d *schema.ResourceData, m interface{}) error {
 	log.Printf("Starting to delete the cas_load_balancer resource with name %s", d.Get("name"))
-	client := m.(*tango.Client)
-	apiClient := client.GetAPIClient()
+	apiClient := m.(*Client).apiClient
 
 	id := d.Id()
 	deleteLoadBalancer, err := apiClient.LoadBalancer.DeleteLoadBalancer(load_balancer.NewDeleteLoadBalancerParams().WithID(id))

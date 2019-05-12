@@ -6,8 +6,6 @@ import (
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/vmware/cas-sdk-go/pkg/client/location"
 	"github.com/vmware/cas-sdk-go/pkg/models"
-
-	tango "github.com/vmware/terraform-provider-cas/sdk"
 )
 
 func resourceZone() *schema.Resource {
@@ -43,22 +41,21 @@ func resourceZone() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"tags":        tagsSDKSchema(),
-			"tagstomatch": tagsSDKSchema(),
+			"tags":        tagsSchema(),
+			"tagstomatch": tagsSchema(),
 		},
 	}
 }
 
 func resourceZoneCreate(d *schema.ResourceData, m interface{}) error {
-	client := m.(*tango.Client)
-	apiClient := client.GetAPIClient()
+	apiClient := m.(*Client).apiClient
 
 	description := d.Get("description").(string)
 	name := d.Get("name").(string)
 	placementPolicy := d.Get("placement_policy").(string)
 	regionID := d.Get("region_id").(string)
-	tags := expandSDKTags(d.Get("tags").(*schema.Set).List())
-	tagsToMatch := expandSDKTags(d.Get("tagstomatch").(*schema.Set).List())
+	tags := expandTags(d.Get("tags").(*schema.Set).List())
+	tagsToMatch := expandTags(d.Get("tagstomatch").(*schema.Set).List())
 
 	createResp, err := apiClient.Location.CreateZone(location.NewCreateZoneParams().WithBody(&models.ZoneSpecification{
 		Description:     description,
@@ -72,10 +69,10 @@ func resourceZoneCreate(d *schema.ResourceData, m interface{}) error {
 		return err
 	}
 
-	if err := d.Set("tags", flattenSDKTags(tags)); err != nil {
+	if err := d.Set("tags", flattenTags(tags)); err != nil {
 		return fmt.Errorf("Error setting zone tags - error: %#v", err)
 	}
-	if err := d.Set("tagstomatch", flattenSDKTags(tagsToMatch)); err != nil {
+	if err := d.Set("tagstomatch", flattenTags(tagsToMatch)); err != nil {
 		return fmt.Errorf("Error setting zone tagstomatch - error: %#v", err)
 	}
 	d.SetId(*createResp.Payload.ID)
@@ -84,8 +81,7 @@ func resourceZoneCreate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceZoneRead(d *schema.ResourceData, m interface{}) error {
-	client := m.(*tango.Client)
-	apiClient := client.GetAPIClient()
+	apiClient := m.(*Client).apiClient
 
 	id := d.Id()
 	ret, err := apiClient.Location.GetZone(location.NewGetZoneParams().WithID(id))
@@ -101,26 +97,25 @@ func resourceZoneRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("description", zone.Description)
 	d.Set("name", zone.Name)
 	d.Set("placement_policy", zone.PlacementPolicy)
-	if err := d.Set("tags", flattenSDKTags(zone.Tags)); err != nil {
+	if err := d.Set("tags", flattenTags(zone.Tags)); err != nil {
 		return fmt.Errorf("Error setting zone tags - error: %#v", err)
 	}
-	if err := d.Set("tagstomatch", flattenSDKTags(zone.TagsToMatch)); err != nil {
+	if err := d.Set("tagstomatch", flattenTags(zone.TagsToMatch)); err != nil {
 		return fmt.Errorf("Error setting zone tagstomatch - error: %#v", err)
 	}
 	return nil
 }
 
 func resourceZoneUpdate(d *schema.ResourceData, m interface{}) error {
-	client := m.(*tango.Client)
-	apiClient := client.GetAPIClient()
+	apiClient := m.(*Client).apiClient
 
 	id := d.Id()
 	description := d.Get("description").(string)
 	name := d.Get("name").(string)
 	placementPolicy := d.Get("placement_policy").(string)
 	regionID := d.Get("region_id").(string)
-	tags := expandSDKTags(d.Get("tags").(*schema.Set).List())
-	tagsToMatch := expandSDKTags(d.Get("tagstomatch").(*schema.Set).List())
+	tags := expandTags(d.Get("tags").(*schema.Set).List())
+	tagsToMatch := expandTags(d.Get("tagstomatch").(*schema.Set).List())
 
 	_, err := apiClient.Location.UpdateZone(location.NewUpdateZoneParams().WithID(id).WithBody(&models.ZoneSpecification{
 		Description:     description,
@@ -138,8 +133,7 @@ func resourceZoneUpdate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceZoneDelete(d *schema.ResourceData, m interface{}) error {
-	client := m.(*tango.Client)
-	apiClient := client.GetAPIClient()
+	apiClient := m.(*Client).apiClient
 
 	id := d.Id()
 	_, err := apiClient.Location.DeleteZone(location.NewDeleteZoneParams().WithID(id))

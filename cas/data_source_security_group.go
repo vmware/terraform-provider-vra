@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/vmware/cas-sdk-go/pkg/client/security_group"
-	tango "github.com/vmware/terraform-provider-cas/sdk"
 
 	"github.com/hashicorp/terraform/helper/schema"
 )
@@ -25,7 +24,7 @@ func dataSourceSecurityGroup() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"egress": rulesSDKSchema(false),
+			"egress": rulesSchema(false),
 			"external_id": &schema.Schema{
 				Type:     schema.TypeString,
 				Computed: true,
@@ -38,8 +37,8 @@ func dataSourceSecurityGroup() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"ingress": rulesSDKSchema(false),
-			"links":   linksSDKSchema(),
+			"ingress": rulesSchema(false),
+			"links":   linksSchema(),
 			"name": &schema.Schema{
 				Type:     schema.TypeString,
 				Computed: true,
@@ -61,8 +60,7 @@ func dataSourceSecurityGroup() *schema.Resource {
 }
 
 func dataSourceSecurityGroupRead(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*tango.Client)
-	apiClient := client.GetAPIClient()
+	apiClient := meta.(*Client).apiClient
 
 	filter := d.Get("filter").(string)
 

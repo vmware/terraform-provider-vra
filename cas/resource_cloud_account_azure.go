@@ -5,7 +5,6 @@ import (
 
 	"github.com/vmware/cas-sdk-go/pkg/client/cloud_account"
 	"github.com/vmware/cas-sdk-go/pkg/models"
-	tango "github.com/vmware/terraform-provider-cas/sdk"
 
 	"github.com/hashicorp/terraform/helper/schema"
 )
@@ -57,7 +56,7 @@ func resourceCloudAccountAzure() *schema.Resource {
 					Type: schema.TypeString,
 				},
 			},
-			"tags": tagsSDKSchema(),
+			"tags": tagsSchema(),
 		},
 	}
 }
@@ -65,8 +64,7 @@ func resourceCloudAccountAzure() *schema.Resource {
 func resourceCloudAccountAzureCreate(d *schema.ResourceData, m interface{}) error {
 	var regions []string
 
-	client := m.(*tango.Client)
-	apiClient := client.GetAPIClient()
+	apiClient := m.(*Client).apiClient
 
 	if v, ok := d.GetOk("regions"); ok {
 		if !compareUnique(v.([]interface{})) {
@@ -86,7 +84,7 @@ func resourceCloudAccountAzureCreate(d *schema.ResourceData, m interface{}) erro
 		TenantID:                   withString(d.Get("tenant_id").(string)),
 		CreateDefaultZones:         false,
 		RegionIds:                  regions,
-		Tags:                       expandSDKTags(d.Get("tags").(*schema.Set).List()),
+		Tags:                       expandTags(d.Get("tags").(*schema.Set).List()),
 	}))
 
 	if err != nil {
@@ -100,8 +98,7 @@ func resourceCloudAccountAzureCreate(d *schema.ResourceData, m interface{}) erro
 }
 
 func resourceCloudAccountAzureRead(d *schema.ResourceData, m interface{}) error {
-	client := m.(*tango.Client)
-	apiClient := client.GetAPIClient()
+	apiClient := m.(*Client).apiClient
 
 	id := d.Id()
 	ret, err := apiClient.CloudAccount.GetAzureCloudAccount(cloud_account.NewGetAzureCloudAccountParams().WithID(id))
@@ -133,7 +130,7 @@ func resourceCloudAccountAzureRead(d *schema.ResourceData, m interface{}) error 
 	}
 	d.Set("region_ids", regionsIds)
 
-	if err := d.Set("tags", flattenSDKTags(azureAccount.Tags)); err != nil {
+	if err := d.Set("tags", flattenTags(azureAccount.Tags)); err != nil {
 		return fmt.Errorf("Error setting cloud account tags - error: %#v", err)
 	}
 
@@ -143,8 +140,7 @@ func resourceCloudAccountAzureRead(d *schema.ResourceData, m interface{}) error 
 func resourceCloudAccountAzureUpdate(d *schema.ResourceData, m interface{}) error {
 	var regions []string
 
-	client := m.(*tango.Client)
-	apiClient := client.GetAPIClient()
+	apiClient := m.(*Client).apiClient
 
 	id := d.Id()
 
@@ -165,7 +161,7 @@ func resourceCloudAccountAzureUpdate(d *schema.ResourceData, m interface{}) erro
 		},
 		CreateDefaultZones: false,
 		RegionIds:          regions,
-		Tags:               expandSDKTags(d.Get("tags").(*schema.Set).List()),
+		Tags:               expandTags(d.Get("tags").(*schema.Set).List()),
 	}))
 	if err != nil {
 		return err
@@ -175,8 +171,7 @@ func resourceCloudAccountAzureUpdate(d *schema.ResourceData, m interface{}) erro
 }
 
 func resourceCloudAccountAzureDelete(d *schema.ResourceData, m interface{}) error {
-	client := m.(*tango.Client)
-	apiClient := client.GetAPIClient()
+	apiClient := m.(*Client).apiClient
 
 	id := d.Id()
 	_, err := apiClient.CloudAccount.DeleteAzureCloudAccount(cloud_account.NewDeleteAzureCloudAccountParams().WithID(id))

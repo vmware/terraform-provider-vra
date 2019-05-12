@@ -10,7 +10,6 @@ import (
 	"github.com/vmware/cas-sdk-go/pkg/client/disk"
 	"github.com/vmware/cas-sdk-go/pkg/client/request"
 	"github.com/vmware/cas-sdk-go/pkg/models"
-	tango "github.com/vmware/terraform-provider-cas/sdk"
 
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
@@ -39,7 +38,7 @@ func resourceBlockDevice() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"constraints": constraintsSDKSchema(),
+			"constraints": constraintsSchema(),
 			"custom_properties": &schema.Schema{
 				Type:     schema.TypeMap,
 				Computed: true,
@@ -61,7 +60,7 @@ func resourceBlockDevice() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"tags": tagsSDKSchema(),
+			"tags": tagsSchema(),
 			"created_at": &schema.Schema{
 				Type:     schema.TypeString,
 				Computed: true,
@@ -90,7 +89,7 @@ func resourceBlockDevice() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"links": linksSDKSchema(),
+			"links": linksSchema(),
 			"self_link": &schema.Schema{
 				Type:     schema.TypeString,
 				Computed: true,
@@ -109,15 +108,14 @@ func resourceBlockDevice() *schema.Resource {
 
 func resourceBlockDeviceCreate(d *schema.ResourceData, m interface{}) error {
 	log.Printf("Starting to create cas_block_device resource")
-	client := m.(*tango.Client)
-	apiClient := client.GetAPIClient()
+	apiClient := m.(*Client).apiClient
 
 	capacityInGB := int32(d.Get("capacity_in_gb").(int))
 	name := d.Get("name").(string)
 	projectID := d.Get("project_id").(string)
-	constraints := expandSDKConstraints(d.Get("constraints").(*schema.Set).List())
+	constraints := expandConstraints(d.Get("constraints").(*schema.Set).List())
 	customProperties := expandCustomProperties(d.Get("custom_properties").(map[string]interface{}))
-	tags := expandSDKTags(d.Get("tags").(*schema.Set).List())
+	tags := expandTags(d.Get("tags").(*schema.Set).List())
 
 	blockDeviceSpecification := models.BlockDeviceSpecification{
 		CapacityInGB:     &capacityInGB,
@@ -204,8 +202,7 @@ func blockDeviceStateRefreshFunc(apiClient client.MulticloudIaaS, id string) res
 
 func resourceBlockDeviceRead(d *schema.ResourceData, m interface{}) error {
 	log.Printf("Reading the cas_block_device resource with name %s", d.Get("name"))
-	client := m.(*tango.Client)
-	apiClient := client.GetAPIClient()
+	apiClient := m.(*Client).apiClient
 
 	id := d.Id()
 	resp, err := apiClient.Disk.GetBlockDevice(disk.NewGetBlockDeviceParams().WithID(id))
@@ -227,11 +224,11 @@ func resourceBlockDeviceRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("status", blockDevice.Status)
 	d.Set("updated_at", blockDevice.UpdatedAt)
 
-	if err := d.Set("tags", flattenSDKTags(blockDevice.Tags)); err != nil {
+	if err := d.Set("tags", flattenTags(blockDevice.Tags)); err != nil {
 		return fmt.Errorf("error setting block device tags - error: %v", err)
 	}
 
-	if err := d.Set("links", flattenSDKLinks(blockDevice.Links)); err != nil {
+	if err := d.Set("links", flattenLinks(blockDevice.Links)); err != nil {
 		return fmt.Errorf("error setting block device links - error: %#v", err)
 	}
 
@@ -246,8 +243,7 @@ func resourceBlockDeviceUpdate(d *schema.ResourceData, m interface{}) error {
 
 func resourceBlockDeviceDelete(d *schema.ResourceData, m interface{}) error {
 	log.Printf("Starting to delete the cas_block_device resource with name %s", d.Get("name"))
-	client := m.(*tango.Client)
-	apiClient := client.GetAPIClient()
+	apiClient := m.(*Client).apiClient
 
 	id := d.Id()
 	deleteBlockDevice, err := apiClient.Disk.DeleteBlockDevice(disk.NewDeleteBlockDeviceParams().WithID(id))

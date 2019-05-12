@@ -4,8 +4,6 @@ import (
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/vmware/cas-sdk-go/pkg/client/image_profile"
 	"github.com/vmware/cas-sdk-go/pkg/models"
-
-	tango "github.com/vmware/terraform-provider-cas/sdk"
 )
 
 func resourceImageProfile() *schema.Resource {
@@ -81,8 +79,7 @@ func resourceImageProfile() *schema.Resource {
 }
 
 func resourceImageProfileCreate(d *schema.ResourceData, m interface{}) error {
-	client := m.(*tango.Client)
-	apiClient := client.GetAPIClient()
+	apiClient := m.(*Client).apiClient
 
 	imageMapping := expandImageMapping(d.Get("image_mapping").(*schema.Set).List())
 
@@ -102,8 +99,7 @@ func resourceImageProfileCreate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceImageProfileRead(d *schema.ResourceData, m interface{}) error {
-	client := m.(*tango.Client)
-	apiClient := client.GetAPIClient()
+	apiClient := m.(*Client).apiClient
 
 	id := d.Id()
 	ret, err := apiClient.ImageProfile.GetImageProfile(image_profile.NewGetImageProfileParams().WithID(id))
@@ -124,8 +120,7 @@ func resourceImageProfileRead(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceImageProfileUpdate(d *schema.ResourceData, m interface{}) error {
-	client := m.(*tango.Client)
-	apiClient := client.GetAPIClient()
+	apiClient := m.(*Client).apiClient
 
 	id := d.Id()
 	imageMapping := expandImageMapping(d.Get("image_mapping").(*schema.Set).List())
@@ -144,8 +139,7 @@ func resourceImageProfileUpdate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceImageProfileDelete(d *schema.ResourceData, m interface{}) error {
-	client := m.(*tango.Client)
-	apiClient := client.GetAPIClient()
+	apiClient := m.(*Client).apiClient
 
 	id := d.Id()
 	_, err := apiClient.ImageProfile.DeleteImageProfile(image_profile.NewDeleteImageProfileParams().WithID(id))

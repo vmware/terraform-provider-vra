@@ -5,7 +5,6 @@ import (
 
 	"github.com/vmware/cas-sdk-go/pkg/client/project"
 	"github.com/vmware/cas-sdk-go/pkg/models"
-	tango "github.com/vmware/terraform-provider-cas/sdk"
 
 	"github.com/hashicorp/terraform/helper/schema"
 )
@@ -35,8 +34,7 @@ func dataSourceProject() *schema.Resource {
 }
 
 func dataSourceProjectRead(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*tango.Client)
-	apiClient := client.GetAPIClient()
+	apiClient := meta.(*Client).apiClient
 
 	id, idOk := d.GetOk("id")
 	name, nameOk := d.GetOk("name")

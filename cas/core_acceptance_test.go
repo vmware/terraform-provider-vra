@@ -2,10 +2,8 @@ package cas
 
 import (
 	"fmt"
-	"github.com/vmware/terraform-provider-cas/sdk"
 	"regexp"
 	"strconv"
-	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform/helper/acctest"
@@ -13,7 +11,7 @@ import (
 	"github.com/hashicorp/terraform/terraform"
 )
 
-func TestAccTangoWordpressInfrastructure_Basic(t *testing.T) {
+func TestAccCASWordpressInfrastructure_Basic(t *testing.T) {
 	nRint := acctest.RandInt()
 	mRInt := acctest.RandInt()
 	wRint := acctest.RandInt()
@@ -21,51 +19,51 @@ func TestAccTangoWordpressInfrastructure_Basic(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckTangoWordpressInfrastructureDestroy,
+		CheckDestroy: testAccCheckCASWordpressInfrastructureDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCheckTangoWordpressInfrastructureConfig(nRint, mRInt, wRint),
+				Config: testAccCheckCASWordpressInfrastructureConfig(nRint, mRInt, wRint),
 				Check: resource.ComposeAggregateTestCheckFunc(
-					testAccCheckTangoWordpressInfrastructureResourceExists("tango_network.network"),
-					testAccCheckTangoWordpressInfrastructureResourceExists("tango_machine.mysql"),
-					testAccCheckTangoWordpressInfrastructureResourceExists("tango_machine.wordpress"),
+					testAccCheckCASWordpressInfrastructureResourceExists("cas_network.network"),
+					testAccCheckCASWordpressInfrastructureResourceExists("cas_machine.mysql"),
+					testAccCheckCASWordpressInfrastructureResourceExists("cas_machine.wordpress"),
 					resource.TestMatchResourceAttr(
-						"tango_network.network", "name", regexp.MustCompile("^terraform_tango_network-"+strconv.Itoa(nRint))),
+						"cas_network.network", "name", regexp.MustCompile("^terraform_cas_network-"+strconv.Itoa(nRint))),
 					resource.TestCheckResourceAttr(
-						"tango_network.network", "constraints.#", "1"),
+						"cas_network.network", "constraints.#", "1"),
 					resource.TestCheckResourceAttr(
-						"tango_network.network", "constraints.0.mandatory", "true"),
+						"cas_network.network", "constraints.0.mandatory", "true"),
 					resource.TestCheckResourceAttr(
-						"tango_network.network", "constraints.0.expression", "pci"),
+						"cas_network.network", "constraints.0.expression", "pci"),
 
 					resource.TestMatchResourceAttr(
-						"tango_machine.mysql", "name", regexp.MustCompile("^terraform_tango_mysql-"+strconv.Itoa(mRInt))),
+						"cas_machine.mysql", "name", regexp.MustCompile("^terraform_cas_mysql-"+strconv.Itoa(mRInt))),
 					resource.TestCheckResourceAttr(
-						"tango_machine.mysql", "image", "ubuntu"),
+						"cas_machine.mysql", "image", "ubuntu"),
 					resource.TestCheckResourceAttr(
-						"tango_machine.mysql", "flavor", "small"),
+						"cas_machine.mysql", "flavor", "small"),
 					resource.TestCheckResourceAttr(
-						"tango_machine.mysql", "nics.#", "1"),
+						"cas_machine.mysql", "nics.#", "1"),
 					resource.TestCheckResourceAttr(
-						"tango_machine.mysql", "boot_config.#", "1"),
+						"cas_machine.mysql", "boot_config.#", "1"),
 
 					resource.TestMatchResourceAttr(
-						"tango_machine.wordpress", "name", regexp.MustCompile("^terraform_tango_wordpress-"+strconv.Itoa(wRint))),
+						"cas_machine.wordpress", "name", regexp.MustCompile("^terraform_cas_wordpress-"+strconv.Itoa(wRint))),
 					resource.TestCheckResourceAttr(
-						"tango_machine.wordpress", "image", "ubuntu"),
+						"cas_machine.wordpress", "image", "ubuntu"),
 					resource.TestCheckResourceAttr(
-						"tango_machine.wordpress", "flavor", "small"),
+						"cas_machine.wordpress", "flavor", "small"),
 					resource.TestCheckResourceAttr(
-						"tango_machine.wordpress", "nics.#", "1"),
+						"cas_machine.wordpress", "nics.#", "1"),
 					resource.TestCheckResourceAttr(
-						"tango_machine.wordpress", "boot_config.#", "1"),
+						"cas_machine.wordpress", "boot_config.#", "1"),
 				),
 			},
 		},
 	})
 }
 
-func testAccCheckTangoWordpressInfrastructureResourceExists(n string) resource.TestCheckFunc {
+func testAccCheckCASWordpressInfrastructureResourceExists(n string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
@@ -80,35 +78,37 @@ func testAccCheckTangoWordpressInfrastructureResourceExists(n string) resource.T
 	}
 }
 
-func testAccCheckTangoWordpressInfrastructureDestroy(s *terraform.State) error {
-	client := testAccProvider.Meta().(*tango.Client)
+func testAccCheckCASWordpressInfrastructureDestroy(s *terraform.State) error {
+	/*
+		apiClient := testAccProviderCAS.Meta().(*Client).apiClient
 
-	for _, rs := range s.RootModule().Resources {
+		for _, rs := range s.RootModule().Resources {
 
-		selfKey := ""
-		for key, value := range rs.Primary.Attributes {
-			if value == "self" {
-				selfKey = key
-				break
+			selfKey := ""
+			for key, value := range rs.Primary.Attributes {
+				if value == "self" {
+					selfKey = key
+					break
+				}
+			}
+
+			_, err := client.ReadResource(rs.Primary.Attributes[strings.Replace(selfKey, "rel", "href", 1)])
+
+			if err != nil && !strings.Contains(err.Error(), "404") {
+				return fmt.Errorf(
+					"Error waiting for (%s) to be destroyed: %s",
+					rs.Type+"/"+rs.Primary.Attributes["name"], err)
 			}
 		}
-
-		_, err := client.ReadResource(rs.Primary.Attributes[strings.Replace(selfKey, "rel", "href", 1)])
-
-		if err != nil && !strings.Contains(err.Error(), "404") {
-			return fmt.Errorf(
-				"Error waiting for (%s) to be destroyed: %s",
-				rs.Type+"/"+rs.Primary.Attributes["name"], err)
-		}
-	}
+	*/
 
 	return nil
 }
 
-func testAccCheckTangoWordpressInfrastructureConfig(nRInt, mRInt, wRInt int) string {
+func testAccCheckCASWordpressInfrastructureConfig(nRInt, mRInt, wRInt int) string {
 	return fmt.Sprintf(`
-resource "tango_network" "network" {
-	name = "terraform_tango_network-%d"
+resource "cas_network" "network" {
+	name = "terraform_cas_network-%d"
 
 	constraints {
 		mandatory = true
@@ -116,14 +116,14 @@ resource "tango_network" "network" {
 	}
 }
 
-resource "tango_machine" "mysql" {
-	name = "terraform_tango_mysql-%d"
+resource "cas_machine" "mysql" {
+	name = "terraform_cas_mysql-%d"
 	
 	image = "ubuntu"
 	flavor = "small"	
 
 	nics {
-        network_id = "${tango_network.network.id}"
+        network_id = "${cas_network.network.id}"
 	}
 	
 	boot_config {
@@ -144,14 +144,14 @@ EOF
     }
 }
 
-resource "tango_machine" "wordpress" {
-	name = "terraform_tango_wordpress-%d"
+resource "cas_machine" "wordpress" {
+	name = "terraform_cas_wordpress-%d"
 	
 	image = "ubuntu"
 	flavor = "small"	
 
 	nics {
-        network_id = "${tango_network.network.id}"
+        network_id = "${cas_network.network.id}"
 	}
 	
 	boot_config {
@@ -170,10 +170,10 @@ packages:
 
 runcmd:
 - mkdir -p /var/www/html/mywordpresssite && cd /var/www/html && wget https://wordpress.org/latest.tar.gz && tar -xzf /var/www/html/latest.tar.gz -C /var/www/html/mywordpresssite --strip-components 1
-- i=0; while [ $i -le 10 ]; do mysql --connect-timeout=3 -h ${tango_machine.mysql.address} -u root -pmysqlpassword -e "SHOW STATUS;" && break || sleep 15; i=$$((i+1)); done
-- mysql -u root -pmysqlpassword -h ${tango_machine.mysql.address} -e "create database wordpress_blog;"
+- i=0; while [ $i -le 10 ]; do mysql --connect-timeout=3 -h ${cas_machine.mysql.address} -u root -pmysqlpassword -e "SHOW STATUS;" && break || sleep 15; i=$$((i+1)); done
+- mysql -u root -pmysqlpassword -h ${cas_machine.mysql.address} -e "create database wordpress_blog;"
 - mv /var/www/html/mywordpresssite/wp-config-sample.php /var/www/html/mywordpresssite/wp-config.php
-- sed -i -e s/"define('DB_NAME', 'database_name_here');"/"define('DB_NAME', 'wordpress_blog');"/ /var/www/html/mywordpresssite/wp-config.php && sed -i -e s/"define('DB_USER', 'username_here');"/"define('DB_USER', 'root');"/ /var/www/html/mywordpresssite/wp-config.php && sed -i -e s/"define('DB_PASSWORD', 'password_here');"/"define('DB_PASSWORD', 'mysqlpassword');"/ /var/www/html/mywordpresssite/wp-config.php && sed -i -e s/"define('DB_HOST', 'localhost');"/"define('DB_HOST', '${tango_machine.mysql.address}');"/ /var/www/html/mywordpresssite/wp-config.php
+- sed -i -e s/"define('DB_NAME', 'database_name_here');"/"define('DB_NAME', 'wordpress_blog');"/ /var/www/html/mywordpresssite/wp-config.php && sed -i -e s/"define('DB_USER', 'username_here');"/"define('DB_USER', 'root');"/ /var/www/html/mywordpresssite/wp-config.php && sed -i -e s/"define('DB_PASSWORD', 'password_here');"/"define('DB_PASSWORD', 'mysqlpassword');"/ /var/www/html/mywordpresssite/wp-config.php && sed -i -e s/"define('DB_HOST', 'localhost');"/"define('DB_HOST', '${cas_machine.mysql.address}');"/ /var/www/html/mywordpresssite/wp-config.php
 - service apache2 reload
 EOF
     }
