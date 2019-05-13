@@ -6,8 +6,8 @@ import (
 	"github.com/hashicorp/terraform/helper/schema"
 )
 
-// nicsSDKSchema returns the schema to use for the nics property
-func rulesSDKSchema(isRequired bool) *schema.Schema {
+// rulesSchema returns the schema to use for the rules property
+func rulesSchema(isRequired bool) *schema.Schema {
 	return &schema.Schema{
 		Type:     schema.TypeSet,
 		Required: isRequired,
@@ -39,7 +39,7 @@ func rulesSDKSchema(isRequired bool) *schema.Schema {
 	}
 }
 
-func expandSDKRules(configRules []interface{}) []*models.Rule {
+func expandRules(configRules []interface{}) []*models.Rule {
 	rules := make([]*models.Rule, 0, len(configRules))
 
 	for _, configRule := range configRules {

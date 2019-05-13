@@ -4,8 +4,6 @@ import (
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/vmware/cas-sdk-go/pkg/client/flavor_profile"
 	"github.com/vmware/cas-sdk-go/pkg/models"
-
-	tango "github.com/vmware/terraform-provider-cas/sdk"
 )
 
 func resourceFlavorProfile() *schema.Resource {
@@ -57,8 +55,7 @@ func resourceFlavorProfile() *schema.Resource {
 }
 
 func resourceFlavorProfileCreate(d *schema.ResourceData, m interface{}) error {
-	client := m.(*tango.Client)
-	apiClient := client.GetAPIClient()
+	apiClient := m.(*Client).apiClient
 
 	description := d.Get("description").(string)
 	name := d.Get("name").(string)
@@ -81,8 +78,7 @@ func resourceFlavorProfileCreate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceFlavorProfileRead(d *schema.ResourceData, m interface{}) error {
-	client := m.(*tango.Client)
-	apiClient := client.GetAPIClient()
+	apiClient := m.(*Client).apiClient
 
 	id := d.Id()
 	ret, err := apiClient.FlavorProfile.GetFlavorProfile(flavor_profile.NewGetFlavorProfileParams().WithID(id))
@@ -103,8 +99,7 @@ func resourceFlavorProfileRead(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceFlavorProfileUpdate(d *schema.ResourceData, m interface{}) error {
-	client := m.(*tango.Client)
-	apiClient := client.GetAPIClient()
+	apiClient := m.(*Client).apiClient
 
 	id := d.Id()
 	description := d.Get("description").(string)
@@ -126,8 +121,7 @@ func resourceFlavorProfileUpdate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceFlavorProfileDelete(d *schema.ResourceData, m interface{}) error {
-	client := m.(*tango.Client)
-	apiClient := client.GetAPIClient()
+	apiClient := m.(*Client).apiClient
 
 	id := d.Id()
 	_, err := apiClient.FlavorProfile.DeleteFlavorProfile(flavor_profile.NewDeleteFlavorProfileParams().WithID(id))

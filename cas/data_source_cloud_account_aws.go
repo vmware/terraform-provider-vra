@@ -3,11 +3,9 @@ package cas
 import (
 	"fmt"
 
+	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/vmware/cas-sdk-go/pkg/client/cloud_account"
 	"github.com/vmware/cas-sdk-go/pkg/models"
-	tango "github.com/vmware/terraform-provider-cas/sdk"
-
-	"github.com/hashicorp/terraform/helper/schema"
 )
 
 func dataSourceCloudAccountAWS() *schema.Resource {
@@ -38,8 +36,7 @@ func dataSourceCloudAccountAWS() *schema.Resource {
 }
 
 func dataSourceCloudAccountAWSRead(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*tango.Client)
-	apiClient := client.GetAPIClient()
+	apiClient := meta.(*Client).apiClient
 
 	id, idOk := d.GetOk("id")
 	name, nameOk := d.GetOk("name")

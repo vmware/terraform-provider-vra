@@ -6,7 +6,6 @@ import (
 
 	"github.com/vmware/cas-sdk-go/pkg/client/network"
 	"github.com/vmware/cas-sdk-go/pkg/models"
-	tango "github.com/vmware/terraform-provider-cas/sdk"
 
 	"github.com/hashicorp/terraform/helper/schema"
 )
@@ -44,8 +43,8 @@ func dataSourceNetwork() *schema.Resource {
 				Type:     schema.TypeMap,
 				Computed: true,
 			},
-			"constraints": constraintsSDKSchema(),
-			"tags":        tagsSDKSchema(),
+			"constraints": constraintsSchema(),
+			"tags":        tagsSchema(),
 			"outbound_access": &schema.Schema{
 				Type:     schema.TypeBool,
 				Computed: true,
@@ -80,8 +79,7 @@ func dataSourceNetwork() *schema.Resource {
 }
 
 func dataSourceNetworkRead(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*tango.Client)
-	apiClient := client.GetAPIClient()
+	apiClient := meta.(*Client).apiClient
 
 	id, idOk := d.GetOk("id")
 	name, nameOk := d.GetOk("name")

@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/vmware/cas-sdk-go/pkg/client/fabric_images"
-	tango "github.com/vmware/terraform-provider-cas/sdk"
 
 	"github.com/hashicorp/terraform/helper/schema"
 )
@@ -47,8 +46,7 @@ func dataSourceImage() *schema.Resource {
 }
 
 func dataSourceImageRead(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*tango.Client)
-	apiClient := client.GetAPIClient()
+	apiClient := meta.(*Client).apiClient
 
 	filter := d.Get("filter").(string)
 

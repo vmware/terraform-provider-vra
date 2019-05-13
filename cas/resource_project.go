@@ -12,8 +12,6 @@ import (
 	"github.com/vmware/cas-sdk-go/pkg/client/deployments"
 	"github.com/vmware/cas-sdk-go/pkg/client/project"
 	"github.com/vmware/cas-sdk-go/pkg/models"
-
-	tango "github.com/vmware/terraform-provider-cas/sdk"
 )
 
 func resourceProject() *schema.Resource {
@@ -71,8 +69,7 @@ func resourceProject() *schema.Resource {
 }
 
 func resourceProjectCreate(d *schema.ResourceData, m interface{}) error {
-	client := m.(*tango.Client)
-	apiClient := client.GetAPIClient()
+	apiClient := m.(*Client).apiClient
 
 	administrators := expandUserList(d.Get("administrators").(*schema.Set).List())
 	description := d.Get("description").(string)
@@ -97,8 +94,7 @@ func resourceProjectCreate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceProjectRead(d *schema.ResourceData, m interface{}) error {
-	client := m.(*tango.Client)
-	apiClient := client.GetAPIClient()
+	apiClient := m.(*Client).apiClient
 
 	id := d.Id()
 	ret, err := apiClient.Project.GetProject(project.NewGetProjectParams().WithID(id))
@@ -121,8 +117,7 @@ func resourceProjectRead(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceProjectUpdate(d *schema.ResourceData, m interface{}) error {
-	client := m.(*tango.Client)
-	apiClient := client.GetAPIClient()
+	apiClient := m.(*Client).apiClient
 
 	id := d.Id()
 	administrators := expandUserList(d.Get("administrators").(*schema.Set).List())
@@ -146,8 +141,7 @@ func resourceProjectUpdate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceProjectDelete(d *schema.ResourceData, m interface{}) error {
-	client := m.(*tango.Client)
-	apiClient := client.GetAPIClient()
+	apiClient := m.(*Client).apiClient
 
 	id := d.Id()
 

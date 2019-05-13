@@ -9,8 +9,6 @@ import (
 	"github.com/hashicorp/terraform/terraform"
 	"github.com/vmware/cas-sdk-go/pkg/client/cloud_account"
 	"github.com/vmware/cas-sdk-go/pkg/client/flavor_profile"
-
-	tango "github.com/vmware/terraform-provider-cas/sdk"
 )
 
 func TestAccCASFlavorProfileBasic(t *testing.T) {
@@ -59,8 +57,7 @@ func testAccCheckCASFlavorProfileExists(n string) resource.TestCheckFunc {
 }
 
 func testAccCheckCASFlavorProfileDestroy(s *terraform.State) error {
-	client := testAccProviderCAS.Meta().(*tango.Client)
-	apiClient := client.GetAPIClient()
+	apiClient := testAccProviderCAS.Meta().(*Client).apiClient
 
 	for _, rs := range s.RootModule().Resources {
 		if rs.Type == "cas_cloud_account_aws" {

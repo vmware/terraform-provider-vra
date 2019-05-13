@@ -13,7 +13,6 @@ import (
 	"github.com/vmware/cas-sdk-go/pkg/client"
 	"github.com/vmware/cas-sdk-go/pkg/client/request"
 	"github.com/vmware/cas-sdk-go/pkg/models"
-	tango "github.com/vmware/terraform-provider-cas/sdk"
 )
 
 func resourceNetwork() *schema.Resource {
@@ -34,7 +33,7 @@ func resourceNetwork() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"constraints": constraintsSDKSchema(),
+			"constraints": constraintsSchema(),
 			"custom_properties": &schema.Schema{
 				Type:     schema.TypeMap,
 				Computed: true,
@@ -48,7 +47,7 @@ func resourceNetwork() *schema.Resource {
 				Type:     schema.TypeBool,
 				Optional: true,
 			},
-			"tags": tagsSDKSchema(),
+			"tags": tagsSchema(),
 			"cidr": &schema.Schema{
 				Type:     schema.TypeString,
 				Computed: true,
@@ -61,7 +60,7 @@ func resourceNetwork() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"links": linksSDKSchema(),
+			"links": linksSchema(),
 			"organization_id": &schema.Schema{
 				Type:     schema.TypeString,
 				Computed: true,
@@ -84,12 +83,12 @@ func resourceNetwork() *schema.Resource {
 
 func resourceNetworkCreate(d *schema.ResourceData, m interface{}) error {
 	log.Printf("Starting to create cas_network resource")
-	client := m.(*tango.Client)
-	apiClient := client.GetAPIClient()
+	apiClient := m.(*Client).apiClient
+
 	name := d.Get("name").(string)
 	projectID := d.Get("project_id").(string)
-	constraints := expandSDKConstraints(d.Get("constraints").(*schema.Set).List())
-	tags := expandSDKTags(d.Get("tags").(*schema.Set).List())
+	constraints := expandConstraints(d.Get("constraints").(*schema.Set).List())
+	tags := expandTags(d.Get("tags").(*schema.Set).List())
 	customProperties := expandCustomProperties(d.Get("custom_properties").(map[string]interface{}))
 
 	networkSpecification := models.NetworkSpecification{
@@ -161,8 +160,7 @@ func networkStateRefreshFunc(apiClient client.MulticloudIaaS, id string) resourc
 
 func resourceNetworkRead(d *schema.ResourceData, m interface{}) error {
 	log.Printf("Reading the cas_network resource with name %s", d.Get("name"))
-	client := m.(*tango.Client)
-	apiClient := client.GetAPIClient()
+	apiClient := m.(*Client).apiClient
 
 	id := d.Id()
 	resp, err := apiClient.Network.GetNetwork(network.NewGetNetworkParams().WithID(id))
@@ -187,11 +185,11 @@ func resourceNetworkRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("project_id", network.ProjectID)
 	d.Set("updated_at", network.UpdatedAt)
 
-	if err := d.Set("tags", flattenSDKTags(network.Tags)); err != nil {
+	if err := d.Set("tags", flattenTags(network.Tags)); err != nil {
 		return fmt.Errorf("error setting network tags - error: %v", err)
 	}
 
-	if err := d.Set("links", flattenSDKLinks(network.Links)); err != nil {
+	if err := d.Set("links", flattenLinks(network.Links)); err != nil {
 		return fmt.Errorf("error setting network links - error: %#v", err)
 	}
 
@@ -205,8 +203,7 @@ func resourceNetworkUpdate(d *schema.ResourceData, m interface{}) error {
 
 func resourceNetworkDelete(d *schema.ResourceData, m interface{}) error {
 	log.Printf("Starting to delete the cas_network resource with name %s", d.Get("name"))
-	client := m.(*tango.Client)
-	apiClient := client.GetAPIClient()
+	apiClient := m.(*Client).apiClient
 
 	id := d.Id()
 	deleteNetwork, err := apiClient.Network.DeleteNetwork(network.NewDeleteNetworkParams().WithID(id))

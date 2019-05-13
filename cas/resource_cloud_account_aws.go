@@ -5,7 +5,6 @@ import (
 
 	"github.com/vmware/cas-sdk-go/pkg/client/cloud_account"
 	"github.com/vmware/cas-sdk-go/pkg/models"
-	tango "github.com/vmware/terraform-provider-cas/sdk"
 
 	"github.com/hashicorp/terraform/helper/schema"
 )
@@ -49,7 +48,7 @@ func resourceCloudAccountAWS() *schema.Resource {
 				Required:  true,
 				Sensitive: true,
 			},
-			"tags": tagsSDKSchema(),
+			"tags": tagsSchema(),
 		},
 	}
 }
@@ -57,14 +56,13 @@ func resourceCloudAccountAWS() *schema.Resource {
 func resourceCloudAccountAWSCreate(d *schema.ResourceData, m interface{}) error {
 	var regions []string
 
-	client := m.(*tango.Client)
-	apiClient := client.GetAPIClient()
+	apiClient := m.(*Client).apiClient
 
 	accessKey := d.Get("access_key").(string)
 	description := d.Get("description").(string)
 	name := d.Get("name").(string)
 	secretAccessKey := d.Get("secret_key").(string)
-	tags := expandSDKTags(d.Get("tags").(*schema.Set).List())
+	tags := expandTags(d.Get("tags").(*schema.Set).List())
 
 	if v, ok := d.GetOk("regions"); ok {
 		if !compareUnique(v.([]interface{})) {
@@ -95,7 +93,7 @@ func resourceCloudAccountAWSCreate(d *schema.ResourceData, m interface{}) error 
 	}
 	d.Set("region_ids", regionsIds)
 
-	if err := d.Set("tags", flattenSDKTags(tags)); err != nil {
+	if err := d.Set("tags", flattenTags(tags)); err != nil {
 		return fmt.Errorf("Error setting cloud account tags - error: %#v", err)
 	}
 	d.SetId(*createResp.Payload.ID)
@@ -104,8 +102,7 @@ func resourceCloudAccountAWSCreate(d *schema.ResourceData, m interface{}) error 
 }
 
 func resourceCloudAccountAWSRead(d *schema.ResourceData, m interface{}) error {
-	client := m.(*tango.Client)
-	apiClient := client.GetAPIClient()
+	apiClient := m.(*Client).apiClient
 
 	id := d.Id()
 	ret, err := apiClient.CloudAccount.GetAwsCloudAccount(cloud_account.NewGetAwsCloudAccountParams().WithID(id))
@@ -133,7 +130,7 @@ func resourceCloudAccountAWSRead(d *schema.ResourceData, m interface{}) error {
 	}
 	d.Set("region_ids", regionsIds)
 
-	if err := d.Set("tags", flattenSDKTags(awsAccount.Tags)); err != nil {
+	if err := d.Set("tags", flattenTags(awsAccount.Tags)); err != nil {
 		return fmt.Errorf("Error setting cloud account tags - error: %#v", err)
 	}
 
@@ -143,15 +140,14 @@ func resourceCloudAccountAWSRead(d *schema.ResourceData, m interface{}) error {
 func resourceCloudAccountAWSUpdate(d *schema.ResourceData, m interface{}) error {
 	var regions []string
 
-	client := m.(*tango.Client)
-	apiClient := client.GetAPIClient()
+	apiClient := m.(*Client).apiClient
 
 	id := d.Id()
 	accessKey := d.Get("access_key").(string)
 	description := d.Get("description").(string)
 	name := d.Get("name").(string)
 	secretAccessKey := d.Get("secret_key").(string)
-	tags := expandSDKTags(d.Get("tags").(*schema.Set).List())
+	tags := expandTags(d.Get("tags").(*schema.Set).List())
 
 	if v, ok := d.GetOk("regions"); ok {
 		if !compareUnique(v.([]interface{})) {
@@ -176,8 +172,7 @@ func resourceCloudAccountAWSUpdate(d *schema.ResourceData, m interface{}) error 
 }
 
 func resourceCloudAccountAWSDelete(d *schema.ResourceData, m interface{}) error {
-	client := m.(*tango.Client)
-	apiClient := client.GetAPIClient()
+	apiClient := m.(*Client).apiClient
 
 	id := d.Id()
 	_, err := apiClient.CloudAccount.DeleteAwsCloudAccount(cloud_account.NewDeleteAwsCloudAccountParams().WithID(id))

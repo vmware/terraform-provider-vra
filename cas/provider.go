@@ -3,46 +3,32 @@ package cas
 import (
 	"errors"
 
-	tango "github.com/vmware/terraform-provider-cas/sdk"
-
 	"github.com/hashicorp/terraform/helper/schema"
 )
 
-// Provider represents the tango provider
+// Provider represents the CAS provider
 func Provider() *schema.Provider {
 	return &schema.Provider{
 		Schema: map[string]*schema.Schema{
 			"url": {
 				Type:        schema.TypeString,
 				Required:    true,
-				DefaultFunc: schema.EnvDefaultFunc("TANGO_URL", nil),
+				DefaultFunc: schema.EnvDefaultFunc("CAS_URL", nil),
 				Description: "The base url for API operations.",
 			},
 			"refresh_token": {
 				Type:          schema.TypeString,
 				Optional:      true,
 				ConflictsWith: []string{"access_token"},
-				DefaultFunc:   schema.EnvDefaultFunc("TANGO_REFRESH_TOKEN", nil),
+				DefaultFunc:   schema.EnvDefaultFunc("CAS_REFRESH_TOKEN", nil),
 				Description:   "The refresh token for API operations.",
 			},
 			"access_token": {
 				Type:          schema.TypeString,
 				Optional:      true,
 				ConflictsWith: []string{"refresh_token"},
-				DefaultFunc:   schema.EnvDefaultFunc("TANGO_ACCESS_TOKEN", nil),
+				DefaultFunc:   schema.EnvDefaultFunc("CAS_ACCESS_TOKEN", nil),
 				Description:   "The access token for API operations.",
-			},
-			"project_id": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				DefaultFunc: schema.EnvDefaultFunc("TANGO_PROJECT_ID", nil),
-				Description: "The project id to use for this template.",
-			},
-			"deployment_id": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				DefaultFunc: schema.EnvDefaultFunc("TANGO_DEPLOYMENT_ID", nil),
-				Description: "The deployment id to use for this template.",
 			},
 		},
 
@@ -75,8 +61,6 @@ func Provider() *schema.Provider {
 
 func configureProvider(d *schema.ResourceData) (interface{}, error) {
 	url := d.Get("url").(string)
-	projectID := d.Get("project_id").(string)
-	deploymentID := d.Get("deployment_id").(string)
 	refreshToken := ""
 	accessToken := ""
 
@@ -93,8 +77,8 @@ func configureProvider(d *schema.ResourceData) (interface{}, error) {
 	}
 
 	if accessToken != "" {
-		return tango.NewClientFromAccessToken(url, accessToken, projectID, deploymentID)
+		return NewClientFromAccessToken(url, accessToken)
 	}
 
-	return tango.NewClientFromRefreshToken(url, refreshToken, projectID, deploymentID)
+	return NewClientFromRefreshToken(url, refreshToken)
 }

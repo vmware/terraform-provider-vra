@@ -12,8 +12,6 @@ import (
 	"github.com/hashicorp/terraform/terraform"
 	"github.com/vmware/cas-sdk-go/pkg/client/cloud_account"
 	"github.com/vmware/cas-sdk-go/pkg/client/location"
-
-	tango "github.com/vmware/terraform-provider-cas/sdk"
 )
 
 func TestAccCASZoneBasic(t *testing.T) {
@@ -70,8 +68,7 @@ func testAccCheckCASZoneExists(n string) resource.TestCheckFunc {
 }
 
 func testAccCheckCASZoneDestroy(s *terraform.State) error {
-	client := testAccProviderCAS.Meta().(*tango.Client)
-	apiClient := client.GetAPIClient()
+	apiClient := testAccProviderCAS.Meta().(*Client).apiClient
 
 	for _, rs := range s.RootModule().Resources {
 		if rs.Type == "cas_cloud_account_aws" {
