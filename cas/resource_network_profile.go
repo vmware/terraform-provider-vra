@@ -97,26 +97,19 @@ func resourceNetworkProfileCreate(d *schema.ResourceData, m interface{}) error {
 	client := m.(*tango.Client)
 	apiClient := client.GetAPIClient()
 
-	customProperties := expandCustomProperties(d.Get("custom_properties").(map[string]interface{}))
-	isolationType := d.Get("isolation_type").(string)
-	isolationNetworkDomainID := d.Get("isolation_network_domain_id").(string)
-	isolationNetworkDomainCIDR := d.Get("isolation_network_domain_cidr").(string)
-	isolationExternalFabricNetworkID := d.Get("isolation_external_fabric_network_id").(string)
-	isloatedNetworkCIDRPrefix := int32(d.Get("isolated_network_cidr_prefix").(int))
 	name := d.Get("name").(string)
 	regionID := d.Get("region_id").(string)
-	tags := expandSDKTags(d.Get("tags").(*schema.Set).List())
 
 	networkProfileSpecification := models.NetworkProfileSpecification{
-		IsolationType:                    isolationType,
-		IsolationNetworkDomainID:         isolationNetworkDomainID,
-		IsolationNetworkDomainCIDR:       isolationNetworkDomainCIDR,
-		IsolationExternalFabricNetworkID: isolationExternalFabricNetworkID,
-		IsolatedNetworkCIDRPrefix:        isloatedNetworkCIDRPrefix,
+		IsolationType:                    d.Get("isolation_type").(string),
+		IsolationNetworkDomainID:         d.Get("isolation_network_domain_id").(string),
+		IsolationNetworkDomainCIDR:       d.Get("isolation_network_domain_cidr").(string),
+		IsolationExternalFabricNetworkID: d.Get("isolation_external_fabric_network_id").(string),
+		IsolatedNetworkCIDRPrefix:        int32(d.Get("isolated_network_cidr_prefix").(int)),
 		Name:                             &name,
 		RegionID:                         &regionID,
-		Tags:                             tags,
-		CustomProperties:                 customProperties,
+		Tags:                             expandSDKTags(d.Get("tags").(*schema.Set).List()),
+		CustomProperties:                 expandCustomProperties(d.Get("custom_properties").(map[string]interface{})),
 	}
 
 	if v, ok := d.GetOk("description"); ok {
@@ -189,26 +182,19 @@ func resourceNetworkProfileUpdate(d *schema.ResourceData, m interface{}) error {
 	apiClient := client.GetAPIClient()
 
 	id := d.Id()
-	customProperties := expandCustomProperties(d.Get("custom_properties").(map[string]interface{}))
-	isolationType := d.Get("isolation_type").(string)
-	isolationNetworkDomainID := d.Get("isolation_network_domain_id").(string)
-	isolationNetworkDomainCIDR := d.Get("isolation_network_domain_cidr").(string)
-	isolationExternalFabricNetworkID := d.Get("isolation_external_fabric_network_id").(string)
-	isloatedNetworkCIDRPrefix := int32(d.Get("isolated_network_cidr_prefix").(int))
 	name := d.Get("name").(string)
 	regionID := d.Get("region_id").(string)
-	tags := expandSDKTags(d.Get("tags").(*schema.Set).List())
 
 	networkProfileSpecification := models.NetworkProfileSpecification{
-		IsolationType:                    isolationType,
-		IsolationNetworkDomainID:         isolationNetworkDomainID,
-		IsolationNetworkDomainCIDR:       isolationNetworkDomainCIDR,
-		IsolationExternalFabricNetworkID: isolationExternalFabricNetworkID,
-		IsolatedNetworkCIDRPrefix:        isloatedNetworkCIDRPrefix,
+		IsolationType:                    d.Get("isolation_type").(string),
+		IsolationNetworkDomainID:         d.Get("isolation_network_domain_id").(string),
+		IsolationNetworkDomainCIDR:       d.Get("isolation_network_domain_cidr").(string),
+		IsolationExternalFabricNetworkID: d.Get("isolation_external_fabric_network_id").(string),
+		IsolatedNetworkCIDRPrefix:        int32(d.Get("isolated_network_cidr_prefix").(int)),
 		Name:                             &name,
 		RegionID:                         &regionID,
-		Tags:                             tags,
-		CustomProperties:                 customProperties,
+		Tags:                             expandSDKTags(d.Get("tags").(*schema.Set).List()),
+		CustomProperties:                 expandCustomProperties(d.Get("custom_properties").(map[string]interface{})),
 	}
 
 	if v, ok := d.GetOk("description"); ok {
