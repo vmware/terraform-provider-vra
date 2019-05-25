@@ -51,6 +51,7 @@ func Provider() *schema.Provider {
 			"cas_load_balancer":       resourceLoadBalancer(),
 			"cas_machine":             resourceMachine(),
 			"cas_network":             resourceNetwork(),
+			"cas_network_profile":     resourceNetworkProfile(),
 			"cas_project":             resourceProject(),
 			"cas_zone":                resourceZone(),
 		},
