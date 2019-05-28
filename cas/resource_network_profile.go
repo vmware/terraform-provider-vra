@@ -4,11 +4,10 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/vmware/cas-sdk-go/pkg/client/network_profile"
 	"github.com/vmware/cas-sdk-go/pkg/models"
 
-	tango "github.com/vmware/terraform-provider-cas/sdk"
+	"github.com/hashicorp/terraform/helper/schema"
 )
 
 func resourceNetworkProfile() *schema.Resource {
@@ -70,12 +69,12 @@ func resourceNetworkProfile() *schema.Resource {
 					Type: schema.TypeString,
 				},
 			},
-			"tags": tagsSDKSchema(),
+			"tags": tagsSchema(),
 			"external_region_id": &schema.Schema{
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"links": linksSDKSchema(),
+			"links": linksSchema(),
 			"organization_id": &schema.Schema{
 				Type:     schema.TypeString,
 				Computed: true,
@@ -94,8 +93,7 @@ func resourceNetworkProfile() *schema.Resource {
 
 func resourceNetworkProfileCreate(d *schema.ResourceData, m interface{}) error {
 	log.Printf("Starting to create cas_network_profile resource")
-	client := m.(*tango.Client)
-	apiClient := client.GetAPIClient()
+	apiClient := m.(*Client).apiClient
 
 	name := d.Get("name").(string)
 	regionID := d.Get("region_id").(string)
@@ -108,7 +106,7 @@ func resourceNetworkProfileCreate(d *schema.ResourceData, m interface{}) error {
 		IsolatedNetworkCIDRPrefix:        int32(d.Get("isolated_network_cidr_prefix").(int)),
 		Name:                             &name,
 		RegionID:                         &regionID,
-		Tags:                             expandSDKTags(d.Get("tags").(*schema.Set).List()),
+		Tags:                             expandTags(d.Get("tags").(*schema.Set).List()),
 		CustomProperties:                 expandCustomProperties(d.Get("custom_properties").(map[string]interface{})),
 	}
 
@@ -144,8 +142,7 @@ func resourceNetworkProfileCreate(d *schema.ResourceData, m interface{}) error {
 
 func resourceNetworkProfileRead(d *schema.ResourceData, m interface{}) error {
 	log.Printf("Reading the cas_network_profile resource with name %s", d.Get("name"))
-	client := m.(*tango.Client)
-	apiClient := client.GetAPIClient()
+	apiClient := m.(*Client).apiClient
 
 	id := d.Id()
 	resp, err := apiClient.NetworkProfile.GetNetworkProfile(network_profile.NewGetNetworkProfileParams().WithID(id))
@@ -165,11 +162,11 @@ func resourceNetworkProfileRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("owner", networkProfile.Owner)
 	d.Set("updated_at", networkProfile.UpdatedAt)
 
-	if err := d.Set("tags", flattenSDKTags(networkProfile.Tags)); err != nil {
+	if err := d.Set("tags", flattenTags(networkProfile.Tags)); err != nil {
 		return fmt.Errorf("error setting network profile tags - error: %v", err)
 	}
 
-	if err := d.Set("links", flattenSDKLinks(networkProfile.Links)); err != nil {
+	if err := d.Set("links", flattenLinks(networkProfile.Links)); err != nil {
 		return fmt.Errorf("error setting network profile links - error: %#v", err)
 	}
 
@@ -178,8 +175,7 @@ func resourceNetworkProfileRead(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceNetworkProfileUpdate(d *schema.ResourceData, m interface{}) error {
-	client := m.(*tango.Client)
-	apiClient := client.GetAPIClient()
+	apiClient := m.(*Client).apiClient
 
 	id := d.Id()
 	name := d.Get("name").(string)
@@ -193,7 +189,7 @@ func resourceNetworkProfileUpdate(d *schema.ResourceData, m interface{}) error {
 		IsolatedNetworkCIDRPrefix:        int32(d.Get("isolated_network_cidr_prefix").(int)),
 		Name:                             &name,
 		RegionID:                         &regionID,
-		Tags:                             expandSDKTags(d.Get("tags").(*schema.Set).List()),
+		Tags:                             expandTags(d.Get("tags").(*schema.Set).List()),
 		CustomProperties:                 expandCustomProperties(d.Get("custom_properties").(map[string]interface{})),
 	}
 
@@ -225,8 +221,7 @@ func resourceNetworkProfileUpdate(d *schema.ResourceData, m interface{}) error {
 
 func resourceNetworkProfileDelete(d *schema.ResourceData, m interface{}) error {
 	log.Printf("Starting to delete the cas_network_profile resource with name %s", d.Get("name"))
-	client := m.(*tango.Client)
-	apiClient := client.GetAPIClient()
+	apiClient := m.(*Client).apiClient
 
 	id := d.Id()
 	_, err := apiClient.NetworkProfile.DeleteNetworkProfile(network_profile.NewDeleteNetworkProfileParams().WithID(id))
