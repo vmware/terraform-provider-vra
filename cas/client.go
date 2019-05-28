@@ -14,6 +14,7 @@ import (
 	"github.com/vmware/cas-sdk-go/pkg/models"
 )
 
+// Client the CAS Client
 type Client struct {
 	url       string
 	apiClient *client.MulticloudIaaS
