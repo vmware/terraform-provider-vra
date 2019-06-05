@@ -12,9 +12,9 @@ import (
 	"github.com/vmware/cas-sdk-go/pkg/client/cloud_account"
 )
 
-func TestAccDataSourceCASFabricNetworkBasic(t *testing.T) {
+func TestAccDataSourceCASNetworkDomainBasic(t *testing.T) {
 	rInt := acctest.RandInt()
-	dataSourceName := "data.cas_fabric_network.my-fabric-network"
+	dataSourceName := "data.cas_network_domain.my-network-domain"
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckAWS(t) },
@@ -22,21 +22,21 @@ func TestAccDataSourceCASFabricNetworkBasic(t *testing.T) {
 		CheckDestroy: testAccCheckCASRegionDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config:      testAccDataSourceCASFabricNetworkNoneConfig(rInt),
-				ExpectError: regexp.MustCompile("cas_fabric_network filter did not match any fabric network"),
+				Config:      testAccDataSourceCASNetworkDomainNoneConfig(rInt),
+				ExpectError: regexp.MustCompile("cas_network_domain filter did not match any network domain"),
 			},
 			{
-				Config: testAccDataSourceCASFabricNetworkOneConfig(rInt),
+				Config: testAccDataSourceCASNetworkDomainOneConfig(rInt),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(dataSourceName, "external_region_id", "us-east-1"),
-					resource.TestCheckResourceAttr(dataSourceName, "name", "appnet-isolated-dev"),
+					resource.TestCheckResourceAttr(dataSourceName, "name", "rainpole-dev"),
 				),
 			},
 		},
 	})
 }
 
-func testAccDataSourceCASFabricNetworkBaseConfig(rInt int) string {
+func testAccDataSourceCASNetworkDomainBaseConfig(rInt int) string {
 	// Need valid credentials since this is creating a real cloud account
 	id := os.Getenv("CAS_AWS_ACCESS_KEY_ID")
 	secret := os.Getenv("CAS_AWS_SECRET_ACCESS_KEY")
@@ -51,21 +51,21 @@ func testAccDataSourceCASFabricNetworkBaseConfig(rInt int) string {
 	`, rInt, id, secret)
 }
 
-func testAccDataSourceCASFabricNetworkNoneConfig(rInt int) string {
-	return testAccDataSourceCASFabricNetworkBaseConfig(rInt) + `
-		data "cas_fabric_network" "my-fabric-network" {
-			filter = "name eq 'foobar appnet-isolated-dev'"
+func testAccDataSourceCASNetworkDomainNoneConfig(rInt int) string {
+	return testAccDataSourceCASNetworkDomainBaseConfig(rInt) + `
+		data "cas_network_domain" "my-network-domain" {
+			filter = "name eq 'foobar rainpole-dev'"
 		}`
 }
 
-func testAccDataSourceCASFabricNetworkOneConfig(rInt int) string {
-	return testAccDataSourceCASFabricNetworkBaseConfig(rInt) + `
-	data "cas_fabric_network" "my-fabric-network" {
-			filter = "name eq 'appnet-isolated-dev'"
+func testAccDataSourceCASNetworkDomainOneConfig(rInt int) string {
+	return testAccDataSourceCASNetworkDomainBaseConfig(rInt) + `
+	data "cas_network_domain" "my-network-domain" {
+			filter = "name eq 'rainpole-dev'"
 		}`
 }
 
-func testAccCheckCASFabricNetworkDestroy(s *terraform.State) error {
+func testAccCheckCASNetworkDomainDestroy(s *terraform.State) error {
 	apiClient := testAccProviderCAS.Meta().(*Client).apiClient
 
 	for _, rs := range s.RootModule().Resources {

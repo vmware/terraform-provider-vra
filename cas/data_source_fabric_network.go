@@ -87,7 +87,7 @@ func resourceFabricNetworkRead(d *schema.ResourceData, meta interface{}) error {
 
 	fabricNetworks := getResp.Payload
 	if len(fabricNetworks.Content) > 1 {
-		return fmt.Errorf("cas_fabric_network must filter to a single fabric network")
+		return fmt.Errorf("cas_fabric_network must filter to a fabric network")
 	}
 	if len(fabricNetworks.Content) == 0 {
 		return fmt.Errorf("cas_fabric_network filter did not match any fabric network")
