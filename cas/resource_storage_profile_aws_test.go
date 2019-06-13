@@ -13,29 +13,31 @@ import (
 	tango "github.com/vmware/terraform-provider-cas/sdk"
 )
 
-func TestAccCASStorageProfileBasic(t *testing.T) {
+func TestAccCASStorageProfileAwsBasic(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckAWS(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckCASStorageProfileDestroy,
+		CheckDestroy: testAccCheckCASStorageProfileAwsDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCheckCASStorageProfileConfig(),
+				Config: testAccCheckCASStorageProfileAwsConfig(),
 				Check: resource.ComposeAggregateTestCheckFunc(
-					testAccCheckCASStorageProfileExists("cas_storage_profile.my-storage-profile"),
+					testAccCheckCASStorageProfileAwsExists("cas_storage_profile_aws.my-storage-profile-aws"),
 					resource.TestCheckResourceAttr(
-						"cas_storage_profile.my-storage-profile", "name", "my-cas-storage-profile"),
+						"cas_storage_profile_aws.my-storage-profile-aws", "name", "my-cas-storage-profile-aws"),
 					resource.TestCheckResourceAttr(
-						"cas_storage_profile.my-storage-profile", "description", "my storage profile"),
+						"cas_storage_profile_aws.my-storage-profile-aws", "description", "my storage profile"),
 					resource.TestCheckResourceAttr(
-						"cas_storage_profile.my-storage-profile", "default_item", true),
+						"cas_storage_profile_aws.my-storage-profile-aws", "default_item", true),
+					resource.TestCheckResourceAttr(
+						"cas_storage_profile_aws.my-storage-profile-aws", "device_type", "EBS"),
 				),
 			},
 		},
 	})
 }
 
-func testAccCheckCASStorageProfileExists(n string) resource.TestCheckFunc {
+func testAccCheckCASStorageProfileAwsExists(n string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
@@ -43,14 +45,14 @@ func testAccCheckCASStorageProfileExists(n string) resource.TestCheckFunc {
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("no storage profile ID is set")
+			return fmt.Errorf("no storage profile aws ID is set")
 		}
 
 		return nil
 	}
 }
 
-func testAccCheckCASStorageProfileDestroy(s *terraform.State) error {
+func testAccCheckCASStorageProfileAwsDestroy(s *terraform.State) error {
 	client := testAccProviderCAS.Meta().(*tango.Client)
 	apiClient := client.GetAPIClient()
 
@@ -61,10 +63,10 @@ func testAccCheckCASStorageProfileDestroy(s *terraform.State) error {
 				return fmt.Errorf("Resource 'cas_cloud_account_aws' still exists with id %s", rs.Primary.ID)
 			}
 		}
-		if rs.Type == "cas_storage_profile" {
+		if rs.Type == "cas_storage_profile_aws" {
 			_, err := apiClient.StorageProfile.GetStorageProfile(storage_profile.NewGetStorageProfileParams().WithID(rs.Primary.ID))
 			if err == nil {
-				return fmt.Errorf("Resource 'cas_storage_profile' still exists with id %s", rs.Primary.ID)
+				return fmt.Errorf("Resource 'cas_storage_profile_aws' still exists with id %s", rs.Primary.ID)
 			}
 		}
 	}
@@ -72,7 +74,7 @@ func testAccCheckCASStorageProfileDestroy(s *terraform.State) error {
 	return nil
 }
 
-func testAccCheckCASStorageProfileConfig() string {
+func testAccCheckCASStorageProfileAwsConfig() string {
 	// Need valid credentials since this is creating a real cloud account
 	id := os.Getenv("CAS_AWS_ACCESS_KEY_ID")
 	secret := os.Getenv("CAS_AWS_SECRET_ACCESS_KEY")
@@ -96,10 +98,11 @@ resource "cas_zone" "my-zone" {
 	region_id = "${data.cas_region.us-east-1-region.id}"
 }
 
-resource "cas_storage_profile" "my-storage-profile" {
-	name = "my-cas-storage-profile"
-	description = "my storage profile"
+resource "cas_storage_profile_aws" "my-storage-profile-aws" {
+	name = "my-cas-storage-profile-aws"
+	description = "my storage profile aws"
 	region_id = "${data.cas_region.us-east-1-region.id}"
 	default_item = true
+	device_type = "EBS"
 }`, id, secret)
 }

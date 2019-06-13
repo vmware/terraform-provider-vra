@@ -216,7 +216,7 @@ func resourceNetworkProfileUpdate(d *schema.ResourceData, m interface{}) error {
 		return err
 	}
 
-	return resourceProjectRead(d, m)
+	return resourceNetworkProfileRead(d, m)
 }
 
 func resourceNetworkProfileDelete(d *schema.ResourceData, m interface{}) error {

@@ -56,6 +56,7 @@ func Provider() *schema.Provider {
 			"cas_network_profile":     resourceNetworkProfile(),
 			"cas_project":             resourceProject(),
 			"cas_storage_profile":     resourceStorageProfile(),
+			"cas_storage_profile_aws": resourceStorageProfileAws(),
 			"cas_zone":                resourceZone(),
 		},
 

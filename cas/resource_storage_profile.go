@@ -132,11 +132,11 @@ func resourceStorageProfileRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("updated_at", storageProfile.UpdatedAt)
 
 	if err := d.Set("tags", flattenTags(storageProfile.Tags)); err != nil {
-		return fmt.Errorf("error setting network profile tags - error: %v", err)
+		return fmt.Errorf("error setting storage profile tags - error: %v", err)
 	}
 
 	if err := d.Set("links", flattenLinks(storageProfile.Links)); err != nil {
-		return fmt.Errorf("error setting network profile links - error: %#v", err)
+		return fmt.Errorf("error setting storage profile links - error: %#v", err)
 	}
 
 	log.Printf("Finished reading the cas_storage_profile resource with name %s", d.Get("name"))
@@ -169,7 +169,7 @@ func resourceStorageProfileUpdate(d *schema.ResourceData, m interface{}) error {
 		return err
 	}
 
-	return resourceProjectRead(d, m)
+	return resourceStorageProfileRead(d, m)
 }
 
 func resourceStorageProfileDelete(d *schema.ResourceData, m interface{}) error {
