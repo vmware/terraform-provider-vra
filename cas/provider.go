@@ -35,10 +35,10 @@ func Provider() *schema.Provider {
 		DataSourcesMap: map[string]*schema.Resource{
 			"cas_cloud_account_aws":   dataSourceCloudAccountAWS(),
 			"cas_cloud_account_azure": dataSourceCloudAccountAzure(),
-			"cas_fabric_network":               dataSourceFabricNetwork(),
+			"cas_fabric_network":      dataSourceFabricNetwork(),
 			"cas_image":               dataSourceImage(),
 			"cas_network":             dataSourceNetwork(),
-			"cas_network_domain":             dataSourceNetworkDomain(),
+			"cas_network_domain":      dataSourceNetworkDomain(),
 			"cas_project":             dataSourceProject(),
 			"cas_region":              dataSourceRegion(),
 			"cas_security_group":      dataSourceSecurityGroup(),
@@ -55,6 +55,8 @@ func Provider() *schema.Provider {
 			"cas_network":             resourceNetwork(),
 			"cas_network_profile":     resourceNetworkProfile(),
 			"cas_project":             resourceProject(),
+			"cas_storage_profile":     resourceStorageProfile(),
+			"cas_storage_profile_aws": resourceStorageProfileAws(),
 			"cas_zone":                resourceZone(),
 		},
 
