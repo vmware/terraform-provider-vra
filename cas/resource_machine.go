@@ -284,43 +284,17 @@ func resourceMachineUpdate(d *schema.ResourceData, m interface{}) error {
 	log.Printf("Starting to update the cas_machine resource with name %s", d.Get("name"))
 	apiClient := m.(*Client).apiClient
 
-	image, imageRef := "", ""
-
-	if v, ok := d.GetOk("image"); ok {
-		image = v.(string)
-	}
-
-	if v, ok := d.GetOk("image_ref"); ok {
-		imageRef = v.(string)
-	}
-
 	id := d.Id()
-	name := d.Get("name").(string)
-	flavor := d.Get("flavor").(string)
-	projectID := d.Get("project_id").(string)
 	description := d.Get("description").(string)
-	constraints := expandConstraints(d.Get("constraints").(*schema.Set).List())
 	tags := expandTags(d.Get("tags").(*schema.Set).List())
-	customProperties := expandCustomProperties(d.Get("custom_properties").(map[string]interface{}))
-	nics := expandNics(d.Get("nics").(*schema.Set).List())
-	disks := expandDisks(d.Get("disks").(*schema.Set).List())
 
-	machineSpecification := models.MachineSpecification{
-		Name:             &name,
-		Image:            &image,
-		ImageRef:         &imageRef,
-		Description:      description,
-		Flavor:           &flavor,
-		ProjectID:        &projectID,
-		Constraints:      constraints,
-		Tags:             tags,
-		CustomProperties: customProperties,
-		Nics:             nics,
-		Disks:            disks,
+	updateMachineSpecification := models.UpdateMachineSpecification{
+		Description: description,
+		Tags:        tags,
 	}
 
-	log.Printf("[DEBUG] update machine: %#v", machineSpecification)
-	_, err := apiClient.Compute.UpdateMachine(compute.NewUpdateMachineParams().WithID(id).WithBody(&machineSpecification))
+	log.Printf("[DEBUG] update machine: %#v", updateMachineSpecification)
+	_, err := apiClient.Compute.UpdateMachine(compute.NewUpdateMachineParams().WithID(id).WithBody(&updateMachineSpecification))
 	if err != nil {
 		return err
 	}

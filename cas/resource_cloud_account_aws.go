@@ -143,10 +143,7 @@ func resourceCloudAccountAWSUpdate(d *schema.ResourceData, m interface{}) error 
 	apiClient := m.(*Client).apiClient
 
 	id := d.Id()
-	accessKey := d.Get("access_key").(string)
 	description := d.Get("description").(string)
-	name := d.Get("name").(string)
-	secretAccessKey := d.Get("secret_key").(string)
 	tags := expandTags(d.Get("tags").(*schema.Set).List())
 
 	if v, ok := d.GetOk("regions"); ok {
@@ -155,12 +152,9 @@ func resourceCloudAccountAWSUpdate(d *schema.ResourceData, m interface{}) error 
 		}
 		regions = expandStringList(v.([]interface{}))
 	}
-	_, err := apiClient.CloudAccount.UpdateCloudAccount(cloud_account.NewUpdateCloudAccountParams().WithID(id).WithBody(&models.CloudAccountSpecification{
-		PrivateKeyID:       &accessKey,
+	_, err := apiClient.CloudAccount.UpdateAwsCloudAccount(cloud_account.NewUpdateAwsCloudAccountParams().WithID(id).WithBody(&models.UpdateCloudAccountAwsSpecification{
 		CreateDefaultZones: false,
 		Description:        description,
-		Name:               &name,
-		PrivateKey:         &secretAccessKey,
 		RegionIds:          regions,
 		Tags:               tags,
 	}))
