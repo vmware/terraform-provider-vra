@@ -150,18 +150,13 @@ func resourceCloudAccountAzureUpdate(d *schema.ResourceData, m interface{}) erro
 		}
 		regions = expandStringList(v.([]interface{}))
 	}
+	tags := expandTags(d.Get("tags").(*schema.Set).List())
 
-	_, err := apiClient.CloudAccount.UpdateCloudAccount(cloud_account.NewUpdateCloudAccountParams().WithID(id).WithBody(&models.CloudAccountSpecification{
-		Description: d.Get("description").(string),
-		Name:        withString(d.Get("name").(string)),
-		CloudAccountProperties: map[string]string{
-			"userLink":      d.Get("subscription_id").(string),
-			"privateKeyId":  d.Get("application_id").(string),
-			"azureTenantId": d.Get("tenant_id").(string),
-		},
+	_, err := apiClient.CloudAccount.UpdateAzureCloudAccount(cloud_account.NewUpdateAzureCloudAccountParams().WithID(id).WithBody(&models.UpdateCloudAccountAzureSpecification{
+		Description:        d.Get("description").(string),
 		CreateDefaultZones: false,
 		RegionIds:          regions,
-		Tags:               expandTags(d.Get("tags").(*schema.Set).List()),
+		Tags:               tags,
 	}))
 	if err != nil {
 		return err

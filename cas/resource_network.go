@@ -206,7 +206,7 @@ func resourceNetworkDelete(d *schema.ResourceData, m interface{}) error {
 	apiClient := m.(*Client).apiClient
 
 	id := d.Id()
-	deleteNetwork, err := apiClient.Network.DeleteNetwork(network.NewDeleteNetworkParams().WithID(id))
+	_, deleteNetworkAccepted, err := apiClient.Network.DeleteNetwork(network.NewDeleteNetworkParams().WithID(id))
 	if err != nil {
 		switch err.(type) {
 		case *network.DeleteNetworkNotFound:
@@ -218,7 +218,7 @@ func resourceNetworkDelete(d *schema.ResourceData, m interface{}) error {
 	stateChangeFunc := resource.StateChangeConf{
 		Delay:      5 * time.Second,
 		Pending:    []string{models.RequestTrackerStatusINPROGRESS},
-		Refresh:    networkStateRefreshFunc(*apiClient, *deleteNetwork.Payload.ID),
+		Refresh:    networkStateRefreshFunc(*apiClient, *deleteNetworkAccepted.Payload.ID),
 		Target:     []string{models.RequestTrackerStatusFINISHED},
 		Timeout:    5 * time.Minute,
 		MinTimeout: 5 * time.Second,
