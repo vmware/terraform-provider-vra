@@ -53,7 +53,7 @@ func getToken(url, refreshToken string) (string, error) {
 		},
 	)
 	authTokenResponse, err := apiclient.Login.RetrieveAuthToken(params)
-	if err != nil || *authTokenResponse.Payload.TokenType != "bearer" {
+	if err != nil || !strings.EqualFold(*authTokenResponse.Payload.TokenType, "bearer") {
 		return "", err
 	}
 
