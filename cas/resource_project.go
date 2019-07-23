@@ -1,15 +1,7 @@
 package cas
 
 import (
-	"fmt"
-	"time"
-
-	"github.com/go-openapi/strfmt"
-	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
-	"github.com/vmware/cas-sdk-go/pkg/client"
-	"github.com/vmware/cas-sdk-go/pkg/client/deployment_requests"
-	"github.com/vmware/cas-sdk-go/pkg/client/deployments"
 	"github.com/vmware/cas-sdk-go/pkg/client/project"
 	"github.com/vmware/cas-sdk-go/pkg/models"
 )
@@ -145,9 +137,6 @@ func resourceProjectDelete(d *schema.ResourceData, m interface{}) error {
 
 	id := d.Id()
 
-	// Workaround by deleting deployments out of the project to allow it to be deleted
-	deleteDeployments(apiClient, id)
-
 	// Workaround an issue where the cloud regions need to be removed before the project can be deleted.
 	_, err := apiClient.Project.UpdateProject(project.NewUpdateProjectParams().WithID(id).WithBody(&models.ProjectSpecification{
 		ZoneAssignmentConfigurations: []*models.ZoneAssignmentConfig{},
@@ -164,78 +153,6 @@ func resourceProjectDelete(d *schema.ResourceData, m interface{}) error {
 	d.SetId("")
 
 	return nil
-}
-
-func deleteDeployments(apiClient *client.MulticloudIaaS, id string) error {
-	deploymentsResponse, err := apiClient.Deployments.GetDeploymentsUsingGET(deployments.NewGetDeploymentsUsingGETParams())
-	if err != nil {
-		return err
-	}
-
-	for _, deployment := range deploymentsResponse.Payload.Content {
-		if deployment.ProjectID == id {
-			actionsResponse, err := apiClient.Deployments.GetDeploymentActionsUsingGET(deployments.NewGetDeploymentActionsUsingGETParams().WithDepID(deployment.ID))
-			if err != nil {
-				return err
-			}
-			var deleteUUID strfmt.UUID
-			actions := actionsResponse.Payload
-			for _, action := range actions {
-				if action.Name == "Delete" {
-					deleteUUID = action.ID
-				}
-			}
-			if deleteUUID.String() == "" {
-				return fmt.Errorf("Could not find delete action for deployment %s (%s)", *deployment.Name, deployment.ID)
-			}
-
-			// Delete the deployment
-			actionRequest := models.ResourceActionRequest{
-				ActionID: deleteUUID,
-				Reason:   "Deleting deployment via terraform destroy project",
-			}
-			requestObj, _, err := apiClient.Deployments.SubmitDeploymentActionRequestUsingPOST(deployments.NewSubmitDeploymentActionRequestUsingPOSTParams().WithDepID(deployment.ID).WithActionRequest(&actionRequest))
-			if err != nil {
-				return err
-			}
-			stateChangeFunc := resource.StateChangeConf{
-				Delay:      5 * time.Second,
-				Pending:    []string{models.DeploymentRequestStatusINPROGRESS},
-				Refresh:    deploymentStateRefreshFunc(*apiClient, requestObj.Payload.ID),
-				Target:     []string{models.DeploymentRequestStatusSUCCESSFUL},
-				Timeout:    5 * time.Minute,
-				MinTimeout: 5 * time.Second,
-			}
-
-			_, err = stateChangeFunc.WaitForState()
-			if err != nil {
-				return err
-			}
-		}
-	}
-
-	return nil
-}
-
-func deploymentStateRefreshFunc(apiClient client.MulticloudIaaS, id strfmt.UUID) resource.StateRefreshFunc {
-	return func() (interface{}, string, error) {
-		ret, err := apiClient.DeploymentRequests.GetDeploymentRequestUsingGET(deployment_requests.NewGetDeploymentRequestUsingGETParams().WithRequestID(id))
-		if err != nil {
-			return "", models.DeploymentRequestStatusFAILED, err
-		}
-
-		status := ret.Payload.Status
-		switch status {
-		case models.DeploymentRequestStatusFAILED:
-			return id.String(), status, fmt.Errorf(ret.Payload.StatusDetails)
-		case models.DeploymentRequestStatusINPROGRESS:
-			return id.String(), status, nil
-		case models.DeploymentRequestStatusSUCCESSFUL:
-			return ret.Payload.DeploymentID, status, nil
-		default:
-			return id.String(), ret.Payload.StatusDetails, fmt.Errorf("deploymentStateRefreshFunc: unknown status %v", status)
-		}
-	}
 }
 
 func expandUserList(userList []interface{}) []*models.User {
