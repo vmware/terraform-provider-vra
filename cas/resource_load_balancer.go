@@ -254,11 +254,6 @@ func resourceLoadBalancerDelete(d *schema.ResourceData, m interface{}) error {
 	id := d.Id()
 	deleteLoadBalancer, err := apiClient.LoadBalancer.DeleteLoadBalancer(load_balancer.NewDeleteLoadBalancerParams().WithID(id))
 	if err != nil {
-		switch err.(type) {
-		case *load_balancer.DeleteLoadBalancerNotFound:
-			d.SetId("")
-			return nil
-		}
 		return err
 	}
 	stateChangeFunc := resource.StateChangeConf{
