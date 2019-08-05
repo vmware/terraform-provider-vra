@@ -310,11 +310,6 @@ func resourceMachineDelete(d *schema.ResourceData, m interface{}) error {
 	id := d.Id()
 	deleteMachine, err := apiClient.Compute.DeleteMachine(compute.NewDeleteMachineParams().WithID(id))
 	if err != nil {
-		switch err.(type) {
-		case *compute.DeleteMachineNotFound:
-			d.SetId("")
-			return nil
-		}
 		return err
 	}
 

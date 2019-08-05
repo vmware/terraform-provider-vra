@@ -206,13 +206,8 @@ func resourceNetworkDelete(d *schema.ResourceData, m interface{}) error {
 	apiClient := m.(*Client).apiClient
 
 	id := d.Id()
-	_, deleteNetworkAccepted, err := apiClient.Network.DeleteNetwork(network.NewDeleteNetworkParams().WithID(id))
+	deleteNetworkAccepted, err := apiClient.Network.DeleteNetwork(network.NewDeleteNetworkParams().WithID(id))
 	if err != nil {
-		switch err.(type) {
-		case *network.DeleteNetworkNotFound:
-			d.SetId("")
-			return nil
-		}
 		return err
 	}
 	stateChangeFunc := resource.StateChangeConf{
