@@ -1,11 +1,11 @@
 ---
-layout: "cas"
-page_title: "VMware Cloud Account Services: cas_load_balancer"
-sidebar_current: "docs-cas-resource-load-balancer"
+layout: "vra"
+page_title: "VMware vRealize Automation: vra_load_balancer"
+sidebar_current: "docs-vra-resource-load-balancer"
 description: |-
-  Provides a VMware CAS cas_load_balancer resource.
+  Provides a VMware vRA vra_load_balancer resource.
 ---
 
-# cas\_load\_balancer
+# vra\_load\_balancer
 
-Provides a VMware CAS cas_load_balancer resource.
+Provides a VMware vRA vra_load_balancer resource.

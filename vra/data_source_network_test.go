@@ -1,0 +1,45 @@
+package vra
+
+import (
+	"regexp"
+	"testing"
+
+	"github.com/hashicorp/terraform/helper/acctest"
+	"github.com/hashicorp/terraform/helper/resource"
+)
+
+func TestAccDataSourceVRANetwork(t *testing.T) {
+	rInt := acctest.RandInt()
+	dataSourceName1 := "data.vra_network.test-network"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheckCas(t) },
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config:      testAccDataSourceVRANetworkNoneConfig(rInt),
+				ExpectError: regexp.MustCompile("network invalid-name not found"),
+			},
+			{
+				Config: testAccDataSourceVRANetworkOneConfig(rInt),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(dataSourceName1, "id", "6d25dcb5d510875582822c89a1d4"),
+				),
+			},
+		},
+	})
+}
+
+func testAccDataSourceVRANetworkNoneConfig(rInt int) string {
+	return `
+	    data "vra_network" "test-network" {
+			name = "invalid-name"
+		}`
+}
+
+func testAccDataSourceVRANetworkOneConfig(rInt int) string {
+	return `
+		data "vra_network" "test-network" {
+			name = "foo1-mcm653-56201379059"
+		}`
+}

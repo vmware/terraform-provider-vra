@@ -1,10 +1,10 @@
 ---
-layout: "cas"
-page_title: "VMware Cloud Account Services: cas_project"
-sidebar_current: "docs-cas-datasource-cas-project"
+layout: "vra"
+page_title: "VMware vRealize Automation: vra_project"
+sidebar_current: "docs-vra-datasource-vra-project"
 description: |-
-  Provides a data lookup for cas_project.
+  Provides a data lookup for vra_project.
 ---
 
-# Data Source: cas\_project
+# Data Source: vra\_project
 

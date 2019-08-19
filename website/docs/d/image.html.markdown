@@ -1,10 +1,10 @@
 ---
-layout: "cas"
-page_title: "VMware Cloud Account Services: cas_image"
-sidebar_current: "docs-cas-datasource-cas-image"
+layout: "vra"
+page_title: "VMware vRealize Automation: vra_image"
+sidebar_current: "docs-vra-datasource-vra-image"
 description: |-
   Provides a data lookup for images.
 ---
 
-# Data Source: cas\_image
+# Data Source: vra\_image
 

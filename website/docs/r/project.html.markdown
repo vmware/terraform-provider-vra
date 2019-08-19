@@ -1,11 +1,11 @@
 ---
-layout: "cas"
-page_title: "VMware Cloud Account Services: cas_project"
-sidebar_current: "docs-cas-resource-project"
+layout: "vra"
+page_title: "VMware vRealize Automation: vra_project"
+sidebar_current: "docs-vra-resource-project"
 description: |-
-  Provides a VMware CAS cas_project resource.
+  Provides a VMware vRA vra_project resource.
 ---
 
-# cas\_project
+# vra\_project
 
-Provides a VMware CAS cas_project resource.
+Provides a VMware vRA vra_project resource.

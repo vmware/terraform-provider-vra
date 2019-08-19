@@ -1,11 +1,11 @@
 ---
-layout: "cas"
-page_title: "VMware Cloud Account Services: cas_zone"
-sidebar_current: "docs-cas-resource-zone"
+layout: "vra"
+page_title: "VMware vRealize Automation: vra_zone"
+sidebar_current: "docs-vra-resource-zone"
 description: |-
-  Provides a VMware CAS cas_zone resource.
+  Provides a VMware vRA vra_zone resource.
 ---
 
-# cas\_zone
+# vra\_zone
 
-Provides a VMware CAS cas_zone resource.
+Provides a VMware vRA vra_zone resource.

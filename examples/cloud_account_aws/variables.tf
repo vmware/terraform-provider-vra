@@ -1,5 +1,15 @@
-variable "url" {}
-variable "refresh_token" {}
-variable "access_key" {}
-variable "secret_key" {}
-variable "image_name" {}
+variable "url" {
+}
+
+variable "refresh_token" {
+}
+
+variable "access_key" {
+}
+
+variable "secret_key" {
+}
+
+variable "image_name" {
+}
+

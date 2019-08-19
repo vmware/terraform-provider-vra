@@ -1,11 +1,11 @@
 ---
-layout: "cas"
-page_title: "VMware Cloud Account Services: cas_cloud_account_azure"
-sidebar_current: "docs-cas-resource-cloud-account-azure"
+layout: "vra"
+page_title: "VMware vRealize Automation: vra_cloud_account_azure"
+sidebar_current: "docs-vra-resource-cloud-account-azure"
 description: |-
-  Provides a VMware CAS cas_cloud_account_azure resource.
+  Provides a VMware vRA vra_cloud_account_azure resource.
 ---
 
-# cas\_cloud\_account\_azure
+# vra\_cloud\_account\_azure
 
-Provides a VMware CAS cas_cloud_account_azure resource.
+Provides a VMware vRA vra_cloud_account_azure resource.

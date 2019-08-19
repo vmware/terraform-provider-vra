@@ -1,11 +1,11 @@
 ---
-layout: "cas"
-page_title: "VMware Cloud Account Services: cas_image_profile"
-sidebar_current: "docs-cas-resource-image-profile"
+layout: "vra"
+page_title: "VMware vRealize Automation: vra_image_profile"
+sidebar_current: "docs-vra-resource-image-profile"
 description: |-
-  Provides a VMware CAS cas_image_profile resource.
+  Provides a VMware vRA vra_image_profile resource.
 ---
 
-# cas\_image\_profile
+# vra\_image\_profile
 
-Provides a VMware CAS cas_image_profile resource.
+Provides a VMware vRA vra_image_profile resource.

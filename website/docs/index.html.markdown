@@ -1,7 +1,7 @@
 ---
-layout: "cas"
+layout: "vra"
 page_title: "Provider: VMware Cloud Automation Services"
-sidebar_current: "docs-cas-index"
+sidebar_current: "docs-vra-index"
 description: |-
   A Terraform provider to work with VMware Cloud Automation Services.
 ---
@@ -25,7 +25,7 @@ provider.
 [tf-vra7-deployment]: /docs/providers/vra7/r/deployment.html
 
 ```hcl
-provider "cas" {
+provider "vra" {
     url = "${var.url}"
     refresh_token = "${var.refresh_token}"
 }
@@ -39,12 +39,12 @@ examples specific to their own use cases.
 The following arguments are used to configure the VMware vRA7 Provider:
 
 * `url` - (Required) This is the URL to the VMware Cloud Automation
-  Services endpoint. Can also  be specified with the `CAS_URL` environment variable.
+  Services endpoint. Can also  be specified with the `vRA_URL` environment variable.
 * `access_token` - (Optional) This is the access token used to create an API
-  refresh token. Can also be specified with the `CAS_ACCESS_TOKEN` environment variable.
+  refresh token. Can also be specified with the `vRA_ACCESS_TOKEN` environment variable.
 * `refresh_token` - (Optional) This is a refresh_token used for API access that
   has been pre-generated. One of `access_token` or `refresh_token` is required.
-  Can also be specified with the `CAS_REFRESH_TOKEN` environment variable.
+  Can also be specified with the `vRA_REFRESH_TOKEN` environment variable.
 
 ### Debugging options
 

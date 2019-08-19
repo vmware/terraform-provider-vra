@@ -1,11 +1,11 @@
 ---
-layout: "cas"
-page_title: "VMware Cloud Account Services: cas_flavor"
-sidebar_current: "docs-cas-resource-flavor"
+layout: "vra"
+page_title: "VMware vRealize Automation: vra_flavor"
+sidebar_current: "docs-vra-resource-flavor"
 description: |-
-  Provides a VMware CAS cas_flavor resource.
+  Provides a VMware vRA vra_flavor resource.
 ---
 
-# cas\_flavor
+# vra\_flavor
 
-Provides a VMware CAS cas_flavor resource.
+Provides a VMware vRA vra_flavor resource.
