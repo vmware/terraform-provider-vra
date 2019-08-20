@@ -1,10 +1,10 @@
-provider "cas" {
+provider "vra" {
     url = "${var.url}"
     access_token = "${var.access_token}"
 }
 
-resource "cas_machine" "my_machine_mysql" {
-    name = "terraform_cas_mysql"
+resource "vra_machine" "my_machine_mysql" {
+    name = "terraform_vra_mysql"
     image = "ubuntu"
     flavor = "small"
 

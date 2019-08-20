@@ -1,10 +1,10 @@
-provider "cas" {
+provider "vra" {
     url = "${var.url}"
     access_token = "${var.access_token}"
 }
 
-resource "cas_machine" "my_machine_mysql" {
-    name = "terraform_cas_mysql"
+resource "vra_machine" "my_machine_mysql" {
+    name = "terraform_vra_mysql"
     image = "ubuntu"
     flavor = "small"
 
@@ -26,8 +26,8 @@ EOF
     }
 }
 
-resource "cas_machine" "my_machine_wordpress" {
-    name = "terraform_cas_wordpress"
+resource "vra_machine" "my_machine_wordpress" {
+    name = "terraform_vra_wordpress"
     image = "ubuntu"
     flavor = "small"
 
@@ -47,10 +47,10 @@ packages:
 
 runcmd:
 - mkdir -p /var/www/html/mywordpresssite && cd /var/www/html && wget https://wordpress.org/latest.tar.gz && tar -xzf /var/www/html/latest.tar.gz -C /var/www/html/mywordpresssite --strip-components 1
-- i=0; while [ $i -le 10 ]; do mysql --connect-timeout=3 -h ${cas_machine.my_machine_mysql.address} -u root -pmysqlpassword -e "SHOW STATUS;" && break || sleep 15; i=$$((i+1)); done
-- mysql -u root -pmysqlpassword -h ${cas_machine.my_machine_mysql.address} -e "create database wordpress_blog;"
+- i=0; while [ $i -le 10 ]; do mysql --connect-timeout=3 -h ${vra_machine.my_machine_mysql.address} -u root -pmysqlpassword -e "SHOW STATUS;" && break || sleep 15; i=$$((i+1)); done
+- mysql -u root -pmysqlpassword -h ${vra_machine.my_machine_mysql.address} -e "create database wordpress_blog;"
 - mv /var/www/html/mywordpresssite/wp-config-sample.php /var/www/html/mywordpresssite/wp-config.php
-- sed -i -e s/"define('DB_NAME', 'database_name_here');"/"define('DB_NAME', 'wordpress_blog');"/ /var/www/html/mywordpresssite/wp-config.php && sed -i -e s/"define('DB_USER', 'username_here');"/"define('DB_USER', 'root');"/ /var/www/html/mywordpresssite/wp-config.php && sed -i -e s/"define('DB_PASSWORD', 'password_here');"/"define('DB_PASSWORD', 'mysqlpassword');"/ /var/www/html/mywordpresssite/wp-config.php && sed -i -e s/"define('DB_HOST', 'localhost');"/"define('DB_HOST', '${cas_machine.my_machine_mysql.address}');"/ /var/www/html/mywordpresssite/wp-config.php
+- sed -i -e s/"define('DB_NAME', 'database_name_here');"/"define('DB_NAME', 'wordpress_blog');"/ /var/www/html/mywordpresssite/wp-config.php && sed -i -e s/"define('DB_USER', 'username_here');"/"define('DB_USER', 'root');"/ /var/www/html/mywordpresssite/wp-config.php && sed -i -e s/"define('DB_PASSWORD', 'password_here');"/"define('DB_PASSWORD', 'mysqlpassword');"/ /var/www/html/mywordpresssite/wp-config.php && sed -i -e s/"define('DB_HOST', 'localhost');"/"define('DB_HOST', '${vra_machine.my_machine_mysql.address}');"/ /var/www/html/mywordpresssite/wp-config.php
 - service apache2 reload
 EOF
     }

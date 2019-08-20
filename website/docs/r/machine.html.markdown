@@ -1,11 +1,11 @@
 ---
-layout: "cas"
-page_title: "VMware Cloud Account Services: cas_machine"
-sidebar_current: "docs-cas-resource-machine"
+layout: "vra"
+page_title: "VMware vRealize Automation: vra_machine"
+sidebar_current: "docs-vra-resource-machine"
 description: |-
-  Provides a VMware CAS cas_machine resource.
+  Provides a VMware vRA vra_machine resource.
 ---
 
-# cas\_machine
+# vra\_machine
 
-Provides a VMware CAS cas_machine resource.
+Provides a VMware vRA vra_machine resource.

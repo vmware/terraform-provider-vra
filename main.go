@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/vmware/terraform-provider-cas/cas"
+	"github.com/vmware/terraform-provider-vra/vra"
 
 	"github.com/hashicorp/terraform/plugin"
 	"github.com/hashicorp/terraform/terraform"
@@ -10,7 +10,7 @@ import (
 func main() {
 	plugin.Serve(&plugin.ServeOpts{
 		ProviderFunc: func() terraform.ResourceProvider {
-			return cas.Provider()
+			return vra.Provider()
 		},
 	})
 }

@@ -1,6 +1,6 @@
-# Contributing to terraform-provider-cas
+# Contributing to terraform-provider-vra
 
-The terraform-provider-cas project team welcomes contributions from the community. Before you start working with terraform-provider-cas, please read our [Developer Certificate of Origin](https://cla.vmware.com/dco). All contributions to this repository must be signed as described on that page. Your signature certifies that you wrote the patch or have the right to pass it on as an open-source patch. 
+The terraform-provider-vra project team welcomes contributions from the community. Before you start working with terraform-provider-vra, please read our [Developer Certificate of Origin](https://cla.vmware.com/dco). All contributions to this repository must be signed as described on that page. Your signature certifies that you wrote the patch or have the right to pass it on as an open-source patch. 
 
 ## Contribution Flow
 
@@ -15,7 +15,7 @@ This is a rough outline of what a contributor's workflow looks like:
 Example:
 
 ``` shell
-git remote add upstream https://github.com/vmware/terraform-provider-cas.git
+git remote add upstream https://github.com/vmware/terraform-provider-vra.git
 git checkout -b my-new-feature master
 git commit -a
 git push origin my-new-feature
