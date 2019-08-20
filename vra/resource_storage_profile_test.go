@@ -9,8 +9,6 @@ import (
 	"github.com/hashicorp/terraform/terraform"
 	"github.com/vmware/vra-sdk-go/pkg/client/cloud_account"
 	"github.com/vmware/vra-sdk-go/pkg/client/storage_profile"
-
-	vrasdk "github.com/vmware/terraform-provider-vra/sdk"
 )
 
 func TestAccVRAStorageProfileBasic(t *testing.T) {
@@ -28,7 +26,7 @@ func TestAccVRAStorageProfileBasic(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"vra_storage_profile.my-storage-profile", "description", "my storage profile"),
 					resource.TestCheckResourceAttr(
-						"vra_storage_profile.my-storage-profile", "default_item", true),
+						"vra_storage_profile.my-storage-profile", "default_item", "true"),
 				),
 			},
 		},
@@ -51,8 +49,7 @@ func testAccCheckVRAStorageProfileExists(n string) resource.TestCheckFunc {
 }
 
 func testAccCheckVRAStorageProfileDestroy(s *terraform.State) error {
-	client := testAccProviderVRA.Meta().(*vrasdk.Client)
-	apiClient := client.GetAPIClient()
+	apiClient := testAccProviderVRA.Meta().(*Client).apiClient
 
 	for _, rs := range s.RootModule().Resources {
 		if rs.Type == "vra_cloud_account_aws" {
