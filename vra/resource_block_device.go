@@ -65,10 +65,6 @@ func resourceBlockDevice() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"deployment_id": &schema.Schema{
-				Type:     schema.TypeString,
-				Computed: true,
-			},
 			"external_id": &schema.Schema{
 				Type:     schema.TypeString,
 				Computed: true,
@@ -124,10 +120,6 @@ func resourceBlockDeviceCreate(d *schema.ResourceData, m interface{}) error {
 		Constraints:      constraints,
 		CustomProperties: customProperties,
 		Tags:             tags,
-	}
-
-	if v, ok := d.GetOk("deployment_id"); ok {
-		blockDeviceSpecification.DeploymentID = v.(string)
 	}
 
 	if v, ok := d.GetOk("description"); ok {
