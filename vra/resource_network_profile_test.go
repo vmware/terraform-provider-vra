@@ -9,8 +9,6 @@ import (
 	"github.com/hashicorp/terraform/terraform"
 	"github.com/vmware/vra-sdk-go/pkg/client/cloud_account"
 	"github.com/vmware/vra-sdk-go/pkg/client/network_profile"
-
-	vrasdk "github.com/vmware/terraform-provider-vra/sdk"
 )
 
 func TestAccVRANetworkProfileBasic(t *testing.T) {
@@ -49,8 +47,7 @@ func testAccCheckVRANetworkProfileExists(n string) resource.TestCheckFunc {
 }
 
 func testAccCheckVRANetworkProfileDestroy(s *terraform.State) error {
-	client := testAccProviderVRA.Meta().(*vrasdk.Client)
-	apiClient := client.GetAPIClient()
+	apiClient := testAccProviderVRA.Meta().(*Client).apiClient
 
 	for _, rs := range s.RootModule().Resources {
 		if rs.Type == "vra_cloud_account_aws" {
