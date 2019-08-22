@@ -87,11 +87,11 @@ func resourceStorageProfileAwsCreate(d *schema.ResourceData, m interface{}) erro
 
 	name := d.Get("name").(string)
 	regionID := d.Get("region_id").(string)
-	defaultItem := d.Get("default_item").(bool)
+	deviceType := d.Get("device_type").(string)
 
 	StorageProfileAwsSpecification := models.StorageProfileAwsSpecification{
-		DefaultItem:        &defaultItem,
-		DeviceType:         d.Get("device_type").(string),
+		DefaultItem:        d.Get("default_item").(bool),
+		DeviceType:         &deviceType,
 		Iops:               d.Get("iops").(string),
 		Name:               &name,
 		RegionID:           &regionID,
@@ -158,11 +158,11 @@ func resourceStorageProfileAwsUpdate(d *schema.ResourceData, m interface{}) erro
 	id := d.Id()
 	name := d.Get("name").(string)
 	regionID := d.Get("region_id").(string)
-	defaultItem := d.Get("default_item").(bool)
+	deviceType := d.Get("device_type").(string)
 
 	StorageProfileAwsSpecification := models.StorageProfileAwsSpecification{
-		DefaultItem:        &defaultItem,
-		DeviceType:         d.Get("device_type").(string),
+		DefaultItem:        d.Get("default_item").(bool),
+		DeviceType:         &deviceType,
 		Iops:               d.Get("iops").(string),
 		Name:               &name,
 		RegionID:           &regionID,

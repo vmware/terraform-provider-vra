@@ -92,10 +92,9 @@ func resourceStorageProfileAzureCreate(d *schema.ResourceData, m interface{}) er
 
 	name := d.Get("name").(string)
 	regionID := d.Get("region_id").(string)
-	defaultItem := d.Get("default_item").(bool)
 
 	StorageProfileAzureSpecification := models.StorageProfileAzureSpecification{
-		DefaultItem:        &defaultItem,
+		DefaultItem:        d.Get("default_item").(bool),
 		DiskType:           d.Get("disk_type").(string),
 		DataDiskCaching:    d.Get("data_disk_caching").(string),
 		Name:               &name,
@@ -164,10 +163,9 @@ func resourceStorageProfileAzureUpdate(d *schema.ResourceData, m interface{}) er
 	id := d.Id()
 	name := d.Get("name").(string)
 	regionID := d.Get("region_id").(string)
-	defaultItem := d.Get("default_item").(bool)
 
 	StorageProfileAzureSpecification := models.StorageProfileAzureSpecification{
-		DefaultItem:        &defaultItem,
+		DefaultItem:        d.Get("default_item").(bool),
 		DiskType:           d.Get("disk_type").(string),
 		DataDiskCaching:    d.Get("data_disk_caching").(string),
 		Name:               &name,

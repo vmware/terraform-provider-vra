@@ -41,10 +41,6 @@ func resourceLoadBalancer() *schema.Resource {
 				Computed: true,
 				Optional: true,
 			},
-			"deployment_id": &schema.Schema{
-				Type:     schema.TypeString,
-				Optional: true,
-			},
 			"description": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
@@ -120,10 +116,6 @@ func resourceLoadBalancerCreate(d *schema.ResourceData, m interface{}) error {
 		Tags:             tags,
 		CustomProperties: customProperties,
 		Nics:             nics,
-	}
-
-	if v, ok := d.GetOk("deployment_id"); ok {
-		loadBalancerSpecification.DeploymentID = v.(string)
 	}
 
 	if v, ok := d.GetOk("description"); ok {
@@ -216,7 +208,6 @@ func resourceLoadBalancerRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("address", loadBalancer.Address)
 	d.Set("created_at", loadBalancer.CreatedAt)
 	d.Set("custom_properties", loadBalancer.CustomProperties)
-	d.Set("deployment_id", loadBalancer.DeploymentID)
 	d.Set("description", loadBalancer.Description)
 	d.Set("external_id", loadBalancer.ExternalID)
 	d.Set("external_region_id", loadBalancer.ExternalRegionID)
