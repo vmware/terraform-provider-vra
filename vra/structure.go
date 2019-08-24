@@ -106,3 +106,18 @@ func flattenAndNormalizeCLoudAccountAzureRegionIds(regionOrder []string, cloudAc
 	}
 	return m, nil
 }
+
+// flattenAndNormalizeCLoudAccountVsphereRegionIds will return region id's in the same order as regionOrder
+func flattenAndNormalizeCLoudAccountVsphereRegionIds(regionOrder []string, cloudAccount *models.CloudAccountVsphere) ([]string, error) {
+	returnOrder := cloudAccount.EnabledRegionIds
+	refStrings := cloudAccount.Links["regions"].Hrefs
+	m := make([]string, len(regionOrder))
+	for i, r := range regionOrder {
+		index, err := indexOf(r, returnOrder)
+		if err != nil {
+			return []string{}, err
+		}
+		m[i] = strings.TrimPrefix(refStrings[index], "/iaas/api/regions/")
+	}
+	return m, nil
+}

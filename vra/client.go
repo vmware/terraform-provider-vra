@@ -40,13 +40,9 @@ func getToken(url, refreshToken string) (string, error) {
 		return "", err
 	}
 	transport := httptransport.New(parsedURL.Host, "", nil)
-	transport.SetDebug(true)
-	fmt.Printf("transport: %+v\n", transport)
+	transport.SetDebug(false)
 	apiclient := client.New(transport, strfmt.Default)
 
-	fmt.Printf("apiclient: %+v\n", apiclient)
-	fmt.Printf("transport: %+v\n", apiclient.Transport)
-	fmt.Printf("Login: %+v\n", apiclient.Login)
 	params := login.NewRetrieveAuthTokenParams().WithBody(
 		&models.CspLoginSpecification{
 			RefreshToken: &refreshToken,

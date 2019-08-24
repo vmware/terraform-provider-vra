@@ -35,12 +35,14 @@ func Provider() *schema.Provider {
 		DataSourcesMap: map[string]*schema.Resource{
 			"vra_cloud_account_aws":   dataSourceCloudAccountAWS(),
 			"vra_cloud_account_azure": dataSourceCloudAccountAzure(),
+			"vra_data_collector":      dataSourceDataCollector(),
 			"vra_fabric_network":      dataSourceFabricNetwork(),
 			"vra_image":               dataSourceImage(),
 			"vra_network":             dataSourceNetwork(),
 			"vra_network_domain":      dataSourceNetworkDomain(),
 			"vra_project":             dataSourceProject(),
 			"vra_region":              dataSourceRegion(),
+			"vra_region_enumeration":  dataSourceRegionEnumeration(),
 			"vra_security_group":      dataSourceSecurityGroup(),
 		},
 
@@ -48,6 +50,7 @@ func Provider() *schema.Provider {
 			"vra_block_device":          resourceBlockDevice(),
 			"vra_cloud_account_aws":     resourceCloudAccountAWS(),
 			"vra_cloud_account_azure":   resourceCloudAccountAzure(),
+			"vra_cloud_account_vsphere": resourceCloudAccountVsphere(),
 			"vra_flavor_profile":        resourceFlavorProfile(),
 			"vra_image_profile":         resourceImageProfile(),
 			"vra_load_balancer":         resourceLoadBalancer(),
