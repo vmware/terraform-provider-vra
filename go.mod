@@ -1,7 +1,5 @@
 module github.com/vmware/terraform-provider-vra
 
-replace github.com/vmware/vra-sdk-go => ../vra-sdk-go
-
 require (
 	github.com/apparentlymart/go-cidr v1.0.1 // indirect
 	github.com/go-openapi/runtime v0.19.4
@@ -16,6 +14,6 @@ require (
 	github.com/hashicorp/terraform v0.12.6
 	github.com/mitchellh/go-homedir v1.1.0 // indirect
 	github.com/mitchellh/reflectwalk v1.0.1 // indirect
-	github.com/vmware/vra-sdk-go v0.0.0
+	github.com/vmware/vra-sdk-go v0.1.0
 	github.com/zclconf/go-cty v1.1.0 // indirect
 )
