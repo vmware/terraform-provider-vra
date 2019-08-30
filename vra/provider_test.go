@@ -96,6 +96,25 @@ func testAccPreCheckAzure(t *testing.T) {
 	}
 }
 
+func testAccPreCheckVsphere(t *testing.T) {
+	if os.Getenv("VRA_REFRESH_TOKEN") == "" && os.Getenv("VRA_ACCESS_TOKEN") == "" {
+		t.Fatal("VRA_REFRESH_TOKEN or VRA_ACCESS_TOKEN must be set for acceptance tests")
+	}
+
+	envVars := [...]string{
+		"VRA_URL",
+		"VRA_VSPHERE_USERNAME",
+		"VRA_VSPHERE_PASSWORD",
+		"VRA_VSPHERE_DATACOLLECTOR_NAME",
+	}
+
+	for _, name := range envVars {
+		if v := os.Getenv(name); v == "" {
+			t.Fatalf("%s must be set for acceptance tests\n", name)
+		}
+	}
+}
+
 func testAccPreCheckCas(t *testing.T) {
 	if v := os.Getenv("VRA_URL"); v == "" {
 		t.Fatal("VRA_URL must be set for acceptance tests")
