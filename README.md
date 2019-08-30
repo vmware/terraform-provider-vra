@@ -25,16 +25,16 @@ already be done by administrators or can be done via terraform as well.
 Because vRA works across multiple clouds, a cloud account with credentials must
 first be setup. Follow these examples for setting up specific cloud accounts:
 
-* Setup [cloud\_account\_aws](examples/cloud_account_aws/README)
-* Setup [cloud\_account\_azure](examples/cloud_account_azure/README)
-* Setup [cloud\_account\_vsphere](examples/cloud_account_vsphere/README)
+* Setup [cloud\_account\_aws](examples/cloud_account_aws/README.md)
+* Setup [cloud\_account\_azure](examples/cloud_account_azure/README.md)
+* Setup [cloud\_account\_vsphere](examples/cloud_account_vsphere/README.md)
 
-### Cloud Zones
+### Zones
 
-While the cloud account examples included setting up cloud zones, here is an example
-to setup a cloud zone:
+While the cloud account examples included setting up zones, here is an example
+to setup a zone:
 
-* Setup [cloud\_zone](examples/cloud\_zone/README)
+* Setup [zone](examples/zone/README.md)
 
 
 ### Projects
@@ -42,7 +42,7 @@ to setup a cloud zone:
 While the cloud account examples included setting up a project, here is an example
 to setup a project:
 
-* Setup [project](examples/project/README)
+* Setup [project](examples/project/README.md)
 
 ### Flavor mappings
 
