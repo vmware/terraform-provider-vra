@@ -4,12 +4,12 @@ provider "vra" {
 }
 
 data "vra_cloud_account_aws" my-cloud-account {
-       name = vra.cloud_account
+       name = var.cloud_account
 }
 
 data "vra_region" "us-east-1-region" {
   cloud_account_id = vra_cloud_account_aws.my-cloud-account.id
-  region           = vra.region
+  region           = var.region
 }
 
 resource "vra_zone" "my-zone" {
