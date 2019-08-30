@@ -9,5 +9,3 @@ variable "cloud_account" {
 
 variable "region" {
 }
-
- 
