@@ -41,8 +41,8 @@ func resourceZone() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"tags":        tagsSchema(),
-			"tagstomatch": tagsSchema(),
+			"tags":          tagsSchema(),
+			"tags_to_match": tagsSchema(),
 		},
 	}
 }
@@ -55,7 +55,7 @@ func resourceZoneCreate(d *schema.ResourceData, m interface{}) error {
 	placementPolicy := d.Get("placement_policy").(string)
 	regionID := d.Get("region_id").(string)
 	tags := expandTags(d.Get("tags").(*schema.Set).List())
-	tagsToMatch := expandTags(d.Get("tagstomatch").(*schema.Set).List())
+	tagsToMatch := expandTags(d.Get("tags_to_match").(*schema.Set).List())
 
 	createResp, err := apiClient.Location.CreateZone(location.NewCreateZoneParams().WithBody(&models.ZoneSpecification{
 		Description:     description,
@@ -72,8 +72,8 @@ func resourceZoneCreate(d *schema.ResourceData, m interface{}) error {
 	if err := d.Set("tags", flattenTags(tags)); err != nil {
 		return fmt.Errorf("Error setting zone tags - error: %#v", err)
 	}
-	if err := d.Set("tagstomatch", flattenTags(tagsToMatch)); err != nil {
-		return fmt.Errorf("Error setting zone tagstomatch - error: %#v", err)
+	if err := d.Set("tags_to_match", flattenTags(tagsToMatch)); err != nil {
+		return fmt.Errorf("Error setting zone tags_to_match - error: %#v", err)
 	}
 	d.SetId(*createResp.Payload.ID)
 
@@ -100,8 +100,8 @@ func resourceZoneRead(d *schema.ResourceData, m interface{}) error {
 	if err := d.Set("tags", flattenTags(zone.Tags)); err != nil {
 		return fmt.Errorf("Error setting zone tags - error: %#v", err)
 	}
-	if err := d.Set("tagstomatch", flattenTags(zone.TagsToMatch)); err != nil {
-		return fmt.Errorf("Error setting zone tagstomatch - error: %#v", err)
+	if err := d.Set("tags_to_match", flattenTags(zone.TagsToMatch)); err != nil {
+		return fmt.Errorf("Error setting zone tags_to_match - error: %#v", err)
 	}
 	return nil
 }
@@ -115,7 +115,7 @@ func resourceZoneUpdate(d *schema.ResourceData, m interface{}) error {
 	placementPolicy := d.Get("placement_policy").(string)
 	regionID := d.Get("region_id").(string)
 	tags := expandTags(d.Get("tags").(*schema.Set).List())
-	tagsToMatch := expandTags(d.Get("tagstomatch").(*schema.Set).List())
+	tagsToMatch := expandTags(d.Get("tags_to_match").(*schema.Set).List())
 
 	_, err := apiClient.Location.UpdateZone(location.NewUpdateZoneParams().WithID(id).WithBody(&models.ZoneSpecification{
 		Description:     description,
