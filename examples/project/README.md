@@ -4,7 +4,7 @@ This is an example on how to create a project and assign a zone to it.
 
 ## Getting Started
 
-There are variables which need to be added to terraform.tfvars. The first are for connecting to the vRealize Automation (vRA) endpoint, there are credentials for connecting to the vCenter instance, and the name of the data collector already setup in vRA.
+There are variables which need to be added to terraform.tfvars. The first are for connecting to the vRealize Automation (vRA) endpoint. There are names of cloud_account, region, zone, already setup in vRA.
 
 * `url` - The URL for the vRealize Automation (vRA) endpoint
 * `refresh_token` - The refresh token for the vRA account
@@ -30,7 +30,7 @@ to setup a zone:
 
 * Setup [zone](examples/zone/README.md)
 
-Once the information is added to `terraform.tfvars`, the zones can be created via:
+Once the information is added to `terraform.tfvars`, the project can be created via:
 
 ```shell
 terraform init

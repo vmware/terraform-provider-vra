@@ -6,7 +6,7 @@ Flavor profile represents a structure that holds flavor mappings defined for the
 
 ## Getting Started
 
-There are variables which need to be added to terraform.tfvars. The first are for connecting to the vRealize Automation (vRA) endpoint, there are credentials for connecting to the vCenter instance, and the name of the data collector already setup in vRA.
+There are variables which need to be added to terraform.tfvars. The first are for connecting to the vRealize Automation (vRA) endpoint. There are names of cloud_account, region, zone, project, already setup in vRA.
 
 * `url` - The URL for the vRealize Automation (vRA) endpoint
 * `refresh_token` - The refresh token for the vRA account
@@ -38,7 +38,7 @@ To create a project, here is an example
 
 * Setup [project](examples/project/README.md)
 
-Once the information is added to `terraform.tfvars`, the zones can be created via:
+Once the information is added to `terraform.tfvars`, the image profile, flavor profile and machine can be created via:
 
 ```shell
 terraform init
