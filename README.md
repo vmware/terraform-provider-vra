@@ -45,10 +45,15 @@ to setup a project:
 * Setup [project](examples/project/README.md)
 
 ### Flavor mappings
+Flavor profile represents a structure that holds flavor mappings defined for the corresponding cloud end-point region.
+* Setup [flavor\_profile](examples/machine/README.md)
 
 ### Image mappings
+Image profile represents a structure that holds a list of image mappings defined for the particular region.
+* Setup [image\_profile](examples/machine/README.md)
 
 ### Machine
+* Setup [machine](examples/machine/README.md)
 
 
 Upgrading the provider
