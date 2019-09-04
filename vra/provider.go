@@ -30,6 +30,12 @@ func Provider() *schema.Provider {
 				DefaultFunc:   schema.EnvDefaultFunc("VRA_ACCESS_TOKEN", nil),
 				Description:   "The access token for API operations.",
 			},
+			"insecure": {
+				Type:        schema.TypeBool,
+				DefaultFunc: schema.EnvDefaultFunc("VRA7_INSECURE", nil),
+				Optional:    true,
+				Description: "Specify whether to validate TLS certificates.",
+			},
 		},
 
 		DataSourcesMap: map[string]*schema.Resource{
@@ -82,13 +88,15 @@ func configureProvider(d *schema.ResourceData) (interface{}, error) {
 		accessToken = v.(string)
 	}
 
+	insecure := d.Get("insecure").(bool)
+
 	if accessToken == "" && refreshToken == "" {
 		return nil, errors.New("refresh_token or access_token required")
 	}
 
 	if accessToken != "" {
-		return NewClientFromAccessToken(url, accessToken)
+		return NewClientFromAccessToken(url, accessToken, insecure)
 	}
 
-	return NewClientFromRefreshToken(url, refreshToken)
+	return NewClientFromRefreshToken(url, refreshToken, insecure)
 }

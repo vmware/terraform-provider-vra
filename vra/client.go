@@ -21,25 +21,29 @@ type Client struct {
 }
 
 // NewClientFromRefreshToken configures and returns a VRA "Client" struct using "refresh_token" from provider config
-func NewClientFromRefreshToken(url, refreshToken string) (interface{}, error) {
-	token, err := getToken(url, refreshToken)
+func NewClientFromRefreshToken(url, refreshToken string, insecure bool) (interface{}, error) {
+	token, err := getToken(url, refreshToken, insecure)
 	if err != nil {
 		return "", err
 	}
-	return &Client{url, getAPIClient(url, token)}, nil
+	return &Client{url, getAPIClient(url, token, insecure)}, nil
 }
 
 // NewClientFromAccessToken configures and returns a VRA "Client" struct using "access_token" from provider config
-func NewClientFromAccessToken(url, accessToken string) (interface{}, error) {
-	return &Client{url, getAPIClient(url, accessToken)}, nil
+func NewClientFromAccessToken(url, accessToken string, insecure bool) (interface{}, error) {
+	return &Client{url, getAPIClient(url, accessToken, insecure)}, nil
 }
 
-func getToken(url, refreshToken string) (string, error) {
+func getToken(url, refreshToken string, insecure bool) (string, error) {
 	parsedURL, err := neturl.Parse(url)
 	if err != nil {
 		return "", err
 	}
 	transport := httptransport.New(parsedURL.Host, "", nil)
+	newTransport, err := httptransport.TLSTransport(httptransport.TLSClientOptions{
+		InsecureSkipVerify: insecure,
+	})
+	transport.Transport = newTransport
 	transport.SetDebug(false)
 	apiclient := client.New(transport, strfmt.Default)
 
@@ -81,7 +85,7 @@ func (SwaggerLogger) Debugf(format string, args ...interface{}) {
 	}
 }
 
-func getAPIClient(url string, token string) *client.MulticloudIaaS {
+func getAPIClient(url string, token string, insecure bool) *client.MulticloudIaaS {
 	debug := false
 	if os.Getenv("VRA_DEBUG") != "" {
 		debug = true
@@ -93,6 +97,10 @@ func getAPIClient(url string, token string) *client.MulticloudIaaS {
 	}
 	transport := httptransport.New(parsedURL.Host, "", nil)
 	transport.DefaultAuthentication = httptransport.APIKeyAuth("Authorization", "header", "Bearer "+token)
+	newTransport, err := httptransport.TLSTransport(httptransport.TLSClientOptions{
+		InsecureSkipVerify: insecure,
+	})
+	transport.Transport = newTransport
 	if debug {
 		transport.SetDebug(debug)
 		transport.SetLogger(SwaggerLogger{})
