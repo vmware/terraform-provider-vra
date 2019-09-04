@@ -72,7 +72,7 @@ func testAccPreCheckAWS(t *testing.T) {
 		t.Fatal("VRA_AWS_ACCESS_KEY_ID must be set for acceptance tests")
 	}
 	if v := os.Getenv("VRA_AWS_SECRET_ACCESS_KEY"); v == "" {
-		t.Fatal("VRA_AWS_SECRET_ACCESS_KEYGO_URL must be set for acceptance tests")
+		t.Fatal("VRA_AWS_SECRET_ACCESS_KEY must be set for acceptance tests")
 	}
 }
 

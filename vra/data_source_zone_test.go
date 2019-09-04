@@ -21,7 +21,7 @@ func TestAccDataSourceVRAZoneBasic(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckAWS(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckVRAZoneDestroy,
+		CheckDestroy: testAccCheckVRADataSourceZoneDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config:      testAccDataSourceVRAZoneNoneConfig(rInt),
@@ -85,7 +85,7 @@ func testAccDataSourceVRAZoneOneConfig(rInt int) string {
 		}`
 }
 
-func testAccCheckVRAZoneDestroy(s *terraform.State) error {
+func testAccCheckVRADataSourceZoneDestroy(s *terraform.State) error {
 	apiClient := testAccProviderVRA.Meta().(*Client).apiClient
 
 	for _, rs := range s.RootModule().Resources {
