@@ -24,7 +24,7 @@ func TestAccVRAStorageProfileAwsBasic(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"vra_storage_profile_aws.my-storage-profile-aws", "name", "my-vra-storage-profile-aws"),
 					resource.TestCheckResourceAttr(
-						"vra_storage_profile_aws.my-storage-profile-aws", "description", "my storage profile"),
+						"vra_storage_profile_aws.my-storage-profile-aws", "description", "my storage profile aws"),
 					resource.TestCheckResourceAttr(
 						"vra_storage_profile_aws.my-storage-profile-aws", "default_item", "true"),
 					resource.TestCheckResourceAttr(
