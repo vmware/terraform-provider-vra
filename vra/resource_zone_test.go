@@ -101,10 +101,16 @@ resource "vra_cloud_account_aws" "my-cloud-account" {
 	regions = ["us-east-1"]
  }
 
+ data "vra_region" "us-east-1-region" {
+    cloud_account_id = "${vra_cloud_account_aws.my-cloud-account.id}"
+    region = "us-east-1"
+}
+
  resource "vra_zone" "my-zone" {
     name = "my-vra-zone-%d"
-    description = "description my-vra-zone"
-    region_id = "${element(vra_cloud_account_aws.my-cloud-account.0.region_ids, 0)}"
+	description = "description my-vra-zone"
+	region_id = "${data.vra_region.us-east-1-region.id}"
+
     tags {
         key = "mykey"
         value = "myvalue"
@@ -133,10 +139,15 @@ func testAccCheckVRAZoneUpdateConfig(rInt int) string {
 		regions = ["us-east-1"]
 	 }
 
+	 data "vra_region" "us-east-1-region" {
+		cloud_account_id = "${vra_cloud_account_aws.my-cloud-account.id}"
+		region = "us-east-1"
+	}
+
 	 resource "vra_zone" "my-zone" {
 		name = "my-vra-zone-update-%d"
 		description = "description my-vra-zone-update"
-		region_id = "${element(vra_cloud_account_aws.my-cloud-account.0.region_ids, 0)}"
+		region_id = "${data.vra_region.us-east-1-region.id}"
 		placement_policy = "BINPACK"
 		tags {
 			key = "mykey"
