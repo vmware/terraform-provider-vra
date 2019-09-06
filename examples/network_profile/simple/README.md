@@ -22,10 +22,10 @@ A Network Profile can be created just with a name and region id. But this exampl
 
 Follow these examples for setting up specific cloud accounts:
 
-* Setup [cloud\_account\_aws](examples/cloud_account_aws/README.md)
-* Setup [cloud\_account\_azure](examples/cloud_account_azure/README.md)
-* Setup [cloud\_account\_gcp](examples/cloud_account_gcp/README.md)
-* Setup [cloud\_account\_vsphere](examples/cloud_account_vsphere/README.md)
+* Setup [cloud\_account\_aws](../../cloud_account_aws/README.md)
+* Setup [cloud\_account\_azure](../../cloud_account_azure/README.md)
+* Setup [cloud\_account\_gcp](../../cloud_account_gcp/README.md)
+* Setup [cloud\_account\_vsphere](../../cloud_account_vsphere/README.md)
 
 Once the information is added to `terraform.tfvars`, the Network Profile can be created via:
 

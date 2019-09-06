@@ -25,19 +25,19 @@ To create a cloud-agnostic machine, a cloud account, zone, project, image and fl
 
 Follow these examples for setting up specific cloud accounts:
 
-* Setup [cloud\_account\_aws](examples/cloud_account_aws/README.md)
-* Setup [cloud\_account\_azure](examples/cloud_account_azure/README.md)
-* Setup [cloud\_account\_gcp](examples/cloud_account_gcp/README.md)
-* Setup [cloud\_account\_vsphere](examples/cloud_account_vsphere/README.md)
+* Setup [cloud\_account\_aws](../cloud_account_aws/README.md)
+* Setup [cloud\_account\_azure](../cloud_account_azure/README.md)
+* Setup [cloud\_account\_gcp](../cloud_account_gcp/README.md)
+* Setup [cloud\_account\_vsphere](../cloud_account_vsphere/README.md)
 
 While the cloud account examples included setting up zones, here is an example
 to setup a zone:
 
-* Setup [zone](examples/zone/README.md)
+* Setup [zone](../zone/README.md)
 
 To create a project, here is an example
 
-* Setup [project](examples/project/README.md)
+* Setup [project](../project/README.md)
 
 Once the information is added to `terraform.tfvars`, the image profile, flavor profile and machine can be created via:
 

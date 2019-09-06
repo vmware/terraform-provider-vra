@@ -6,4 +6,4 @@ This directory covers examples on how to create different kinds of Network Profi
 
 Follow these examples for setting up Network Profiles:
 
-* Setup [network_profile](examples/network_profile/simple/README.md) with no isolation
+* Setup [network_profile](../network_profile/simple/README.md) with no isolation
