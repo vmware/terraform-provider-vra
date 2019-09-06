@@ -21,15 +21,15 @@ A project can be created just with a project name. But this example shows how to
 
 Follow these examples for setting up specific cloud accounts:
 
-* Setup [cloud\_account\_aws](examples/cloud_account_aws/README.md)
-* Setup [cloud\_account\_azure](examples/cloud_account_azure/README.md)
-* Setup [cloud\_account\_gcp](examples/cloud_account_gcp/README.md)
-* Setup [cloud\_account\_vsphere](examples/cloud_account_vsphere/README.md)
+* Setup [cloud\_account\_aws](../cloud_account_aws/README.md)
+* Setup [cloud\_account\_azure](../cloud_account_azure/README.md)
+* Setup [cloud\_account\_gcp](../cloud_account_gcp/README.md)
+* Setup [cloud\_account\_vsphere](../cloud_account_vsphere/README.md)
 
 While the cloud account examples included setting up zones, here is an example
 to setup a zone:
 
-* Setup [zone](examples/zone/README.md)
+* Setup [zone](../zone/README.md)
 
 Once the information is added to `terraform.tfvars`, the project can be created via:
 
