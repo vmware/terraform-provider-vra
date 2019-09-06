@@ -1,6 +1,6 @@
 # network_profile example
 
-This is an example on how to create a Network Profile with no isolation. 
+This is an example on how to create a Network Profile with security groups so that firewall rules are added to all the machines provisioned with this Network Profile. 
 
 ## Getting Started
 
@@ -12,8 +12,8 @@ Following is the full list of variables used in this example.
 * `refresh_token` - The refresh token for the vRA account
 * `cloud_account` - The name of the cloud account added in vRA
 * `region` - The region within the cloud account
-* `subnet_name_1` - The first subnet to add to Network Profile
-* `subnet_name_2` - The second subnet to add to Network Profile
+* `subnet_name` - The subnet to add to Network Profile
+* `security_group_name` - The name of the security group to add to Network Profile
 
 To facilitate adding these variables, a sample tfvars file can be copied first:
 ```shell

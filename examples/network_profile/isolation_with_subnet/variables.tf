@@ -10,8 +10,11 @@ variable "cloud_account" {
 variable "region" {
 }
 
-variable "subnet_name_1" {
+variable "subnet_name" {
 }
 
-variable "subnet_name_2" {
+variable "network_domain_name" {
+}
+
+variable "cidr_prefix" {
 }

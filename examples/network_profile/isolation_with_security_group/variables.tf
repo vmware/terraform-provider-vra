@@ -10,8 +10,5 @@ variable "cloud_account" {
 variable "region" {
 }
 
-variable "subnet_name_1" {
-}
-
-variable "subnet_name_2" {
+variable "subnet_name" {
 }
