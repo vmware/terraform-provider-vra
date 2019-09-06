@@ -57,6 +57,7 @@ func Provider() *schema.Provider {
 			"vra_block_device":          resourceBlockDevice(),
 			"vra_cloud_account_aws":     resourceCloudAccountAWS(),
 			"vra_cloud_account_azure":   resourceCloudAccountAzure(),
+			"vra_cloud_account_gcp":     resourceCloudAccountGCP(),
 			"vra_cloud_account_vsphere": resourceCloudAccountVsphere(),
 			"vra_flavor_profile":        resourceFlavorProfile(),
 			"vra_image_profile":         resourceImageProfile(),

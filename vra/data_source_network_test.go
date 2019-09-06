@@ -13,7 +13,7 @@ func TestAccDataSourceVRANetwork(t *testing.T) {
 	dataSourceName1 := "data.vra_network.test-network"
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheckCas(t) },
+		PreCheck:  func() { testAccPreCheckVra(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
