@@ -15,7 +15,7 @@ func TestAccDataSourceVRAProject(t *testing.T) {
 	dataSourceName1 := "data.vra_project.test-project"
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheckCas(t) },
+		PreCheck:  func() { testAccPreCheckVra(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
