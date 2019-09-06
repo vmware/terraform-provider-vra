@@ -17,6 +17,13 @@ cp terraform.tfvars.sample terraform.tfvars
 ```
 To create a zone, a cloud account must be setup in vRA and the region must be identified within which the zone will be created.
 
+Follow these examples for setting up specific cloud accounts:
+
+* Setup [cloud\_account\_aws](examples/cloud_account_aws/README.md)
+* Setup [cloud\_account\_azure](examples/cloud_account_azure/README.md)
+* Setup [cloud\_account\_gcp](examples/cloud_account_gcp/README.md)
+* Setup [cloud\_account\_vsphere](examples/cloud_account_vsphere/README.md)
+
 Once the information is added to `terraform.tfvars`, the zones can be created via:
 
 ```shell
