@@ -41,6 +41,7 @@ func Provider() *schema.Provider {
 		DataSourcesMap: map[string]*schema.Resource{
 			"vra_cloud_account_aws":   dataSourceCloudAccountAWS(),
 			"vra_cloud_account_azure": dataSourceCloudAccountAzure(),
+			"vra_cloud_account_gcp":   dataSourceCloudAccountGCP(),
 			"vra_data_collector":      dataSourceDataCollector(),
 			"vra_fabric_network":      dataSourceFabricNetwork(),
 			"vra_image":               dataSourceImage(),
