@@ -1,6 +1,6 @@
 # network_profile example
 
-This is an example on how to create a Network Profile with no isolation. 
+This is an example on how to create a Network Profile with isolation using subnet.
 
 ## Getting Started
 
@@ -12,15 +12,16 @@ Following is the full list of variables used in this example.
 * `refresh_token` - The refresh token for the vRA account
 * `cloud_account` - The name of the cloud account added in vRA
 * `region` - The region within the cloud account
-* `subnet_name_1` - The first subnet to add to Network Profile
-* `subnet_name_2` - The second subnet to add to Network Profile
+* `subnet_name` - The subnet to add to Network Profile
+* `network_domain_name` - The network domain to use for isolation in the Network Profile
+* `cidr_prefix` - The CIDR prefix to use for isolation in the Network Profile
 
 To facilitate adding these variables, a sample tfvars file can be copied first:
 ```shell
 cp terraform.tfvars.sample terraform.tfvars
 ```
 
-A Network Profile can be created just with a name and region id. But this example shows how to create a Network Profile and assign fabric networks (subnets) to it without isolation. In order to achieve that, a cloud account must be setup in vRA and the region must be identified within which the Network Profile to be created.
+A Network Profile can be created just with a name and region id. But this example shows how to create a Network Profile and assign fabric networks (subnets) to it with isolation using subnet. In order to achieve that, a cloud account must be setup in vRA and the region must be identified within which the Network Profile to be created.
 
 Follow these examples for setting up specific cloud accounts:
 
