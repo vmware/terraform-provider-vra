@@ -3,24 +3,25 @@ provider "vra" {
   refresh_token = var.refresh_token
 }
 
-data "vra_cloud_account_aws" my-cloud-account {
-       name = var.cloud_account
+data "vra_cloud_account_aws" this {
+  name = var.cloud_account
 }
 
-data "vra_region" "us-east-1-region" {
-  cloud_account_id = vra_cloud_account_aws.my-cloud-account.id
+data "vra_region" "this" {
+  cloud_account_id = data.vra_cloud_account_aws.this.id
   region           = var.region
 }
 
-data "vra_zone" "my-zone" {
+data "vra_zone" "this" {
   name = var.zone
 }
 
-resource "vra_project" "my-project" {
+resource "vra_project" "this" {
   name        = "tf-vra-project"
-  description = "my terraform test project"
+  description = "terraform test project"
+
   zone_assignments {
-    zone_id       = vra_zone.my-zone.id
+    zone_id       = data.vra_zone.this.id
     priority      = 1
     max_instances = 2
   }
