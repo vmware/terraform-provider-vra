@@ -18,15 +18,15 @@ func resourceCloudAccountGCP() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 
+			"client_email": &schema.Schema{
+				Type:     schema.TypeString,
+				Required: true,
+			},
 			"description": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
 			},
 			"name": &schema.Schema{
-				Type:     schema.TypeString,
-				Required: true,
-			},
-			"client_email": &schema.Schema{
 				Type:     schema.TypeString,
 				Required: true,
 			},
