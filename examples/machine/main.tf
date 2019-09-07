@@ -3,42 +3,43 @@ provider "vra" {
   refresh_token = var.refresh_token
 }
 
-data "vra_cloud_account_aws" my-cloud-account {
-       name = var.cloud_account
+data "vra_cloud_account_aws" this {
+  name = var.cloud_account
 }
 
-data "vra_region" "us-east-1-region" {
-  cloud_account_id = vra_cloud_account_aws.my-cloud-account.id
+data "vra_region" "this" {
+  cloud_account_id = data.vra_cloud_account_aws.this.id
   region           = var.region
 }
 
-data "vra_zone" "my-zone" {
+data "vra_zone" "this" {
   name = var.zone
 }
 
-data "vra_project" "my-project" {
+data "vra_project" "this" {
   name = var.project
 }
 
-resource "vra_flavor_profile" "my-flavor-profile" {
-	name        = "tf-vra-flavor-profile"
-	description = "my flavor"
-	region_id   = "${data.vra_region.us-east-1-region.id}"
+resource "vra_flavor_profile" "this" {
+  name        = "tf-vra-flavor-profile"
+  description = "my flavor"
+  region_id   = data.vra_region.this.id
 
-	flavor_mapping {
-		name          = "small"
-		instance_type = "t2.small"
-	}
-	flavor_mapping {
-		name          = "medium"
-		instance_type = "t2.medium"
-	}
+  flavor_mapping {
+    name          = "small"
+    instance_type = "t2.small"
+  }
+
+  flavor_mapping {
+    name          = "medium"
+    instance_type = "t2.medium"
+  }
 }
 
-resource "vra_image_profile" "my-image-profile" {
+resource "vra_image_profile" "this" {
   name        = "tf-vra-image-profile"
-  description = "my terraform test image profile"
-  region_id   = data.vra_region.us-east-1-region.id
+  description = "terraform test image profile"
+  region_id   = data.vra_region.this.id
 
   image_mapping {
     name       = "ubuntu"
@@ -46,15 +47,15 @@ resource "vra_image_profile" "my-image-profile" {
   }
 }
 
-resource "vra_machine" "my-machine" {
-    name        = "tf-machine"
-    description = "my terrafrom test machine"
-    project_id  = data.vra_project.my-project.id
-    image       = "ubuntu"
-    flavor      = "small"
+resource "vra_machine" "this" {
+  name        = "tf-machine"
+  description = "terrafrom test machine"
+  project_id  = data.vra_project.this.id
+  image       = "ubuntu"
+  flavor      = "small"
 
-    tags {
-      key   = "foo"
-      value = "bar"
-    }
+  tags {
+    key   = "foo"
+    value = "bar"
+  }
 }

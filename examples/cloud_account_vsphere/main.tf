@@ -4,18 +4,18 @@ provider "vra" {
 }
 
 data "vra_data_collector" "dc" {
-    name = var.datacollector
+  name = var.datacollector
 }
 
 data "vra_region_enumeration" "dc_regions" {
-  username    = var.username
-  password    = var.password
-  hostname    = var.hostname
-  dcid        = data.vra_data_collector.dc.id
+  username = var.username
+  password = var.password
+  hostname = var.hostname
+  dcid     = data.vra_data_collector.dc.id
 }
 
-resource "vra_cloud_account_vsphere" "my_vsphere_account" {
-  name        = "my-vsphere-account"
+resource "vra_cloud_account_vsphere" "this" {
+  name        = "tf-vsphere-account"
   description = "foobar"
   username    = var.username
   password    = var.password
@@ -24,6 +24,7 @@ resource "vra_cloud_account_vsphere" "my_vsphere_account" {
 
   regions                 = data.vra_region_enumeration.dc_regions.regions
   accept_self_signed_cert = true
+
   tags {
     key   = "foo"
     value = "bar"
