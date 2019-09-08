@@ -72,7 +72,7 @@ func dataSourceZoneRead(d *schema.ResourceData, m interface{}) error {
 	id, idOk := d.GetOk("id")
 	name, nameOk := d.GetOk("name")
 
-	if idOk == false && nameOk == false {
+	if !idOk && !nameOk {
 		return fmt.Errorf("One of id or name must be assigned")
 	}
 	getResp, err := apiClient.Location.GetZones(location.NewGetZonesParams())

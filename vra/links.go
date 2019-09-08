@@ -54,6 +54,7 @@ func flattenLinks(links map[string]models.Href) []map[string]interface{} {
 	return configLinks
 }
 
+/*
 func getSelfLink(configLinks []interface{}) string {
 	for _, configLink := range configLinks {
 		linkMap := configLink.(map[string]interface{})
@@ -65,3 +66,4 @@ func getSelfLink(configLinks []interface{}) string {
 
 	return ""
 }
+*/

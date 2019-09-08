@@ -1,8 +1,6 @@
 package vra
 
 import (
-	"github.com/vmware/vra-sdk-go/pkg/models"
-
 	"github.com/hashicorp/terraform/helper/schema"
 )
 
@@ -39,6 +37,7 @@ func rulesSchema(isRequired bool) *schema.Schema {
 	}
 }
 
+/*
 func expandRules(configRules []interface{}) []*models.Rule {
 	rules := make([]*models.Rule, 0, len(configRules))
 
@@ -61,3 +60,4 @@ func expandRules(configRules []interface{}) []*models.Rule {
 
 	return rules
 }
+*/

@@ -43,6 +43,7 @@ func expandConstraints(configConstraints []interface{}) []*models.Constraint {
 	return constraints
 }
 
+/*
 func flattenConstraints(constraints []*models.Constraint) []interface{} {
 	if len(constraints) == 0 {
 		return make([]interface{}, 0)
@@ -60,3 +61,4 @@ func flattenConstraints(constraints []*models.Constraint) []interface{} {
 
 	return configConstraints
 }
+*/

@@ -19,7 +19,7 @@ func TestAccDataSourceVRAImageBasic(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckAWS(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckVRARegionDestroy,
+		CheckDestroy: testAccCheckVRAImageDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config:      testAccDataSourceVRAImageNoneConfig(rInt),
