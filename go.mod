@@ -17,3 +17,5 @@ require (
 	github.com/vmware/vra-sdk-go v0.1.0
 	github.com/zclconf/go-cty v1.1.0 // indirect
 )
+
+replace git.apache.org/thrift.git => github.com/apache/thrift v0.0.0-20180902110319-2566ecd5d999
