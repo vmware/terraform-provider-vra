@@ -64,9 +64,8 @@ func indexOf(value string, items []string) (int, error) {
 	return -1, fmt.Errorf("Could not find %s in item list %v", value, items)
 }
 
-/*
-// flattenAndNormalizeCLoudAccountRegionIds will return region id's in the same order as regionOrder
-func flattenAndNormalizeCLoudAccountRegionIds(regionOrder []string, cloudAccount *models.CloudAccount) ([]string, error) {
+// flattenAndNormalizeCloudAccountRegionIds will return region id's in the same order as regionOrder
+func flattenAndNormalizeCloudAccountRegionIds(regionOrder []string, cloudAccount *models.CloudAccount) ([]string, error) {
 	returnOrder := cloudAccount.EnabledRegionIds
 	refStrings := cloudAccount.Links["regions"].Hrefs
 	m := make([]string, len(regionOrder))
@@ -79,7 +78,6 @@ func flattenAndNormalizeCLoudAccountRegionIds(regionOrder []string, cloudAccount
 	}
 	return m, nil
 }
-*/
 
 // flattenAndNormalizeCLoudAccountAWSRegionIds will return region id's in the same order as regionOrder
 func flattenAndNormalizeCLoudAccountAWSRegionIds(regionOrder []string, cloudAccount *models.CloudAccountAws) ([]string, error) {

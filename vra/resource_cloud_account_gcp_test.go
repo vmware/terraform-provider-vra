@@ -161,7 +161,7 @@ resource "vra_cloud_account_gcp" "my-cloud-account" {
 	client_email = "%s"
 	project_id = "%s"
 	private_key_id = "%s"
-	application_key = "%s"
-	private_key = ["us-west2", "us-west2"]
+	private_key = "%s"
+	regions = ["us-west2", "us-west2"]
  }`, rInt, clientEmail, projectId, privateKeyId, privateKey)
 }
