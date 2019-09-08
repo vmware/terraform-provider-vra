@@ -26,12 +26,20 @@ func NewClientFromRefreshToken(url, refreshToken string, insecure bool) (interfa
 	if err != nil {
 		return "", err
 	}
-	return &Client{url, getAPIClient(url, token, insecure)}, nil
+	apiClient, err := getAPIClient(url, token, insecure)
+	if err != nil {
+		return "", err
+	}
+	return &Client{url, apiClient}, nil
 }
 
 // NewClientFromAccessToken configures and returns a VRA "Client" struct using "access_token" from provider config
 func NewClientFromAccessToken(url, accessToken string, insecure bool) (interface{}, error) {
-	return &Client{url, getAPIClient(url, accessToken, insecure)}, nil
+	apiClient, err := getAPIClient(url, accessToken, insecure)
+	if err != nil {
+		return "", err
+	}
+	return &Client{url, apiClient}, nil
 }
 
 func getToken(url, refreshToken string, insecure bool) (string, error) {
@@ -43,6 +51,9 @@ func getToken(url, refreshToken string, insecure bool) (string, error) {
 	newTransport, err := httptransport.TLSTransport(httptransport.TLSClientOptions{
 		InsecureSkipVerify: insecure,
 	})
+	if err != nil {
+		return "", err
+	}
 	transport.Transport = newTransport
 	transport.SetDebug(false)
 	apiclient := client.New(transport, strfmt.Default)
@@ -85,7 +96,7 @@ func (SwaggerLogger) Debugf(format string, args ...interface{}) {
 	}
 }
 
-func getAPIClient(url string, token string, insecure bool) *client.MulticloudIaaS {
+func getAPIClient(url string, token string, insecure bool) (*client.MulticloudIaaS, error) {
 	debug := false
 	if os.Getenv("VRA_DEBUG") != "" {
 		debug = true
@@ -93,18 +104,21 @@ func getAPIClient(url string, token string, insecure bool) *client.MulticloudIaa
 
 	parsedURL, err := neturl.Parse(url)
 	if err != nil {
-		return nil
+		return nil, err
 	}
 	transport := httptransport.New(parsedURL.Host, "", nil)
 	transport.DefaultAuthentication = httptransport.APIKeyAuth("Authorization", "header", "Bearer "+token)
 	newTransport, err := httptransport.TLSTransport(httptransport.TLSClientOptions{
 		InsecureSkipVerify: insecure,
 	})
+	if err != nil {
+		return nil, err
+	}
 	transport.Transport = newTransport
 	if debug {
 		transport.SetDebug(debug)
 		transport.SetLogger(SwaggerLogger{})
 	}
 	apiclient := client.New(transport, strfmt.Default)
-	return apiclient
+	return apiclient, nil
 }

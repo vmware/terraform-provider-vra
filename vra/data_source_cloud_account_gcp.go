@@ -57,7 +57,7 @@ func dataSourceCloudAccountGCPRead(d *schema.ResourceData, meta interface{}) err
 	id, idOk := d.GetOk("id")
 	name, nameOk := d.GetOk("name")
 
-	if idOk == false && nameOk == false {
+	if !idOk && !nameOk {
 		return fmt.Errorf("one of id or name must be assigned")
 	}
 
@@ -66,7 +66,7 @@ func dataSourceCloudAccountGCPRead(d *schema.ResourceData, meta interface{}) err
 		return err
 	}
 
-	setFields := func(account *models.CloudAccountGcp) {
+	setFields := func(account *models.CloudAccountGcp) error {
 		d.SetId(*account.ID)
 		d.Set("client_email", account.ClientEmail)
 		d.Set("description", account.Description)
@@ -76,17 +76,16 @@ func dataSourceCloudAccountGCPRead(d *schema.ResourceData, meta interface{}) err
 		d.Set("regions", account.EnabledRegionIds)
 
 		if err := d.Set("tags", flattenTags(account.Tags)); err != nil {
-			fmt.Errorf("error setting cloud account tags - error: %#v", err)
+			return fmt.Errorf("error setting cloud account tags - error: %#v", err)
 		}
+		return nil
 	}
 	for _, account := range getResp.Payload.Content {
 		if idOk && account.ID == id {
-			setFields(account)
-			return nil
+			return setFields(account)
 		}
 		if nameOk && account.Name == name {
-			setFields(account)
-			return nil
+			return setFields(account)
 		}
 	}
 

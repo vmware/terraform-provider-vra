@@ -19,7 +19,7 @@ func TestAccDataSourceVRANetworkDomainBasic(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckAWS(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckVRARegionDestroy,
+		CheckDestroy: testAccCheckVRANetworkDomainDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config:      testAccDataSourceVRANetworkDomainNoneConfig(rInt),

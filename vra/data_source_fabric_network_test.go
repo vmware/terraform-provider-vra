@@ -19,7 +19,7 @@ func TestAccDataSourceVRAFabricNetworkBasic(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckAWS(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckVRARegionDestroy,
+		CheckDestroy: testAccCheckVRAFabricNetworkDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config:      testAccDataSourceVRAFabricNetworkNoneConfig(rInt),

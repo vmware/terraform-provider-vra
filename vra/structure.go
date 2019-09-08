@@ -28,6 +28,7 @@ func expandStringList(slist []interface{}) []string {
 	return vs
 }
 
+/*
 func flattenStringList(list []*string) []interface{} {
 	vs := make([]interface{}, 0, len(list))
 	for _, v := range list {
@@ -35,6 +36,7 @@ func flattenStringList(list []*string) []interface{} {
 	}
 	return vs
 }
+*/
 
 // compareUnique will determin if all of the items passed in are unique
 func compareUnique(s []interface{}) bool {
@@ -62,6 +64,7 @@ func indexOf(value string, items []string) (int, error) {
 	return -1, fmt.Errorf("Could not find %s in item list %v", value, items)
 }
 
+/*
 // flattenAndNormalizeCLoudAccountRegionIds will return region id's in the same order as regionOrder
 func flattenAndNormalizeCLoudAccountRegionIds(regionOrder []string, cloudAccount *models.CloudAccount) ([]string, error) {
 	returnOrder := cloudAccount.EnabledRegionIds
@@ -76,6 +79,7 @@ func flattenAndNormalizeCLoudAccountRegionIds(regionOrder []string, cloudAccount
 	}
 	return m, nil
 }
+*/
 
 // flattenAndNormalizeCLoudAccountAWSRegionIds will return region id's in the same order as regionOrder
 func flattenAndNormalizeCLoudAccountAWSRegionIds(regionOrder []string, cloudAccount *models.CloudAccountAws) ([]string, error) {
