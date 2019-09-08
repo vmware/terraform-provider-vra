@@ -7,7 +7,7 @@ env:
   - GO111MODULE=on
 
 before_install:
-  - go get golang.org/x/lint/golint
+  - go get -u github.com/golangci/golangci-lint/cmd/golangci-lint
 
 script:
   - make fmtcheck errcheck lint
