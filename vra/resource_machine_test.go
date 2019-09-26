@@ -14,7 +14,7 @@ import (
 	"github.com/hashicorp/terraform/terraform"
 )
 
-func TestAccVRAMachineBasic(t *testing.T) {
+func TestAccVRAMachine_Basic(t *testing.T) {
 	rInt := acctest.RandInt()
 
 	resource.Test(t, resource.TestCase{
@@ -29,18 +29,17 @@ func TestAccVRAMachineBasic(t *testing.T) {
 			{
 				Config: testAccCheckVRAMachineConfig(rInt),
 				Check: resource.ComposeAggregateTestCheckFunc(
-					testAccCheckVRAMachineExists("vra_machine.my_machine"),
+					testAccCheckVRAMachineExists("vra_machine.my-machine"),
 					resource.TestMatchResourceAttr(
-						"vra_machine.my_machine", "name", regexp.MustCompile("^terraform_vra_machine-"+strconv.Itoa(rInt))),
-					// TODO: Enable when https://jira.eng.vmware.com/browse/VCOM-10339 is resolved.
-					//resource.TestCheckResourceAttr(
-					//	"vra_machine.my_machine", "description", "Created by terraform provider test"),
+						"vra_machine.my-machine", "name", regexp.MustCompile("^my-machine-"+strconv.Itoa(rInt))),
 					resource.TestCheckResourceAttr(
-						"vra_machine.my_machine", "image", "ubuntu"),
+						"vra_machine.my-machine", "description", "test machine"),
 					resource.TestCheckResourceAttr(
-						"vra_machine.my_machine", "flavor", "small"),
+						"vra_machine.my-machine", "image", "ubuntu"),
 					resource.TestCheckResourceAttr(
-						"vra_machine.my_machine", "tags.#", "2"),
+						"vra_machine.my-machine", "flavor", "small"),
+					resource.TestCheckResourceAttr(
+						"vra_machine.my-machine", "tags.#", "1"),
 				),
 			},
 		},
@@ -82,42 +81,92 @@ func testAccCheckVRAMachineDestroy(s *terraform.State) error {
 	return nil
 }
 
-func testAccCheckVRAMachineConfig(rInt int) string {
-	// Need valid details since this is using existing project
-	image := os.Getenv("VRA_IMAGE")
-	flavor := os.Getenv("VRA_FLAVOR")
-	projectID := os.Getenv("VRA_PROJECT_ID")
-	return fmt.Sprintf(`
+func testAccCheckVRAMachineNoImageConfig(rInt int) string {
+
+	return testAccCheckVRAMachine(rInt) + fmt.Sprintf(`
 resource "vra_machine" "my_machine" {
-  name = "terraform_vra_machine-%d"
-  project_id = "%s"
-  image = "%s"
-  flavor = "%s"
-
-  tags {
-	key = "description"
-    value = "Testing Terraform Provider for VRA"
-  }
-
-  tags {
-    key = "foo"
-    value = "bar"
-  }
-}`, rInt, projectID, image, flavor)
+	name        = "my-machine-%d"
+	description = "test machine"
+	project_id  = vra_project.my-project.id
+	flavor      = "small"
+  
+	tags {
+	  key   = "foo"
+	  value = "bar"
+	}
+}`, rInt)
 }
 
-func testAccCheckVRAMachineNoImageConfig(rInt int) string {
-	flavor := os.Getenv("VRA_FLAVOR")
-	projectID := os.Getenv("VRA_PROJECT_ID")
-	return fmt.Sprintf(`
-resource "vra_machine" "my_machine" {
-  name = "terraform_vra_machine-%d"
-  project_id = "%s"
-  flavor = "%s"
+func testAccCheckVRAMachineConfig(rInt int) string {
 
-  tags {
-	key = "description"
-    value = "Testing Terraform Provider for VRA"
+	return testAccCheckVRAMachine(rInt) + fmt.Sprintf(`
+resource "vra_machine" "my_machine" {
+	name        = "my-machine-%d"
+	description = "test machine"
+	project_id  = vra_project.my-project.id
+	image       = "ubuntu"
+	flavor      = "small"
+  
+	tags {
+	  key   = "foo"
+	  value = "bar"
+	}
+}`, rInt)
+}
+
+func testAccCheckVRAMachine(rInt int) string {
+	// Need valid credentials since this is creating a real cloud account
+	name := os.Getenv("VRA_AWS_CLOUD_ACCOUNT_NAME")
+	image := os.Getenv("VRA_IMAGE")
+	return fmt.Sprintf(`
+
+	data "vra_cloud_account_aws" "my-cloud-account" {
+		name = "%s"
+	  }
+
+data "vra_region" "us-east-1-region" {
+    cloud_account_id = data.vra_cloud_account_aws.my-cloud-account.id
+    region = "us-east-1"
+}
+
+resource "vra_zone" "my-zone" {
+    name = "my-zone-%d"
+    description = "description my-vra-zone"
+	region_id = data.vra_region.us-east-1-region.id
+}
+
+resource "vra_project" "my-project" {
+	name = "my-project-%d"
+	description = "test project"
+	zone_assignments {
+		zone_id       = vra_zone.my-zone.id
+		priority      = 1
+		max_instances = 2
+	  }
+ }
+
+resource "vra_image_profile" "this" {
+	name        = "my-image-profile-%d"
+	description = "test image profile"
+	region_id = data.vra_region.us-east-1-region.id
+  
+	image_mapping {
+	  name       = "ubuntu"
+	  image_name = "%s"
+	}
   }
-}`, rInt, projectID, flavor)
+
+resource "vra_flavor_profile" "my-flavor-profile" {
+	name = "my-flavor-profile-%d"
+	description = "my flavor"
+	region_id = data.vra_region.us-east-1-region.id
+	flavor_mapping {
+		name = "small"
+		instance_type = "t2.small"
+	}
+	flavor_mapping {
+		name = "medium"
+		instance_type = "t2.medium"
+	}
+}`, name, rInt, rInt, rInt, image, rInt)
 }
