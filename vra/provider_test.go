@@ -49,8 +49,7 @@ func testAccPreCheckMachine(t *testing.T) {
 
 	envVars := [...]string{
 		"VRA_URL",
-		"VRA_PROJECT_ID",
-		"VRA_FLAVOR",
+		"VRA_AWS_CLOUD_ACCOUNT_NAME",
 	}
 
 	for _, name := range envVars {
