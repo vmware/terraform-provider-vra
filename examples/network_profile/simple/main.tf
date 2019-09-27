@@ -3,7 +3,7 @@ provider "vra" {
   refresh_token = var.refresh_token
 }
 
-data "vra_cloud_account_aws" this {
+data "vra_cloud_account_aws" "this" {
   name = var.cloud_account
 }
 
