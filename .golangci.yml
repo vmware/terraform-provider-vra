@@ -2,6 +2,9 @@ issues:
   max-per-linter: 0
   max-same-issues: 0
 
+run:
+  deadline: 5m
+
 linters:
   disable-all: true
   enable:
