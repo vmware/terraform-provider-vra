@@ -158,6 +158,26 @@ func testAccPreCheckVMC(t *testing.T) {
 	}
 }
 
+func testAccPreCheckNSXV(t *testing.T) {
+	if os.Getenv("VRA_REFRESH_TOKEN") == "" && os.Getenv("VRA_ACCESS_TOKEN") == "" {
+		t.Fatal("VRA_REFRESH_TOKEN or VRA_ACCESS_TOKEN must be set for acceptance tests")
+	}
+
+	envVars := [...]string{
+		"VRA_URL",
+		"VRA_NSXV_HOSTNAME",
+		"VRA_NSXV_PASSWORD",
+		"VRA_NSXV_USERNAME",
+		"VRA_NSXV_DATA_COLLECTOR_NAME",
+	}
+
+	for _, name := range envVars {
+		if v := os.Getenv(name); v == "" {
+			t.Fatalf("%s must be set for acceptance tests\n", name)
+		}
+	}
+}
+
 func testAccPreCheckVra(t *testing.T) {
 	if v := os.Getenv("VRA_URL"); v == "" {
 		t.Fatal("VRA_URL must be set for acceptance tests")
