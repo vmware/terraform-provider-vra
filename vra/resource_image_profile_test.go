@@ -15,7 +15,7 @@ import (
 func TestAccVRAImageProfileBasic(t *testing.T) {
 	rInt := acctest.RandInt()
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheckMachine(t) },
+		PreCheck:     func() { testAccPreCheckImageProfile(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckVRAImageProfileDestroy,
 		Steps: []resource.TestStep{
@@ -81,47 +81,49 @@ func testAccCheckVRAImageProfileConfig(rInt int) string {
 	// Need valid credentials since this is creating a real cloud account
 	name := os.Getenv("VRA_AWS_CLOUD_ACCOUNT_NAME")
 	image := os.Getenv("VRA_IMAGE")
+	region := os.Getenv("VRA_REGION")
 	return fmt.Sprintf(`
 	data "vra_cloud_account_aws" "my-cloud-account" {
 		name = "%s"
 	  }
 
-data "vra_region" "us-east-1-region" {
+data "vra_region" "my-region" {
     cloud_account_id = data.vra_cloud_account_aws.my-cloud-account.id
-    region = "us-east-1"
+    region = "%s"
 }
 
 resource "vra_image_profile" "my-image-profile" {
 	name = "my-image-profile-%d"
     description = "my image profile"
-    region_id = data.vra_region.us-east-1-region.id
+    region_id = data.vra_region.my-region.id
     image_mapping {
-        name = "ubuntu"
+        name = "image"
         image_name = "%s"
     }
-}`, name, rInt, image)
+}`, name, region, rInt, image)
 }
 
 func testAccCheckVRAImageProfileUpdateConfig(rInt int) string {
 	// Need valid credentials since this is creating a real cloud account
 	name := os.Getenv("VRA_AWS_CLOUD_ACCOUNT_NAME")
 	image := os.Getenv("VRA_IMAGE")
+	region := os.Getenv("VRA_REGION")
 	return fmt.Sprintf(`
 	data "vra_cloud_account_aws" "my-cloud-account" {
 		name = "%s"
 	  }
 
-data "vra_region" "us-east-1-region" {
-    cloud_account_id = data.vra_cloud_account_aws.my-cloud-account.id
-    region = "us-east-1"
-}
+	  data "vra_region" "my-region" {
+		cloud_account_id = data.vra_cloud_account_aws.my-cloud-account.id
+		region = "%s"
+	}
 resource "vra_image_profile" "my-image-profile" {
 	name = "my-image-profile-%d"
     description = "my image profile update"
-    region_id = data.vra_region.us-east-1-region.id
+    region_id = data.vra_region.my-region.id
     image_mapping {
-        name = "ubuntu"
+        name = "image"
         image_name = "%s"
     }
-}`, name, rInt, image)
+}`, name, region, rInt, image)
 }
