@@ -12,7 +12,6 @@ import (
 	"github.com/vmware/vra-sdk-go/pkg/client/cloud_account"
 	"github.com/vmware/vra-sdk-go/pkg/client/location"
 	"github.com/vmware/vra-sdk-go/pkg/client/project"
-	"github.com/vmware/vra-sdk-go/pkg/models"
 )
 
 func TestAccVRAProjectBasic(t *testing.T) {
@@ -39,9 +38,7 @@ func TestAccVRAProjectBasic(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"vra_project.my-project", "description", "update test project"),
 					resource.TestCheckResourceAttr(
-						"vra_project.my-project", "zone_assignments.priority", "1"),
-					resource.TestCheckResourceAttr(
-						"vra_project.my-project", "zone_assignments.max_instances", "2"),
+						"vra_project.my-project", "zone_assignments.#", "1"),
 				),
 			},
 		},
@@ -74,15 +71,8 @@ func testAccCheckVRAProjectDestroy(s *terraform.State) error {
 			}
 		}
 		if rs.Type == "vra_project" {
-			_, err := apiClient.Project.UpdateProject(project.NewUpdateProjectParams().WithID(rs.Primary.ID).WithBody(&models.ProjectSpecification{
-				ZoneAssignmentConfigurations: []*models.ZoneAssignmentConfig{},
-			}))
-			if err != nil {
-				return err
-			}
-
-			_, err = apiClient.Project.DeleteProject(project.NewDeleteProjectParams().WithID(rs.Primary.ID))
-			if err != nil {
+			_, err := apiClient.Project.GetProject(project.NewGetProjectParams().WithID(rs.Primary.ID))
+			if err == nil {
 				return fmt.Errorf("Resource 'vra_project' still exists with id %s", rs.Primary.ID)
 			}
 		}
@@ -97,7 +87,7 @@ func testAccCheckVRAProjectDestroy(s *terraform.State) error {
 	return nil
 }
 
-func testAccCheckVRAProjectConfig(rInt int) string {
+func testAccCheckVRAProjectUpdateConfig(rInt int) string {
 	id := os.Getenv("VRA_AWS_ACCESS_KEY_ID")
 	secret := os.Getenv("VRA_AWS_SECRET_ACCESS_KEY")
 	return fmt.Sprintf(`
@@ -109,10 +99,15 @@ resource "vra_cloud_account_aws" "my-cloud-account" {
 	regions = ["us-east-1"]
  }
 
+ data "vra_region" "us-east-1-region" {
+    cloud_account_id = "${vra_cloud_account_aws.my-cloud-account.id}"
+    region = "us-east-1"
+}
+
  resource "vra_zone" "my-zone" {
     name = "my-vra-zone-%d"
-    description = "description my-vra-zone"
-    region_id = "${element(vra_cloud_account_aws.my-cloud-account.0.region_ids, 0)}"
+	description = "description my-vra-zone"
+	region_id = "${data.vra_region.us-east-1-region.id}"
     tags {
         key = "mykey"
         value = "myvalue"
@@ -128,19 +123,19 @@ resource "vra_cloud_account_aws" "my-cloud-account" {
 }
 resource "vra_project" "my-project" {
 	name = "my-project-%d"
-	description = "test project"
+	description = "update test project"
+	zone_assignments {
+		zone_id       = vra_zone.my-zone.id
+		priority      = 1
+		max_instances = 2
+	  }
  }`, id, secret, rInt, rInt)
 }
 
-func testAccCheckVRAProjectUpdateConfig(rInt int) string {
+func testAccCheckVRAProjectConfig(rInt int) string {
 	return fmt.Sprintf(`
 	resource "vra_project" "my-project" {
 		name = "my-project-%d"
-		description = "update test project"
-		zone_assignments {
-			zone_id       = vra_zone.my-zone.id
-			priority      = 1
-			max_instances = 2
-		  }
+		description = "test project"
 	 }`, rInt)
 }

@@ -8,6 +8,10 @@ import (
 	"testing"
 
 	"github.com/vmware/vra-sdk-go/pkg/client/compute"
+	"github.com/vmware/vra-sdk-go/pkg/client/flavor_profile"
+	"github.com/vmware/vra-sdk-go/pkg/client/image_profile"
+	"github.com/vmware/vra-sdk-go/pkg/client/location"
+	"github.com/vmware/vra-sdk-go/pkg/client/project"
 
 	"github.com/hashicorp/terraform/helper/acctest"
 	"github.com/hashicorp/terraform/helper/resource"
@@ -65,15 +69,36 @@ func testAccCheckVRAMachineDestroy(s *terraform.State) error {
 	apiClient := testAccProviderVRA.Meta().(*Client).apiClient
 
 	for _, rs := range s.RootModule().Resources {
-		switch rs.Type {
-		case "vra_machine":
-			{
-				_, err := apiClient.Compute.GetMachine(compute.NewGetMachineParams().WithID(rs.Primary.ID))
+		if rs.Type == "vra_project" {
+			_, err := apiClient.Project.GetProject(project.NewGetProjectParams().WithID(rs.Primary.ID))
+			if err == nil {
+				return fmt.Errorf("Resource 'vra_project' still exists with id %s", rs.Primary.ID)
+			}
+		}
+		if rs.Type == "vra_zone" {
+			_, err := apiClient.Location.GetZone(location.NewGetZoneParams().WithID(rs.Primary.ID))
+			if err == nil {
+				return fmt.Errorf("Resource 'vra_zone' still exists with id %s", rs.Primary.ID)
+			}
+		}
+		if rs.Type == "vra_machine" {
+			_, err := apiClient.Compute.GetMachine(compute.NewGetMachineParams().WithID(rs.Primary.ID))
 
-				_, ok := err.(*compute.GetMachineNotFound)
-				if err != nil && !ok {
-					return fmt.Errorf("error waiting for machine (%s) to be destroyed: %s", rs.Primary.ID, err)
-				}
+			_, ok := err.(*compute.GetMachineNotFound)
+			if err != nil && !ok {
+				return fmt.Errorf("error waiting for machine (%s) to be destroyed: %s", rs.Primary.ID, err)
+			}
+		}
+		if rs.Type == "vra_image_profile" {
+			_, err := apiClient.ImageProfile.GetImageProfile(image_profile.NewGetImageProfileParams().WithID(rs.Primary.ID))
+			if err == nil {
+				return fmt.Errorf("Resource 'vra_image_profile' still exists with id %s", rs.Primary.ID)
+			}
+		}
+		if rs.Type == "vra_flavor_profile" {
+			_, err := apiClient.FlavorProfile.GetFlavorProfile(flavor_profile.NewGetFlavorProfileParams().WithID(rs.Primary.ID))
+			if err == nil {
+				return fmt.Errorf("Resource 'vra_flavor_profile' still exists with id %s", rs.Primary.ID)
 			}
 		}
 	}
@@ -88,7 +113,7 @@ resource "vra_machine" "my_machine" {
 	name        = "my-machine-%d"
 	description = "test machine"
 	project_id  = vra_project.my-project.id
-	flavor      = "small"
+	flavor      = "flavor"
   
 	tags {
 	  key   = "foo"
@@ -104,8 +129,8 @@ resource "vra_machine" "my_machine" {
 	name        = "my-machine-%d"
 	description = "test machine"
 	project_id  = vra_project.my-project.id
-	image       = "ubuntu"
-	flavor      = "small"
+	image       = "image"
+	flavor      = "flavor"
   
 	tags {
 	  key   = "foo"
@@ -118,21 +143,23 @@ func testAccCheckVRAMachine(rInt int) string {
 	// Need valid credentials since this is creating a real cloud account
 	name := os.Getenv("VRA_AWS_CLOUD_ACCOUNT_NAME")
 	image := os.Getenv("VRA_IMAGE")
+	flavor := os.Getenv("VRA_FLAVOR")
+	region := os.Getenv("VRA_REGION")
 	return fmt.Sprintf(`
 
 	data "vra_cloud_account_aws" "my-cloud-account" {
 		name = "%s"
 	  }
 
-data "vra_region" "us-east-1-region" {
+data "vra_region" "my-region" {
     cloud_account_id = data.vra_cloud_account_aws.my-cloud-account.id
-    region = "us-east-1"
+    region = "%s"
 }
 
 resource "vra_zone" "my-zone" {
     name = "my-zone-%d"
     description = "description my-vra-zone"
-	region_id = data.vra_region.us-east-1-region.id
+	region_id = data.vra_region.my-region.id
 }
 
 resource "vra_project" "my-project" {
@@ -148,10 +175,10 @@ resource "vra_project" "my-project" {
 resource "vra_image_profile" "this" {
 	name        = "my-image-profile-%d"
 	description = "test image profile"
-	region_id = data.vra_region.us-east-1-region.id
+	region_id = data.vra_region.my-region.id
   
 	image_mapping {
-	  name       = "ubuntu"
+	  name       = "image"
 	  image_name = "%s"
 	}
   }
@@ -159,14 +186,10 @@ resource "vra_image_profile" "this" {
 resource "vra_flavor_profile" "my-flavor-profile" {
 	name = "my-flavor-profile-%d"
 	description = "my flavor"
-	region_id = data.vra_region.us-east-1-region.id
+	region_id = data.vra_region.my-region.id
 	flavor_mapping {
-		name = "small"
-		instance_type = "t2.small"
+		name = "flavor"
+		instance_type = "%s"
 	}
-	flavor_mapping {
-		name = "medium"
-		instance_type = "t2.medium"
-	}
-}`, name, rInt, rInt, rInt, image, rInt)
+}`, name, region, rInt, rInt, rInt, image, rInt, flavor)
 }
