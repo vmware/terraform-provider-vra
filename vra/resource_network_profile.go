@@ -7,7 +7,7 @@ import (
 	"github.com/vmware/vra-sdk-go/pkg/client/network_profile"
 	"github.com/vmware/vra-sdk-go/pkg/models"
 
-	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
 
 func resourceNetworkProfile() *schema.Resource {
