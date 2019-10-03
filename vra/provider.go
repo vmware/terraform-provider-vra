@@ -3,7 +3,7 @@ package vra
 import (
 	"errors"
 
-	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
 
 // Provider represents the VRA provider

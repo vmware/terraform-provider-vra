@@ -5,7 +5,7 @@ import (
 
 	"github.com/vmware/vra-sdk-go/pkg/client/security_group"
 
-	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
 
 func dataSourceSecurityGroup() *schema.Resource {
