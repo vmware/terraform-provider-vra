@@ -13,7 +13,7 @@ import (
 
 func TestAccVRAStorageProfileAzureBasic(t *testing.T) {
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheckAWS(t) },
+		PreCheck:     func() { testAccPreCheckStorageProfileAzure(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckVRAStorageProfileAzureDestroy,
 		Steps: []resource.TestStep{
@@ -81,6 +81,7 @@ func testAccCheckVRAStorageProfileAzureConfig() string {
 	tenantID := os.Getenv("VRA_ARM_TENANT_ID")
 	applicationID := os.Getenv("VRA_ARM_CLIENT_APP_ID")
 	applicationKey := os.Getenv("VRA_ARM_CLIENT_APP_KEY")
+	region := os.Getenv("VRA_REGION_AZURE")
 	return fmt.Sprintf(`
 resource "vra_cloud_account_azure" "my-cloud-account" {
 	name = "my-cloud-account"
@@ -89,21 +90,21 @@ resource "vra_cloud_account_azure" "my-cloud-account" {
 	tenant_id = "%s"
 	application_id = "%s"
 	application_key = "%s"
-	regions = ["eastus"]
+	regions = ["%s"]
  }
 
-data "vra_region" "us-east-azure-region" {
+data "vra_region" "my-region" {
     cloud_account_id = "${vra_cloud_account_azure.my-cloud-account.id}"
-    region = "eastus"
+    region = "%s"
 }
 
 resource "vra_storage_profile_azure" "my-storage-profile-azure" {
 	name = "my-vra-storage-profile-azure"
 	description = "my storage profile azure"
-	region_id = "${data.vra_region.us-east-azure-region.id}"
+	region_id = "${data.vra_region.my-region.id}"
 	default_item = true
 	disk_type = "Standard HDD"
 	os_disk_caching = "Read Only"
     data_disk_caching = "Read Only"
-}`, subscriptionID, tenantID, applicationID, applicationKey)
+}`, subscriptionID, tenantID, applicationID, applicationKey, region, region)
 }
