@@ -5,7 +5,7 @@ import (
 
 	"github.com/vmware/vra-sdk-go/pkg/client/fabric_images"
 
-	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
 
 func dataSourceImage() *schema.Resource {

@@ -1,7 +1,7 @@
 package vra
 
 import (
-	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
 
 // rulesSchema returns the schema to use for the rules property
