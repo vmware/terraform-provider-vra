@@ -81,7 +81,7 @@ func testAccCheckVRAStorageProfileAzureConfig() string {
 	tenantID := os.Getenv("VRA_ARM_TENANT_ID")
 	applicationID := os.Getenv("VRA_ARM_CLIENT_APP_ID")
 	applicationKey := os.Getenv("VRA_ARM_CLIENT_APP_KEY")
-	region := os.Getenv("VRA_REGION_AZURE")
+	region := os.Getenv("VRA_ARM_REGION")
 	return fmt.Sprintf(`
 resource "vra_cloud_account_azure" "my-cloud-account" {
 	name = "my-cloud-account"

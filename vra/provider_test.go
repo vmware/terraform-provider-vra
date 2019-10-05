@@ -130,7 +130,7 @@ func testAccPreCheckStorageProfileAzure(t *testing.T) {
 		"VRA_ARM_TENANT_ID",
 		"VRA_ARM_CLIENT_APP_ID",
 		"VRA_ARM_CLIENT_APP_KEY",
-		"VRA_REGION_AZURE",
+		"VRA_ARM_REGION",
 	}
 
 	for _, name := range envVars {
