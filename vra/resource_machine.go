@@ -325,6 +325,7 @@ func resourceMachineUpdate(d *schema.ResourceData, m interface{}) error {
 		d.SetId(machineIds[0])
 		log.Printf("Finished to resize vra_machine resource with name %s", d.Get("name"))
 	}
+	log.Printf("Finished updating the vra_machine resource with name %s", d.Get("name"))
 
 	return resourceMachineRead(d, m)
 }
