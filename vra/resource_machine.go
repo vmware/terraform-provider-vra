@@ -299,7 +299,34 @@ func resourceMachineUpdate(d *schema.ResourceData, m interface{}) error {
 		return err
 	}
 
+	// machine resize operation
+	if d.HasChange("flavor") {
+		flavor := d.Get("flavor").(string)
+		resizeMachine, err := apiClient.Compute.ResizeMachine(compute.NewResizeMachineParams().WithID(id).WithName(&flavor))
+		if err != nil {
+			return err
+		}
+
+		stateChangeFunc := resource.StateChangeConf{
+			Delay:      5 * time.Second,
+			Pending:    []string{models.RequestTrackerStatusINPROGRESS},
+			Refresh:    machineStateRefreshFunc(*apiClient, *resizeMachine.Payload.ID),
+			Target:     []string{models.RequestTrackerStatusFINISHED},
+			Timeout:    5 * time.Minute,
+			MinTimeout: 5 * time.Second,
+		}
+
+		resourceIds, err := stateChangeFunc.WaitForState()
+		if err != nil {
+			return err
+		}
+
+		machineIds := resourceIds.([]string)
+		d.SetId(machineIds[0])
+		log.Printf("Finished to resize vra_machine resource with name %s", d.Get("name"))
+	}
 	log.Printf("Finished updating the vra_machine resource with name %s", d.Get("name"))
+
 	return resourceMachineRead(d, m)
 }
 
