@@ -81,9 +81,63 @@ resource "vra_machine" "this" {
 
 The following arguments are supported for a machine resource:
 
-* `name` - (Required) A human-friendly name used as an identifier in APIs that support this option.
-* `description` - (Optional) Describes machine within the scope of your organization and is not propagated to the cloud.
-* `project_id` - (Required) The id of the project the current user belongs to.
-* `image` - (Required) The type of image used for this machine.
 * `flavor` - (Required) Flavor of machine instance
+
+* `image` - (Required) The type of image used for this machine.
+
+* `name` - (Required) A human-friendly name used as an identifier in APIs that support this option.
+
+* `project_id` - (Required) The id of the project the current user belongs to.
+
+* `boot_config` - (Optional) Machine boot config that will be passed to the instance that can be used to perform common automated configuration tasks and even run scripts after the instance starts. It is nested argument with the following property.
+  * `content` - A valid cloud config data in json-escaped yaml syntax
+
+* `constraints` - (Optional) Constraints that are used to drive placement policies for the virtual machine that is produced from this specification. Constraint expressions are matched against tags on existing placement targets.
+example:[{"mandatory" : "true", "expression": "environment":"prod"}, {"mandatory" : "false", "expression": "pci"}]. It is nested argument with the following properties.
+  * `expression` - A constraint that is conveyed to the policy engine. An expression of the form "[!]tag-key[:[tag-value]]", used to indicate a constraint match on keys and values of tags. 
+  * `mandatory` - Indicates whether this constraint should be strictly enforced or not.
+
+* `custom_properties` - (Optional) Additional custom properties that may be used to extend the machine.
+
+* `description` - (Optional) Describes machine within the scope of your organization and is not propagated to the cloud.
+
+* `disks` - (Optional) A set of disk specifications for this machine. It is nested argument with the following properties.
+  * `block_device_id` - The id of the existing block device.
+  * `description` - A human-friendly description.
+  * `name` - A human-friendly name used as an identifier in APIs that support this option.
+
+* `image_disk_constraints` - (Optional) Constraints that are used to drive placement policies for the image disk. Constraint expressions are matched against tags on existing placement targets. example:[{"mandatory" : "true", "expression": "environment:prod"}, {"mandatory" : "false", "expression": "pci"}]. It is nested argument with the following properties.
+  * `expression` - A constraint that is conveyed to the policy engine. An expression of the form "[!]tag-key[:[tag-value]]", used to indicate a constraint match on keys and values of tags. 
+  * `mandatory` - Indicates whether this constraint should be strictly enforced or not.
+
+* `image_ref` - (Optional) Direct image reference used for this machine (name, path, location, uri, etc.). Valid if no image property is provided
+
+* `nics` - (Optional) Specification for attaching nic to machine. A set of network interface controller specifications for this machine. If not specified, then a default network connection will be created. It is nested argument with the following properties.
+  * `addresses` - A list of IP addresses allocated or in use by this network interface.
+  * `customProperties` - Additional properties that may be used to extend the base type.
+  * `securityGroupIds` - list of security group ids which this network interface will be assigned to.
+  * `name` - A human-friendly name used as an identifier in APIs that support this option.
+  * `description` - A human-friendly description.
+  * `networkId` - Id of the network instance that this network interface plugs into.
+  * `deviceIndex` - The device index of this network interface.
+
 * `tags` - (Optional) A set of tag keys and optional values that should be set on any resource that is produced from this specification.
+
+* `address` - (Computed) Primary address allocated or in use by this machine. The actual type of the address depends on the adapter type. Typically it is either the public or the external IP address.
+
+* `created_at` - (Computed) Date when the entity was created. The date is in ISO 6801 and UTC.
+
+* `external_id` - (Computed) External entity Id on the provider side.
+
+* `external_region_id` - (Computed) The external regionId of the resource.
+
+* `external_zone_id` - (Computed) The external zoneId of the resource.
+
+* `organization_id` - (Computed) The id of the organization this entity belongs to.
+
+* `owner` - (Computed) Email of the user that owns the entity.
+
+* `power_state` - (Computed) Power state of machine.
+
+* `updated_at` - (Computed) Date when the entity was last updated. The date is ISO 8601 and UTC.
+
