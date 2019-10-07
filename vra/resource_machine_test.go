@@ -20,6 +20,9 @@ import (
 
 func TestAccVRAMachine_Basic(t *testing.T) {
 	rInt := acctest.RandInt()
+	image := os.Getenv("VRA_IMAGE")
+	flavor_1 := os.Getenv("VRA_FLAVOR_1")
+	flavor_2 := os.Getenv("VRA_FLAVOR_2")
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckMachine(t) },
@@ -39,9 +42,25 @@ func TestAccVRAMachine_Basic(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"vra_machine.my-machine", "description", "test machine"),
 					resource.TestCheckResourceAttr(
-						"vra_machine.my-machine", "image", "ubuntu"),
+						"vra_machine.my-machine", "image", image),
 					resource.TestCheckResourceAttr(
-						"vra_machine.my-machine", "flavor", "small"),
+						"vra_machine.my-machine", "flavor", flavor_1),
+					resource.TestCheckResourceAttr(
+						"vra_machine.my-machine", "tags.#", "1"),
+				),
+			},
+			{
+				Config: testAccCheckVRAMachineUpdateConfig(rInt),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					testAccCheckVRAMachineExists("vra_machine.my-machine"),
+					resource.TestMatchResourceAttr(
+						"vra_machine.my-machine", "name", regexp.MustCompile("^my-machine-"+strconv.Itoa(rInt))),
+					resource.TestCheckResourceAttr(
+						"vra_machine.my-machine", "description", "test machine updated"),
+					resource.TestCheckResourceAttr(
+						"vra_machine.my-machine", "image", image),
+					resource.TestCheckResourceAttr(
+						"vra_machine.my-machine", "flavor", flavor_2),
 					resource.TestCheckResourceAttr(
 						"vra_machine.my-machine", "tags.#", "1"),
 				),
@@ -130,7 +149,24 @@ resource "vra_machine" "my_machine" {
 	description = "test machine"
 	project_id  = vra_project.my-project.id
 	image       = "image"
-	flavor      = "flavor"
+	flavor      = "flavor1"
+  
+	tags {
+	  key   = "foo"
+	  value = "bar"
+	}
+}`, rInt)
+}
+
+func testAccCheckVRAMachineUpdateConfig(rInt int) string {
+
+	return testAccCheckVRAMachine(rInt) + fmt.Sprintf(`
+resource "vra_machine" "my_machine" {
+	name        = "my-machine-%d"
+	description = "test machine update"
+	project_id  = vra_project.my-project.id
+	image       = "image"
+	flavor      = "flavor2"
   
 	tags {
 	  key   = "foo"
@@ -143,7 +179,8 @@ func testAccCheckVRAMachine(rInt int) string {
 	// Need valid credentials since this is creating a real cloud account
 	name := os.Getenv("VRA_AWS_CLOUD_ACCOUNT_NAME")
 	image := os.Getenv("VRA_IMAGE")
-	flavor := os.Getenv("VRA_FLAVOR")
+	flavor_1 := os.Getenv("VRA_FLAVOR_1")
+	flavor_2 := os.Getenv("VRA_FLAVOR_2")
 	region := os.Getenv("VRA_REGION")
 	return fmt.Sprintf(`
 
@@ -188,8 +225,12 @@ resource "vra_flavor_profile" "my-flavor-profile" {
 	description = "my flavor"
 	region_id = data.vra_region.my-region.id
 	flavor_mapping {
-		name = "flavor"
+		name = "flavor1"
 		instance_type = "%s"
 	}
-}`, name, region, rInt, rInt, rInt, image, rInt, flavor)
+	flavor_mapping {
+		name = "flavor2"
+		instance_type = "%s"
+	}
+}`, name, region, rInt, rInt, rInt, image, rInt, flavor_1, flavor_2)
 }
