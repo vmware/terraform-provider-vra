@@ -235,7 +235,70 @@ func resourceLoadBalancerRead(d *schema.ResourceData, m interface{}) error {
 
 func resourceLoadBalancerUpdate(d *schema.ResourceData, m interface{}) error {
 
-	return fmt.Errorf("Updating a load balancer resource is not allowed")
+	//Day 2 scale operation for load balancer
+	log.Printf("Starting to update vra_load_balancer resource")
+	apiClient := m.(*Client).apiClient
+
+	name := d.Get("name").(string)
+	projectID := d.Get("project_id").(string)
+	tags := expandTags(d.Get("tags").(*schema.Set).List())
+	customProperties := expandCustomProperties(d.Get("custom_properties").(map[string]interface{}))
+	nics := expandNics(d.Get("nics").(*schema.Set).List())
+	routes := expandRoutes(d.Get("routes").(*schema.Set).List())
+
+	loadBalancerSpecification := models.LoadBalancerSpecification{
+		Name:             &name,
+		ProjectID:        &projectID,
+		Routes:           routes,
+		Tags:             tags,
+		CustomProperties: customProperties,
+		Nics:             nics,
+	}
+
+	if v, ok := d.GetOk("description"); ok {
+		loadBalancerSpecification.Description = v.(string)
+	}
+
+	if v, ok := d.GetOk("internet_facing"); ok {
+		loadBalancerSpecification.InternetFacing = v.(bool)
+	}
+
+	if v, ok := d.GetOk("target_links"); ok {
+		targetLinks := make([]string, 0)
+		for _, value := range v.([]interface{}) {
+			targetLinks = append(targetLinks, value.(string))
+		}
+
+		loadBalancerSpecification.TargetLinks = targetLinks
+	}
+
+	log.Printf("[DEBUG] scale load lalancer: %#v", loadBalancerSpecification)
+	scaleLoadBalancerCreated, err := apiClient.LoadBalancer.ScaleLoadBalancer(load_balancer.NewScaleLoadBalancerParams().WithBody(&loadBalancerSpecification))
+	if err != nil {
+		return err
+	}
+
+	stateChangeFunc := resource.StateChangeConf{
+		Delay:      5 * time.Second,
+		Pending:    []string{models.RequestTrackerStatusINPROGRESS},
+		Refresh:    loadBalancerStateRefreshFunc(*apiClient, *scaleLoadBalancerCreated.Payload.ID),
+		Target:     []string{models.RequestTrackerStatusFINISHED},
+		Timeout:    5 * time.Minute,
+		MinTimeout: 5 * time.Second,
+	}
+
+	resourceIDs, err := stateChangeFunc.WaitForState()
+	if err != nil {
+		return err
+	}
+
+	loadBalancerIDs := resourceIDs.([]string)
+	i := strings.LastIndex(loadBalancerIDs[0], "/")
+	loadBalancerID := loadBalancerIDs[0][i+1 : len(loadBalancerIDs[0])]
+	d.SetId(loadBalancerID)
+	log.Printf("Finished to update vra_load_balancer resource with name %s", d.Get("name"))
+
+	return resourceLoadBalancerRead(d, m)
 }
 
 func resourceLoadBalancerDelete(d *schema.ResourceData, m interface{}) error {
