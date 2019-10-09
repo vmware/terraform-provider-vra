@@ -20,11 +20,11 @@ func TestAccDataSourceVRACloudAccountVsphere(t *testing.T) {
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config:      testAccDataSourceVRACloudAccountAzureNotFound(rInt),
+				Config:      testAccDataSourceVRACloudAccountVsphereNotFound(rInt),
 				ExpectError: regexp.MustCompile("cloud account foobar not found"),
 			},
 			{
-				Config: testAccDataSourceVRACloudAccountAzure(rInt),
+				Config: testAccDataSourceVRACloudAccountVsphere(rInt),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrPair(resourceName1, "id", dataSourceName1, "id"),
 					resource.TestCheckResourceAttrPair(resourceName1, "description", dataSourceName1, "description"),
@@ -77,14 +77,14 @@ func testAccDataSourceVRACloudAccountVsphereBase(rInt int) string {
 }
 
 func testAccDataSourceVRACloudAccountVsphereNotFound(rInt int) string {
-	return testAccDataSourceVRACloudAccountAzureBase(rInt) + fmt.Sprintf(`
+	return testAccDataSourceVRACloudAccountVsphereBase(rInt) + fmt.Sprintf(`
 	data "vra_cloud_account_vsphere" "test-cloud-account" {
 		name = "foobar"
 	}`)
 }
 
 func testAccDataSourceVRACloudAccountVsphere(rInt int) string {
-	return testAccDataSourceVRACloudAccountAzureBase(rInt) + fmt.Sprintf(`
+	return testAccDataSourceVRACloudAccountVsphereBase(rInt) + fmt.Sprintf(`
 	data "vra_cloud_account_vsphere" "test-cloud-account" {
 		name = vra_cloud_account_vsphere.my-cloud-account.name
 	}`)
