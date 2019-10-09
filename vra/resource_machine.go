@@ -101,6 +101,7 @@ func resourceMachine() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"image_disk_constraints": constraintsSchema(),
 			"name": &schema.Schema{
 				Type:     schema.TypeString,
 				Required: true,
@@ -143,18 +144,20 @@ func resourceMachineCreate(d *schema.ResourceData, m interface{}) error {
 	constraints := expandConstraints(d.Get("constraints").(*schema.Set).List())
 	tags := expandTags(d.Get("tags").(*schema.Set).List())
 	customProperties := expandCustomProperties(d.Get("custom_properties").(map[string]interface{}))
+	imageDiskConstraints := expandConstraints(d.Get("image_disk_constraints").(*schema.Set).List())
 	nics := expandNics(d.Get("nics").(*schema.Set).List())
 	disks := expandDisks(d.Get("disks").(*schema.Set).List())
 
 	machineSpecification := models.MachineSpecification{
-		Name:             &name,
-		Flavor:           &flavor,
-		ProjectID:        &projectID,
-		Constraints:      constraints,
-		Tags:             tags,
-		CustomProperties: customProperties,
-		Nics:             nics,
-		Disks:            disks,
+		Name:                 &name,
+		Flavor:               &flavor,
+		ProjectID:            &projectID,
+		Constraints:          constraints,
+		Tags:                 tags,
+		CustomProperties:     customProperties,
+		Nics:                 nics,
+		ImageDiskConstraints: imageDiskConstraints,
+		Disks:                disks,
 	}
 
 	image, imageRef := "", ""
