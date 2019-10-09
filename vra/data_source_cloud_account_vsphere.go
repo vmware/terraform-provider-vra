@@ -26,7 +26,7 @@ func dataSourceCloudAccountVsphere() *schema.Resource {
 				Type:     schema.TypeMap,
 				Computed: true,
 			},
-			"dc_id": &schema.Schema{
+			"dcid": &schema.Schema{
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -91,7 +91,7 @@ func dataSourceCloudAccountVsphereRead(d *schema.ResourceData, meta interface{})
 		d.SetId(*account.ID)
 		d.Set("created_at", account.CreatedAt)
 		d.Set("custom_properties", account.CustomProperties)
-		d.Set("dc_id", account.Dcid)
+		d.Set("dcid", account.Dcid)
 		d.Set("description", account.Description)
 		d.Set("enabled_region_ids", account.EnabledRegionIds)
 		d.Set("hostname", account.HostName)
