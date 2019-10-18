@@ -99,6 +99,12 @@ func resourceBlockDevice() *schema.Resource {
 				Computed: true,
 			},
 		},
+
+		Timeouts: &schema.ResourceTimeout{
+			Create: schema.DefaultTimeout(10 * time.Minute),
+			Update: schema.DefaultTimeout(10 * time.Minute),
+			Delete: schema.DefaultTimeout(10 * time.Minute),
+		},
 	}
 }
 
@@ -149,7 +155,7 @@ func resourceBlockDeviceCreate(d *schema.ResourceData, m interface{}) error {
 		Pending:    []string{models.RequestTrackerStatusINPROGRESS},
 		Refresh:    blockDeviceStateRefreshFunc(*apiClient, *createBlockDeviceCreated.Payload.ID),
 		Target:     []string{models.RequestTrackerStatusFINISHED},
-		Timeout:    5 * time.Minute,
+		Timeout:    d.Timeout(schema.TimeoutCreate),
 		MinTimeout: 5 * time.Second,
 	}
 
@@ -247,7 +253,7 @@ func resourceBlockDeviceDelete(d *schema.ResourceData, m interface{}) error {
 		Pending:    []string{models.RequestTrackerStatusINPROGRESS},
 		Refresh:    blockDeviceStateRefreshFunc(*apiClient, *deleteBlockDevice.Payload.ID),
 		Target:     []string{models.RequestTrackerStatusFINISHED},
-		Timeout:    5 * time.Minute,
+		Timeout:    d.Timeout(schema.TimeoutDelete),
 		MinTimeout: 5 * time.Second,
 	}
 
