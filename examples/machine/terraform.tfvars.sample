@@ -5,4 +5,4 @@ region = ""
 zone = ""
 project = ""
 image_name = ""
-
+network_name = ""

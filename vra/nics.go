@@ -64,7 +64,7 @@ func expandNics(configNics []interface{}) []*models.NetworkInterfaceSpecificatio
 		}
 
 		if v, ok := nicMap["name"].(string); ok && v != "" {
-			nic.Name = withString(v)
+			nic.Name = v
 		}
 
 		if v, ok := nicMap["description"].(string); ok && v != "" {
