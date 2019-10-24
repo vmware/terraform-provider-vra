@@ -12,10 +12,6 @@ data "vra_region" "this" {
   region           = var.region
 }
 
-data "vra_zone" "this" {
-  name = var.zone
-}
-
 data "vra_project" "this" {
   name = var.project
 }
@@ -47,12 +43,43 @@ resource "vra_image_profile" "this" {
   }
 }
 
+data "vra_network" "this" {
+  name = var.network_name
+}
+
 resource "vra_machine" "this" {
   name        = "tf-machine"
   description = "terrafrom test machine"
   project_id  = data.vra_project.this.id
   image       = "ubuntu"
   flavor      = "small"
+
+  boot_config {
+    content = <<EOF
+#cloud-config
+  users:
+  - default
+  - name: myuser
+    sudo: ['ALL=(ALL) NOPASSWD:ALL']
+    groups: [wheel, sudo, admin]
+    shell: '/bin/bash'
+    ssh-authorized-keys: |
+      ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDytVL+Q6/UmGwdnJxKQEozqERHGqxlH/zBbT5W8iNbwgOLF6JWz0o7ThAK/Cf0uPcv78Q6UhOjuRfd2BKBciJx5JsyH4Ly7Ars2v/ZQ492KyZElKRqwibXNWjfZcwKU/6YjDITm15Yh6UWCsvVHg4w72X+TiTxeKDZ0pNt2hcZ5Uje6NvZ4GFKYfl4kNFxBZmBYLFdtq8eNPg3PGREV+pM0xkyXKSAYUsXsgj821AgK/YNByCPY53jNKqXqdFKQXKG7FOs78MdhAF7aGMsVRymY5RtHk9UO0DGzCIHRp9DqmfN9SdIYIf5fb4sEtt8T9uxW32Mx3d9S+vGbmkYoRpY user@example.com
+
+  runcmd:
+    - sudo sed -e 's/.*PasswordAuthentication yes.*/PasswordAuthentication no/' -i /etc/ssh/sshd_config
+    - sudo service sshd restart
+EOF
+  }
+
+  nics {
+    network_id = data.vra_network.this.id
+  }
+
+  constraints {
+    mandatory  = true
+    expression = "AWS"
+  }
 
   tags {
     key   = "foo"

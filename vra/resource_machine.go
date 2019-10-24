@@ -379,7 +379,7 @@ func expandDisks(configDisks []interface{}) []*models.DiskAttachmentSpecificatio
 		}
 
 		if v, ok := diskMap["name"].(string); ok && v != "" {
-			disk.Name = withString(v)
+			disk.Name = v
 		}
 
 		if v, ok := diskMap["description"].(string); ok && v != "" {

@@ -14,7 +14,8 @@ There are variables which need to be added to terraform.tfvars. The first are fo
 * `region` - The region within in the cloud account
 * `zone` - The compute placement zone within a region where machines can be placed
 * `project` - The name of the project the current user belongs to
-* `image_name` - The name of the fabric image corresponding to the cloud end-point
+* `image_name` - The name of the fabric image corresponding to the cloud endpoint, such as ami-id for AWS.
+* `network_name` - Fabric network name in the cloud endpoint.
 
 To facilitate adding these variables, a sample tfvars file can be copied first:
 ```shell

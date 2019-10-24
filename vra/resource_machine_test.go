@@ -20,9 +20,6 @@ import (
 
 func TestAccVRAMachine_Basic(t *testing.T) {
 	rInt := acctest.RandInt()
-	image := os.Getenv("VRA_IMAGE")
-	flavor_1 := os.Getenv("VRA_FLAVOR_1")
-	flavor_2 := os.Getenv("VRA_FLAVOR_2")
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckMachine(t) },
@@ -36,33 +33,33 @@ func TestAccVRAMachine_Basic(t *testing.T) {
 			{
 				Config: testAccCheckVRAMachineConfig(rInt),
 				Check: resource.ComposeAggregateTestCheckFunc(
-					testAccCheckVRAMachineExists("vra_machine.my-machine"),
+					testAccCheckVRAMachineExists("vra_machine.my_machine"),
 					resource.TestMatchResourceAttr(
-						"vra_machine.my-machine", "name", regexp.MustCompile("^my-machine-"+strconv.Itoa(rInt))),
+						"vra_machine.my_machine", "name", regexp.MustCompile("^my-machine-"+strconv.Itoa(rInt))),
 					resource.TestCheckResourceAttr(
-						"vra_machine.my-machine", "description", "test machine"),
+						"vra_machine.my_machine", "description", "test machine"),
 					resource.TestCheckResourceAttr(
-						"vra_machine.my-machine", "image", image),
+						"vra_machine.my_machine", "image", "image_name"),
 					resource.TestCheckResourceAttr(
-						"vra_machine.my-machine", "flavor", flavor_1),
+						"vra_machine.my_machine", "flavor", "flavor1"),
 					resource.TestCheckResourceAttr(
-						"vra_machine.my-machine", "tags.#", "1"),
+						"vra_machine.my_machine", "tags.#", "1"),
 				),
 			},
 			{
 				Config: testAccCheckVRAMachineUpdateConfig(rInt),
 				Check: resource.ComposeAggregateTestCheckFunc(
-					testAccCheckVRAMachineExists("vra_machine.my-machine"),
+					testAccCheckVRAMachineExists("vra_machine.my_machine"),
 					resource.TestMatchResourceAttr(
-						"vra_machine.my-machine", "name", regexp.MustCompile("^my-machine-"+strconv.Itoa(rInt))),
+						"vra_machine.my_machine", "name", regexp.MustCompile("^my-machine-"+strconv.Itoa(rInt))),
 					resource.TestCheckResourceAttr(
-						"vra_machine.my-machine", "description", "test machine updated"),
+						"vra_machine.my_machine", "description", "test machine updated"),
 					resource.TestCheckResourceAttr(
-						"vra_machine.my-machine", "image", image),
+						"vra_machine.my_machine", "image", "image_name"),
 					resource.TestCheckResourceAttr(
-						"vra_machine.my-machine", "flavor", flavor_2),
+						"vra_machine.my_machine", "flavor", "flavor2"),
 					resource.TestCheckResourceAttr(
-						"vra_machine.my-machine", "tags.#", "1"),
+						"vra_machine.my_machine", "tags.#", "1"),
 				),
 			},
 		},
@@ -148,7 +145,7 @@ resource "vra_machine" "my_machine" {
 	name        = "my-machine-%d"
 	description = "test machine"
 	project_id  = vra_project.my-project.id
-	image       = "image"
+	image       = "image_name"
 	flavor      = "flavor1"
   
 	tags {
@@ -163,9 +160,9 @@ func testAccCheckVRAMachineUpdateConfig(rInt int) string {
 	return testAccCheckVRAMachine(rInt) + fmt.Sprintf(`
 resource "vra_machine" "my_machine" {
 	name        = "my-machine-%d"
-	description = "test machine update"
+	description = "test machine updated"
 	project_id  = vra_project.my-project.id
-	image       = "image"
+	image       = "image_name"
 	flavor      = "flavor2"
   
 	tags {
@@ -179,8 +176,8 @@ func testAccCheckVRAMachine(rInt int) string {
 	// Need valid credentials since this is creating a real cloud account
 	name := os.Getenv("VRA_AWS_CLOUD_ACCOUNT_NAME")
 	image := os.Getenv("VRA_IMAGE")
-	flavor_1 := os.Getenv("VRA_FLAVOR_1")
-	flavor_2 := os.Getenv("VRA_FLAVOR_2")
+	flavor1 := os.Getenv("VRA_FLAVOR_1")
+	flavor2 := os.Getenv("VRA_FLAVOR_2")
 	region := os.Getenv("VRA_REGION")
 	return fmt.Sprintf(`
 
@@ -215,7 +212,7 @@ resource "vra_image_profile" "this" {
 	region_id = data.vra_region.my-region.id
   
 	image_mapping {
-	  name       = "image"
+	  name       = "image_name"
 	  image_name = "%s"
 	}
   }
@@ -232,5 +229,5 @@ resource "vra_flavor_profile" "my-flavor-profile" {
 		name = "flavor2"
 		instance_type = "%s"
 	}
-}`, name, region, rInt, rInt, rInt, image, rInt, flavor_1, flavor_2)
+}`, name, region, rInt, rInt, rInt, image, rInt, flavor1, flavor2)
 }

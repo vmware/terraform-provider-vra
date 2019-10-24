@@ -22,3 +22,6 @@ variable "image_name" {
 
 }
 
+variable "network_name" {
+
+}
