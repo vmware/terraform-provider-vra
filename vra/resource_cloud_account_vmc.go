@@ -29,7 +29,7 @@ func resourceCloudAccountVMC() *schema.Resource {
 			},
 			"dc_id": &schema.Schema{
 				Type:     schema.TypeString,
-				Required: true,
+				Optional: true,
 			},
 			"description": &schema.Schema{
 				Type:     schema.TypeString,

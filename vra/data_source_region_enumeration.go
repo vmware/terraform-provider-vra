@@ -15,7 +15,7 @@ func dataSourceRegionEnumeration() *schema.Resource {
 		Schema: map[string]*schema.Schema{
 			"dcid": &schema.Schema{
 				Type:     schema.TypeString,
-				Required: true,
+				Optional: true,
 			},
 			"hostname": &schema.Schema{
 				Type:     schema.TypeString,

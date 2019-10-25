@@ -1,17 +1,20 @@
 provider "vra" {
   url           = var.url
   refresh_token = var.refresh_token
+  insecure      = var.insecure // false for vRA Cloud and true for vRA 8.0
 }
 
+// Required for vRA Cloud, Optional for vRA 8.0
 data "vra_data_collector" "this" {
-  name = var.data_collector_name
+  count = var.data_collector_name != "" ? 1 : 0
+  name  = var.data_collector_name
 }
 
 data "vra_region_enumeration" "this" {
   hostname = var.vcenter_hostname
   password = var.vcenter_password
   username = var.vcenter_username
-  dcid     = data.vra_data_collector.this.id
+  dcid     = var.data_collector_name != "" ? data.vra_data_collector.this[0].id : "" // Required for vRA Cloud, Optional for vRA 8.0
 }
 
 resource "vra_cloud_account_vmc" "this" {
@@ -25,7 +28,7 @@ resource "vra_cloud_account_vmc" "this" {
   vcenter_password = var.vcenter_password
   vcenter_username = var.vcenter_username
   nsx_hostname     = var.nsx_hostname
-  dc_id            = data.vra_data_collector.this.id
+  dc_id            = var.data_collector_name != "" ? data.vra_data_collector.this[0].id : "" // Required for vRA Cloud, Optional for vRA 8.0
 
   regions                 = data.vra_region_enumeration.this.regions
   accept_self_signed_cert = true

@@ -1,5 +1,6 @@
 refresh_token = ""
 url = ""
+insecure =
 api_token = ""
 data_collector_name = ""
 nsx_hostname = ""

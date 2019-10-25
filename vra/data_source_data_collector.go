@@ -24,7 +24,6 @@ func dataSourceDataCollector() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-
 			"status": {
 				Type:     schema.TypeString,
 				Computed: true,
