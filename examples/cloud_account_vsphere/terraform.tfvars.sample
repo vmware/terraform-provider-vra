@@ -1,5 +1,6 @@
 refresh_token = ""
 url = ""
+insecure =
 username = ""
 password = ""
 hostname = ""
