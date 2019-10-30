@@ -6,7 +6,7 @@ require (
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/hashicorp/hil v0.0.0-20190212132231-97b3a9cdfa93 // indirect
 	github.com/hashicorp/terraform-plugin-sdk v1.1.0
-	github.com/vmware/vra-sdk-go v0.2.0
+	github.com/vmware/vra-sdk-go v0.2.1
 )
 
 replace git.apache.org/thrift.git => github.com/apache/thrift v0.0.0-20180902110319-2566ecd5d999
