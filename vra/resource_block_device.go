@@ -244,14 +244,20 @@ func resourceBlockDeviceDelete(d *schema.ResourceData, m interface{}) error {
 	apiClient := m.(*Client).apiClient
 
 	id := d.Id()
-	deleteBlockDevice, err := apiClient.Disk.DeleteBlockDevice(disk.NewDeleteBlockDeviceParams().WithID(id))
+	deleteBlockDeviceAccepted, deleteBlockDeviceCompleted, err := apiClient.Disk.DeleteBlockDevice(disk.NewDeleteBlockDeviceParams().WithID(id))
 	if err != nil {
 		return err
 	}
+
+	// Handle non-request tracker case
+	if deleteBlockDeviceCompleted != nil {
+		return nil
+	}
+
 	stateChangeFunc := resource.StateChangeConf{
 		Delay:      5 * time.Second,
 		Pending:    []string{models.RequestTrackerStatusINPROGRESS},
-		Refresh:    blockDeviceStateRefreshFunc(*apiClient, *deleteBlockDevice.Payload.ID),
+		Refresh:    blockDeviceStateRefreshFunc(*apiClient, *deleteBlockDeviceAccepted.Payload.ID),
 		Target:     []string{models.RequestTrackerStatusFINISHED},
 		Timeout:    d.Timeout(schema.TimeoutDelete),
 		MinTimeout: 5 * time.Second,
