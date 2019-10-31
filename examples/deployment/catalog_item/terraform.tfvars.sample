@@ -1,0 +1,7 @@
+refresh_token = ""
+url = ""
+insecure = ""
+project_name = ""
+catalog_item_name = ""
+catalog_item_version = ""
+deployment_name = ""

@@ -38,7 +38,7 @@ func flattenStringList(list []*string) []interface{} {
 }
 */
 
-// compareUnique will determin if all of the items passed in are unique
+// compareUnique will determine if all of the items passed in are unique
 func compareUnique(s []interface{}) bool {
 	seen := make(map[string]struct{}, len(s))
 	j := 0
@@ -137,4 +137,17 @@ func flattenAndNormalizeCLoudAccountGcpRegionIds(regionOrder []string, cloudAcco
 		m[i] = strings.TrimPrefix(refStrings[index], "/iaas/api/regions/")
 	}
 	return m, nil
+}
+
+// expandInputs will convert the interface  into a map of strings
+func expandInputs(configInputs interface{}) map[string]string {
+	inputs := make(map[string]string)
+
+	for key, value := range configInputs.(map[string]interface{}) {
+		if value != nil {
+			inputs[key] = value.(string)
+		}
+	}
+
+	return inputs
 }

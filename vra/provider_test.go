@@ -243,6 +243,61 @@ func testAccPreCheckNSXT(t *testing.T) {
 	}
 }
 
+func testAccPreCheckCatalogItem(t *testing.T) {
+	if os.Getenv("VRA_REFRESH_TOKEN") == "" && os.Getenv("VRA_ACCESS_TOKEN") == "" {
+		t.Fatal("VRA_REFRESH_TOKEN or VRA_ACCESS_TOKEN must be set for acceptance tests")
+	}
+
+	envVars := [...]string{
+		"VRA_URL",
+		"VRA_CATALOG_ITEM_NAME",
+	}
+
+	for _, name := range envVars {
+		if v := os.Getenv(name); v == "" {
+			t.Fatalf("%s must be set for acceptance tests\n", name)
+		}
+	}
+}
+
+func testAccPreCheckDeployment(t *testing.T) {
+	if os.Getenv("VRA_REFRESH_TOKEN") == "" && os.Getenv("VRA_ACCESS_TOKEN") == "" {
+		t.Fatal("VRA_REFRESH_TOKEN or VRA_ACCESS_TOKEN must be set for acceptance tests")
+	}
+
+	envVars := [...]string{
+		"VRA_URL",
+		"VRA_CATALOG_ITEM_NAME",
+		"VRA_PROJECT_NAME",
+		"VRA_BLUEPRINT_ID",
+		"VRA_BLUEPRINT_VERSION",
+	}
+
+	for _, name := range envVars {
+		if v := os.Getenv(name); v == "" {
+			t.Fatalf("%s must be set for acceptance tests\n", name)
+		}
+	}
+}
+
+func testAccPreCheckDeploymentDataSource(t *testing.T) {
+	if os.Getenv("VRA_REFRESH_TOKEN") == "" && os.Getenv("VRA_ACCESS_TOKEN") == "" {
+		t.Fatal("VRA_REFRESH_TOKEN or VRA_ACCESS_TOKEN must be set for acceptance tests")
+	}
+
+	envVars := [...]string{
+		"VRA_URL",
+		"VRA_CATALOG_ITEM_NAME",
+		"VRA_PROJECT_NAME",
+	}
+
+	for _, name := range envVars {
+		if v := os.Getenv(name); v == "" {
+			t.Fatalf("%s must be set for acceptance tests\n", name)
+		}
+	}
+}
+
 func testAccPreCheckVra(t *testing.T) {
 	if v := os.Getenv("VRA_URL"); v == "" {
 		t.Fatal("VRA_URL must be set for acceptance tests")
