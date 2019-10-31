@@ -39,6 +39,7 @@ func Provider() *schema.Provider {
 		},
 
 		DataSourcesMap: map[string]*schema.Resource{
+			"vra_catalog_item":          dataSourceCatalogItem(),
 			"vra_cloud_account_aws":     dataSourceCloudAccountAWS(),
 			"vra_cloud_account_azure":   dataSourceCloudAccountAzure(),
 			"vra_cloud_account_gcp":     dataSourceCloudAccountGCP(),
@@ -47,6 +48,7 @@ func Provider() *schema.Provider {
 			"vra_cloud_account_vmc":     dataSourceCloudAccountVMC(),
 			"vra_cloud_account_vsphere": dataSourceCloudAccountVsphere(),
 			"vra_data_collector":        dataSourceDataCollector(),
+			"vra_deployment":            dataSourceDeployment(),
 			"vra_fabric_network":        dataSourceFabricNetwork(),
 			"vra_image":                 dataSourceImage(),
 			"vra_network":               dataSourceNetwork(),
@@ -67,6 +69,7 @@ func Provider() *schema.Provider {
 			"vra_cloud_account_nsxv":    resourceCloudAccountNSXV(),
 			"vra_cloud_account_vmc":     resourceCloudAccountVMC(),
 			"vra_cloud_account_vsphere": resourceCloudAccountVsphere(),
+			"vra_deployment":            resourceDeployment(),
 			"vra_flavor_profile":        resourceFlavorProfile(),
 			"vra_image_profile":         resourceImageProfile(),
 			"vra_load_balancer":         resourceLoadBalancer(),
