@@ -30,7 +30,7 @@ resource "vra_network_profile" "subnet_isolation" {
   ]
 
   isolation_type               = "SUBNET"
-  isolation_network_domain_id  = data.vra_network_domain.vpc.id
+  isolated_network_domain_id   = data.vra_network_domain.vpc.id
   isolated_network_cidr_prefix = var.cidr_prefix
 
   tags {
