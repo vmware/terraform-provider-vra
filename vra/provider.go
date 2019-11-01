@@ -53,6 +53,7 @@ func Provider() *schema.Provider {
 			"vra_image":                 dataSourceImage(),
 			"vra_network":               dataSourceNetwork(),
 			"vra_network_domain":        dataSourceNetworkDomain(),
+			"vra_network_profile":       dataSourceNetworkProfile(),
 			"vra_project":               dataSourceProject(),
 			"vra_region":                dataSourceRegion(),
 			"vra_region_enumeration":    dataSourceRegionEnumeration(),

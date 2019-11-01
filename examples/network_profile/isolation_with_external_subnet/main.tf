@@ -33,10 +33,10 @@ resource "vra_network_profile" "external_subnet_isolation" {
     data.vra_fabric_network.subnet.id
   ]
 
-  isolation_type                       = "SUBNET"
-  isolation_network_domain_id          = data.vra_network_domain.vpc.id
-  isolated_network_cidr_prefix         = var.cidr_prefix
-  isolation_external_fabric_network_id = data.vra_fabric_network.external_subnet.id
+  isolation_type                      = "SUBNET"
+  isolated_network_domain_id          = data.vra_network_domain.vpc.id
+  isolated_network_cidr_prefix        = var.cidr_prefix
+  isolated_external_fabric_network_id = data.vra_fabric_network.external_subnet.id
 
   tags {
     key   = "foo"

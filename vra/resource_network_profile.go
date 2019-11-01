@@ -46,15 +46,15 @@ func resourceNetworkProfile() *schema.Resource {
 				Type:     schema.TypeInt,
 				Optional: true,
 			},
-			"isolation_external_fabric_network_id": &schema.Schema{
+			"isolated_external_fabric_network_id": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"isolation_network_domain_cidr": &schema.Schema{
+			"isolated_network_domain_cidr": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"isolation_network_domain_id": &schema.Schema{
+			"isolated_network_domain_id": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
 			},
@@ -100,9 +100,9 @@ func resourceNetworkProfileCreate(d *schema.ResourceData, m interface{}) error {
 
 	networkProfileSpecification := models.NetworkProfileSpecification{
 		IsolationType:                    d.Get("isolation_type").(string),
-		IsolationNetworkDomainID:         d.Get("isolation_network_domain_id").(string),
-		IsolationNetworkDomainCIDR:       d.Get("isolation_network_domain_cidr").(string),
-		IsolationExternalFabricNetworkID: d.Get("isolation_external_fabric_network_id").(string),
+		IsolationNetworkDomainID:         d.Get("isolated_network_domain_id").(string),
+		IsolationNetworkDomainCIDR:       d.Get("isolated_network_domain_cidr").(string),
+		IsolationExternalFabricNetworkID: d.Get("isolated_external_fabric_network_id").(string),
 		IsolatedNetworkCIDRPrefix:        int32(d.Get("isolated_network_cidr_prefix").(int)),
 		Name:                             &name,
 		RegionID:                         &regionID,
@@ -155,7 +155,7 @@ func resourceNetworkProfileRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("description", networkProfile.Description)
 	d.Set("external_region_id", networkProfile.ExternalRegionID)
 	d.Set("isolation_type", networkProfile.IsolationType)
-	d.Set("isolation_network_domain_cidr", networkProfile.IsolationNetworkDomainCIDR)
+	d.Set("isolated_network_domain_cidr", networkProfile.IsolationNetworkDomainCIDR)
 	d.Set("isolated_network_cidr_prefix", networkProfile.IsolatedNetworkCIDRPrefix)
 	d.Set("name", networkProfile.Name)
 	d.Set("organization_id", networkProfile.OrganizationID)
@@ -183,9 +183,9 @@ func resourceNetworkProfileUpdate(d *schema.ResourceData, m interface{}) error {
 
 	networkProfileSpecification := models.NetworkProfileSpecification{
 		IsolationType:                    d.Get("isolation_type").(string),
-		IsolationNetworkDomainID:         d.Get("isolation_network_domain_id").(string),
-		IsolationNetworkDomainCIDR:       d.Get("isolation_network_domain_cidr").(string),
-		IsolationExternalFabricNetworkID: d.Get("isolation_external_fabric_network_id").(string),
+		IsolationNetworkDomainID:         d.Get("isolated_network_domain_id").(string),
+		IsolationNetworkDomainCIDR:       d.Get("isolated_network_domain_cidr").(string),
+		IsolationExternalFabricNetworkID: d.Get("isolated_external_fabric_network_id").(string),
 		IsolatedNetworkCIDRPrefix:        int32(d.Get("isolated_network_cidr_prefix").(int)),
 		Name:                             &name,
 		RegionID:                         &regionID,
