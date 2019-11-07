@@ -104,13 +104,11 @@ func resourceFlavorProfileUpdate(d *schema.ResourceData, m interface{}) error {
 	id := d.Id()
 	description := d.Get("description").(string)
 	name := d.Get("name").(string)
-	regionID := d.Get("region_id").(string)
 	flavorMapping := expandFlavors(d.Get("flavor_mapping").(*schema.Set).List())
 
-	_, err := apiClient.FlavorProfile.UpdateFlavorProfile(flavor_profile.NewUpdateFlavorProfileParams().WithID(id).WithBody(&models.FlavorProfileSpecification{
+	_, err := apiClient.FlavorProfile.UpdateFlavorProfile(flavor_profile.NewUpdateFlavorProfileParams().WithID(id).WithBody(&models.UpdateFlavorProfileSpecification{
 		Description:   description,
 		Name:          &name,
-		RegionID:      &regionID,
 		FlavorMapping: flavorMapping,
 	}))
 	if err != nil {

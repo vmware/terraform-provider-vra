@@ -110,11 +110,6 @@ func dataSourceDeployment() *schema.Resource {
 				Computed: true,
 			},
 			"resources": resourcesSchema(),
-			"simulated": &schema.Schema{
-				Type:     schema.TypeBool,
-				Optional: true,
-				Computed: true,
-			},
 			"status": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
@@ -154,7 +149,6 @@ func dataSourceDeploymentRead(d *schema.ResourceData, m interface{}) error {
 		d.Set("last_updated_by", deployment.LastUpdatedBy)
 		d.Set("lease_expire_at", deployment.LeaseExpireAt)
 		d.Set("project_id", deployment.ProjectID)
-		d.Set("simulated", deployment.Simulated)
 		d.Set("status", deployment.Status)
 
 		if err := d.Set("project", flattenResourceReference(deployment.Project)); err != nil {

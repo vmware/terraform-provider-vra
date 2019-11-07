@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/vmware/vra-sdk-go/pkg/client"
 	"github.com/vmware/vra-sdk-go/pkg/client/compute"
+	"github.com/vmware/vra-sdk-go/pkg/client/disk"
 	"github.com/vmware/vra-sdk-go/pkg/client/request"
 	"github.com/vmware/vra-sdk-go/pkg/models"
 
@@ -24,38 +25,37 @@ func resourceMachine() *schema.Resource {
 		Delete: resourceMachineDelete,
 
 		Schema: map[string]*schema.Schema{
-			"flavor": &schema.Schema{
-				Type:     schema.TypeString,
-				Required: true,
-			},
-			"image": &schema.Schema{
-				Type:     schema.TypeString,
-				Optional: true,
-			},
-			"image_ref": &schema.Schema{
-				Type:     schema.TypeString,
-				Optional: true,
-			},
-			"project_id": {
-				Type:     schema.TypeString,
-				Required: true,
-			},
-			"power_state": &schema.Schema{
-				Type:     schema.TypeString,
-				Computed: true,
-			},
 			"address": &schema.Schema{
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"boot_config": &schema.Schema{
+				Type:     schema.TypeSet,
+				Optional: true,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"content": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+					},
+				},
+			},
 			"constraints": constraintsSchema(),
-			"tags":        tagsSchema(),
+			"created_at": &schema.Schema{
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 			"custom_properties": &schema.Schema{
 				Type:     schema.TypeMap,
 				Computed: true,
 				Optional: true,
 			},
-			"nics": nicsSchema(false),
+			"description": &schema.Schema{
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 			"disks": &schema.Schema{
 				Type:     schema.TypeSet,
 				Optional: true,
@@ -76,20 +76,7 @@ func resourceMachine() *schema.Resource {
 					},
 				},
 			},
-			"boot_config": &schema.Schema{
-				Type:     schema.TypeSet,
-				Optional: true,
-				MaxItems: 1,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"content": {
-							Type:     schema.TypeString,
-							Optional: true,
-						},
-					},
-				},
-			},
-			"external_zone_id": &schema.Schema{
+			"external_id": &schema.Schema{
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -97,11 +84,24 @@ func resourceMachine() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"external_id": &schema.Schema{
+			"external_zone_id": &schema.Schema{
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"flavor": &schema.Schema{
+				Type:     schema.TypeString,
+				Required: true,
+			},
+			"image": &schema.Schema{
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 			"image_disk_constraints": constraintsSchema(),
+			"image_ref": &schema.Schema{
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"links": linksSchema(),
 			"name": &schema.Schema{
 				Type:     schema.TypeString,
 				Required: true,
@@ -109,15 +109,8 @@ func resourceMachine() *schema.Resource {
 					return !strings.HasPrefix(new, old)
 				},
 			},
-			"description": &schema.Schema{
-				Type:     schema.TypeString,
-				Optional: true,
-			},
-			"created_at": &schema.Schema{
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"updated_at": &schema.Schema{
+			"nics": nicsSchema(false),
+			"organization_id": &schema.Schema{
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -125,11 +118,19 @@ func resourceMachine() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"organization_id": &schema.Schema{
+			"power_state": &schema.Schema{
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"links": linksSchema(),
+			"project_id": {
+				Type:     schema.TypeString,
+				Required: true,
+			},
+			"tags": tagsSchema(),
+			"updated_at": &schema.Schema{
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 		},
 
 		Timeouts: &schema.ResourceTimeout{
@@ -294,6 +295,138 @@ func resourceMachineUpdate(d *schema.ResourceData, m interface{}) error {
 	apiClient := m.(*Client).apiClient
 
 	id := d.Id()
+	if d.HasChange("description") || d.HasChange("tags") {
+		err := updateMachine(d, apiClient, id)
+		if err != nil {
+			return err
+		}
+	}
+
+	// machine resize operation
+	if d.HasChange("flavor") {
+		err := resizeMachine(d, apiClient, id)
+		if err != nil {
+			return err
+		}
+	}
+
+	// attach and/or detach disks if disks configuration is changed
+	if d.HasChange("disks") {
+		err := attachAndDetachDisks(d, apiClient, id)
+		if err != nil {
+			return err
+		}
+	}
+
+	log.Printf("finished updating the vra_machine resource with name %s", d.Get("name"))
+	d.Partial(false)
+	return resourceMachineRead(d, m)
+}
+
+// attaches and detaches disks
+func attachAndDetachDisks(d *schema.ResourceData, apiClient *client.MulticloudIaaS, id string) error {
+	log.Printf("identified change in the disks configuration for the machine %s", d.Get("name"))
+
+	oldValue, newValue := d.GetChange("disks")
+	oldDisks := oldValue.(*schema.Set).List()
+	newDisks := newValue.(*schema.Set).List()
+
+	disksToDetach := disksDifference(oldDisks, newDisks)
+	disksToAttach := disksDifference(newDisks, oldDisks)
+
+	log.Printf("number of disks to detach:%v, %+v", len(disksToDetach), disksToDetach)
+	log.Printf("number of disks to attach:%v, %+v", len(disksToAttach), disksToAttach)
+
+	// detach the disks one by one
+	for i, diskToDetach := range disksToDetach {
+		diskId := diskToDetach["block_device_id"].(string)
+		log.Printf("Detaching the disk %v of %v (disk id: %v) from vra_machine resource %v", i+1, len(disksToDetach), diskId, d.Get("name"))
+		deleteMachineDiskAccepted, deleteMachineDiskNoContent, err := apiClient.Disk.DeleteMachineDisk(disk.NewDeleteMachineDiskParams().WithID(id).WithId1(diskId))
+
+		if err != nil {
+			return err
+		}
+
+		// ignore if the disk is already in detached state
+		if deleteMachineDiskNoContent != nil {
+			continue
+		}
+
+		stateChangeFunc := resource.StateChangeConf{
+			Delay:      5 * time.Second,
+			Pending:    []string{models.RequestTrackerStatusINPROGRESS},
+			Refresh:    machineStateRefreshFunc(*apiClient, *deleteMachineDiskAccepted.Payload.ID),
+			Target:     []string{models.RequestTrackerStatusFINISHED},
+			Timeout:    d.Timeout(schema.TimeoutCreate),
+			MinTimeout: 5 * time.Second,
+		}
+
+		_, e := stateChangeFunc.WaitForState()
+		if e != nil {
+			return e
+		}
+	}
+
+	// get all the disks currently attached to the machine
+	getMachineDisksOk, err := apiClient.Disk.GetMachineDisks(disk.NewGetMachineDisksParams().WithID(id))
+	if err != nil {
+		return err
+	}
+
+	diskIds := make([]string, len(getMachineDisksOk.GetPayload().Content))
+
+	for i, blockDevice := range getMachineDisksOk.GetPayload().Content {
+		diskIds[i] = *blockDevice.ID
+	}
+
+	log.Printf("disks currently attached to machine %v: %v", id, diskIds)
+
+	// attach the disks one by one
+	for i, diskToAttach := range disksToAttach {
+		diskId := diskToAttach["block_device_id"].(string)
+		log.Printf("Attaching the disk %v of %v (disk id: %v) to vra_machine resource %v", i+1, len(diskToAttach), diskId, d.Get("name"))
+
+		// attach the disk if it's not already attached to machine
+		if index, _ := indexOf(diskId, diskIds); index == -1 {
+			diskAttachmentSpecification := models.DiskAttachmentSpecification{
+				BlockDeviceID: withString(diskId),
+				Description:   diskToAttach["description"].(string),
+				Name:          diskToAttach["name"].(string),
+			}
+
+			attachMachineDiskOk, err := apiClient.Disk.AttachMachineDisk(disk.NewAttachMachineDiskParams().WithID(id).WithBody(&diskAttachmentSpecification))
+
+			if err != nil {
+				return err
+			}
+
+			stateChangeFunc := resource.StateChangeConf{
+				Delay:      5 * time.Second,
+				Pending:    []string{models.RequestTrackerStatusINPROGRESS},
+				Refresh:    machineStateRefreshFunc(*apiClient, *attachMachineDiskOk.Payload.ID),
+				Target:     []string{models.RequestTrackerStatusFINISHED},
+				Timeout:    d.Timeout(schema.TimeoutCreate),
+				MinTimeout: 5 * time.Second,
+			}
+
+			_, e := stateChangeFunc.WaitForState()
+			if e != nil {
+				return e
+			}
+		} else {
+			log.Printf("disk %v is already attached to machine %v, moving on to the next disk to attach", diskId, id)
+		}
+
+	}
+
+	d.SetPartial("disks")
+	log.Printf("finished to attach/detach disks to vra_machine resource with name %s", d.Get("name"))
+	return nil
+}
+
+// updates machine description and tags
+func updateMachine(d *schema.ResourceData, apiClient *client.MulticloudIaaS, id string) error {
+	log.Printf("identified change in the description and/or tags")
 	description := d.Get("description").(string)
 	tags := expandTags(d.Get("tags").(*schema.Set).List())
 
@@ -308,35 +441,57 @@ func resourceMachineUpdate(d *schema.ResourceData, m interface{}) error {
 		return err
 	}
 
-	// machine resize operation
-	if d.HasChange("flavor") {
-		flavor := d.Get("flavor").(string)
-		resizeMachine, err := apiClient.Compute.ResizeMachine(compute.NewResizeMachineParams().WithID(id).WithName(&flavor))
-		if err != nil {
-			return err
-		}
+	d.SetPartial("description")
+	d.SetPartial("tags")
+	log.Printf("finished updating description/tags in vra_machine resource with name %s", d.Get("name"))
+	return nil
+}
 
-		stateChangeFunc := resource.StateChangeConf{
-			Delay:      5 * time.Second,
-			Pending:    []string{models.RequestTrackerStatusINPROGRESS},
-			Refresh:    machineStateRefreshFunc(*apiClient, *resizeMachine.Payload.ID),
-			Target:     []string{models.RequestTrackerStatusFINISHED},
-			Timeout:    d.Timeout(schema.TimeoutUpdate),
-			MinTimeout: 5 * time.Second,
-		}
+// returns the disks from a that are not in b i.e. a - b
+func disksDifference(a, b []interface{}) (diff []map[string]interface{}) {
+	m := make(map[string]bool)
 
-		resourceIds, err := stateChangeFunc.WaitForState()
-		if err != nil {
-			return err
-		}
-
-		machineIds := resourceIds.([]string)
-		d.SetId(machineIds[0])
-		log.Printf("Finished to resize vra_machine resource with name %s", d.Get("name"))
+	for _, item := range b {
+		diskConfig := item.(map[string]interface{})
+		blockDeviceId := diskConfig["block_device_id"].(string)
+		m[blockDeviceId] = true
 	}
-	log.Printf("Finished updating the vra_machine resource with name %s", d.Get("name"))
 
-	return resourceMachineRead(d, m)
+	for _, item := range a {
+		diskConfig := item.(map[string]interface{})
+		blockDeviceId := diskConfig["block_device_id"].(string)
+		if _, ok := m[blockDeviceId]; !ok {
+			diff = append(diff, diskConfig)
+		}
+	}
+	return
+}
+
+// resize machine when there is a change in the flavor
+func resizeMachine(d *schema.ResourceData, apiClient *client.MulticloudIaaS, id string) error {
+	log.Printf("identified change in the flavor, machine resize will be performed")
+	flavor := d.Get("flavor").(string)
+	resizeMachine, err := apiClient.Compute.ResizeMachine(compute.NewResizeMachineParams().WithID(id).WithName(&flavor))
+	if err != nil {
+		return err
+	}
+	stateChangeFunc := resource.StateChangeConf{
+		Delay:      5 * time.Second,
+		Pending:    []string{models.RequestTrackerStatusINPROGRESS},
+		Refresh:    machineStateRefreshFunc(*apiClient, *resizeMachine.Payload.ID),
+		Target:     []string{models.RequestTrackerStatusFINISHED},
+		Timeout:    d.Timeout(schema.TimeoutUpdate),
+		MinTimeout: 5 * time.Second,
+	}
+	resourceIds, err := stateChangeFunc.WaitForState()
+	if err != nil {
+		return err
+	}
+	machineIds := resourceIds.([]string)
+	d.SetId(machineIds[0])
+	d.SetPartial("flavor")
+	log.Printf("Finished to resize vra_machine resource with name %s", d.Get("name"))
+	return nil
 }
 
 func resourceMachineDelete(d *schema.ResourceData, m interface{}) error {
