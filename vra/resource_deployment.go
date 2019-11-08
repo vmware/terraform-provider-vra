@@ -106,10 +106,6 @@ func resourceDeployment() *schema.Resource {
 			},
 			"resources": resourcesSchema(),
 			// TODO: Add plan / simulate feature
-			"simulated": {
-				Type:     schema.TypeBool,
-				Computed: true,
-			},
 			"status": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -335,7 +331,6 @@ func resourceDeploymentRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("last_updated_by", deployment.LastUpdatedBy)
 	d.Set("lease_expire_at", deployment.LeaseExpireAt)
 	d.Set("project_id", deployment.ProjectID)
-	d.Set("simulated", deployment.Simulated)
 	d.Set("status", deployment.Status)
 
 	if err := d.Set("project", flattenResourceReference(deployment.Project)); err != nil {

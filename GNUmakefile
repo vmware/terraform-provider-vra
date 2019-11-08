@@ -5,7 +5,7 @@ PKG_NAME=vra
 
 default: build
 
-build: fmtcheck
+build: fmtcheck lint
 	go install
 
 test: fmtcheck

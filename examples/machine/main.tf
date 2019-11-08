@@ -47,6 +47,18 @@ data "vra_network" "this" {
   name = var.network_name
 }
 
+resource "vra_block_device" "disk1" {
+  capacity_in_gb = 10
+  name = "terraform_vra_block_device1"
+  project_id = data.vra_project.this.id
+}
+
+resource "vra_block_device" "disk2" {
+  capacity_in_gb = 10
+  name = "terraform_vra_block_device2"
+  project_id = data.vra_project.this.id
+}
+
 resource "vra_machine" "this" {
   name        = "tf-machine"
   description = "terrafrom test machine"
@@ -84,5 +96,13 @@ EOF
   tags {
     key   = "foo"
     value = "bar"
+  }
+
+  disks {
+    block_device_id = vra_block_device.disk1.id
+  }
+
+  disks {
+    block_device_id = vra_block_device.disk2.id
   }
 }

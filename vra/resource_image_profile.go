@@ -125,10 +125,9 @@ func resourceImageProfileUpdate(d *schema.ResourceData, m interface{}) error {
 	id := d.Id()
 	imageMapping := expandImageMapping(d.Get("image_mapping").(*schema.Set).List())
 
-	_, err := apiClient.ImageProfile.UpdateImageProfile(image_profile.NewUpdateImageProfileParams().WithID(id).WithBody(&models.ImageProfileSpecification{
+	_, err := apiClient.ImageProfile.UpdateImageProfile(image_profile.NewUpdateImageProfileParams().WithID(id).WithBody(&models.UpdateImageProfileSpecification{
 		Description:  d.Get("description").(string),
 		Name:         withString(d.Get("name").(string)),
-		RegionID:     withString(d.Get("region_id").(string)),
 		ImageMapping: imageMapping,
 	}))
 	if err != nil {
