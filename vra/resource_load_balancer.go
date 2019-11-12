@@ -131,7 +131,7 @@ func resourceLoadBalancerCreate(d *schema.ResourceData, m interface{}) error {
 		Pending:    []string{models.RequestTrackerStatusINPROGRESS},
 		Refresh:    loadBalancerStateRefreshFunc(*apiClient, *createLoadBalancerCreated.Payload.ID),
 		Target:     []string{models.RequestTrackerStatusFINISHED},
-		Timeout:    d.Timeout(schema.TimeoutDelete),
+		Timeout:    d.Timeout(schema.TimeoutCreate),
 		MinTimeout: 5 * time.Second,
 	}
 
