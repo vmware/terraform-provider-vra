@@ -49,14 +49,8 @@ func resourceLoadBalancer() *schema.Resource {
 				Type:     schema.TypeBool,
 				Optional: true,
 			},
-			"tags": tagsSchema(),
-			"target_links": &schema.Schema{
-				Type:     schema.TypeList,
-				Optional: true,
-				Elem: &schema.Schema{
-					Type: schema.TypeString,
-				},
-			},
+			"tags":    tagsSchema(),
+			"targets": LoadBalancerTargetSchema(),
 			"address": &schema.Schema{
 				Type:     schema.TypeString,
 				Computed: true,
@@ -86,20 +80,10 @@ func resourceLoadBalancer() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"self_link": &schema.Schema{
-				Type:     schema.TypeString,
-				Computed: true,
-			},
 			"updated_at": &schema.Schema{
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-		},
-
-		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(10 * time.Minute),
-			Update: schema.DefaultTimeout(10 * time.Minute),
-			Delete: schema.DefaultTimeout(10 * time.Minute),
 		},
 	}
 }
@@ -132,13 +116,8 @@ func resourceLoadBalancerCreate(d *schema.ResourceData, m interface{}) error {
 		loadBalancerSpecification.InternetFacing = v.(bool)
 	}
 
-	if v, ok := d.GetOk("target_links"); ok {
-		targetLinks := make([]string, 0)
-		for _, value := range v.([]interface{}) {
-			targetLinks = append(targetLinks, value.(string))
-		}
-
-		loadBalancerSpecification.TargetLinks = targetLinks
+	if _, ok := d.GetOk("targets"); ok {
+		loadBalancerSpecification.TargetLinks = expandLoadBalancerTargets(d.Get("targets").(*schema.Set).List())
 	}
 
 	log.Printf("[DEBUG] create load lalancer: %#v", loadBalancerSpecification)
@@ -225,22 +204,21 @@ func resourceLoadBalancerRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("updated_at", loadBalancer.UpdatedAt)
 
 	if err := d.Set("tags", flattenTags(loadBalancer.Tags)); err != nil {
-		return fmt.Errorf("error setting machine tags - error: %v", err)
+		return fmt.Errorf("error setting load balancer tags - error: %v", err)
 	}
 	if err := d.Set("routes", flattenRoutes(loadBalancer.Routes)); err != nil {
-		return fmt.Errorf("error setting machine tags - error: %v", err)
+		return fmt.Errorf("error setting load balancer routes - error: %v", err)
 	}
 
 	if err := d.Set("links", flattenLinks(loadBalancer.Links)); err != nil {
-		return fmt.Errorf("error setting machine links - error: %#v", err)
+		return fmt.Errorf("error setting load balancer links - error: %#v", err)
 	}
 
-	log.Printf("Finished reading the vra_machine resource with name %s", d.Get("name"))
+	log.Printf("Finished reading the vra_load_balancer resource with name %s", d.Get("name"))
 	return nil
 }
 
 func resourceLoadBalancerUpdate(d *schema.ResourceData, m interface{}) error {
-
 	return fmt.Errorf("Updating a load balancer resource is not allowed")
 }
 
