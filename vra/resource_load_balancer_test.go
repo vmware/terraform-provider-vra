@@ -3,6 +3,8 @@ package vra
 import (
 	"fmt"
 	"os"
+	"regexp"
+	"strconv"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
@@ -29,6 +31,8 @@ func TestAccVRALoadBalancer_Basic(t *testing.T) {
 				Config: testAccCheckVRALoadBalancerConfig(rInt),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					testAccCheckVRALoadBalancerExists("vra_load_balancer.my_load_balancer"),
+					resource.TestMatchResourceAttr(
+						"vra_load_balancer.my_load_balancer", "name", regexp.MustCompile("^my-lb-"+strconv.Itoa(rInt))),
 					resource.TestCheckResourceAttr(
 						"vra_load_balancer.my_load_balancer", "routes.#", "1"),
 					resource.TestCheckResourceAttr(
@@ -208,7 +212,7 @@ func testAccCheckVRALoadBalancerNoTargetLinkConfig(rInt int) string {
 
 	return testAccCheckVRALoadBalancer(rInt) + fmt.Sprintf(`
 	resource "vra_load_balancer" "my_load_balancer" {
-		name = "my-load-balancer-%d"
+		name = "my-lb-%d"
 		project_id = vra_project.my-project.id
 		description = "load balancer description"
 
@@ -241,7 +245,7 @@ func testAccCheckVRALoadBalancerConfig(rInt int) string {
 
 	return testAccCheckVRALoadBalancer(rInt) + fmt.Sprintf(`
 	resource "vra_load_balancer" "my_load_balancer" {
-		name = "my-load-balancer-%d"
+		name = "my-lb-%d"
 		project_id = vra_project.my-project.id
 		description = "load balancer description"
 		

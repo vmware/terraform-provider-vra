@@ -6,7 +6,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
 
-// tagsSchema returns the schema to use for the tags property
+// LoadBalancerTargetSchema returns the schema to use for the targets property
 func LoadBalancerTargetSchema() *schema.Schema {
 	return &schema.Schema{
 		Type:     schema.TypeSet,

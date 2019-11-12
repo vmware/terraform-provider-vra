@@ -131,7 +131,7 @@ func resourceLoadBalancerCreate(d *schema.ResourceData, m interface{}) error {
 		Pending:    []string{models.RequestTrackerStatusINPROGRESS},
 		Refresh:    loadBalancerStateRefreshFunc(*apiClient, *createLoadBalancerCreated.Payload.ID),
 		Target:     []string{models.RequestTrackerStatusFINISHED},
-		Timeout:    5 * time.Minute,
+		Timeout:    d.Timeout(schema.TimeoutDelete),
 		MinTimeout: 5 * time.Second,
 	}
 
@@ -207,7 +207,7 @@ func resourceLoadBalancerRead(d *schema.ResourceData, m interface{}) error {
 		return fmt.Errorf("error setting load balancer tags - error: %v", err)
 	}
 	if err := d.Set("routes", flattenRoutes(loadBalancer.Routes)); err != nil {
-		return fmt.Errorf("error setting load balancer tags - error: %v", err)
+		return fmt.Errorf("error setting load balancer routes - error: %v", err)
 	}
 
 	if err := d.Set("links", flattenLinks(loadBalancer.Links)); err != nil {
@@ -236,7 +236,7 @@ func resourceLoadBalancerDelete(d *schema.ResourceData, m interface{}) error {
 		Pending:    []string{models.RequestTrackerStatusINPROGRESS},
 		Refresh:    loadBalancerStateRefreshFunc(*apiClient, *deleteLoadBalancer.Payload.ID),
 		Target:     []string{models.RequestTrackerStatusFINISHED},
-		Timeout:    5 * time.Minute,
+		Timeout:    d.Timeout(schema.TimeoutDelete),
 		MinTimeout: 5 * time.Second,
 	}
 
