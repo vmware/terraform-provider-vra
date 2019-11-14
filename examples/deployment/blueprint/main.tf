@@ -16,8 +16,10 @@ resource "vra_deployment" "this" {
   project_id        = data.vra_project.this.id
 
   inputs = {
-    flavor   = "small"
-    image    = "centos"
+    flavor = "small"
+    image  = "centos"
+    count  = 2
+    flag   = true
   }
 
   expand_resources    = true
