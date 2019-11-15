@@ -1,8 +1,6 @@
 package vra
 
 import (
-	"log"
-
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/vmware/vra-sdk-go/pkg/client/cloud_account"
 	"github.com/vmware/vra-sdk-go/pkg/models"
@@ -50,8 +48,6 @@ func dataSourceRegionEnumerationRead(d *schema.ResourceData, meta interface{}) e
 		Password: withString(d.Get("password").(string)),
 		Username: withString(d.Get("username").(string)),
 	}))
-
-	log.Printf("%v %v\n", getResp.Payload, err)
 
 	if err != nil {
 		return err
