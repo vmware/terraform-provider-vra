@@ -2,7 +2,7 @@
 
 The provider is currently considered to be a third-party provider and thus won't be automatically downloaded by ```terraform```, which means you have to either install or build it yourself. The provider is made available in a pre-built binary version via the GitHub repository in the form of releases. This document will walk you through installing a released version of the provider. _(The following snippets will use v0.1.4, but you will need to update the version as necessary)_
 
-## Downloading the provider 
+## Downloading the provider
 
  The most recent version of the provider can be found at https://github.com/vmware/terraform-provider-vra/releases/latest
 
@@ -19,6 +19,7 @@ mkdir -p ~/.terraform.d/plugins
 ```
 
 Download the plugin (via a browser or command line)
+
  ```bash
  wget -q https://github.com/vmware/terraform-provider-vra/releases/download/v0.1.4/terraform-provider-vra-linux_amd64-v0.1.4.tgz
  ```
@@ -31,10 +32,11 @@ tar xvf terraform-provider-vra-linux_amd64-v0.1.4.tgz
 
 Move the extracted plugin to the terraform plugins directory
 
-```shell 
+```shell
 mv terraform-provider-vra ~/.terraform.d/plugins
 ```
-#### Linux Example 
+
+#### Linux Example
 
 ![downloading with wget - Linux ](images/wget_release_linux.png)
 
@@ -42,8 +44,7 @@ mv terraform-provider-vra ~/.terraform.d/plugins
 
 Create a terraform plugins directory typically this will be in ```%APPDATA%\terraform.d\plugins```.
 
-
-```powershell 
+```powershell
  #powershell
  mkdir $ENV:APPDATA\terraform.d\plugins
 ```
@@ -90,5 +91,3 @@ move terraform-provider-vra.exe %APPDATA%\terraform.d\plugins
 To validate the installation you can simple change to the location where your terraform configuration is located and run ```terraform init```. You should see a message indicating that terraform has been successfully initialized.
 
 ![init success](images/install_success.png)
-
-
