@@ -24,7 +24,7 @@ func TestAccVRAStorageProfileBasic(t *testing.T) {
 			{
 				Config: testAccCheckVRAStorageProfileConfig(rInt),
 				Check: resource.ComposeAggregateTestCheckFunc(
-					testAccCheckVRANetworkProfileExists("vra_storage_profile.this"),
+					testAccCheckVRAStorageProfileExists("vra_storage_profile.this"),
 					resource.TestMatchResourceAttr(
 						"vra_storage_profile.this", "name", regexp.MustCompile("^my-profile-"+strconv.Itoa(rInt))),
 					resource.TestCheckResourceAttr(
