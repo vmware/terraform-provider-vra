@@ -16,6 +16,9 @@ func resourceCloudAccountVMC() *schema.Resource {
 		Read:   resourceCloudAccountVMCRead,
 		Update: resourceCloudAccountVMCUpdate,
 		Delete: resourceCloudAccountVMCDelete,
+		Importer: &schema.ResourceImporter{
+			State: schema.ImportStatePassthrough,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"accept_self_signed_cert": &schema.Schema{

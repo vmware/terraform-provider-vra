@@ -23,6 +23,9 @@ func resourceDeployment() *schema.Resource {
 		Read:   resourceDeploymentRead,
 		Update: resourceDeploymentUpdate,
 		Delete: resourceDeploymentDelete,
+		Importer: &schema.ResourceImporter{
+			State: schema.ImportStatePassthrough,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"blueprint_id": {

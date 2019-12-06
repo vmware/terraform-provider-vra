@@ -21,6 +21,9 @@ func resourceBlockDevice() *schema.Resource {
 		Read:   resourceBlockDeviceRead,
 		Update: resourceBlockDeviceUpdate,
 		Delete: resourceBlockDeviceDelete,
+		Importer: &schema.ResourceImporter{
+			State: schema.ImportStatePassthrough,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"capacity_in_gb": &schema.Schema{

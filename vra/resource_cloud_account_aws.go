@@ -15,6 +15,9 @@ func resourceCloudAccountAWS() *schema.Resource {
 		Read:   resourceCloudAccountAWSRead,
 		Update: resourceCloudAccountAWSUpdate,
 		Delete: resourceCloudAccountAWSDelete,
+		Importer: &schema.ResourceImporter{
+			State: schema.ImportStatePassthrough,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"access_key": &schema.Schema{
