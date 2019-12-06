@@ -3,8 +3,11 @@ package vra
 import (
 	"fmt"
 	"os"
+	"regexp"
+	"strconv"
 	"testing"
 
+	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 	"github.com/vmware/vra-sdk-go/pkg/client/cloud_account"
@@ -12,21 +15,24 @@ import (
 )
 
 func TestAccVRAStorageProfileBasic(t *testing.T) {
+	rInt := acctest.RandInt()
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheckAWS(t) },
+		PreCheck:     func() { testAccPreCheckStorageProfile(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckVRAStorageProfileDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCheckVRAStorageProfileConfig(),
+				Config: testAccCheckVRAStorageProfileConfig(rInt),
 				Check: resource.ComposeAggregateTestCheckFunc(
-					testAccCheckVRAStorageProfileExists("vra_storage_profile.my-storage-profile"),
+					testAccCheckVRANetworkProfileExists("vra_storage_profile.this"),
+					resource.TestMatchResourceAttr(
+						"vra_storage_profile.this", "name", regexp.MustCompile("^my-profile-"+strconv.Itoa(rInt))),
 					resource.TestCheckResourceAttr(
-						"vra_storage_profile.my-storage-profile", "name", "my-vra-storage-profile"),
+						"vra_storage_profile.this", "description", "my storage profile"),
 					resource.TestCheckResourceAttr(
-						"vra_storage_profile.my-storage-profile", "description", "my storage profile"),
+						"vra_storage_profile.this", "default_item", "true"),
 					resource.TestCheckResourceAttr(
-						"vra_storage_profile.my-storage-profile", "default_item", "true"),
+						"vra_storage_profile.this", "external_region_id", os.Getenv("VRA_REGION")),
 				),
 			},
 		},
@@ -69,34 +75,38 @@ func testAccCheckVRAStorageProfileDestroy(s *terraform.State) error {
 	return nil
 }
 
-func testAccCheckVRAStorageProfileConfig() string {
-	// Need valid credentials since this is creating a real cloud account
+func testAccCheckVRAStorageProfileConfig(rInt int) string {
+	// Need valid credentials since this is creating a real cloud account and network profile
 	id := os.Getenv("VRA_AWS_ACCESS_KEY_ID")
 	secret := os.Getenv("VRA_AWS_SECRET_ACCESS_KEY")
+	region := os.Getenv("VRA_REGION")
 	return fmt.Sprintf(`
-resource "vra_cloud_account_aws" "my-cloud-account" {
-	name = "my-cloud-account"
-	description = "test cloud account"
-	access_key = "%s"
-	secret_key = "%s"
-	regions = ["us-east-1"]
- }
+	resource "vra_cloud_account_aws" "this" {
+		name = "my-cloud-account-%d"
+		description = "test cloud account"
+		access_key = "%s"
+		secret_key = "%s"
+		regions = ["%s"]
+	 }
 
-data "vra_region" "us-east-1-region" {
-    cloud_account_id = "${vra_cloud_account_aws.my-cloud-account.id}"
-    region = "us-east-1"
-}
+	data "vra_region" "this" {
+		cloud_account_id = "${vra_cloud_account_aws.this.id}"
+		region = "%s"
+	}
 
-resource "vra_zone" "my-zone" {
-    name = "my-vra-zone"
-    description = "description my-vra-zone"
-	region_id = "${data.vra_region.us-east-1-region.id}"
-}
+	resource "vra_zone" "this" {
+		name = "my-vra-zone-%d"
+		description = "description my-vra-zone"
+		region_id = "${data.vra_region.this.id}"
+	}
 
-resource "vra_storage_profile" "my-storage-profile" {
-	name = "my-vra-storage-profile"
+resource "vra_storage_profile" "this" {
+	name = "my-profile-%d"
 	description = "my storage profile"
-	region_id = "${data.vra_region.us-east-1-region.id}"
+	region_id = "${data.vra_region.this.id}"
 	default_item = true
-}`, id, secret)
+	disk_properties = {
+		deviceType = "instance-store"
+	}
+}`, rInt, id, secret, region, region, rInt, rInt)
 }

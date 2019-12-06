@@ -58,6 +58,7 @@ func Provider() *schema.Provider {
 			"vra_region":                dataSourceRegion(),
 			"vra_region_enumeration":    dataSourceRegionEnumeration(),
 			"vra_security_group":        dataSourceSecurityGroup(),
+			"vra_storage_profile":       dataSourceStorageProfile(),
 			"vra_zone":                  dataSourceZone(),
 		},
 
