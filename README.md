@@ -14,6 +14,11 @@ To get the vra plugin up and running you need the following things.
 * [Terraform 0.12 or above](https://www.terraform.io/downloads.html)
 * [Go Language 1.12 or above](https://golang.org/dl/)
 
+Installing the provider
+-----------------------
+
+The provider is currently considered a third-party provider and thus isn't installed automatically by ```terraform```. See [Installing the vRA Terraform provider](docs/install_provider.md) for instructions on how to install it. 
+
 Using the provider
 ----------------------
 
