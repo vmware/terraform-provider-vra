@@ -35,6 +35,10 @@ func dataSourceNetwork() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"deployment_id": &schema.Schema{
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 			"project_id": &schema.Schema{
 				Type:     schema.TypeString,
 				Computed: true,
@@ -98,6 +102,7 @@ func dataSourceNetworkRead(d *schema.ResourceData, meta interface{}) error {
 		d.Set("cidr", network.Cidr)
 		d.Set("custom_properties", network.CustomProperties)
 		d.Set("description", network.Description)
+		d.Set("deployment_id", network.DeploymentID)
 		d.Set("external_id", network.ExternalID)
 		d.Set("external_zone_id", network.ExternalZoneID)
 		d.Set("name", network.Name)

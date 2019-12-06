@@ -59,6 +59,11 @@ func resourceMachine() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
+			"deployment_id": &schema.Schema{
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
 			"disks": &schema.Schema{
 				Type:     schema.TypeSet,
 				Optional: true,
@@ -189,6 +194,10 @@ func resourceMachineCreate(d *schema.ResourceData, m interface{}) error {
 		machineSpecification.Description = v.(string)
 	}
 
+	if v, ok := d.GetOk("deployment_id"); ok {
+		machineSpecification.DeploymentID = v.(string)
+	}
+
 	if v, ok := d.GetOk("boot_config"); ok {
 		configBootConfig := v.(*schema.Set).List()[0].(map[string]interface{})
 
@@ -269,6 +278,7 @@ func resourceMachineRead(d *schema.ResourceData, m interface{}) error {
 	machine := *resp.Payload
 	d.Set("name", machine.Name)
 	d.Set("description", machine.Description)
+	d.Set("deployment_id", machine.DeploymentID)
 	d.Set("power_state", machine.PowerState)
 	d.Set("address", machine.Address)
 	d.Set("project_id", machine.ProjectID)

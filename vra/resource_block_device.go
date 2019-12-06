@@ -51,6 +51,11 @@ func resourceBlockDevice() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
+			"deployment_id": &schema.Schema{
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
 			"disk_content_base_64": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
@@ -135,6 +140,10 @@ func resourceBlockDeviceCreate(d *schema.ResourceData, m interface{}) error {
 		blockDeviceSpecification.Description = v.(string)
 	}
 
+	if v, ok := d.GetOk("deployment_id"); ok {
+		blockDeviceSpecification.DeploymentID = v.(string)
+	}
+
 	if v, ok := d.GetOk("encrypted"); ok {
 		blockDeviceSpecification.Encrypted = v.(bool)
 	}
@@ -216,6 +225,7 @@ func resourceBlockDeviceRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("created_at", blockDevice.CreatedAt)
 	d.Set("custom_properties", blockDevice.CustomProperties)
 	d.Set("description", blockDevice.Description)
+	d.Set("deployment_id", blockDevice.DeploymentID)
 	d.Set("external_id", blockDevice.ExternalID)
 	d.Set("external_region_id", blockDevice.ExternalRegionID)
 	d.Set("external_zone_id", blockDevice.ExternalZoneID)
