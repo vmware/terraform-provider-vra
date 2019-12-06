@@ -47,6 +47,11 @@ func resourceNetwork() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
+			"deployment_id": &schema.Schema{
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
 			"outbound_access": &schema.Schema{
 				Type:     schema.TypeBool,
 				Optional: true,
@@ -111,6 +116,10 @@ func resourceNetworkCreate(d *schema.ResourceData, m interface{}) error {
 
 	if v, ok := d.GetOk("description"); ok {
 		networkSpecification.Description = v.(string)
+	}
+
+	if v, ok := d.GetOk("deployment_id"); ok {
+		networkSpecification.DeploymentID = v.(string)
 	}
 
 	if v, ok := d.GetOk("outbound_access"); ok {
@@ -187,6 +196,7 @@ func resourceNetworkRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("cidr", network.Cidr)
 	d.Set("custom_properties", network.CustomProperties)
 	d.Set("description", network.Description)
+	d.Set("deployment_id", network.DeploymentID)
 	d.Set("external_id", network.ExternalID)
 	d.Set("external_zone_id", network.ExternalZoneID)
 	d.Set("name", network.Name)
