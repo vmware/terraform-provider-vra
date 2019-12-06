@@ -15,6 +15,9 @@ func resourceCloudAccountNSXT() *schema.Resource {
 		Read:   resourceCloudAccountNSXTRead,
 		Update: resourceCloudAccountNSXTUpdate,
 		Delete: resourceCloudAccountNSXTDelete,
+		Importer: &schema.ResourceImporter{
+			State: schema.ImportStatePassthrough,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"accept_self_signed_cert": &schema.Schema{
