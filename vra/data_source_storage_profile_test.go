@@ -66,6 +66,7 @@ func testAccDataSourceVRAStorageProfileNotFound(rInt int) string {
 	}`)
 }
 
+// TBD: Enable filter by name once this is fixed https://jira.eng.vmware.com/browse/VCOM-13947
 // func testAccDataSourceVRAStorageProfileNameFilter(rInt int) string {
 // 	return testAccCheckVRAStorageProfileConfig(rInt) + fmt.Sprintf(`
 // 	data "vra_storage_profile" "this" {
