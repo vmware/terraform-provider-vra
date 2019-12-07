@@ -6,6 +6,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/go-openapi/strfmt"
 	"github.com/vmware/vra-sdk-go/pkg/client"
 	"github.com/vmware/vra-sdk-go/pkg/client/disk"
 	"github.com/vmware/vra-sdk-go/pkg/client/request"
@@ -13,6 +14,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/vmware/vra-sdk-go/pkg/client/deployment_actions"
 )
 
 func resourceBlockDevice() *schema.Resource {
@@ -249,7 +251,32 @@ func resourceBlockDeviceRead(d *schema.ResourceData, m interface{}) error {
 
 func resourceBlockDeviceUpdate(d *schema.ResourceData, m interface{}) error {
 
-	return fmt.Errorf("Updating a block device resource is not allowed")
+	log.Printf("Starting to update the vra_block_device resource with name %s", d.Get("name"))
+	apiClient := m.(*Client).apiClient
+
+	id := d.Id()
+	resp, err := apiClient.Disk.GetBlockDevice(disk.NewGetBlockDeviceParams().WithID(id))
+	if err != nil {
+		return err
+	}
+	capacityInGB := int32(d.Get("capacity_in_gb").(int))
+	inputMap := make(map[string]interface{})
+	inputMap["capacityGB"] = capacityInGB
+
+	deploymentID := resp.GetPayload().DeploymentID
+	resourceActionRequest := models.ResourceActionRequest{
+		ActionID: "Cloud.vSphere.Disk.Disk.Resize",
+		Inputs:   inputMap,
+	}
+
+	_, err = apiClient.DeploymentActions.SubmitResourceActionRequestUsingPOST(deployment_actions.
+		NewSubmitResourceActionRequestUsingPOSTParams().WithDepID(strfmt.UUID(deploymentID)).
+		WithResourceID(strfmt.UUID(id)).WithActionRequest(&resourceActionRequest))
+	if err != nil {
+		return err
+	}
+
+	return fmt.Errorf("Finished updating the vra_block_device resource with name %s", d.Get("name"))
 }
 
 func resourceBlockDeviceDelete(d *schema.ResourceData, m interface{}) error {
