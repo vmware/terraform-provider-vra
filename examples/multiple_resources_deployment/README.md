@@ -1,7 +1,8 @@
 # Deployment with multiple resources example
 
 This is an example on how to create multiple resources within the same deployment.
-Creating any resource like machine, network, load balancer or block device and using its deployment id while creating other resources like machines, networks, load balancers and block devices.
+There are multiple ways of creating a deployment, for instance, through a blueprint, a catalog item or creating any resource like machine, network, load balancer or block device creates a deployment.
+Associate the deployment id created through any of the above mentioned ways to the other resources that you want to create.
 
 ## Getting Started
 
@@ -37,6 +38,10 @@ to setup a zone:
 To create a project, here is an example
 
 * Setup [project](../project/README.md)
+
+To create a deployment through blueprint or a catalog item, here is an example
+
+* Setup [deployment](../deployment/README.md)
 
 Once the information is added to `terraform.tfvars`, the image profile, flavor profile and machine can be created via:
 
