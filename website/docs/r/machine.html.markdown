@@ -131,6 +131,8 @@ example:[{"mandatory" : "true", "expression": "environment":"prod"}, {"mandatory
 
 * `description` - (Optional) Describes machine within the scope of your organization and is not propagated to the cloud.
 
+* `deployment_id` - (Optional) The id of the deployment that is associated with this resource.
+
 * `disks` - (Optional) A set of disk specifications for this machine. It is nested argument with the following properties.
   * `block_device_id` - (Required) The id of the existing block device.
   * `description` - (Optional) A human-friendly description.
