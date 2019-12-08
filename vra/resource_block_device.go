@@ -8,13 +8,14 @@ import (
 
 	"github.com/go-openapi/strfmt"
 	"github.com/vmware/vra-sdk-go/pkg/client"
+	"github.com/vmware/vra-sdk-go/pkg/client/deployment_actions"
+	"github.com/vmware/vra-sdk-go/pkg/client/deployments"
 	"github.com/vmware/vra-sdk-go/pkg/client/disk"
 	"github.com/vmware/vra-sdk-go/pkg/client/request"
 	"github.com/vmware/vra-sdk-go/pkg/models"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/vmware/vra-sdk-go/pkg/client/deployment_actions"
 )
 
 func resourceBlockDevice() *schema.Resource {
@@ -255,15 +256,52 @@ func resourceBlockDeviceUpdate(d *schema.ResourceData, m interface{}) error {
 	apiClient := m.(*Client).apiClient
 
 	id := d.Id()
+	if d.HasChange("capacity_in_gb") {
+		resizeDisk(d, apiClient, id)
+	}
+
+	log.Printf("Finished updating vra_block_device resource with name %s", d.Get("name"))
+	return nil
+}
+
+func resizeDisk(d *schema.ResourceData, apiClient *client.MulticloudIaaS, id string) error {
+
+	log.Printf("Starting resize of vra_block_device resource with name %s", d.Get("name"))
+	// get the block device by id
 	resp, err := apiClient.Disk.GetBlockDevice(disk.NewGetBlockDeviceParams().WithID(id))
 	if err != nil {
 		return err
 	}
-	capacityInGB := int32(d.Get("capacity_in_gb").(int))
-	inputMap := make(map[string]interface{})
-	inputMap["capacityGB"] = capacityInGB
-
+	// get the deployment id associated with the block device
 	deploymentID := resp.GetPayload().DeploymentID
+	// the new disk size
+	capacityInGB := int32(d.Get("capacity_in_gb").(int))
+
+	// get all the resources within the deployment and get the block device id
+	// from the deployment resource API
+	//NOTE: The block device id in the state file is different from the id in the
+	// deployment resources API. So iterating over all the resources to get the block device id
+	// that the deployment resource api will understand
+	depResp, err := apiClient.Deployments.GetDeploymentByIDUsingGET(
+		deployments.NewGetDeploymentByIDUsingGETParams().WithDepID(strfmt.UUID(deploymentID)).
+			WithExpandResources(withBool(true)))
+	if err != nil {
+		return err
+	}
+
+	deploymentResources := depResp.Payload.Resources
+	var resourceID strfmt.UUID
+	for _, resource := range deploymentResources {
+		propertiesMap := make(map[string]interface{})
+		propertiesMap = resource.Properties.(map[string]interface{})
+		// The block device id in the state file should match with the resource id
+		// in the deployment resource API response
+		if propertiesMap["resourceId"] == id {
+			resourceID = resource.ID
+		}
+	}
+	inputMap := make(map[string]interface{})
+	inputMap["capacityGb"] = capacityInGB
 	resourceActionRequest := models.ResourceActionRequest{
 		ActionID: "Cloud.vSphere.Disk.Disk.Resize",
 		Inputs:   inputMap,
@@ -271,12 +309,51 @@ func resourceBlockDeviceUpdate(d *schema.ResourceData, m interface{}) error {
 
 	_, err = apiClient.DeploymentActions.SubmitResourceActionRequestUsingPOST(deployment_actions.
 		NewSubmitResourceActionRequestUsingPOSTParams().WithDepID(strfmt.UUID(deploymentID)).
-		WithResourceID(strfmt.UUID(id)).WithActionRequest(&resourceActionRequest))
+		WithResourceID(resourceID).WithActionRequest(&resourceActionRequest))
 	if err != nil {
 		return err
 	}
+	stateChangeFunc := resource.StateChangeConf{
+		Delay:      5 * time.Second,
+		Pending:    []string{models.DeploymentRequestStatusINPROGRESS},
+		Refresh:    diskResizeStatusRefreshFunc(*apiClient, deploymentID),
+		Target:     []string{models.DeploymentRequestStatusSUCCESSFUL},
+		Timeout:    d.Timeout(schema.TimeoutCreate),
+		MinTimeout: 5 * time.Second,
+	}
 
-	return fmt.Errorf("Finished updating the vra_block_device resource with name %s", d.Get("name"))
+	_, err = stateChangeFunc.WaitForState()
+	if err != nil {
+		return err
+	}
+	log.Printf("Finished resize of vra_block_device resource with name %s", d.Get("name"))
+	return nil
+}
+
+func diskResizeStatusRefreshFunc(apiClient client.MulticloudIaaS, id string) resource.StateRefreshFunc {
+	return func() (interface{}, string, error) {
+		ret, err := apiClient.Deployments.GetDeploymentByIDUsingGET(
+			deployments.NewGetDeploymentByIDUsingGETParams().WithDepID(strfmt.UUID(id)).
+				WithExpandLastRequest(withBool(true)))
+		if err != nil {
+			return "", models.DeploymentRequestStatusFAILED, err
+		}
+
+		status := ret.Payload.LastRequest.Status
+		switch status {
+		case models.DeploymentRequestStatusPENDING:
+			return [...]string{id}, status, nil
+		case models.DeploymentRequestStatusINPROGRESS:
+			return [...]string{id}, status, nil
+		case models.DeploymentRequestStatusFAILED:
+			return []string{""}, status, fmt.Errorf(ret.Error())
+		case models.DeploymentRequestStatusSUCCESSFUL:
+			deploymentID := ret.Payload.ID
+			return deploymentID.String(), status, nil
+		default:
+			return [...]string{id}, ret.Error(), fmt.Errorf("diskResizeStatusRefreshFunc: unknown status %v", status)
+		}
+	}
 }
 
 func resourceBlockDeviceDelete(d *schema.ResourceData, m interface{}) error {
