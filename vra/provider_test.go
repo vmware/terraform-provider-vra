@@ -43,15 +43,13 @@ func testAccPreCheckMachine(t *testing.T) {
 		t.Fatal("VRA_REFRESH_TOKEN or VRA_ACCESS_TOKEN must be set for acceptance tests")
 	}
 
-	if os.Getenv("VRA_IMAGE") == "" && os.Getenv("VRA_IMAGE_REF") == "" {
-		t.Fatal("VRA_IMAGE or VRA_IMAGE_REF must be set for acceptance tests")
-	}
-
 	envVars := [...]string{
 		"VRA_URL",
 		"VRA_AWS_CLOUD_ACCOUNT_NAME",
 		"VRA_FLAVOR_1",
 		"VRA_FLAVOR_2",
+		"VRA_IMAGE_1",
+		"VRA_IMAGE_2",
 		"VRA_REGION",
 	}
 
