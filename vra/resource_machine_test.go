@@ -31,6 +31,7 @@ func TestAccVRAMachine_Basic(t *testing.T) {
 				ExpectError: regexp.MustCompile("image or image_ref required"),
 			},
 			{
+				// Machine creation
 				Config: testAccCheckVRAMachineConfig(rInt),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					testAccCheckVRAMachineExists("vra_machine.my_machine"),
@@ -39,7 +40,7 @@ func TestAccVRAMachine_Basic(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"vra_machine.my_machine", "description", "test machine"),
 					resource.TestCheckResourceAttr(
-						"vra_machine.my_machine", "image", "image_name"),
+						"vra_machine.my_machine", "image", "image_name1"),
 					resource.TestCheckResourceAttr(
 						"vra_machine.my_machine", "flavor", "flavor1"),
 					resource.TestCheckResourceAttr(
@@ -47,6 +48,7 @@ func TestAccVRAMachine_Basic(t *testing.T) {
 				),
 			},
 			{
+				// Machine resize due to change in flavor
 				Config: testAccCheckVRAMachineUpdateConfig(rInt),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					testAccCheckVRAMachineExists("vra_machine.my_machine"),
@@ -55,7 +57,24 @@ func TestAccVRAMachine_Basic(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"vra_machine.my_machine", "description", "test machine updated"),
 					resource.TestCheckResourceAttr(
-						"vra_machine.my_machine", "image", "image_name"),
+						"vra_machine.my_machine", "image", "image_name1"),
+					resource.TestCheckResourceAttr(
+						"vra_machine.my_machine", "flavor", "flavor2"),
+					resource.TestCheckResourceAttr(
+						"vra_machine.my_machine", "tags.#", "1"),
+				),
+			},
+			{
+				// Machine recreate (destroy and create) due to change in image
+				Config: testAccCheckVRAMachineReCreateConfig(rInt),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					testAccCheckVRAMachineExists("vra_machine.my_machine"),
+					resource.TestMatchResourceAttr(
+						"vra_machine.my_machine", "name", regexp.MustCompile("^my-machine-"+strconv.Itoa(rInt))),
+					resource.TestCheckResourceAttr(
+						"vra_machine.my_machine", "description", "test machine updated"),
+					resource.TestCheckResourceAttr(
+						"vra_machine.my_machine", "image", "image_name2"),
 					resource.TestCheckResourceAttr(
 						"vra_machine.my_machine", "flavor", "flavor2"),
 					resource.TestCheckResourceAttr(
@@ -145,9 +164,9 @@ resource "vra_machine" "my_machine" {
 	name        = "my-machine-%d"
 	description = "test machine"
 	project_id  = vra_project.my-project.id
-	image       = "image_name"
+	image       = "image_name1"
 	flavor      = "flavor1"
-  
+
 	tags {
 	  key   = "foo"
 	  value = "bar"
@@ -162,9 +181,26 @@ resource "vra_machine" "my_machine" {
 	name        = "my-machine-%d"
 	description = "test machine updated"
 	project_id  = vra_project.my-project.id
-	image       = "image_name"
+	image       = "image_name1"
 	flavor      = "flavor2"
-  
+
+	tags {
+	  key   = "foo"
+	  value = "bar"
+	}
+}`, rInt)
+}
+
+func testAccCheckVRAMachineReCreateConfig(rInt int) string {
+
+	return testAccCheckVRAMachine(rInt) + fmt.Sprintf(`
+resource "vra_machine" "my_machine" {
+	name        = "my-machine-%d"
+	description = "test machine updated"
+	project_id  = vra_project.my-project.id
+	image       = "image_name2"
+	flavor      = "flavor2"
+
 	tags {
 	  key   = "foo"
 	  value = "bar"
@@ -175,7 +211,8 @@ resource "vra_machine" "my_machine" {
 func testAccCheckVRAMachine(rInt int) string {
 	// Need valid credentials since this is creating a real cloud account
 	name := os.Getenv("VRA_AWS_CLOUD_ACCOUNT_NAME")
-	image := os.Getenv("VRA_IMAGE")
+	image1 := os.Getenv("VRA_IMAGE_1")
+	image2 := os.Getenv("VRA_IMAGE_2")
 	flavor1 := os.Getenv("VRA_FLAVOR_1")
 	flavor2 := os.Getenv("VRA_FLAVOR_2")
 	region := os.Getenv("VRA_REGION")
@@ -212,7 +249,12 @@ resource "vra_image_profile" "this" {
 	region_id = data.vra_region.my-region.id
   
 	image_mapping {
-	  name       = "image_name"
+	  name       = "image_name1"
+	  image_name = "%s"
+	}
+
+    image_mapping {
+	  name       = "image_name2"
 	  image_name = "%s"
 	}
   }
@@ -229,5 +271,5 @@ resource "vra_flavor_profile" "my-flavor-profile" {
 		name = "flavor2"
 		instance_type = "%s"
 	}
-}`, name, region, rInt, rInt, rInt, image, rInt, flavor1, flavor2)
+}`, name, region, rInt, rInt, rInt, image1, image2, rInt, flavor1, flavor2)
 }

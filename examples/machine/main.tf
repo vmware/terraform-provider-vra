@@ -41,6 +41,11 @@ resource "vra_image_profile" "this" {
     name       = "ubuntu"
     image_name = var.image_name
   }
+
+  image_mapping {
+    name       = "ubuntu2"
+    image_name = var.image_name
+  }
 }
 
 data "vra_network" "this" {
@@ -63,8 +68,8 @@ resource "vra_machine" "this" {
   name        = "tf-machine"
   description = "terrafrom test machine"
   project_id  = data.vra_project.this.id
-  image       = "ubuntu"
-  flavor      = "small"
+  image       = "ubuntu2"
+  flavor      = "medium"
 
   boot_config {
     content = <<EOF

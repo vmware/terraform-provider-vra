@@ -98,11 +98,13 @@ func resourceMachine() *schema.Resource {
 			"image": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
+				ForceNew: true,
 			},
 			"image_disk_constraints": constraintsSchema(),
 			"image_ref": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
+				ForceNew: true,
 			},
 			"links": linksSchema(),
 			"name": &schema.Schema{
