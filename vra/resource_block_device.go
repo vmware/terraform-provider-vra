@@ -270,19 +270,19 @@ func resourceBlockDeviceUpdate(d *schema.ResourceData, m interface{}) error {
 func resizeDisk(d *schema.ResourceData, apiClient *client.MulticloudIaaS, id string) error {
 
 	log.Printf("Starting resize of vra_block_device resource with name %s", d.Get("name"))
-	// get the block device by id
+	// Get the block device by id
 	resp, err := apiClient.Disk.GetBlockDevice(disk.NewGetBlockDeviceParams().WithID(id))
 	if err != nil {
 		return err
 	}
-	// get the deployment id associated with the block device
+	// Get the deployment id associated with the block device
 	deploymentID := resp.GetPayload().DeploymentID
 	// the new disk size
 	capacityInGB := int32(d.Get("capacity_in_gb").(int))
 
-	// get all the resources within the deployment and get the block device id
+	// Get all the resources within the deployment and get the block device id
 	// from the deployment resource API
-	//NOTE: The block device id in the state file is different from the id in the
+	// NOTE: The block device id in the state file is different from the id in the
 	// deployment resources API. So iterating over all the resources to get the block device id
 	// that the deployment resource api will understand
 	depResp, err := apiClient.Deployments.GetDeploymentByIDUsingGET(
@@ -341,7 +341,7 @@ func resizeDisk(d *schema.ResourceData, apiClient *client.MulticloudIaaS, id str
 			}
 			log.Printf("Finished resize of vra_block_device resource with name %s", d.Get("name"))
 		} else {
-			return fmt.Errorf("Resize action is not available for the resource with id %s ", id)
+			return fmt.Errorf("Resize action is not available for the resource with name %s", d.Get("name"))
 		}
 	}
 	return nil
