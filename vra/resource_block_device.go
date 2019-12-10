@@ -300,33 +300,48 @@ func resizeDisk(d *schema.ResourceData, apiClient *client.MulticloudIaaS, id str
 			resourceID = resource.ID
 		}
 	}
-	inputMap := make(map[string]interface{})
-	inputMap["capacityGb"] = capacityInGB
-	resourceActionRequest := models.ResourceActionRequest{
-		ActionID: "Cloud.vSphere.Disk.Disk.Resize",
-		Inputs:   inputMap,
-	}
 
-	_, err = apiClient.DeploymentActions.SubmitResourceActionRequestUsingPOST(deployment_actions.
-		NewSubmitResourceActionRequestUsingPOSTParams().WithDepID(strfmt.UUID(deploymentID)).
-		WithResourceID(resourceID).WithActionRequest(&resourceActionRequest))
+	// Get the resource actions ava
+	resourceActions, err := apiClient.DeploymentActions.GetResourceActionsUsingGET(deployment_actions.
+		NewGetResourceActionsUsingGETParams().WithDepID(strfmt.UUID(deploymentID)).
+		WithResourceID(strfmt.UUID(resourceID)))
 	if err != nil {
 		return err
 	}
-	stateChangeFunc := resource.StateChangeConf{
-		Delay:      5 * time.Second,
-		Pending:    []string{models.DeploymentRequestStatusINPROGRESS},
-		Refresh:    diskResizeStatusRefreshFunc(*apiClient, deploymentID),
-		Target:     []string{models.DeploymentRequestStatusSUCCESSFUL},
-		Timeout:    d.Timeout(schema.TimeoutCreate),
-		MinTimeout: 5 * time.Second,
-	}
 
-	_, err = stateChangeFunc.WaitForState()
-	if err != nil {
-		return err
+	for _, action := range resourceActions.Payload {
+		if strings.Contains(strings.ToLower(action.ID), strings.ToLower("Resize")) {
+			inputMap := make(map[string]interface{})
+			inputMap["capacityGb"] = capacityInGB
+			resourceActionRequest := models.ResourceActionRequest{
+				ActionID: action.ID,
+				Inputs:   inputMap,
+			}
+
+			_, err = apiClient.DeploymentActions.SubmitResourceActionRequestUsingPOST(deployment_actions.
+				NewSubmitResourceActionRequestUsingPOSTParams().WithDepID(strfmt.UUID(deploymentID)).
+				WithResourceID(resourceID).WithActionRequest(&resourceActionRequest))
+			if err != nil {
+				return err
+			}
+			stateChangeFunc := resource.StateChangeConf{
+				Delay:      5 * time.Second,
+				Pending:    []string{models.DeploymentRequestStatusINPROGRESS},
+				Refresh:    diskResizeStatusRefreshFunc(*apiClient, deploymentID),
+				Target:     []string{models.DeploymentRequestStatusSUCCESSFUL},
+				Timeout:    d.Timeout(schema.TimeoutCreate),
+				MinTimeout: 5 * time.Second,
+			}
+
+			_, err = stateChangeFunc.WaitForState()
+			if err != nil {
+				return err
+			}
+			log.Printf("Finished resize of vra_block_device resource with name %s", d.Get("name"))
+		} else {
+			return fmt.Errorf("Resize action is not available for the resource with id %s ", id)
+		}
 	}
-	log.Printf("Finished resize of vra_block_device resource with name %s", d.Get("name"))
 	return nil
 }
 

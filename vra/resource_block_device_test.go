@@ -22,7 +22,7 @@ func TestAccVRABlockDeviceBasic(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckBlockDevice(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckVRAMachineDestroy,
+		CheckDestroy: testAccCheckVRABlockDeviceDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCheckVRABlockDeviceConfig(rInt),

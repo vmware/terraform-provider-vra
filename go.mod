@@ -3,7 +3,6 @@ module github.com/vmware/terraform-provider-vra
 require (
 	github.com/go-openapi/runtime v0.19.4
 	github.com/go-openapi/strfmt v0.19.2
-	github.com/google/uuid v1.1.1
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/hashicorp/hil v0.0.0-20190212132231-97b3a9cdfa93 // indirect
 	github.com/hashicorp/terraform-plugin-sdk v1.1.0
