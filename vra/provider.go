@@ -39,6 +39,7 @@ func Provider() *schema.Provider {
 		},
 
 		DataSourcesMap: map[string]*schema.Resource{
+			"vra_blueprint":             dataSourceBlueprint(),
 			"vra_catalog_item":          dataSourceCatalogItem(),
 			"vra_cloud_account_aws":     dataSourceCloudAccountAWS(),
 			"vra_cloud_account_azure":   dataSourceCloudAccountAzure(),
@@ -64,6 +65,7 @@ func Provider() *schema.Provider {
 
 		ResourcesMap: map[string]*schema.Resource{
 			"vra_block_device":          resourceBlockDevice(),
+			"vra_blueprint":             resourceBlueprint(),
 			"vra_cloud_account_aws":     resourceCloudAccountAWS(),
 			"vra_cloud_account_azure":   resourceCloudAccountAzure(),
 			"vra_cloud_account_gcp":     resourceCloudAccountGCP(),
