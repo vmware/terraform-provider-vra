@@ -295,8 +295,7 @@ func resizeDisk(d *schema.ResourceData, apiClient *client.MulticloudIaaS, id str
 	deploymentResources := depResp.Payload.Resources
 	var resourceID strfmt.UUID
 	for _, resource := range deploymentResources {
-		propertiesMap := make(map[string]interface{})
-		propertiesMap = resource.Properties.(map[string]interface{})
+		propertiesMap := resource.Properties.(map[string]interface{})
 		// The block device id in the state file should match with the resource id
 		// in the deployment resource API response
 		if propertiesMap["resourceId"] == id {
@@ -307,7 +306,7 @@ func resizeDisk(d *schema.ResourceData, apiClient *client.MulticloudIaaS, id str
 	// Get the resource actions ava
 	resourceActions, err := apiClient.DeploymentActions.GetResourceActionsUsingGET(deployment_actions.
 		NewGetResourceActionsUsingGETParams().WithDepID(strfmt.UUID(deploymentID)).
-		WithResourceID(strfmt.UUID(resourceID)))
+		WithResourceID(resourceID))
 	if err != nil {
 		return err
 	}
