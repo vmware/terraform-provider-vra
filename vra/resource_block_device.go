@@ -257,7 +257,10 @@ func resourceBlockDeviceUpdate(d *schema.ResourceData, m interface{}) error {
 
 	id := d.Id()
 	if d.HasChange("capacity_in_gb") {
-		resizeDisk(d, apiClient, id)
+		err := resizeDisk(d, apiClient, id)
+		if err != nil {
+			return err
+		}
 	}
 
 	log.Printf("Finished updating vra_block_device resource with name %s", d.Get("name"))
