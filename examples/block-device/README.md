@@ -37,9 +37,10 @@ To create a project, here is an example
 
 * Setup [project](../project/README.md)
 
-To create a deployment through blueprint or a catalog item, here is an example
+To create a machine, here is an example
 
-* Setup [deployment](../deployment/README.md)
+* Setup [project](../machine/README.md)
+
 
 Once the information is added to `terraform.tfvars`, the image profile, flavor profile and machine can be created via:
 

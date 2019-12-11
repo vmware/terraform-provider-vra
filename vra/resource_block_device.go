@@ -88,7 +88,7 @@ func resourceBlockDevice() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"organization_id": &schema.Schema{
+			"org_id": &schema.Schema{
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -97,10 +97,6 @@ func resourceBlockDevice() *schema.Resource {
 				Computed: true,
 			},
 			"links": linksSchema(),
-			"self_link": &schema.Schema{
-				Type:     schema.TypeString,
-				Computed: true,
-			},
 			"status": &schema.Schema{
 				Type:     schema.TypeString,
 				Computed: true,
@@ -233,7 +229,7 @@ func resourceBlockDeviceRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("external_region_id", blockDevice.ExternalRegionID)
 	d.Set("external_zone_id", blockDevice.ExternalZoneID)
 	d.Set("name", blockDevice.Name)
-	d.Set("organization_id", blockDevice.OrganizationID)
+	d.Set("org_id", blockDevice.OrgID)
 	d.Set("owner", blockDevice.Owner)
 	d.Set("status", blockDevice.Status)
 	d.Set("updated_at", blockDevice.UpdatedAt)
