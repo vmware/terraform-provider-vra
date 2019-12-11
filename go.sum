@@ -270,6 +270,8 @@ github.com/vmware/vra-sdk-go v0.2.2 h1:Z6AuLOH8TAG2Ljg6nY25c1UcR3Li30SUG8QzAb8b4
 github.com/vmware/vra-sdk-go v0.2.2/go.mod h1:dqUEePGPUHNYQ/p9DKZM1amqB2WP1uI9JkYvzF+auVo=
 github.com/vmware/vra-sdk-go v0.2.3 h1:oepqRZapum3bfzUAo+o7DYwTp97230f7yLgPu8gBV1s=
 github.com/vmware/vra-sdk-go v0.2.3/go.mod h1:dqUEePGPUHNYQ/p9DKZM1amqB2WP1uI9JkYvzF+auVo=
+github.com/vmware/vra-sdk-go v0.2.4 h1:gIQvcT0XeFqMNX+hurvHWtGiJAEQYopzyilCm20bryg=
+github.com/vmware/vra-sdk-go v0.2.4/go.mod h1:dqUEePGPUHNYQ/p9DKZM1amqB2WP1uI9JkYvzF+auVo=
 github.com/zclconf/go-cty v1.0.0/go.mod h1:xnAOWiHeOqg2nWS62VtQ7pbOu17FtxJNW8RLEih+O3s=
 github.com/zclconf/go-cty v1.1.0 h1:uJwc9HiBOCpoKIObTQaLR+tsEXx1HBHnOsOOpcdhZgw=
 github.com/zclconf/go-cty v1.1.0/go.mod h1:xnAOWiHeOqg2nWS62VtQ7pbOu17FtxJNW8RLEih+O3s=
