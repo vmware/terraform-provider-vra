@@ -271,6 +271,11 @@ func resizeDisk(d *schema.ResourceData, apiClient *client.MulticloudIaaS, id str
 	if err != nil {
 		return err
 	}
+
+	// adding this check for vra on-prem as deployment id is not available
+	if resp.GetPayload().DeploymentID == "" {
+		return fmt.Errorf("Deployment actions are not supported for the resource with name %s", d.Get("name"))
+	}
 	// Get the deployment id associated with the block device
 	deploymentID := resp.GetPayload().DeploymentID
 	// the new disk size
