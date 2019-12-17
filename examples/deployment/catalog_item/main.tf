@@ -24,6 +24,8 @@ resource "vra_deployment" "this" {
   inputs = {
     flavor   = "small"
     image    = "centos"
+    count    = 1
+    flag     = false
   }
 
   expand_resources    = true

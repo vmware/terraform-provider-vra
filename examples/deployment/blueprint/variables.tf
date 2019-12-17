@@ -7,7 +7,7 @@ variable "refresh_token" {
 variable "project_name" {
 }
 
-variable "blueprint_id" {
+variable "blueprint_name" {
 }
 
 variable "blueprint_version" {

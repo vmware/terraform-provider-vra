@@ -18,6 +18,9 @@ func resourceBlueprint() *schema.Resource {
 		Read:   resourceBlueprintRead,
 		Update: resourceBlueprintUpdate,
 		Delete: resourceBlueprintDelete,
+		Importer: &schema.ResourceImporter{
+			State: schema.ImportStatePassthrough,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"content": {

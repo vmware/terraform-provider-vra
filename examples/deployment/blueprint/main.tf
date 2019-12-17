@@ -7,11 +7,15 @@ data "vra_project" "this" {
   name = var.project_name
 }
 
+data "vra_blueprint" "this" {
+  name = var.blueprint_name
+}
+
 resource "vra_deployment" "this" {
   name        = var.deployment_name
-  description = "terraform test deployment"
+  description = "Deployed from vRA provider for Terraform."
 
-  blueprint_id      = var.blueprint_id
+  blueprint_id      = data.vra_blueprint.this.id
   blueprint_version = var.blueprint_version
   project_id        = data.vra_project.this.id
 
