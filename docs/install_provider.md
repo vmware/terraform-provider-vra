@@ -1,6 +1,6 @@
 # Installing the vRA Terraform provider
 
-The provider is currently considered to be a third-party provider and thus won't be automatically downloaded by ```terraform```, which means you have to either install or build it yourself. The provider is made available in a pre-built binary version via the GitHub repository in the form of releases. This document will walk you through installing a released version of the provider. _(The following snippets will use v0.1.4, but you will need to update the version as necessary)_
+The provider is currently considered to be a third-party provider and thus won't be automatically downloaded by ```terraform```, which means you have to either install or build it yourself. The provider is made available in a pre-built binary version via the GitHub repository in the form of releases. This document will walk you through installing a released version of the provider. _(The following snippets will use v0.1.7, but you will need to update the version as necessary)_
 
 ## Downloading the provider
 
@@ -21,13 +21,13 @@ mkdir -p ~/.terraform.d/plugins
 Download the plugin (via a browser or command line)
 
  ```bash
- wget -q https://github.com/vmware/terraform-provider-vra/releases/download/v0.1.4/terraform-provider-vra-linux_amd64-v0.1.4.tgz
+ wget -q https://github.com/vmware/terraform-provider-vra/releases/download/v0.1.7/terraform-provider-vra-linux_amd64-v0.1.7.tgz
  ```
 
 Untar/unzip the plugin
 
 ```shell
-tar xvf terraform-provider-vra-linux_amd64-v0.1.4.tgz
+tar xvf terraform-provider-vra-linux_amd64-v0.1.7.tgz
 ```
 
 Move the extracted plugin to the terraform plugins directory
@@ -57,17 +57,17 @@ mkdir %APPDATA%\terraform.d\plugins
 Download the plugin (via a browser or command line)
 
  ```powershell
- wget https://github.com/vmware/terraform-provider-vra/releases/download/v0.1.4/terraform-provider-vra-linux_amd64-v0.1.4.tgz -outfile terraform-provider-vra-linux_amd64-v0.1.4.tgz
+ wget https://github.com/vmware/terraform-provider-vra/releases/download/v0.1.7/tterraform-provider-vra-windows_amd64-v0.1.7.tgz -outfile terraform-provider-vra-windows_amd64-v0.1.7.tgz
  ```
 
 Untar/unzip the plugin _(Depending on your setup this may require two steps)_
 
 ```powershell
 #using 7zip to unzip
-7z x .\terraform-provider-vra-windows_amd64-v0.1.4.tgz
+7z x .\terraform-provider-vra-windows_amd64-v0.1.7.tgz
 
 # then untar resulting file
-tar xvf terraform-provider-vra-windows_amd64-v0.1.4.tar
+tar xvf terraform-provider-vra-windows_amd64-v0.1.7.tar
 ```
 
 Move the extracted plugin to the terraform plugins directory
