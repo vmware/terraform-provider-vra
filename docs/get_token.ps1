@@ -4,8 +4,27 @@ param(
     [Parameter(HelpMessage= "Username to connect to vRA with")][string]$vRAUser,
     [Parameter(HelpMessage= "Password to connect to vRA with")][string]$vRApassword,
     [Parameter(HelpMessage= "User's Domain connect to vRA with")][string]$vRAdomain,
-    [Parameter(HelpMessage= "vRA/identity server hostname/fqdn")][string]$vRAServer
+    [Parameter(HelpMessage= "vRA/identity server hostname/fqdn")][string]$vRAServer,
+    [Parameter(HelpMessage= "Skip certificate validation")][switch]$SkipCertValidation
 )
+
+if ($SkipCertValidation) {
+    add-type @"
+      using System.Net;
+      using System.Security.Cryptography.X509Certificates;
+      public class TrustAllCertsPolicy : ICertificatePolicy {
+        public bool CheckValidationResult(
+          ServicePoint srvPoint, X509Certificate certificate,
+          WebRequest request, int certificateProblem) {
+          return true;
+        }
+      }
+"@
+
+    $AllProtocols = [System.Net.SecurityProtocolType]'Ssl3,Tls,Tls11,Tls12'
+    [System.Net.ServicePointManager]::SecurityProtocol = $AllProtocols
+    [System.Net.ServicePointManager]::CertificatePolicy = New-Object TrustAllCertsPolicy
+}
 
 if ($PSBoundParameters.Keys.Contains("vRAUser")) { 
     Write-Host "Found value for vRAUser param: $vRAUser"
@@ -39,11 +58,13 @@ if ($vradomain.length -gt 1) {
 }
 
 $resp = Invoke-RestMethod -Method POST -ContentType "application/json" -URI $loginurl -Body $body
-Write-Host "`n---------Refresh Token---------"
-$resp.refresh_token
-Write-Host "-------------------------------`n"
 
-#Set ENV Variables for those wanting to use them for the Terraform Provider
-$ENV:VRA_URL="https://$vRAServer"
-$ENV:VRA_REFRESH_TOKEN=$resp.refresh_token
+if ($?) {
+    Write-Host "`n---------Refresh Token---------"
+    $resp.refresh_token
+    Write-Host "-------------------------------`n"
 
+    #Set ENV Variables for those wanting to use them for the Terraform Provider
+    $ENV:VRA_URL="https://$vRAServer"
+    $ENV:VRA_REFRESH_TOKEN=$resp.refresh_token
+}
