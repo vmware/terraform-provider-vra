@@ -54,7 +54,12 @@ func dataSourceRegionEnumerationRead(d *schema.ResourceData, meta interface{}) e
 	}
 
 	d.Set("regions", getResp.Payload.ExternalRegionIds)
-	d.SetId(d.Get("dcid").(string))
+	// In case where enumerating using vRA9 on-prem the dcid is empty..so use hostname of vcenter to set ID
+	if d.Get("dcid").(string) != "" {
+		d.SetId(d.Get("dcid").(string))
+	} else {
+		d.SetId(d.Get("hostname").(string))
+	}
 
 	return nil
 }
