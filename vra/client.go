@@ -47,7 +47,7 @@ func getToken(url, refreshToken string, insecure bool) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	transport := httptransport.New(parsedURL.Host, "", nil)
+	transport := httptransport.New(parsedURL.Host, parsedURL.Path, nil)
 	newTransport, err := httptransport.TLSTransport(httptransport.TLSClientOptions{
 		InsecureSkipVerify: insecure,
 	})
@@ -106,7 +106,7 @@ func getAPIClient(url string, token string, insecure bool) (*client.MulticloudIa
 	if err != nil {
 		return nil, err
 	}
-	transport := httptransport.New(parsedURL.Host, "", nil)
+	transport := httptransport.New(parsedURL.Host, parsedURL.Path, nil)
 	transport.DefaultAuthentication = httptransport.APIKeyAuth("Authorization", "header", "Bearer "+token)
 	newTransport, err := httptransport.TLSTransport(httptransport.TLSClientOptions{
 		InsecureSkipVerify: insecure,
