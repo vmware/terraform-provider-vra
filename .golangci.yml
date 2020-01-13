@@ -12,6 +12,7 @@ linters:
     - errcheck
     # - gofmt
     - goimports
+    - golint
     - gosimple
     - govet
     - ineffassign

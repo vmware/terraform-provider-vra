@@ -115,8 +115,8 @@ func dataSourceCatalogItemRead(d *schema.ResourceData, meta interface{}) error {
 		d.Set("type", flattenResourceReference(catalogItem.Type))
 		d.Set("versions", flattenCatalogItemVersions(versions))
 
-		schemaJson, _ := json.Marshal(catalogItem.Schema)
-		d.Set("schema", string(schemaJson))
+		schemaJSON, _ := json.Marshal(catalogItem.Schema)
+		d.Set("schema", string(schemaJSON))
 	}
 
 	for _, catalogItem := range getItemsResp.Payload.Content {

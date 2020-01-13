@@ -173,7 +173,7 @@ func testAccCheckVRADeploymentDuplicateConfig(rInt int) string {
 
 func testAccCheckVRADeploymentBlueprintConfig(rInt int) string {
 	// Need valid details since this is creating a real deployment
-	blueprintId := os.Getenv("VRA_BLUEPRINT_ID")
+	blueprintID := os.Getenv("VRA_BLUEPRINT_ID")
 	blueprintVersion := os.Getenv("VRA_BLUEPRINT_VERSION")
 	projectName := os.Getenv("VRA_PROJECT_NAME")
 
@@ -189,5 +189,5 @@ func testAccCheckVRADeploymentBlueprintConfig(rInt int) string {
 	  blueprint_id = "%s"
 	  blueprint_version = "%s"
 	  project_id = data.vra_project.this.id
-	}`, projectName, rInt, blueprintId, blueprintVersion)
+	}`, projectName, rInt, blueprintID, blueprintVersion)
 }

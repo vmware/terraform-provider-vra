@@ -184,9 +184,9 @@ func resourceBlueprintRead(d *schema.ResourceData, m interface{}) error {
 	apiClient := m.(*Client).apiClient
 
 	id := d.Id()
-	bpUuid := strfmt.UUID(id)
+	bpUUID := strfmt.UUID(id)
 
-	resp, err := apiClient.Blueprint.GetBlueprintUsingGET1(blueprint.NewGetBlueprintUsingGET1Params().WithBlueprintID(bpUuid))
+	resp, err := apiClient.Blueprint.GetBlueprintUsingGET1(blueprint.NewGetBlueprintUsingGET1Params().WithBlueprintID(bpUUID))
 
 	if err != nil {
 		switch err.(type) {
@@ -234,7 +234,7 @@ func resourceBlueprintUpdate(d *schema.ResourceData, m interface{}) error {
 	apiClient := m.(*Client).apiClient
 
 	id := d.Id()
-	bpUuid := strfmt.UUID(id)
+	bpUUID := strfmt.UUID(id)
 	blueprintSpecification := models.Blueprint{
 		Content:         d.Get("content").(string),
 		Description:     d.Get("description").(string),
@@ -244,7 +244,7 @@ func resourceBlueprintUpdate(d *schema.ResourceData, m interface{}) error {
 	}
 
 	_, err := apiClient.Blueprint.UpdateBlueprintUsingPUT1(
-		blueprint.NewUpdateBlueprintUsingPUT1Params().WithBlueprintID(bpUuid).WithBlueprint(&blueprintSpecification))
+		blueprint.NewUpdateBlueprintUsingPUT1Params().WithBlueprintID(bpUUID).WithBlueprint(&blueprintSpecification))
 
 	if err != nil {
 		return err
@@ -259,9 +259,9 @@ func resourceBlueprintDelete(d *schema.ResourceData, m interface{}) error {
 	apiClient := m.(*Client).apiClient
 
 	id := d.Id()
-	bpUuid := strfmt.UUID(id)
+	bpUUID := strfmt.UUID(id)
 	_, err := apiClient.Blueprint.DeleteBlueprintUsingDELETE1(
-		blueprint.NewDeleteBlueprintUsingDELETE1Params().WithBlueprintID(bpUuid))
+		blueprint.NewDeleteBlueprintUsingDELETE1Params().WithBlueprintID(bpUUID))
 	if err != nil {
 		return err
 	}

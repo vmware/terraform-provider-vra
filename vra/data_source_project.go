@@ -63,23 +63,23 @@ func dataSourceProjectRead(d *schema.ResourceData, meta interface{}) error {
 
 		setFields(getResp.GetPayload())
 		return nil
-	} else {
-		filter := fmt.Sprintf("name eq '%s'", name)
-		getResp, err := apiClient.Project.GetProjects(project.NewGetProjectsParams().WithDollarFilter(withString(filter)))
-
-		if err != nil {
-			return err
-		}
-
-		projects := getResp.GetPayload()
-		if len(projects.Content) > 1 {
-			return fmt.Errorf("vra_project must filter to only one project")
-		}
-		if len(projects.Content) == 0 {
-			return fmt.Errorf("project %s not found", name)
-		}
-
-		setFields(projects.Content[0])
-		return nil
 	}
+
+	filter := fmt.Sprintf("name eq '%s'", name)
+	getResp, err := apiClient.Project.GetProjects(project.NewGetProjectsParams().WithDollarFilter(withString(filter)))
+
+	if err != nil {
+		return err
+	}
+
+	projects := getResp.GetPayload()
+	if len(projects.Content) > 1 {
+		return fmt.Errorf("vra_project must filter to only one project")
+	}
+	if len(projects.Content) == 0 {
+		return fmt.Errorf("project %s not found", name)
+	}
+
+	setFields(projects.Content[0])
+	return nil
 }

@@ -107,8 +107,8 @@ func testAccCheckVRACloudAccountGCPDestroy(s *terraform.State) error {
 func testAccCheckVRACloudAccountGCPConfig(rInt int) string {
 	// Need valid credentials since this is creating a real cloud account
 	clientEmail := os.Getenv("VRA_GCP_CLIENT_EMAIL")
-	projectId := os.Getenv("VRA_GCP_PROJECT_ID")
-	privateKeyId := os.Getenv("VRA_GCP_PRIVATE_KEY_ID")
+	projectID := os.Getenv("VRA_GCP_PROJECT_ID")
+	privateKeyID := os.Getenv("VRA_GCP_PRIVATE_KEY_ID")
 	privateKey := os.Getenv("VRA_GCP_PRIVATE_KEY")
 	return fmt.Sprintf(`
 resource "vra_cloud_account_gcp" "my-cloud-account" {
@@ -127,14 +127,14 @@ resource "vra_cloud_account_gcp" "my-cloud-account" {
 		key = "where"
 		value = "waldo"
 	}
- }`, rInt, clientEmail, projectId, privateKeyId, privateKey)
+ }`, rInt, clientEmail, projectID, privateKeyID, privateKey)
 }
 
 func testAccCheckVRACloudAccountGCPUpdateConfig(rInt int) string {
 	// Need valid credentials since this is creating a real cloud account
 	clientEmail := os.Getenv("VRA_GCP_CLIENT_EMAIL")
-	projectId := os.Getenv("VRA_GCP_PROJECT_ID")
-	privateKeyId := os.Getenv("VRA_GCP_PRIVATE_KEY_ID")
+	projectID := os.Getenv("VRA_GCP_PROJECT_ID")
+	privateKeyID := os.Getenv("VRA_GCP_PRIVATE_KEY_ID")
 	privateKey := os.Getenv("VRA_GCP_PRIVATE_KEY")
 	return fmt.Sprintf(`
 resource "vra_cloud_account_gcp" "my-cloud-account" {
@@ -145,14 +145,14 @@ resource "vra_cloud_account_gcp" "my-cloud-account" {
 	private_key_id = "%s"
 	private_key = "%s"
 	regions = ["us-west2"]
- }`, rInt, clientEmail, projectId, privateKeyId, privateKey)
+ }`, rInt, clientEmail, projectID, privateKeyID, privateKey)
 }
 
 func testAccCheckVRACloudAccountGCPConfigDuplicateRegion(rInt int) string {
 	// Need valid credentials since this is creating a real cloud account
 	clientEmail := os.Getenv("VRA_GCP_CLIENT_EMAIL")
-	projectId := os.Getenv("VRA_GCP_PROJECT_ID")
-	privateKeyId := os.Getenv("VRA_GCP_PRIVATE_KEY_ID")
+	projectID := os.Getenv("VRA_GCP_PROJECT_ID")
+	privateKeyID := os.Getenv("VRA_GCP_PRIVATE_KEY_ID")
 	privateKey := os.Getenv("VRA_GCP_PRIVATE_KEY")
 	return fmt.Sprintf(`
 resource "vra_cloud_account_gcp" "my-cloud-account" {
@@ -163,5 +163,5 @@ resource "vra_cloud_account_gcp" "my-cloud-account" {
 	private_key_id = "%s"
 	private_key = "%s"
 	regions = ["us-west2", "us-west2"]
- }`, rInt, clientEmail, projectId, privateKeyId, privateKey)
+ }`, rInt, clientEmail, projectID, privateKeyID, privateKey)
 }
