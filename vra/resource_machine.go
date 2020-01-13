@@ -354,9 +354,9 @@ func attachAndDetachDisks(d *schema.ResourceData, apiClient *client.MulticloudIa
 
 	// detach the disks one by one
 	for i, diskToDetach := range disksToDetach {
-		diskId := diskToDetach["block_device_id"].(string)
-		log.Printf("Detaching the disk %v of %v (disk id: %v) from vra_machine resource %v", i+1, len(disksToDetach), diskId, d.Get("name"))
-		deleteMachineDiskAccepted, deleteMachineDiskNoContent, err := apiClient.Disk.DeleteMachineDisk(disk.NewDeleteMachineDiskParams().WithID(id).WithId1(diskId))
+		diskID := diskToDetach["block_device_id"].(string)
+		log.Printf("Detaching the disk %v of %v (disk id: %v) from vra_machine resource %v", i+1, len(disksToDetach), diskID, d.Get("name"))
+		deleteMachineDiskAccepted, deleteMachineDiskNoContent, err := apiClient.Disk.DeleteMachineDisk(disk.NewDeleteMachineDiskParams().WithID(id).WithId1(diskID))
 
 		if err != nil {
 			return err
@@ -398,13 +398,13 @@ func attachAndDetachDisks(d *schema.ResourceData, apiClient *client.MulticloudIa
 
 	// attach the disks one by one
 	for i, diskToAttach := range disksToAttach {
-		diskId := diskToAttach["block_device_id"].(string)
-		log.Printf("Attaching the disk %v of %v (disk id: %v) to vra_machine resource %v", i+1, len(diskToAttach), diskId, d.Get("name"))
+		diskID := diskToAttach["block_device_id"].(string)
+		log.Printf("Attaching the disk %v of %v (disk id: %v) to vra_machine resource %v", i+1, len(diskToAttach), diskID, d.Get("name"))
 
 		// attach the disk if it's not already attached to machine
-		if index, _ := indexOf(diskId, diskIds); index == -1 {
+		if index, _ := indexOf(diskID, diskIds); index == -1 {
 			diskAttachmentSpecification := models.DiskAttachmentSpecification{
-				BlockDeviceID: withString(diskId),
+				BlockDeviceID: withString(diskID),
 				Description:   diskToAttach["description"].(string),
 				Name:          diskToAttach["name"].(string),
 			}
@@ -429,7 +429,7 @@ func attachAndDetachDisks(d *schema.ResourceData, apiClient *client.MulticloudIa
 				return e
 			}
 		} else {
-			log.Printf("disk %v is already attached to machine %v, moving on to the next disk to attach", diskId, id)
+			log.Printf("disk %v is already attached to machine %v, moving on to the next disk to attach", diskID, id)
 		}
 
 	}
@@ -468,14 +468,14 @@ func disksDifference(a, b []interface{}) (diff []map[string]interface{}) {
 
 	for _, item := range b {
 		diskConfig := item.(map[string]interface{})
-		blockDeviceId := diskConfig["block_device_id"].(string)
-		m[blockDeviceId] = true
+		blockDeviceID := diskConfig["block_device_id"].(string)
+		m[blockDeviceID] = true
 	}
 
 	for _, item := range a {
 		diskConfig := item.(map[string]interface{})
-		blockDeviceId := diskConfig["block_device_id"].(string)
-		if _, ok := m[blockDeviceId]; !ok {
+		blockDeviceID := diskConfig["block_device_id"].(string)
+		if _, ok := m[blockDeviceID]; !ok {
 			diff = append(diff, diskConfig)
 		}
 	}

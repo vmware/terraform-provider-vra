@@ -43,9 +43,9 @@ func TestAccDataSourceVRACloudAccountGCP(t *testing.T) {
 func testAccDataSourceVRACloudAccountGCPBase(rInt int) string {
 	// Need valid credentials since this is creating a real cloud account
 	clientEmail := os.Getenv("VRA_GCP_CLIENT_EMAIL")
-	privateKeyId := os.Getenv("VRA_GCP_PRIVATE_KEY_ID")
+	privateKeyID := os.Getenv("VRA_GCP_PRIVATE_KEY_ID")
 	privateKey := os.Getenv("VRA_GCP_PRIVATE_KEY")
-	projectId := os.Getenv("VRA_GCP_PROJECT_ID")
+	projectID := os.Getenv("VRA_GCP_PROJECT_ID")
 	return fmt.Sprintf(`
 resource "vra_cloud_account_gcp" "my-cloud-account" {
 	name = "my-cloud-account-%d"
@@ -63,7 +63,7 @@ resource "vra_cloud_account_gcp" "my-cloud-account" {
 		key = "where"
 		value = "waldo"
 	}
- }`, rInt, clientEmail, privateKeyId, privateKey, projectId)
+ }`, rInt, clientEmail, privateKeyID, privateKey, projectID)
 }
 
 func testAccDataSourceVRACloudAccountGCPNotFound(rInt int) string {

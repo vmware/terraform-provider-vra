@@ -35,7 +35,7 @@ func TestAccDataSourceVRANetworkProfile(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccDataSourceVRANetworkProfileRegionIdFilter(rInt),
+				Config: testAccDataSourceVRANetworkProfileRegionIDFilter(rInt),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrPair(resourceName1, "id", dataSourceName1, "id"),
 					resource.TestCheckResourceAttrPair(resourceName1, "description", dataSourceName1, "description"),
@@ -45,7 +45,7 @@ func TestAccDataSourceVRANetworkProfile(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccDataSourceVRANetworkProfileById(rInt),
+				Config: testAccDataSourceVRANetworkProfileByID(rInt),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrPair(resourceName1, "id", dataSourceName1, "id"),
 					resource.TestCheckResourceAttrPair(resourceName1, "description", dataSourceName1, "description"),
@@ -72,14 +72,14 @@ func testAccDataSourceVRANetworkProfileNameFilter(rInt int) string {
 	}`)
 }
 
-func testAccDataSourceVRANetworkProfileRegionIdFilter(rInt int) string {
+func testAccDataSourceVRANetworkProfileRegionIDFilter(rInt int) string {
 	return testAccCheckVRANetworkProfileConfig(rInt) + fmt.Sprintf(`
 	data "vra_network_profile" "this" {
 		filter = "regionId eq '${data.vra_region.this.id}'"
 	}`)
 }
 
-func testAccDataSourceVRANetworkProfileById(rInt int) string {
+func testAccDataSourceVRANetworkProfileByID(rInt int) string {
 	return testAccCheckVRANetworkProfileConfig(rInt) + fmt.Sprintf(`
 	data "vra_network_profile" "this" {
 		id = vra_network_profile.this.id

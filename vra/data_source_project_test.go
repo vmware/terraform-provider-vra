@@ -32,7 +32,7 @@ func TestAccDataSourceVRAProject(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccDataSourceVRAProjectIdConfig(rInt),
+				Config: testAccDataSourceVRAProjectIDConfig(rInt),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrPair(resourceName1, "description", dataSourceName2, "description"),
 					resource.TestCheckResourceAttrPair(resourceName1, "id", dataSourceName2, "id"),
@@ -66,7 +66,7 @@ func testAccDataSourceVRAProjectOneConfig(rInt int) string {
 		}`
 }
 
-func testAccDataSourceVRAProjectIdConfig(rInt int) string {
+func testAccDataSourceVRAProjectIDConfig(rInt int) string {
 	return testAccDataSourceVRAProject(rInt) + `
 		data "vra_project" "this" {
 			id = "${vra_project.my-project.id}"

@@ -132,25 +132,25 @@ func resourceDeploymentCreate(d *schema.ResourceData, m interface{}) error {
 	log.Printf("Starting to create vra_deployment resource")
 	apiClient := m.(*Client).apiClient
 
-	blueprintId, catalogItemId, blueprintContent := "", "", ""
+	blueprintID, catalogItemID, blueprintContent := "", "", ""
 	if v, ok := d.GetOk("blueprint_id"); ok {
-		blueprintId = v.(string)
+		blueprintID = v.(string)
 	}
 
 	if v, ok := d.GetOk("catalog_item_id"); ok {
-		catalogItemId = v.(string)
+		catalogItemID = v.(string)
 	}
 
 	if v, ok := d.GetOk("blueprint_content"); ok {
 		blueprintContent = v.(string)
 	}
 
-	if blueprintId != "" && catalogItemId != "" {
+	if blueprintID != "" && catalogItemID != "" {
 		return fmt.Errorf("only one of (blueprint_id, catalog_item_id) required")
 	}
 
 	deploymentName := d.Get("name").(string)
-	projectId := d.Get("project_id").(string)
+	projectID := d.Get("project_id").(string)
 
 	getResp, err := apiClient.Deployments.CheckDeploymentNameUsingGET(deployments.NewCheckDeploymentNameUsingGETParams().WithName(deploymentName))
 	log.Printf("getResp: %v, err: %v", getResp, err)
@@ -165,7 +165,7 @@ func resourceDeploymentCreate(d *schema.ResourceData, m interface{}) error {
 	}
 
 	// If catalog_item_id is provided, request deployment with the catalog item
-	if catalogItemId != "" {
+	if catalogItemID != "" {
 		log.Printf("Requesting vra_deployment '%s' from catalog item", d.Get("name"))
 		catalogItemVersion := ""
 		if v, ok := d.GetOk("catalog_item_version"); ok {
@@ -174,12 +174,12 @@ func resourceDeploymentCreate(d *schema.ResourceData, m interface{}) error {
 
 		catalogItemRequest := models.CatalogItemRequest{
 			DeploymentName: deploymentName,
-			ProjectID:      projectId,
+			ProjectID:      projectID,
 			Version:        catalogItemVersion,
 		}
 
 		if v, ok := d.GetOk("inputs"); ok {
-			inputsSchemaMap, err := getCatalogItemSchema(apiClient, catalogItemId, catalogItemVersion)
+			inputsSchemaMap, err := getCatalogItemSchema(apiClient, catalogItemID, catalogItemVersion)
 			if err != nil {
 				return err
 			}
@@ -207,7 +207,7 @@ func resourceDeploymentCreate(d *schema.ResourceData, m interface{}) error {
 
 		log.Printf("[DEBUG] Create deployment: %#v", catalogItemRequest)
 		postOk, err := apiClient.CatalogItems.RequestCatalogItemUsingPOST(
-			catalog_items.NewRequestCatalogItemUsingPOSTParams().WithID(strfmt.UUID(catalogItemId)).
+			catalog_items.NewRequestCatalogItemUsingPOSTParams().WithID(strfmt.UUID(catalogItemID)).
 				WithRequest(&catalogItemRequest))
 
 		if err != nil {
@@ -219,11 +219,11 @@ func resourceDeploymentCreate(d *schema.ResourceData, m interface{}) error {
 	} else {
 		blueprintRequest := models.BlueprintRequest{
 			DeploymentName: deploymentName,
-			ProjectID:      projectId,
+			ProjectID:      projectID,
 		}
 
-		if blueprintId != "" {
-			blueprintRequest.BlueprintID = strfmt.UUID(blueprintId)
+		if blueprintID != "" {
+			blueprintRequest.BlueprintID = strfmt.UUID(blueprintID)
 		} else {
 			// Create empty content in the blueprint
 			blueprintRequest.Content = " "
@@ -257,7 +257,7 @@ func resourceDeploymentCreate(d *schema.ResourceData, m interface{}) error {
 
 		// blueprint_requests service may return either 201 or 202 depending on whether the request is in terminal state vs or in-progress
 		log.Printf("Requested deployment from blueprint. bpRequestCreated=%v, bpRequestAccepted=%v", bpRequestCreated, bpRequestAccepted)
-		deploymentId, status, failureMessage := "", "", ""
+		deploymentID, status, failureMessage := "", "", ""
 		var bpRequest *models.BlueprintRequest
 		if bpRequestAccepted != nil {
 			bpRequest = bpRequestAccepted.GetPayload()
@@ -266,18 +266,18 @@ func resourceDeploymentCreate(d *schema.ResourceData, m interface{}) error {
 		}
 
 		if bpRequest != nil {
-			deploymentId = bpRequest.DeploymentID
+			deploymentID = bpRequest.DeploymentID
 			status = bpRequest.Status
 			failureMessage = bpRequest.FailureMessage
 		}
 
-		if deploymentId != "" {
-			d.SetId(deploymentId)
+		if deploymentID != "" {
+			d.SetId(deploymentID)
 		} else {
 			return fmt.Errorf("failed to request for a deployment. status: %v, message: %v", status, failureMessage)
 		}
 
-		log.Printf("Finished requesting vra_deployment '%s' from blueprint %s", d.Get("name"), blueprintId)
+		log.Printf("Finished requesting vra_deployment '%s' from blueprint %s", d.Get("name"), blueprintID)
 	}
 
 	stateChangeFunc := resource.StateChangeConf{
@@ -289,29 +289,29 @@ func resourceDeploymentCreate(d *schema.ResourceData, m interface{}) error {
 		MinTimeout: 5 * time.Second,
 	}
 
-	deploymentId, err := stateChangeFunc.WaitForState()
+	deploymentID, err := stateChangeFunc.WaitForState()
 	if err != nil {
 		return err
 	}
 
-	d.SetId(deploymentId.(string))
+	d.SetId(deploymentID.(string))
 	log.Printf("Finished to create vra_deployment resource with name %s", d.Get("name"))
 
 	return resourceDeploymentRead(d, m)
 }
 
-func getCatalogItemSchema(apiClient *client.MulticloudIaaS, catalogItemId string, catalogItemVersion string) (map[string]interface{}, error) {
+func getCatalogItemSchema(apiClient *client.MulticloudIaaS, catalogItemID string, catalogItemVersion string) (map[string]interface{}, error) {
 	// Getting the catalog item schema
-	log.Printf("Getting the schema for catalog item: %v version: %v", catalogItemId, catalogItemVersion)
+	log.Printf("Getting the schema for catalog item: %v version: %v", catalogItemID, catalogItemVersion)
 	var catalogItemSchema interface{}
 	if catalogItemVersion == "" {
-		getItemResp, err := apiClient.CatalogItems.GetCatalogItemUsingGET1(catalog_items.NewGetCatalogItemUsingGET1Params().WithID(strfmt.UUID(catalogItemId)))
+		getItemResp, err := apiClient.CatalogItems.GetCatalogItemUsingGET1(catalog_items.NewGetCatalogItemUsingGET1Params().WithID(strfmt.UUID(catalogItemID)))
 		if err != nil {
 			return nil, err
 		}
 		catalogItemSchema = getItemResp.GetPayload().Schema
 	} else {
-		getVersionResp, err := apiClient.CatalogItems.GetVersionByIDUsingGET(catalog_items.NewGetVersionByIDUsingGETParams().WithID(strfmt.UUID(catalogItemId)).WithVersionID(catalogItemVersion))
+		getVersionResp, err := apiClient.CatalogItems.GetVersionByIDUsingGET(catalog_items.NewGetVersionByIDUsingGETParams().WithID(strfmt.UUID(catalogItemID)).WithVersionID(catalogItemVersion))
 		if err != nil {
 			return nil, err
 		}
@@ -321,19 +321,19 @@ func getCatalogItemSchema(apiClient *client.MulticloudIaaS, catalogItemId string
 	return inputsSchemaMap, nil
 }
 
-func getBlueprintSchema(apiClient *client.MulticloudIaaS, blueprintId string, blueprintVersion string) (map[string]models.PropertyDefinition, error) {
+func getBlueprintSchema(apiClient *client.MulticloudIaaS, blueprintID string, blueprintVersion string) (map[string]models.PropertyDefinition, error) {
 	// Getting the blueprint inputs schema
-	log.Printf("Getting the schema for catalog item: %v version: %v", blueprintId, blueprintVersion)
+	log.Printf("Getting the schema for catalog item: %v version: %v", blueprintID, blueprintVersion)
 	var blueprintInputsSchema map[string]models.PropertyDefinition
 	if blueprintVersion == "" {
-		getItemResp, err := apiClient.Blueprint.GetBlueprintInputsSchemaUsingGET1(blueprint.NewGetBlueprintInputsSchemaUsingGET1Params().WithBlueprintID(blueprintId))
+		getItemResp, err := apiClient.Blueprint.GetBlueprintInputsSchemaUsingGET1(blueprint.NewGetBlueprintInputsSchemaUsingGET1Params().WithBlueprintID(blueprintID))
 		if err != nil {
 			return nil, err
 		}
 		blueprintInputsSchema = getItemResp.GetPayload().Properties
 	} else {
 		getVersionResp, err := apiClient.Blueprint.GetBlueprintVersionInputsSchemaUsingGET1(
-			blueprint.NewGetBlueprintVersionInputsSchemaUsingGET1Params().WithBlueprintID(blueprintId).
+			blueprint.NewGetBlueprintVersionInputsSchemaUsingGET1Params().WithBlueprintID(blueprintID).
 				WithVersion(blueprintVersion))
 		if err != nil {
 			return nil, err
@@ -358,8 +358,8 @@ func deploymentCreateStatusRefreshFunc(apiClient client.MulticloudIaaS, id strin
 		case models.DeploymentStatusCREATEINPROGRESS:
 			return [...]string{id}, status, nil
 		case models.DeploymentStatusCREATESUCCESSFUL:
-			deploymentId := ret.Payload.ID
-			return deploymentId.String(), status, nil
+			deploymentID := ret.Payload.ID
+			return deploymentID.String(), status, nil
 		default:
 			return [...]string{id}, ret.Error(), fmt.Errorf("deploymentCreateStatusRefreshFunc: unknown status %v", status)
 		}
@@ -427,16 +427,16 @@ func resourceDeploymentUpdate(d *schema.ResourceData, m interface{}) error {
 	apiClient := m.(*Client).apiClient
 
 	id := d.Id()
-	deploymentUuid := strfmt.UUID(id)
+	deploymentUUID := strfmt.UUID(id)
 	if d.HasChange("name") || d.HasChange("description") {
-		err := updateDeploymentMetadata(d, apiClient, deploymentUuid)
+		err := updateDeploymentMetadata(d, apiClient, deploymentUUID)
 		if err != nil {
 			return err
 		}
 	}
 
 	if d.HasChange("inputs") {
-		err := runDeploymentUpdateAction(d, apiClient, deploymentUuid)
+		err := runDeploymentUpdateAction(d, apiClient, deploymentUUID)
 		if err != nil {
 			return err
 		}
@@ -447,7 +447,7 @@ func resourceDeploymentUpdate(d *schema.ResourceData, m interface{}) error {
 	return resourceDeploymentRead(d, m)
 }
 
-func updateDeploymentMetadata(d *schema.ResourceData, apiClient *client.MulticloudIaaS, deploymentUuid strfmt.UUID) error {
+func updateDeploymentMetadata(d *schema.ResourceData, apiClient *client.MulticloudIaaS, deploymentUUID strfmt.UUID) error {
 	log.Printf("Starting to update deployment name and description")
 	description := d.Get("description").(string)
 	name := d.Get("name").(string)
@@ -459,7 +459,7 @@ func updateDeploymentMetadata(d *schema.ResourceData, apiClient *client.Multiclo
 
 	log.Printf("[DEBUG] update deployment: %#v", updateDeploymentSpecification)
 	_, err := apiClient.Deployments.PatchDeploymentUsingPATCH(
-		deployments.NewPatchDeploymentUsingPATCHParams().WithDepID(deploymentUuid).WithUpdate(&updateDeploymentSpecification))
+		deployments.NewPatchDeploymentUsingPATCHParams().WithDepID(deploymentUUID).WithUpdate(&updateDeploymentSpecification))
 	if err != nil {
 		return err
 	}
@@ -470,22 +470,22 @@ func updateDeploymentMetadata(d *schema.ResourceData, apiClient *client.Multiclo
 	return nil
 }
 
-func runDeploymentUpdateAction(d *schema.ResourceData, apiClient *client.MulticloudIaaS, deploymentUuid strfmt.UUID) error {
+func runDeploymentUpdateAction(d *schema.ResourceData, apiClient *client.MulticloudIaaS, deploymentUUID strfmt.UUID) error {
 	log.Printf("Noticed changes to inputs. Starting to update deployment with inputs")
 	// Get the deployment actions
 	deploymentActions, err := apiClient.DeploymentActions.GetDeploymentActionsUsingGET(deployment_actions.
-		NewGetDeploymentActionsUsingGETParams().WithDepID(deploymentUuid))
+		NewGetDeploymentActionsUsingGETParams().WithDepID(deploymentUUID))
 	if err != nil {
 		return err
 	}
 
 	updateAvailable := false
-	actionId := ""
+	actionID := ""
 	for _, action := range deploymentActions.Payload {
 		if strings.Contains(strings.ToLower(action.ID), strings.ToLower("Update")) {
 			// Update action is available on the deployment
 			updateAvailable = true
-			actionId = action.ID
+			actionID = action.ID
 			break
 		}
 	}
@@ -495,17 +495,17 @@ func runDeploymentUpdateAction(d *schema.ResourceData, apiClient *client.Multicl
 		log.Printf("Update action is not available on the vra_deployment %s, hence new inputs are not applied", name)
 	} else {
 		var inputs = make(map[string]interface{})
-		blueprintId, catalogItemId := "", ""
+		blueprintID, catalogItemID := "", ""
 		if v, ok := d.GetOk("catalog_item_id"); ok {
-			catalogItemId = v.(string)
+			catalogItemID = v.(string)
 		}
 
 		if v, ok := d.GetOk("blueprint_id"); ok {
-			blueprintId = v.(string)
+			blueprintID = v.(string)
 		}
 
 		// If catalog_item_id is provided, get the catalog item schema deployment with the catalog item
-		if catalogItemId != "" {
+		if catalogItemID != "" {
 			catalogItemVersion := ""
 			if v, ok := d.GetOk("catalog_item_version"); ok {
 				catalogItemVersion = v.(string)
@@ -514,7 +514,7 @@ func runDeploymentUpdateAction(d *schema.ResourceData, apiClient *client.Multicl
 			if v, ok := d.GetOk("inputs"); ok {
 				// If the inputs are provided, get the schema from catalog item to convert the provided input values
 				// to the type defined in the schema.
-				inputsSchemaMap, err := getCatalogItemSchema(apiClient, catalogItemId, catalogItemVersion)
+				inputsSchemaMap, err := getCatalogItemSchema(apiClient, catalogItemID, catalogItemVersion)
 				if err != nil {
 					return err
 				}
@@ -531,7 +531,7 @@ func runDeploymentUpdateAction(d *schema.ResourceData, apiClient *client.Multicl
 					return err
 				}
 			}
-		} else if blueprintId != "" {
+		} else if blueprintID != "" {
 			blueprintVersion := ""
 			if v, ok := d.GetOk("blueprint_version"); ok {
 				blueprintVersion = v.(string)
@@ -540,7 +540,7 @@ func runDeploymentUpdateAction(d *schema.ResourceData, apiClient *client.Multicl
 			if v, ok := d.GetOk("inputs"); ok {
 				// If the inputs are provided, get the schema from blueprint to convert the provided input values
 				// to the type defined in the schema.
-				inputsSchemaMap, err := getBlueprintSchema(apiClient, blueprintId, blueprintVersion)
+				inputsSchemaMap, err := getBlueprintSchema(apiClient, blueprintID, blueprintVersion)
 				if err != nil {
 					return err
 				}
@@ -560,7 +560,7 @@ func runDeploymentUpdateAction(d *schema.ResourceData, apiClient *client.Multicl
 		}
 
 		reason := "Updated deployment inputs from vRA provider for Terraform."
-		err := runAction(d, apiClient, deploymentUuid, actionId, inputs, reason)
+		err := runAction(d, apiClient, deploymentUUID, actionID, inputs, reason)
 		if err != nil {
 			return err
 		}
@@ -617,26 +617,26 @@ func getInputTypesMapFromBlueprintInputsSchema(schema map[string]models.Property
 	return inputTypesMap, nil
 }
 
-func runAction(d *schema.ResourceData, apiClient *client.MulticloudIaaS, deploymentUuid strfmt.UUID, actionId string, inputs map[string]interface{}, reason string) error {
+func runAction(d *schema.ResourceData, apiClient *client.MulticloudIaaS, deploymentUUID strfmt.UUID, actionID string, inputs map[string]interface{}, reason string) error {
 	resourceActionRequest := models.ResourceActionRequest{
-		ActionID: actionId,
+		ActionID: actionID,
 		Reason:   reason,
 		Inputs:   inputs,
 	}
 
 	resp, err := apiClient.DeploymentActions.SubmitDeploymentActionRequestUsingPOST(
-		deployment_actions.NewSubmitDeploymentActionRequestUsingPOSTParams().WithDepID(deploymentUuid).
+		deployment_actions.NewSubmitDeploymentActionRequestUsingPOSTParams().WithDepID(deploymentUUID).
 			WithActionRequest(&resourceActionRequest))
 	if err != nil {
 		return err
 	}
 
-	requestId := resp.GetPayload().ID
+	requestID := resp.GetPayload().ID
 
 	stateChangeFunc := resource.StateChangeConf{
 		Delay:      5 * time.Second,
 		Pending:    []string{models.DeploymentRequestStatusPENDING, models.DeploymentRequestStatusINPROGRESS},
-		Refresh:    deploymentActionStatusRefreshFunc(*apiClient, deploymentUuid, requestId),
+		Refresh:    deploymentActionStatusRefreshFunc(*apiClient, deploymentUUID, requestID),
 		Target:     []string{models.DeploymentRequestStatusSUCCESSFUL},
 		Timeout:    d.Timeout(schema.TimeoutCreate),
 		MinTimeout: 5 * time.Second,
@@ -648,10 +648,10 @@ func runAction(d *schema.ResourceData, apiClient *client.MulticloudIaaS, deploym
 	return nil
 }
 
-func deploymentActionStatusRefreshFunc(apiClient client.MulticloudIaaS, deploymentUuid strfmt.UUID, requestId strfmt.UUID) resource.StateRefreshFunc {
+func deploymentActionStatusRefreshFunc(apiClient client.MulticloudIaaS, deploymentUUID strfmt.UUID, requestID strfmt.UUID) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		ret, err := apiClient.Deployments.GetDeploymentByIDUsingGET(
-			deployments.NewGetDeploymentByIDUsingGETParams().WithDepID(deploymentUuid).
+			deployments.NewGetDeploymentByIDUsingGETParams().WithDepID(deploymentUUID).
 				WithExpandLastRequest(withBool(true)))
 		if err != nil {
 			return "", models.DeploymentRequestStatusFAILED, err
@@ -660,14 +660,14 @@ func deploymentActionStatusRefreshFunc(apiClient client.MulticloudIaaS, deployme
 		status := ret.Payload.LastRequest.Status
 		switch status {
 		case models.DeploymentRequestStatusPENDING, models.DeploymentRequestStatusINPROGRESS:
-			return [...]string{deploymentUuid.String()}, status, nil
+			return [...]string{deploymentUUID.String()}, status, nil
 		case models.DeploymentRequestStatusFAILED:
 			return []string{""}, status, fmt.Errorf(ret.Error())
 		case models.DeploymentRequestStatusSUCCESSFUL:
 			deploymentID := ret.Payload.ID
 			return deploymentID.String(), status, nil
 		default:
-			return [...]string{deploymentUuid.String()}, ret.Error(), fmt.Errorf("deploymentActionStatusRefreshFunc: unknown status %v", status)
+			return [...]string{deploymentUUID.String()}, ret.Error(), fmt.Errorf("deploymentActionStatusRefreshFunc: unknown status %v", status)
 		}
 	}
 }

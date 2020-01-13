@@ -153,7 +153,7 @@ func dataSourceBlueprintRead(d *schema.ResourceData, meta interface{}) error {
 
 	id, idOk := d.GetOk("id")
 	name, nameOk := d.GetOk("name")
-	projectId, projectIdOk := d.GetOk("project_id")
+	projectID, projectIDOk := d.GetOk("project_id")
 
 	if !idOk && !nameOk {
 		return fmt.Errorf("one of id or name must be assigned")
@@ -163,8 +163,8 @@ func dataSourceBlueprintRead(d *schema.ResourceData, meta interface{}) error {
 	var err error
 	projects := make([]string, 1)
 
-	if projectIdOk {
-		projects = append(projects, projectId.(string))
+	if projectIDOk {
+		projects = append(projects, projectID.(string))
 		resp, err = apiClient.Blueprint.ListBlueprintsUsingGET1(
 			blueprint.NewListBlueprintsUsingGET1Params().WithName(withString(name.(string))).WithProjects(projects))
 	} else {

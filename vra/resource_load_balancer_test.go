@@ -115,7 +115,7 @@ func testAccCheckVRALoadBalancerDestroy(s *terraform.State) error {
 func testAccCheckVRALoadBalancer(rInt int) string {
 	// Need valid credentials since this is creating a real cloud account
 	name := os.Getenv("VRA_AWS_CLOUD_ACCOUNT_NAME")
-	fabric_network := os.Getenv("VRA_FABRIC_NETWORK")
+	fabricNetwork := os.Getenv("VRA_FABRIC_NETWORK")
 	region := os.Getenv("VRA_REGION")
 	image := os.Getenv("VRA_IMAGE")
 	flavor := os.Getenv("VRA_FLAVOR")
@@ -203,7 +203,7 @@ resource "vra_machine" "my_machine" {
 	  key   = "foo"
 	  value = "bar"
 	}
-}`, name, region, rInt, rInt, fabric_network, rInt, rInt, image, rInt, flavor, rInt)
+}`, name, region, rInt, rInt, fabricNetwork, rInt, rInt, image, rInt, flavor, rInt)
 }
 
 // TODO: Enable this test when the issue https://jira.eng.vmware.com/browse/VCOM-13736 is fixed
