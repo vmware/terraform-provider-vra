@@ -42,7 +42,7 @@ func dataSourceRegionEnumeration() *schema.Resource {
 func dataSourceRegionEnumerationRead(d *schema.ResourceData, meta interface{}) error {
 	apiClient := meta.(*Client).apiClient
 
-	getResp, err := apiClient.CloudAccount.EnumerateVSphereRegions(cloud_account.NewEnumerateVSphereRegionsParams().WithBody(&models.CloudAccountVsphereSpecification{
+	_, getResp, err := apiClient.CloudAccount.EnumerateVSphereRegions(cloud_account.NewEnumerateVSphereRegionsParams().WithBody(&models.CloudAccountVsphereSpecification{
 		Dcid:     d.Get("dcid").(string),
 		HostName: withString(d.Get("hostname").(string)),
 		Password: withString(d.Get("password").(string)),

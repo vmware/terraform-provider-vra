@@ -108,6 +108,8 @@ The following arguments are supported for a machine resource:
 
 * `project_id` - The id of the project the current user belongs to.
 
+* `persistent` - Indicates whether the block device survives a delete action.
+
 * `links` - HATEOAS of the entity.
 
 * `status` - Status of the block device.

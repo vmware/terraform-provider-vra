@@ -76,6 +76,10 @@ func dataSourceBlockDevice() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"persistent": &schema.Schema{
+				Type:     schema.TypeBool,
+				Computed: true,
+			},
 			"project_id": &schema.Schema{
 				Type:     schema.TypeString,
 				Computed: true,
@@ -143,6 +147,7 @@ func dataSourceBlockDeviceRead(d *schema.ResourceData, meta interface{}) error {
 	d.Set("name", blockDevice.Name)
 	d.Set("org_id", blockDevice.OrgID)
 	d.Set("owner", blockDevice.Owner)
+	d.Set("persistent", blockDevice.Persistent)
 	d.Set("project_id", blockDevice.ProjectID)
 	d.Set("status", blockDevice.Status)
 	d.Set("updated_at", blockDevice.UpdatedAt)
