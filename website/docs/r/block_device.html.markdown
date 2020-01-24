@@ -69,6 +69,7 @@ resource "vra_block_device" "disk1" {
   capacity_in_gb = 10
   name = "terraform_vra_block_device1"
   project_id = data.vra_project.this.id
+  persistent = true
 }
 
 resource "vra_block_device" "disk2" {
@@ -129,6 +130,8 @@ Following disk custom properties can be passed while creating a block device:
 * `disk_content_base_64` - (Optional) Content of a disk, base64 encoded.
 
 * `encrypted` - (Optional) Indicates whether the block device should be encrypted or not.
+
+* `persistent` - Indicates whether the block device survives a delete action.
 
 * `source_reference` - (Optional) Reference to URI using which the block device has to be created.
 
