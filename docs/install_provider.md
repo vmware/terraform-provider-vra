@@ -36,6 +36,7 @@ Move the extracted plugin to the terraform plugins directory
 mv terraform-provider-vra ~/.terraform.d/plugins/linux_amd64 
 ```
 
+
 #### Linux Example
 
 ![downloading with wget - Linux ](images/wget_release_linux.png)
