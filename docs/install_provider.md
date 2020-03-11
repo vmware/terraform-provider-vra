@@ -12,10 +12,10 @@ You can download the appropriate version of the provider for your OS via either 
 
 ### Linux
 
-Create a terraform plugins directory typically this will be in ```~/.terraform.d/plugins``` on non-Windows platforms.
+Create a terraform plugins directory with your hardware platform subdirecotry. Typically for 64bit Linux this will be in ```~/.terraform.d/plugins/linux_amd64``` on non-Windows platforms.
 
 ```bash
-mkdir -p ~/.terraform.d/plugins
+mkdir -p ~/.terraform.d/plugins/linux_amd64 
 ```
 
 Download the plugin (via a browser or command line)
@@ -33,7 +33,7 @@ tar xvf terraform-provider-vra-linux_amd64-v0.1.7.tgz
 Move the extracted plugin to the terraform plugins directory
 
 ```shell
-mv terraform-provider-vra ~/.terraform.d/plugins
+mv terraform-provider-vra ~/.terraform.d/plugins/linux_amd64 
 ```
 
 #### Linux Example
