@@ -55,7 +55,6 @@ fi
 echo -e "\nGetting Token"
 if [[ $domain == "" ]]
 then
-echo Without domain
 	export VRA_REFRESH_TOKEN=`curl -vvvk -X POST \
   		"$VRA_URL/csp/gateway/am/api/login?access_token" \
   		-H 'Content-Type: application/json' \
@@ -65,7 +64,6 @@ echo Without domain
   		"password": "'"$password"'"
 		}' | jq -r .refresh_token`
 else
-echo With domain
 	export VRA_REFRESH_TOKEN=`curl -k -X POST \
   		"$VRA_URL/csp/gateway/am/api/login?access_token" \
   		-H 'Content-Type: application/json' \
