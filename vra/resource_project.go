@@ -39,6 +39,10 @@ func resourceProject() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 			},
+			"shared_resources": &schema.Schema{
+				Type: schema.TypeBool,
+				Optional: true,
+			},
 			"zone_assignments": &schema.Schema{
 				Type:     schema.TypeSet,
 				Optional: true,
@@ -70,6 +74,7 @@ func resourceProjectCreate(d *schema.ResourceData, m interface{}) error {
 	description := d.Get("description").(string)
 	members := expandUserList(d.Get("members").(*schema.Set).List())
 	name := d.Get("name").(string)
+	sharedResources := d.Get("shared_resources").(bool)
 	zoneAssignment := expandZoneAssignment(d.Get("zone_assignments").(*schema.Set).List())
 
 	createResp, err := apiClient.Project.CreateProject(project.NewCreateProjectParams().WithBody(&models.ProjectSpecification{
@@ -77,6 +82,7 @@ func resourceProjectCreate(d *schema.ResourceData, m interface{}) error {
 		Description:                  description,
 		Members:                      members,
 		Name:                         &name,
+		SharedResources:			  sharedResources,
 		ZoneAssignmentConfigurations: zoneAssignment,
 	}))
 	if err != nil {
@@ -119,6 +125,7 @@ func resourceProjectUpdate(d *schema.ResourceData, m interface{}) error {
 	description := d.Get("description").(string)
 	members := expandUserList(d.Get("members").(*schema.Set).List())
 	name := d.Get("name").(string)
+	sharedResources := d.Get("shared_resources").(bool)
 	zoneAssignment := expandZoneAssignment(d.Get("zone_assignments").(*schema.Set).List())
 
 	_, err := apiClient.Project.UpdateProject(project.NewUpdateProjectParams().WithID(id).WithBody(&models.ProjectSpecification{
@@ -126,6 +133,7 @@ func resourceProjectUpdate(d *schema.ResourceData, m interface{}) error {
 		Description:                  description,
 		Members:                      members,
 		Name:                         &name,
+		SharedResources:			  sharedResources,
 		ZoneAssignmentConfigurations: zoneAssignment,
 	}))
 	if err != nil {
