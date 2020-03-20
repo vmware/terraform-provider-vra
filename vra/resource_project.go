@@ -40,7 +40,7 @@ func resourceProject() *schema.Resource {
 				Required: true,
 			},
 			"shared_resources": &schema.Schema{
-				Type: schema.TypeBool,
+				Type:     schema.TypeBool,
 				Optional: true,
 			},
 			"zone_assignments": &schema.Schema{
@@ -82,7 +82,7 @@ func resourceProjectCreate(d *schema.ResourceData, m interface{}) error {
 		Description:                  description,
 		Members:                      members,
 		Name:                         &name,
-		SharedResources:			  sharedResources,
+		SharedResources:              sharedResources,
 		ZoneAssignmentConfigurations: zoneAssignment,
 	}))
 	if err != nil {
@@ -133,7 +133,7 @@ func resourceProjectUpdate(d *schema.ResourceData, m interface{}) error {
 		Description:                  description,
 		Members:                      members,
 		Name:                         &name,
-		SharedResources:			  sharedResources,
+		SharedResources:              sharedResources,
 		ZoneAssignmentConfigurations: zoneAssignment,
 	}))
 	if err != nil {
