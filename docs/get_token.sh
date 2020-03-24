@@ -9,7 +9,7 @@
 #
 if  ! [ -x "$(command -v jq)" ]
 then
-	echo -e "\n\nthe jq utility is missing. See https://stedolan.github.io/jq/ for instructions to get it\n\n"
+	echo -e "\nthe jq utility is missing. See https://stedolan.github.io/jq/ for instructions to get it\n"
 	return 1
 fi
 
@@ -18,7 +18,7 @@ if [[ -v username ]]
 then
 	echo -e "\nusername variable found: $username\n"
 else 
-	echo -e "\n\nPlease enter username to connect to vra with"
+	echo -e "\nPlease enter username to connect to vra with"
 	read username
 fi
 
@@ -27,8 +27,8 @@ if [[ -v password ]]
 then
     echo -e "\npassword variable found\n"
 else
-    echo -e "\n\nPlease enter password to connect to vra with\n"
-    read password
+    echo -e "\nPlease enter password to connect to vra with\n"
+    read -s password
 fi
 
 #Check for an already existing LDAP/AD domain value
@@ -36,15 +36,16 @@ if [[ -v domain ]]
 then
     echo -e "\nExisting domain variable found: $domain\n"
 else
-	echo -e "\n\nPlease enter domain to connect to vra with (for AD/LDAP users) or press Enter"
+	echo -e "\nPlease enter domain to connect to vra with (for AD/LDAP users) or press Enter if you not want to use domain"
 	read domain
 fi
 
 if [[ -v VRA_URL || -v host ]]
 then 
 	echo -e "\nfound a value for the vra/cas server\n"
+	export VRA_URL="https://$host"
 else
- 	echo -e "\n\nPlease enter the hostname/fqdn of the VRA8 server/ or cloud identity server"
+ 	echo -e "\nPlease enter the hostname/fqdn of the VRA8 server/ or cloud identity server"
 	read host
 	export VRA_URL="https://$host"
 fi
@@ -54,7 +55,7 @@ fi
 echo -e "\nGetting Token"
 if [[ $domain == "" ]]
 then
-	export VRA_REFRESH_TOKEN=`curl -k -X POST \
+	export VRA_REFRESH_TOKEN=`curl -vvvk -X POST \
   		"$VRA_URL/csp/gateway/am/api/login?access_token" \
   		-H 'Content-Type: application/json' \
   		-s \
@@ -62,7 +63,6 @@ then
   		"username": "'"$username"'",
   		"password": "'"$password"'"
 		}' | jq -r .refresh_token`
-
 else
 	export VRA_REFRESH_TOKEN=`curl -k -X POST \
   		"$VRA_URL/csp/gateway/am/api/login?access_token" \
@@ -79,7 +79,7 @@ fi
 #clean up password 
 unset password
 
-echo -e "\n\nRefresh Token"
+echo -e "\nRefresh Token"
 echo "----------------------------"
 echo $VRA_REFRESH_TOKEN
 echo "----------------------------"
