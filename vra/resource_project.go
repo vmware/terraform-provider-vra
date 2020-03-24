@@ -112,6 +112,7 @@ func resourceProjectRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("description", Project.Description)
 	d.Set("members", flattenUserList(Project.Members))
 	d.Set("name", Project.Name)
+	d.Set("shared_resources", Project.SharedResources)
 	d.Set("zone_assignments", flattenZoneAssignment(Project.Zones))
 
 	return nil
