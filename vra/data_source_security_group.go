@@ -24,7 +24,6 @@ func dataSourceSecurityGroup() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"egress": rulesSchema(false),
 			"external_id": &schema.Schema{
 				Type:     schema.TypeString,
 				Computed: true,
@@ -37,8 +36,7 @@ func dataSourceSecurityGroup() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"ingress": rulesSchema(false),
-			"links":   linksSchema(),
+			"links": linksSchema(),
 			"name": &schema.Schema{
 				Type:     schema.TypeString,
 				Computed: true,
@@ -51,6 +49,7 @@ func dataSourceSecurityGroup() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"rules": rulesSchema(false),
 			"updated_at": &schema.Schema{
 				Type:     schema.TypeString,
 				Computed: true,
@@ -81,13 +80,12 @@ func dataSourceSecurityGroupRead(d *schema.ResourceData, meta interface{}) error
 	d.SetId(*securityGroup.ID)
 	d.Set("created_at", securityGroup.CreatedAt)
 	d.Set("description", securityGroup.Description)
-	d.Set("egress", securityGroup.Egress)
 	d.Set("external_id", securityGroup.ExternalID)
 	d.Set("external_region_id", securityGroup.ExternalRegionID)
-	d.Set("ingress", securityGroup.Ingress)
 	d.Set("name", securityGroup.Name)
 	d.Set("organization_id", securityGroup.OrganizationID)
 	d.Set("owner", securityGroup.Owner)
+	d.Set("rules", securityGroup.Rules)
 	d.Set("updated_at", securityGroup.UpdatedAt)
 
 	return nil

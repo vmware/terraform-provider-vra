@@ -11,6 +11,11 @@ func dataSourceRegionEnumeration() *schema.Resource {
 		Read: dataSourceRegionEnumerationRead,
 
 		Schema: map[string]*schema.Schema{
+			"accept_self_signed_cert": &schema.Schema{
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  false,
+			},
 			"dcid": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
@@ -42,11 +47,12 @@ func dataSourceRegionEnumeration() *schema.Resource {
 func dataSourceRegionEnumerationRead(d *schema.ResourceData, meta interface{}) error {
 	apiClient := meta.(*Client).apiClient
 
-	_, getResp, err := apiClient.CloudAccount.EnumerateVSphereRegions(cloud_account.NewEnumerateVSphereRegionsParams().WithBody(&models.CloudAccountVsphereSpecification{
-		Dcid:     d.Get("dcid").(string),
-		HostName: withString(d.Get("hostname").(string)),
-		Password: withString(d.Get("password").(string)),
-		Username: withString(d.Get("username").(string)),
+	getResp, err := apiClient.CloudAccount.EnumerateVSphereRegions(cloud_account.NewEnumerateVSphereRegionsParams().WithBody(&models.CloudAccountVsphereSpecification{
+		AcceptSelfSignedCertificate: d.Get("accept_self_signed_cert").(bool),
+		Dcid:                        d.Get("dcid").(string),
+		HostName:                    withString(d.Get("hostname").(string)),
+		Password:                    withString(d.Get("password").(string)),
+		Username:                    withString(d.Get("username").(string)),
 	}))
 
 	if err != nil {
@@ -54,7 +60,7 @@ func dataSourceRegionEnumerationRead(d *schema.ResourceData, meta interface{}) e
 	}
 
 	d.Set("regions", getResp.Payload.ExternalRegionIds)
-	d.SetId(d.Get("dcid").(string))
+	d.SetId(d.Get("hostname").(string))
 
 	return nil
 }

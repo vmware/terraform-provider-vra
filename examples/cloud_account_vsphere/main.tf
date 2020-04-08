@@ -11,10 +11,11 @@ data "vra_data_collector" "dc" {
 }
 
 data "vra_region_enumeration" "dc_regions" {
-  username = var.username
-  password = var.password
-  hostname = var.hostname
-  dcid     = var.datacollector != "" ? data.vra_data_collector.dc[0].id : "" // Required for vRA Cloud, Optional for vRA 8.0
+  username                = var.username
+  password                = var.password
+  hostname                = var.hostname
+  dcid                    = var.datacollector != "" ? data.vra_data_collector.dc[0].id : "" // Required for vRA Cloud, Optional for vRA 8.0
+  accept_self_signed_cert = true
 }
 
 resource "vra_cloud_account_vsphere" "this" {
