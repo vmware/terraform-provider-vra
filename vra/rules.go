@@ -16,9 +16,17 @@ func rulesSchema(isRequired bool) *schema.Schema {
 					Type:     schema.TypeString,
 					Required: true,
 				},
+				"direction": &schema.Schema{
+					Type:     schema.TypeString,
+					Required: true,
+				},
 				"ip_range_cidr": &schema.Schema{
 					Type:     schema.TypeInt,
 					Required: true,
+				},
+				"name": &schema.Schema{
+					Type:     schema.TypeString,
+					Optional: true,
 				},
 				"ports": &schema.Schema{
 					Type:     schema.TypeString,
@@ -28,7 +36,7 @@ func rulesSchema(isRequired bool) *schema.Schema {
 					Type:     schema.TypeString,
 					Required: true,
 				},
-				"name": &schema.Schema{
+				"service": &schema.Schema{
 					Type:     schema.TypeString,
 					Optional: true,
 				},
