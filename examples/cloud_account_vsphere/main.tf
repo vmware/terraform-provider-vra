@@ -10,7 +10,7 @@ data "vra_data_collector" "dc" {
   name  = var.datacollector
 }
 
-data "vra_region_enumeration" "dc_regions" {
+data "vra_region_enumeration_vsphere" "this" {
   username                = var.username
   password                = var.password
   hostname                = var.hostname
@@ -26,7 +26,7 @@ resource "vra_cloud_account_vsphere" "this" {
   hostname    = var.hostname
   dcid        = var.datacollector != "" ? data.vra_data_collector.dc[0].id : "" // Required for vRA Cloud, Optional for vRA 8.0
 
-  regions                 = data.vra_region_enumeration.dc_regions.regions
+  regions                 = data.vra_region_enumeration_vsphere.this.regions
   accept_self_signed_cert = true
 
   tags {

@@ -6,10 +6,9 @@ import (
 	"github.com/vmware/vra-sdk-go/pkg/models"
 )
 
-func dataSourceRegionEnumeration() *schema.Resource {
+func dataSourceRegionEnumerationVsphere() *schema.Resource {
 	return &schema.Resource{
-		Read:               dataSourceRegionEnumerationRead,
-		DeprecationMessage: "'region_enumeration' is deprecated. Use 'region_enumeration_vsphere' instead.",
+		Read: dataSourceRegionEnumerationVsphereRead,
 
 		Schema: map[string]*schema.Schema{
 			"accept_self_signed_cert": &schema.Schema{
@@ -45,7 +44,7 @@ func dataSourceRegionEnumeration() *schema.Resource {
 	}
 }
 
-func dataSourceRegionEnumerationRead(d *schema.ResourceData, meta interface{}) error {
+func dataSourceRegionEnumerationVsphereRead(d *schema.ResourceData, meta interface{}) error {
 	apiClient := meta.(*Client).apiClient
 
 	getResp, err := apiClient.CloudAccount.EnumerateVSphereRegions(cloud_account.NewEnumerateVSphereRegionsParams().WithBody(&models.CloudAccountVsphereSpecification{
