@@ -3,13 +3,15 @@ package vra
 import (
 	"fmt"
 	"log"
+	"net/http"
 	neturl "net/url"
-	"os"
 	"strings"
 	"time"
 
+	"github.com/go-openapi/runtime"
 	httptransport "github.com/go-openapi/runtime/client"
 	"github.com/go-openapi/strfmt"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/logging"
 	"github.com/vmware/vra-sdk-go/pkg/client"
 	"github.com/vmware/vra-sdk-go/pkg/client/login"
 	"github.com/vmware/vra-sdk-go/pkg/models"
@@ -28,6 +30,38 @@ const (
 
 const IncreasedTimeOut = 60 * time.Second
 
+type ReauthorizeRuntime struct {
+	origClient   httptransport.Runtime
+	url          string
+	refreshToken string
+	insecure     bool
+}
+
+// Submit implements the ClientTransport interface as a wrapper to retry a 401 with a new token.
+func (r *ReauthorizeRuntime) Submit(operation *runtime.ClientOperation) (interface{}, error) {
+	result, err := r.origClient.Submit(operation)
+	if err == nil {
+		return result, err
+	}
+
+	// Check if an error but not a 401, then return results. Errors strings checked are if 401 is implemented in the swagger API or not.
+	if !(strings.Contains(err.Error(), "[401]") || strings.Contains(err.Error(), "unknown error (status 401)")) {
+		return result, err
+	}
+
+	// We have a 401 with a refresh token, let's try refreshing once and try again
+	log.Printf("Response back was a 401, trying again with new access token")
+	token, tokenErr := getToken(r.url, r.refreshToken, r.insecure)
+	if tokenErr != nil {
+		return result, err
+	}
+
+	// Fix up the Authorization header with the new token and resubmit the request
+	r.origClient.DefaultAuthentication = httptransport.APIKeyAuth("Authorization", "header", "Bearer "+token)
+	result, err = r.origClient.Submit(operation)
+	return result, err
+}
+
 // NewClientFromRefreshToken configures and returns a VRA "Client" struct using "refresh_token" from provider config
 func NewClientFromRefreshToken(url, refreshToken string, insecure bool) (interface{}, error) {
 	token, err := getToken(url, refreshToken, insecure)
@@ -38,6 +72,10 @@ func NewClientFromRefreshToken(url, refreshToken string, insecure bool) (interfa
 	if err != nil {
 		return "", err
 	}
+
+	t := apiClient.Transport.(*httptransport.Runtime)
+	apiClient.SetTransport(&ReauthorizeRuntime{*t, url, refreshToken, insecure})
+
 	return &Client{url, apiClient}, nil
 }
 
@@ -56,14 +94,11 @@ func getToken(url, refreshToken string, insecure bool) (string, error) {
 		return "", err
 	}
 	transport := httptransport.New(parsedURL.Host, parsedURL.Path, nil)
-	newTransport, err := httptransport.TLSTransport(httptransport.TLSClientOptions{
-		InsecureSkipVerify: insecure,
-	})
+	transport.SetDebug(false)
+	transport.Transport, err = createTransport(insecure)
 	if err != nil {
 		return "", err
 	}
-	transport.Transport = newTransport
-	transport.SetDebug(false)
 	apiclient := client.New(transport, strfmt.Default)
 
 	params := login.NewRetrieveAuthTokenParams().WithBody(
@@ -104,29 +139,36 @@ func (SwaggerLogger) Debugf(format string, args ...interface{}) {
 	}
 }
 
-func getAPIClient(url string, token string, insecure bool) (*client.MulticloudIaaS, error) {
-	debug := false
-	if os.Getenv("VRA_DEBUG") != "" {
-		debug = true
-	}
-
-	parsedURL, err := neturl.Parse(url)
-	if err != nil {
-		return nil, err
-	}
-	transport := httptransport.New(parsedURL.Host, parsedURL.Path, nil)
-	transport.DefaultAuthentication = httptransport.APIKeyAuth("Authorization", "header", "Bearer "+token)
-	newTransport, err := httptransport.TLSTransport(httptransport.TLSClientOptions{
+func createTransport(insecure bool) (http.RoundTripper, error) {
+	cfg, err := httptransport.TLSClientAuth(httptransport.TLSClientOptions{
 		InsecureSkipVerify: insecure,
 	})
 	if err != nil {
 		return nil, err
 	}
-	transport.Transport = newTransport
-	if debug {
-		transport.SetDebug(debug)
-		transport.SetLogger(SwaggerLogger{})
+
+	return &http.Transport{
+		TLSClientConfig: cfg,
+		Proxy:           http.ProxyFromEnvironment,
+	}, nil
+}
+
+func getAPIClient(url string, token string, insecure bool) (*client.MulticloudIaaS, error) {
+	parsedURL, err := neturl.Parse(url)
+	if err != nil {
+		return nil, err
 	}
-	apiclient := client.New(transport, strfmt.Default)
+	t := httptransport.New(parsedURL.Host, parsedURL.Path, nil)
+	t.DefaultAuthentication = httptransport.APIKeyAuth("Authorization", "header", "Bearer "+token)
+	newTransport, err := createTransport(insecure)
+	if err != nil {
+		return nil, err
+	}
+
+	// Setup logging through the terraform helper
+	t.Transport = logging.NewTransport("VRA", newTransport)
+	t.SetDebug(true)
+	t.SetLogger(SwaggerLogger{})
+	apiclient := client.New(t, strfmt.Default)
 	return apiclient, nil
 }
