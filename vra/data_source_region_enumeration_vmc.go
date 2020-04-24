@@ -55,15 +55,18 @@ func dataSourceRegionEnumerationVMC() *schema.Resource {
 func dataSourceRegionEnumerationVMCRead(d *schema.ResourceData, meta interface{}) error {
 	apiClient := meta.(*Client).apiClient
 
-	getResp, err := apiClient.CloudAccount.EnumerateVmcRegions(cloud_account.NewEnumerateVmcRegionsParams().WithBody(&models.CloudAccountVmcSpecification{
-		AcceptSelfSignedCertificate: d.Get("accept_self_signed_cert").(bool),
-		APIKey:                      d.Get("api_token").(string),
-		DcID:                        d.Get("dc_id").(string),
-		HostName:                    withString(d.Get("vcenter_hostname").(string)),
-		Password:                    withString(d.Get("vcenter_password").(string)),
-		SddcID:                      d.Get("sddc_name").(string),
-		Username:                    withString(d.Get("vcenter_username").(string)),
-	}))
+	getResp, err := apiClient.CloudAccount.EnumerateVmcRegions(
+		cloud_account.NewEnumerateVmcRegionsParams().
+			WithTimeout(IncreasedTimeOut).
+			WithBody(&models.CloudAccountVmcSpecification{
+				AcceptSelfSignedCertificate: d.Get("accept_self_signed_cert").(bool),
+				APIKey:                      d.Get("api_token").(string),
+				DcID:                        d.Get("dc_id").(string),
+				HostName:                    withString(d.Get("vcenter_hostname").(string)),
+				Password:                    withString(d.Get("vcenter_password").(string)),
+				SddcID:                      d.Get("sddc_name").(string),
+				Username:                    withString(d.Get("vcenter_username").(string)),
+			}))
 
 	if err != nil {
 		return err

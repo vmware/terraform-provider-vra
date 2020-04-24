@@ -6,6 +6,7 @@ import (
 	neturl "net/url"
 	"os"
 	"strings"
+	"time"
 
 	httptransport "github.com/go-openapi/runtime/client"
 	"github.com/go-openapi/strfmt"
@@ -24,6 +25,8 @@ type Client struct {
 const (
 	CatalogAPIVersion = "2019-01-15"
 )
+
+const IncreasedTimeOut = 60 * time.Second
 
 // NewClientFromRefreshToken configures and returns a VRA "Client" struct using "refresh_token" from provider config
 func NewClientFromRefreshToken(url, refreshToken string, insecure bool) (interface{}, error) {
