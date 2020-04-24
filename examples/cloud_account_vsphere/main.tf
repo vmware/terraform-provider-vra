@@ -10,6 +10,22 @@ data "vra_data_collector" "dc" {
   name  = var.datacollector
 }
 
+resource "vra_cloud_account_nsxt" "this" {
+  name        = "tf-nsx-t-account"
+  description = "foobar"
+  username    = var.nsxt_username
+  password    = var.nsxt_password
+  hostname    = var.nsxt_hostname
+  dc_id       = var.datacollector != "" ? data.vra_data_collector.dc[0].id : "" // Required for vRA Cloud, Optional for vRA 8.0
+
+  accept_self_signed_cert = true
+
+  tags {
+    key   = "foo"
+    value = "bar"
+  }
+}
+
 data "vra_region_enumeration_vsphere" "this" {
   username                = var.username
   password                = var.password
@@ -26,8 +42,9 @@ resource "vra_cloud_account_vsphere" "this" {
   hostname    = var.hostname
   dcid        = var.datacollector != "" ? data.vra_data_collector.dc[0].id : "" // Required for vRA Cloud, Optional for vRA 8.0
 
-  regions                 = data.vra_region_enumeration_vsphere.this.regions
-  accept_self_signed_cert = true
+  regions                      = data.vra_region_enumeration_vsphere.this.regions
+  associated_cloud_account_ids = [vra_cloud_account_nsxt.this.id]
+  accept_self_signed_cert      = true
 
   tags {
     key   = "foo"

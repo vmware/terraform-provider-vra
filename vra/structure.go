@@ -109,8 +109,8 @@ func flattenAndNormalizeCLoudAccountAzureRegionIds(regionOrder []string, cloudAc
 	return m, nil
 }
 
-// flattenAndNormalizeCLoudAccountVsphereRegionIds will return region id's in the same order as regionOrder
-func flattenAndNormalizeCLoudAccountVsphereRegionIds(regionOrder []string, cloudAccount *models.CloudAccountVsphere) ([]string, error) {
+// flattenAndNormalizeCloudAccountVsphereRegionIds will return region id's in the same order as regionOrder
+func flattenAndNormalizeCloudAccountVsphereRegionIds(regionOrder []string, cloudAccount *models.CloudAccountVsphere) ([]string, error) {
 	returnOrder := cloudAccount.EnabledRegionIds
 	refStrings := cloudAccount.Links["regions"].Hrefs
 	m := make([]string, len(regionOrder))
@@ -122,6 +122,16 @@ func flattenAndNormalizeCLoudAccountVsphereRegionIds(regionOrder []string, cloud
 		m[i] = strings.TrimPrefix(refStrings[index], "/iaas/api/regions/")
 	}
 	return m, nil
+}
+
+// flattenAssociatedCloudAccountIds will return associated cloud account ids from the Href links in the order received
+func flattenAssociatedCloudAccountIds(links map[string]models.Href) []string {
+	refStrings := links["associated-cloud-accounts"].Hrefs
+	m := make([]string, len(refStrings))
+	for i, r := range refStrings {
+		m[i] = strings.TrimPrefix(r, "/iaas/api/cloud-accounts/")
+	}
+	return m
 }
 
 // flattenAndNormalizeCLoudAccountGcpRegionIds will return region id's in the same order as regionOrder

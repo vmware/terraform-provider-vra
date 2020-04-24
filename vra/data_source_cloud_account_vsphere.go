@@ -18,6 +18,13 @@ func dataSourceCloudAccountVsphere() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
+			"associated_cloud_account_ids": &schema.Schema{
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			},
 			"created_at": &schema.Schema{
 				Type:     schema.TypeString,
 				Computed: true,
@@ -89,6 +96,7 @@ func dataSourceCloudAccountVsphereRead(d *schema.ResourceData, meta interface{})
 
 	setFields := func(account *models.CloudAccountVsphere) {
 		d.SetId(*account.ID)
+		d.Set("associated_cloud_account_ids", flattenAssociatedCloudAccountIds(account.Links))
 		d.Set("created_at", account.CreatedAt)
 		d.Set("custom_properties", account.CustomProperties)
 		d.Set("dcid", account.Dcid)

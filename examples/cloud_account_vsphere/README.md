@@ -8,9 +8,12 @@ There are variables which need to be added to terraform.tfvars. The first are fo
 
 * `url` - The URL for the vRealize Automation (vRA) endpoint
 * `refresh_token` - The refresh token for the vRA account
-* `username` - username for vCenter
-* `password` - password for vCenter
-* `hostname` - hostname for vCenter
+* `username` - username for vCenter server
+* `password` - password for vCenter server
+* `hostname` - hostname for vCenter server
+* `nsxt_username` - username for NSX-T
+* `nsxt_password` - password for NSX-T
+* `nsxt_hostname` - hostname for NSX-T
 * `datacollector` - the name for the data collector already setup for the vCenter account
 
 To facilitate adding these variables, a sample tfvars file can be copied first:

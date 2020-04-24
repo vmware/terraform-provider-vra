@@ -25,6 +25,13 @@ func resourceCloudAccountVsphere() *schema.Resource {
 				Optional: true,
 				Default:  false,
 			},
+			"associated_cloud_account_ids": &schema.Schema{
+				Type:     schema.TypeList,
+				Optional: true,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			},
 			"dcid": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
@@ -70,7 +77,7 @@ func resourceCloudAccountVsphere() *schema.Resource {
 }
 
 func resourceCloudAccountVsphereCreate(d *schema.ResourceData, m interface{}) error {
-	var regions []string
+	var regions, associatedCloudAccountIds []string
 
 	apiClient := m.(*Client).apiClient
 
@@ -82,9 +89,16 @@ func resourceCloudAccountVsphereCreate(d *schema.ResourceData, m interface{}) er
 		regions = expandStringList(v.([]interface{}))
 	}
 
+	if v, ok := d.GetOk("associated_cloud_account_ids"); ok {
+		if !compareUnique(v.([]interface{})) {
+			return fmt.Errorf("specified associated cloud account ids are not unique")
+		}
+		associatedCloudAccountIds = expandStringList(v.([]interface{}))
+	}
+
 	createResp, err := apiClient.CloudAccount.CreateVSphereCloudAccount(cloud_account.NewCreateVSphereCloudAccountParams().WithBody(&models.CloudAccountVsphereSpecification{
 		AcceptSelfSignedCertificate: d.Get("accept_self_signed_cert").(bool),
-		AssociatedCloudAccountIds:   []string{},
+		AssociatedCloudAccountIds:   associatedCloudAccountIds,
 		CreateDefaultZones:          false,
 		Dcid:                        d.Get("dcid").(string),
 		Description:                 d.Get("description").(string),
@@ -102,7 +116,7 @@ func resourceCloudAccountVsphereCreate(d *schema.ResourceData, m interface{}) er
 
 	// The returned EnabledRegionIds and Hrefs containing the region ids can be in a different order than the request order.
 	// Call a routine to normalize the order to correspond with the users region order.
-	regionsIds, err := flattenAndNormalizeCLoudAccountVsphereRegionIds(regions, createResp.Payload)
+	regionsIds, err := flattenAndNormalizeCloudAccountVsphereRegionIds(regions, createResp.Payload)
 	if err != nil {
 		return err
 	}
@@ -132,6 +146,7 @@ func resourceCloudAccountVsphereRead(d *schema.ResourceData, m interface{}) erro
 	vsphereAccount := *ret.Payload
 
 	// d.Set("accept_self_signed_cert", vsphereAccount.AcceptSelfSignedCertificate)
+	d.Set("associated_cloud_account_ids", flattenAssociatedCloudAccountIds(vsphereAccount.Links))
 	d.Set("dcid", vsphereAccount.Dcid)
 	d.Set("description", vsphereAccount.Description)
 	d.Set("name", vsphereAccount.Name)
@@ -142,7 +157,7 @@ func resourceCloudAccountVsphereRead(d *schema.ResourceData, m interface{}) erro
 
 	// The returned EnabledRegionIds and Hrefs containing the region ids can be in a different order than the request order.
 	// Call a routine to normalize the order to correspond with the users region order.
-	regionsIds, err := flattenAndNormalizeCLoudAccountVsphereRegionIds(regions, &vsphereAccount)
+	regionsIds, err := flattenAndNormalizeCloudAccountVsphereRegionIds(regions, &vsphereAccount)
 	if err != nil {
 		return err
 	}

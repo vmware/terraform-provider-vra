@@ -13,6 +13,13 @@ func dataSourceCloudAccountNSXV() *schema.Resource {
 		Read: dataSourceCloudAccountNSXVRead,
 
 		Schema: map[string]*schema.Schema{
+			"associated_cloud_account_ids": &schema.Schema{
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			},
 			"dc_id": &schema.Schema{
 				Type:     schema.TypeString,
 				Computed: true,
@@ -61,6 +68,7 @@ func dataSourceCloudAccountNSXVRead(d *schema.ResourceData, meta interface{}) er
 
 	setFields := func(account *models.CloudAccountNsxV) error {
 		d.SetId(*account.ID)
+		d.Set("associated_cloud_account_ids", flattenAssociatedCloudAccountIds(account.Links))
 		d.Set("dc_id", account.Dcid)
 		d.Set("description", account.Description)
 		d.Set("hostname", account.HostName)
