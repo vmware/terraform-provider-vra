@@ -486,10 +486,14 @@ func runDeploymentUpdateAction(d *schema.ResourceData, apiClient *client.Multicl
 	actionID := ""
 	for _, action := range deploymentActions.Payload {
 		if strings.Contains(strings.ToLower(action.ID), strings.ToLower("Update")) {
-			// Update action is available on the deployment
-			updateAvailable = true
-			actionID = action.ID
-			break
+			if action.Valid {
+				log.Printf("[DEBUG] update action is available on the deployment")
+				updateAvailable = true
+				actionID = action.ID
+				break
+			} else {
+				return fmt.Errorf("noticed changes to inputs, but 'Update' action is not supported based on the current state of the deployment")
+			}
 		}
 	}
 
