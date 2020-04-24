@@ -25,6 +25,12 @@ resource "vra_deployment" "this" {
     count  = 2
     flag   = true
   }
+
+  timeouts {
+    create = "30m"
+    delete = "30m"
+    update = "30m"
+  }
 }
 
 
