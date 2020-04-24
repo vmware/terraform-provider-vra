@@ -20,6 +20,13 @@ func resourceCloudAccountNSXV() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
+			"associated_cloud_account_ids": &schema.Schema{
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			},
 			"accept_self_signed_cert": &schema.Schema{
 				Type:     schema.TypeBool,
 				Optional: true,
@@ -97,7 +104,7 @@ func resourceCloudAccountNSXVRead(d *schema.ResourceData, m interface{}) error {
 		return err
 	}
 	nsxvAccount := *ret.Payload
-
+	d.Set("associated_cloud_account_ids", flattenAssociatedCloudAccountIds(nsxvAccount.Links))
 	d.Set("dc_id", nsxvAccount.Dcid)
 	d.Set("description", nsxvAccount.Description)
 	d.Set("name", nsxvAccount.Name)
