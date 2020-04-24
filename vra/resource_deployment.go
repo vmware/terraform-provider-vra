@@ -374,9 +374,12 @@ func resourceDeploymentRead(d *schema.ResourceData, m interface{}) error {
 	expandProject := d.Get("expand_project").(bool)
 
 	resp, err := apiClient.Deployments.GetDeploymentByIDUsingGET(
-		deployments.NewGetDeploymentByIDUsingGETParams().WithDepID(strfmt.UUID(id)).
-			WithExpandResources(withBool(true)).WithExpandLastRequest(withBool(true)).
-			WithExpandProject(withBool(expandProject)))
+		deployments.NewGetDeploymentByIDUsingGETParams().
+			WithDepID(strfmt.UUID(id)).
+			WithExpandResources(withBool(true)).
+			WithExpandLastRequest(withBool(true)).
+			WithExpandProject(withBool(expandProject)).
+			WithTimeout(IncreasedTimeOut))
 	if err != nil {
 		switch err.(type) {
 		case *deployments.GetDeploymentByIDUsingGETNotFound:
@@ -651,8 +654,10 @@ func runAction(d *schema.ResourceData, apiClient *client.MulticloudIaaS, deploym
 func deploymentActionStatusRefreshFunc(apiClient client.MulticloudIaaS, deploymentUUID strfmt.UUID, requestID strfmt.UUID) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		ret, err := apiClient.Deployments.GetDeploymentByIDUsingGET(
-			deployments.NewGetDeploymentByIDUsingGETParams().WithDepID(deploymentUUID).
-				WithExpandLastRequest(withBool(true)))
+			deployments.NewGetDeploymentByIDUsingGETParams().
+				WithDepID(deploymentUUID).
+				WithExpandLastRequest(withBool(true)).
+				WithTimeout(IncreasedTimeOut))
 		if err != nil {
 			return "", models.DeploymentRequestStatusFAILED, err
 		}
