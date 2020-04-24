@@ -20,6 +20,11 @@ type Client struct {
 	apiClient *client.MulticloudIaaS
 }
 
+// API Versions
+const (
+	CatalogAPIVersion = "2019-01-15"
+)
+
 // NewClientFromRefreshToken configures and returns a VRA "Client" struct using "refresh_token" from provider config
 func NewClientFromRefreshToken(url, refreshToken string, insecure bool) (interface{}, error) {
 	token, err := getToken(url, refreshToken, insecure)
