@@ -208,7 +208,7 @@ func resourceDeploymentCreate(d *schema.ResourceData, m interface{}) error {
 		log.Printf("[DEBUG] Create deployment: %#v", catalogItemRequest)
 		postOk, err := apiClient.CatalogItems.RequestCatalogItemUsingPOST(
 			catalog_items.NewRequestCatalogItemUsingPOSTParams().WithID(strfmt.UUID(catalogItemID)).
-				WithRequest(&catalogItemRequest))
+				WithAPIVersion(withString(CatalogAPIVersion)).WithRequest(&catalogItemRequest))
 
 		if err != nil {
 			return err
