@@ -21,7 +21,7 @@ build_providers() {
     rm -rf build
     mkdir build
     GO111MODULE=on CGO_ENABLED=0 gox -ldflags "-X main.version=${VERSION} -X main.buildTime=${NOWDATE}" \
-        -os "linux darwin windows" -arch "amd64" -output "build/{{.OS}}_{{.Arch}}/terraform-provider-vra"
+        -os "linux darwin windows" -arch "amd64" -output "build/{{.OS}}_{{.Arch}}/terraform-provider-vra_${VERSION}"
     if [ $? -ne 0 ]; then
         echo "Error building providers...exiting"
         exit 1
