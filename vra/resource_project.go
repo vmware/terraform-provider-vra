@@ -42,6 +42,7 @@ func resourceProject() *schema.Resource {
 			"shared_resources": &schema.Schema{
 				Type:     schema.TypeBool,
 				Optional: true,
+				Default:  true,
 			},
 			"zone_assignments": &schema.Schema{
 				Type:     schema.TypeSet,

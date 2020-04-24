@@ -344,8 +344,6 @@ func testAccPreCheckDeploymentDataSource(t *testing.T) {
 
 	envVars := [...]string{
 		"VRA_URL",
-		"VRA_CATALOG_ITEM_NAME",
-		"VRA_PROJECT_NAME",
 	}
 
 	for _, name := range envVars {

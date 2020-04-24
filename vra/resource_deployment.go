@@ -91,7 +91,7 @@ func resourceDeployment() *schema.Resource {
 					Type: schema.TypeString,
 				},
 			},
-			//TODO: add last_request
+			"last_request": deploymentRequestSchema(),
 			"last_updated_at": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -124,6 +124,7 @@ func resourceDeployment() *schema.Resource {
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(10 * time.Minute),
 			Delete: schema.DefaultTimeout(10 * time.Minute),
+			Update: schema.DefaultTimeout(10 * time.Minute),
 		},
 	}
 }
@@ -284,7 +285,7 @@ func resourceDeploymentCreate(d *schema.ResourceData, m interface{}) error {
 		Delay:      5 * time.Second,
 		Pending:    []string{models.DeploymentStatusCREATEINPROGRESS},
 		Refresh:    deploymentCreateStatusRefreshFunc(*apiClient, d.Id()),
-		Target:     []string{models.DeploymentStatusCREATESUCCESSFUL},
+		Target:     []string{models.DeploymentStatusCREATESUCCESSFUL, models.DeploymentStatusCREATEFAILED},
 		Timeout:    d.Timeout(schema.TimeoutCreate),
 		MinTimeout: 5 * time.Second,
 	}
@@ -348,16 +349,14 @@ func deploymentCreateStatusRefreshFunc(apiClient client.MulticloudIaaS, id strin
 		ret, err := apiClient.Deployments.GetDeploymentByIDUsingGET(
 			deployments.NewGetDeploymentByIDUsingGETParams().WithDepID(strfmt.UUID(id)))
 		if err != nil {
-			return "", models.DeploymentStatusCREATEFAILED, err
+			return ret.Payload.ID.String(), models.DeploymentStatusCREATEFAILED, err
 		}
 
 		status := ret.Payload.Status
 		switch status {
-		case models.DeploymentStatusCREATEFAILED:
-			return []string{""}, status, fmt.Errorf(ret.Error())
 		case models.DeploymentStatusCREATEINPROGRESS:
-			return [...]string{id}, status, nil
-		case models.DeploymentStatusCREATESUCCESSFUL:
+			return ret.Payload.ID.String(), status, nil
+		case models.DeploymentStatusCREATESUCCESSFUL, models.DeploymentStatusCREATEFAILED:
 			deploymentID := ret.Payload.ID
 			return deploymentID.String(), status, nil
 		default:
@@ -387,28 +386,19 @@ func resourceDeploymentRead(d *schema.ResourceData, m interface{}) error {
 	}
 
 	deployment := *resp.Payload
-	d.Set("name", deployment.Name)
-	d.Set("description", deployment.Description)
 	d.Set("blueprint_id", deployment.BlueprintID)
 	d.Set("blueprint_version", deployment.BlueprintVersion)
 	d.Set("catalog_item_id", deployment.CatalogItemID)
 	d.Set("catalog_item_version", deployment.CatalogItemVersion)
 	d.Set("created_at", deployment.CreatedAt)
 	d.Set("created_by", deployment.CreatedBy)
-	//TODO: Set last_request
+	d.Set("description", deployment.Description)
 	d.Set("last_updated_at", deployment.LastUpdatedAt)
 	d.Set("last_updated_by", deployment.LastUpdatedBy)
 	d.Set("lease_expire_at", deployment.LeaseExpireAt)
+	d.Set("name", deployment.Name)
 	d.Set("project_id", deployment.ProjectID)
 	d.Set("status", deployment.Status)
-
-	if err := d.Set("project", flattenResourceReference(deployment.Project)); err != nil {
-		return fmt.Errorf("error setting project in deployment - error: %#v", err)
-	}
-
-	if err := d.Set("resources", flattenResources(deployment.Resources)); err != nil {
-		return fmt.Errorf("error setting resources in deployment - error: %#v", err)
-	}
 
 	if err := d.Set("expense", flattenExpense(deployment.Expense)); err != nil {
 		return fmt.Errorf("error setting deployment expense - error: %#v", err)
@@ -418,7 +408,19 @@ func resourceDeploymentRead(d *schema.ResourceData, m interface{}) error {
 		return fmt.Errorf("error setting deployment inputs - error: %#v", err)
 	}
 
-	log.Printf("Finished reading the vra_deployment resource with name %s", d.Get("name"))
+	if err := d.Set("last_request", flattenDeploymentRequest(deployment.LastRequest)); err != nil {
+		return fmt.Errorf("error setting deployment last_request - error: %#v", err)
+	}
+
+	if err := d.Set("project", flattenResourceReference(deployment.Project)); err != nil {
+		return fmt.Errorf("error setting project in deployment - error: %#v", err)
+	}
+
+	if err := d.Set("resources", flattenResources(deployment.Resources)); err != nil {
+		return fmt.Errorf("error setting resources in deployment - error: %#v", err)
+	}
+
+	log.Printf("Finished reading the vra_deployment resource with name '%s'. Current status: '%s'", d.Get("name"), d.Get("status"))
 	return nil
 }
 
@@ -635,10 +637,10 @@ func runAction(d *schema.ResourceData, apiClient *client.MulticloudIaaS, deploym
 
 	stateChangeFunc := resource.StateChangeConf{
 		Delay:      5 * time.Second,
-		Pending:    []string{models.DeploymentRequestStatusPENDING, models.DeploymentRequestStatusINPROGRESS},
+		Pending:    []string{models.DeploymentRequestStatusPENDING, models.DeploymentRequestStatusINITIALIZATION, models.DeploymentRequestStatusAPPROVALPENDING, models.DeploymentRequestStatusINPROGRESS},
 		Refresh:    deploymentActionStatusRefreshFunc(*apiClient, deploymentUUID, requestID),
-		Target:     []string{models.DeploymentRequestStatusSUCCESSFUL},
-		Timeout:    d.Timeout(schema.TimeoutCreate),
+		Target:     []string{models.DeploymentRequestStatusCOMPLETION, models.DeploymentRequestStatusAPPROVALREJECTED, models.DeploymentRequestStatusABORTED, models.DeploymentRequestStatusSUCCESSFUL, models.DeploymentRequestStatusFAILED},
+		Timeout:    d.Timeout(schema.TimeoutUpdate),
 		MinTimeout: 5 * time.Second,
 	}
 	_, err = stateChangeFunc.WaitForState()
@@ -659,11 +661,11 @@ func deploymentActionStatusRefreshFunc(apiClient client.MulticloudIaaS, deployme
 
 		status := ret.Payload.LastRequest.Status
 		switch status {
-		case models.DeploymentRequestStatusPENDING, models.DeploymentRequestStatusINPROGRESS:
+		case models.DeploymentRequestStatusPENDING, models.DeploymentRequestStatusINITIALIZATION, models.DeploymentRequestStatusAPPROVALPENDING, models.DeploymentRequestStatusINPROGRESS:
 			return [...]string{deploymentUUID.String()}, status, nil
-		case models.DeploymentRequestStatusFAILED:
+		case models.DeploymentRequestStatusAPPROVALREJECTED, models.DeploymentRequestStatusABORTED, models.DeploymentRequestStatusFAILED:
 			return []string{""}, status, fmt.Errorf(ret.Error())
-		case models.DeploymentRequestStatusSUCCESSFUL:
+		case models.DeploymentRequestStatusCOMPLETION, models.DeploymentRequestStatusSUCCESSFUL:
 			deploymentID := ret.Payload.ID
 			return deploymentID.String(), status, nil
 		default:

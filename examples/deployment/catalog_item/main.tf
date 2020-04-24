@@ -27,6 +27,12 @@ resource "vra_deployment" "this" {
     count  = 1
     flag   = false
   }
+
+  timeouts {
+    create = "30m"
+    delete = "30m"
+    update = "30m"
+  }
 }
 
 output "resources" {

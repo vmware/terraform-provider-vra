@@ -82,7 +82,7 @@ func dataSourceDeployment() *schema.Resource {
 					Type: schema.TypeString,
 				},
 			},
-			//TODO: add last_request
+			"last_request": deploymentRequestSchema(),
 			"last_updated_at": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
@@ -136,28 +136,19 @@ func dataSourceDeploymentRead(d *schema.ResourceData, m interface{}) error {
 
 	setFields := func(deployment *models.Deployment) error {
 		d.SetId(deployment.ID.String())
-		d.Set("name", deployment.Name)
-		d.Set("description", deployment.Description)
 		d.Set("blueprint_id", deployment.BlueprintID)
 		d.Set("blueprint_version", deployment.BlueprintVersion)
 		d.Set("catalog_item_id", deployment.CatalogItemID)
 		d.Set("catalog_item_version", deployment.CatalogItemVersion)
 		d.Set("created_at", deployment.CreatedAt)
 		d.Set("created_by", deployment.CreatedBy)
-		//TODO: Set last_request
+		d.Set("description", deployment.Description)
 		d.Set("last_updated_at", deployment.LastUpdatedAt)
 		d.Set("last_updated_by", deployment.LastUpdatedBy)
 		d.Set("lease_expire_at", deployment.LeaseExpireAt)
+		d.Set("name", deployment.Name)
 		d.Set("project_id", deployment.ProjectID)
 		d.Set("status", deployment.Status)
-
-		if err := d.Set("project", flattenResourceReference(deployment.Project)); err != nil {
-			return fmt.Errorf("error setting project in deployment - error: %#v", err)
-		}
-
-		if err := d.Set("resources", flattenResources(deployment.Resources)); err != nil {
-			return fmt.Errorf("error setting resources in deployment - error: %#v", err)
-		}
 
 		if err := d.Set("expense", flattenExpense(deployment.Expense)); err != nil {
 			return fmt.Errorf("error setting deployment expense - error: %#v", err)
@@ -165,6 +156,18 @@ func dataSourceDeploymentRead(d *schema.ResourceData, m interface{}) error {
 
 		if err := d.Set("inputs", expandInputs(deployment.Inputs)); err != nil {
 			return fmt.Errorf("error setting deployment inputs - error: %#v", err)
+		}
+
+		if err := d.Set("last_request", flattenDeploymentRequest(deployment.LastRequest)); err != nil {
+			return fmt.Errorf("error setting deployment last_request - error: %#v", err)
+		}
+
+		if err := d.Set("project", flattenResourceReference(deployment.Project)); err != nil {
+			return fmt.Errorf("error setting project in deployment - error: %#v", err)
+		}
+
+		if err := d.Set("resources", flattenResources(deployment.Resources)); err != nil {
+			return fmt.Errorf("error setting resources in deployment - error: %#v", err)
 		}
 		return nil
 	}
