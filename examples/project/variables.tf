@@ -4,12 +4,9 @@ variable "refresh_token" {
 variable "url" {
 }
 
-variable "cloud_account" {
+variable "insecure" {}
+
+variable "zone_name" {
 }
 
-variable "region" {
-}
-
-variable "zone" {
-
-}
+variable "project_name" {}

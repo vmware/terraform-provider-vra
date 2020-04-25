@@ -8,9 +8,9 @@ There are variables which need to be added to terraform.tfvars. The first are fo
 
 * `url` - The URL for the vRealize Automation (vRA) endpoint
 * `refresh_token` - The refresh token for the vRA account
-* `cloud_account` - The name of the cloud account added in vRA
-* `region` - The region within in the cloud account
-* `zone` - The compute placement zone within a region where machines can be placed
+* `insecure` - `false` for vRA Cloud and `true` for vRA on-prem
+* `zone_name` - The compute placement zone within a region where machines can be placed
+* `project_name` - Project name
 
 To facilitate adding these variables, a sample tfvars file can be copied first:
 ```shell

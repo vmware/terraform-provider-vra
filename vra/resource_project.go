@@ -49,17 +49,35 @@ func resourceProject() *schema.Resource {
 				Optional: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"zone_id": {
-							Type:     schema.TypeString,
-							Required: true,
-						},
-						"priority": {
-							Type:     schema.TypeInt,
-							Optional: true,
+						"cpu_limit": {
+							Type:        schema.TypeInt,
+							Optional:    true,
+							Description: "The maximum amount of cpus that can be used by this cloud zone. Default is 0 (unlimited cpu).",
 						},
 						"max_instances": {
-							Type:     schema.TypeInt,
-							Optional: true,
+							Type:        schema.TypeInt,
+							Optional:    true,
+							Description: "The maximum number of instances that can be provisioned in this cloud zone. Default is 0 (unlimited instances)",
+						},
+						"memory_limit_mb": {
+							Type:        schema.TypeInt,
+							Optional:    true,
+							Description: "The maximum amount of memory that can be used by this cloud zone. Default is 0 (unlimited memory).",
+						},
+						"priority": {
+							Type:        schema.TypeInt,
+							Optional:    true,
+							Description: "The priority of this zone in the current project. Lower numbers mean higher priority. Default is 0 (highest)",
+						},
+						"storage_limit_gb": {
+							Type:        schema.TypeInt,
+							Optional:    true,
+							Description: "Upper limit on storage that can be requested from a cloud zone which is part of this project. Default is 0 (unlimited storage). Supported only for vSphere cloud zones.",
+						},
+						"zone_id": {
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: "The Cloud Zone Id",
 						},
 					},
 				},
@@ -198,8 +216,11 @@ func expandZoneAssignment(configZoneAssignments []interface{}) []*models.ZoneAss
 		configZoneAssignment := configZone.(map[string]interface{})
 
 		za := models.ZoneAssignmentConfig{
+			CPULimit:           int64(configZoneAssignment["cpu_limit"].(int)),
 			MaxNumberInstances: int64(configZoneAssignment["max_instances"].(int)),
+			MemoryLimitMB:      int64(configZoneAssignment["memory_limit_mb"].(int)),
 			Priority:           int32(configZoneAssignment["priority"].(int)),
+			StorageLimitGB:     int64(configZoneAssignment["storage_limit_gb"].(int)),
 			ZoneID:             configZoneAssignment["zone_id"].(string),
 		}
 
@@ -213,9 +234,12 @@ func flattenZoneAssignment(list []*models.ZoneAssignmentConfig) []map[string]int
 	result := make([]map[string]interface{}, 0, len(list))
 	for _, zoneAssignment := range list {
 		l := map[string]interface{}{
-			"max_instances": zoneAssignment.MaxNumberInstances,
-			"priority":      zoneAssignment.Priority,
-			"zone_id":       zoneAssignment.ZoneID,
+			"cpu_limit":        zoneAssignment.CPULimit,
+			"max_instances":    zoneAssignment.MaxNumberInstances,
+			"memory_limit_mb":  zoneAssignment.MemoryLimitMB,
+			"priority":         zoneAssignment.Priority,
+			"storage_limit_gb": zoneAssignment.StorageLimitGB,
+			"zone_id":          zoneAssignment.ZoneID,
 		}
 
 		result = append(result, l)

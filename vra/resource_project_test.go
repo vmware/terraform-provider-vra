@@ -105,29 +105,34 @@ resource "vra_cloud_account_aws" "my-cloud-account" {
 }
 
  resource "vra_zone" "my-zone" {
-    name = "my-vra-zone-%d"
+    name 		= "my-vra-zone-%d"
 	description = "description my-vra-zone"
-	region_id = "${data.vra_region.us-east-1-region.id}"
+	region_id 	= "${data.vra_region.us-east-1-region.id}"
+
     tags {
-        key = "mykey"
-        value = "myvalue"
+        key 	= "mykey"
+        value 	= "myvalue"
     }
     tags {
-        key = "foo"
-        value = "bar"
+        key 	= "foo"
+        value	= "bar"
     }
     tags {
-        key = "faz"
-        value = "baz"
+        key 	= "faz"
+        value 	= "baz"
     }
 }
 resource "vra_project" "my-project" {
-	name = "my-project-%d"
+	name 		= "my-project-%d"
 	description = "update test project"
+
 	zone_assignments {
-		zone_id       = vra_zone.my-zone.id
-		priority      = 1
-		max_instances = 2
+		zone_id       	 = vra_zone.my-zone.id
+		priority      	 = 1
+		max_instances 	 = 2
+		cpu_limit	  	 = 1024
+		memory_limit_mb  = 8192
+		storage_limit_gb = 65536
 	  }
  }`, id, secret, rInt, rInt)
 }
