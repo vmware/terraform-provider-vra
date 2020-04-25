@@ -1,28 +1,27 @@
 provider "vra" {
   url           = var.url
   refresh_token = var.refresh_token
-}
-
-data "vra_cloud_account_aws" "this" {
-  name = var.cloud_account
-}
-
-data "vra_region" "this" {
-  cloud_account_id = data.vra_cloud_account_aws.this.id
-  region           = var.region
+  insecure      = var.insecure
 }
 
 data "vra_zone" "this" {
-  name = var.zone
+  name = var.zone_name
 }
 
 resource "vra_project" "this" {
-  name        = "tf-vra-project"
+  name        = var.project_name
   description = "terraform test project"
 
   zone_assignments {
-    zone_id       = data.vra_zone.this.id
-    priority      = 1
-    max_instances = 2
+    zone_id          = data.vra_zone.this.id
+    priority         = 1
+    max_instances    = 2
+    cpu_limit        = 1024
+    memory_limit_mb  = 8192
+    storage_limit_gb = 65536
   }
+
+  shared_resources = true
+
+  administrators = ["jason@vra.local"]
 }
