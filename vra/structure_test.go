@@ -34,7 +34,7 @@ func TestExpandInputs(t *testing.T) {
 		t.Errorf("bool type input is not expanded correctly.")
 	}
 
-	if expandedInputs["fraction"] != fmt.Sprint("2.4") {
+	if expandedInputs["fraction"] != "2.4" {
 		t.Errorf("float type input is not expanded correctly.")
 	}
 

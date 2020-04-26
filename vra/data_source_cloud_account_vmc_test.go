@@ -92,15 +92,15 @@ func testAccDataSourceVRACloudAccountVMCBase(rInt int) string {
 }
 
 func testAccDataSourceVRACloudAccountVMCNotFound(rInt int) string {
-	return testAccDataSourceVRACloudAccountVMCBase(rInt) + fmt.Sprintf(`
+	return testAccDataSourceVRACloudAccountVMCBase(rInt) + `
 	data "vra_cloud_account_vmc" "this" {
 		name = "foobar"
-	}`)
+	}`
 }
 
 func testAccDataSourceVRACloudAccountVMC(rInt int) string {
-	return testAccDataSourceVRACloudAccountVMCBase(rInt) + fmt.Sprintf(`
+	return testAccDataSourceVRACloudAccountVMCBase(rInt) + `
 	data "vra_cloud_account_vmc" "this" {
 		name = "${vra_cloud_account_vmc.this.name}"
-	}`)
+	}`
 }

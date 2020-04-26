@@ -447,7 +447,6 @@ func resourceDeploymentUpdate(d *schema.ResourceData, m interface{}) error {
 		}
 	}
 
-	d.Partial(false)
 	log.Printf("Finished updating the vra_deployment resource with name %s", d.Get("name"))
 	return resourceDeploymentRead(d, m)
 }
@@ -469,8 +468,6 @@ func updateDeploymentMetadata(d *schema.ResourceData, apiClient *client.Multiclo
 		return err
 	}
 
-	d.SetPartial("name")
-	d.SetPartial("description")
 	log.Printf("Finished updating deployment name and description")
 	return nil
 }
@@ -574,7 +571,6 @@ func runDeploymentUpdateAction(d *schema.ResourceData, apiClient *client.Multicl
 			return err
 		}
 
-		d.SetPartial("inputs")
 		log.Printf("Finished updating vra_deployment %s with inputs", name)
 	}
 

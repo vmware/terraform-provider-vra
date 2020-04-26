@@ -1,7 +1,6 @@
 package vra
 
 import (
-	"fmt"
 	"regexp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
@@ -60,10 +59,10 @@ func TestAccDataSourceVRAStorageProfile(t *testing.T) {
 }
 
 func testAccDataSourceVRAStorageProfileNotFound(rInt int) string {
-	return testAccCheckVRAStorageProfileConfig(rInt) + fmt.Sprintf(`
+	return testAccCheckVRAStorageProfileConfig(rInt) + `
 	data "vra_storage_profile" "this" {
 		filter = "externalRegionId eq 'foobar'"
-	}`)
+	}`
 }
 
 // TBD: Enable filter by name once this is fixed https://jira.eng.vmware.com/browse/VCOM-13947
@@ -75,15 +74,15 @@ func testAccDataSourceVRAStorageProfileNotFound(rInt int) string {
 // }
 
 func testAccDataSourceVRAStorageProfileExternalRegionIDFilter(rInt int) string {
-	return testAccCheckVRAStorageProfileConfig(rInt) + fmt.Sprintf(`
+	return testAccCheckVRAStorageProfileConfig(rInt) + `
 	data "vra_storage_profile" "this" {
 		filter = "externalRegionId eq '${data.vra_region.this.id}'"
-	}`)
+	}`
 }
 
 func testAccDataSourceVRAStorageProfileByID(rInt int) string {
-	return testAccCheckVRAStorageProfileConfig(rInt) + fmt.Sprintf(`
+	return testAccCheckVRAStorageProfileConfig(rInt) + `
 	data "vra_storage_profile" "this" {
 		id = vra_storage_profile.this.id
-	}`)
+	}`
 }

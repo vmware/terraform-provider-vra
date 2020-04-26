@@ -1,8 +1,6 @@
 package vra
 
 import (
-	"fmt"
-
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 
@@ -59,29 +57,29 @@ func TestAccDataSourceVRANetworkProfile(t *testing.T) {
 }
 
 func testAccDataSourceVRANetworkProfileNotFound(rInt int) string {
-	return testAccCheckVRANetworkProfileConfig(rInt) + fmt.Sprintf(`
+	return testAccCheckVRANetworkProfileConfig(rInt) + `
 	data "vra_network_profile" "this" {
 		filter = "name eq 'foobar'"
-	}`)
+	}`
 }
 
 func testAccDataSourceVRANetworkProfileNameFilter(rInt int) string {
-	return testAccCheckVRANetworkProfileConfig(rInt) + fmt.Sprintf(`
+	return testAccCheckVRANetworkProfileConfig(rInt) + `
 	data "vra_network_profile" "this" {
 		filter = "name eq '${vra_network_profile.this.name}'"
-	}`)
+	}`
 }
 
 func testAccDataSourceVRANetworkProfileRegionIDFilter(rInt int) string {
-	return testAccCheckVRANetworkProfileConfig(rInt) + fmt.Sprintf(`
+	return testAccCheckVRANetworkProfileConfig(rInt) + `
 	data "vra_network_profile" "this" {
 		filter = "regionId eq '${data.vra_region.this.id}'"
-	}`)
+	}`
 }
 
 func testAccDataSourceVRANetworkProfileByID(rInt int) string {
-	return testAccCheckVRANetworkProfileConfig(rInt) + fmt.Sprintf(`
+	return testAccCheckVRANetworkProfileConfig(rInt) + `
 	data "vra_network_profile" "this" {
 		id = vra_network_profile.this.id
-	}`)
+	}`
 }

@@ -67,15 +67,15 @@ resource "vra_cloud_account_gcp" "my-cloud-account" {
 }
 
 func testAccDataSourceVRACloudAccountGCPNotFound(rInt int) string {
-	return testAccDataSourceVRACloudAccountGCPBase(rInt) + fmt.Sprintf(`
+	return testAccDataSourceVRACloudAccountGCPBase(rInt) + `
 	data "vra_cloud_account_gcp" "test-cloud-account" {
 		name = "foobar"
-	}`)
+	}`
 }
 
 func testAccDataSourceVRACloudAccountGCP(rInt int) string {
-	return testAccDataSourceVRACloudAccountGCPBase(rInt) + fmt.Sprintf(`
+	return testAccDataSourceVRACloudAccountGCPBase(rInt) + `
 	data "vra_cloud_account_gcp" "test-cloud-account" {
 		name = "${vra_cloud_account_gcp.my-cloud-account.name}"
-	}`)
+	}`
 }

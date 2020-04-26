@@ -57,15 +57,15 @@ func testAccDataSourceVRACloudAccountAzureBase(rInt int) string {
 }
 
 func testAccDataSourceVRACloudAccountAzureNotFound(rInt int) string {
-	return testAccDataSourceVRACloudAccountAzureBase(rInt) + fmt.Sprintf(`
+	return testAccDataSourceVRACloudAccountAzureBase(rInt) + `
 	data "vra_cloud_account_azure" "test-cloud-account" {
 		name = "foobar"
-	}`)
+	}`
 }
 
 func testAccDataSourceVRACloudAccountAzure(rInt int) string {
-	return testAccDataSourceVRACloudAccountAzureBase(rInt) + fmt.Sprintf(`
+	return testAccDataSourceVRACloudAccountAzureBase(rInt) + `
 	data "vra_cloud_account_azure" "test-cloud-account" {
 		name = "${vra_cloud_account_azure.my-cloud-account.name}"
-	}`)
+	}`
 }
