@@ -101,7 +101,7 @@ func resourceProjectCreate(d *schema.ResourceData, m interface{}) error {
 		Description:                  description,
 		Members:                      members,
 		Name:                         &name,
-		SharedResources:              sharedResources,
+		SharedResources:              withBool(sharedResources),
 		ZoneAssignmentConfigurations: zoneAssignment,
 	}))
 	if err != nil {
@@ -153,7 +153,7 @@ func resourceProjectUpdate(d *schema.ResourceData, m interface{}) error {
 		Description:                  description,
 		Members:                      members,
 		Name:                         &name,
-		SharedResources:              sharedResources,
+		SharedResources:              withBool(sharedResources),
 		ZoneAssignmentConfigurations: zoneAssignment,
 	}))
 	if err != nil {
