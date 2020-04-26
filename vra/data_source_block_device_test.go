@@ -1,8 +1,6 @@
 package vra
 
 import (
-	"fmt"
-
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 
@@ -49,22 +47,22 @@ func TestAccDataSourceVRABlockDevice(t *testing.T) {
 }
 
 func testAccDataSourceVRABlockDeviceNotFound(rInt int) string {
-	return testAccCheckVRABlockDeviceConfig(rInt) + fmt.Sprintf(`
+	return testAccCheckVRABlockDeviceConfig(rInt) + `
 	data "vra_block_device" "this" {
 		filter = "name eq 'foobar'"
-	}`)
+	}`
 }
 
 func testAccDataSourceVRABlockDeviceNameFilter(rInt int) string {
-	return testAccCheckVRABlockDeviceConfig(rInt) + fmt.Sprintf(`
+	return testAccCheckVRABlockDeviceConfig(rInt) + `
 	data "vra_block_device" "this" {
 		filter = "name eq '${vra_block_device.this.name}'"
-	}`)
+	}`
 }
 
 func testAccDataSourceVRABlockDeviceByID(rInt int) string {
-	return testAccCheckVRABlockDeviceConfig(rInt) + fmt.Sprintf(`
+	return testAccCheckVRABlockDeviceConfig(rInt) + `
 	data "vra_block_device" "this" {
 		id = vra_block_device.this.id
-	}`)
+	}`
 }

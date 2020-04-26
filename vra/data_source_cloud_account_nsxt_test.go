@@ -73,15 +73,15 @@ func testAccDataSourceVRACloudAccountNSXTBase(rInt int) string {
 }
 
 func testAccDataSourceVRACloudAccountNSXTNotFound(rInt int) string {
-	return testAccDataSourceVRACloudAccountNSXTBase(rInt) + fmt.Sprintf(`
+	return testAccDataSourceVRACloudAccountNSXTBase(rInt) + `
 	data "vra_cloud_account_nsxt" "this" {
 		name = "foobar"
-	}`)
+	}`
 }
 
 func testAccDataSourceVRACloudAccountNSXT(rInt int) string {
-	return testAccDataSourceVRACloudAccountNSXTBase(rInt) + fmt.Sprintf(`
+	return testAccDataSourceVRACloudAccountNSXTBase(rInt) + `
 	data "vra_cloud_account_nsxt" "this" {
 		name = "${vra_cloud_account_nsxt.this.name}"
-	}`)
+	}`
 }

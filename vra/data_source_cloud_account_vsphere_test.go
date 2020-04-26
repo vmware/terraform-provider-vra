@@ -77,15 +77,15 @@ func testAccDataSourceVRACloudAccountVsphereBase(rInt int) string {
 }
 
 func testAccDataSourceVRACloudAccountVsphereNotFound(rInt int) string {
-	return testAccDataSourceVRACloudAccountVsphereBase(rInt) + fmt.Sprintf(`
+	return testAccDataSourceVRACloudAccountVsphereBase(rInt) + `
 	data "vra_cloud_account_vsphere" "test-cloud-account" {
 		name = "foobar"
-	}`)
+	}`
 }
 
 func testAccDataSourceVRACloudAccountVsphere(rInt int) string {
-	return testAccDataSourceVRACloudAccountVsphereBase(rInt) + fmt.Sprintf(`
+	return testAccDataSourceVRACloudAccountVsphereBase(rInt) + `
 	data "vra_cloud_account_vsphere" "test-cloud-account" {
 		name = vra_cloud_account_vsphere.my-cloud-account.name
-	}`)
+	}`
 }

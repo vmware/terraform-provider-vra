@@ -1,8 +1,6 @@
 package vra
 
 import (
-	"fmt"
-
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 
@@ -49,22 +47,22 @@ func TestAccDataSourceVRAMachine(t *testing.T) {
 }
 
 func testAccDataSourceVRAMachineNotFound(rInt int) string {
-	return testAccCheckVRAMachineConfig(rInt) + fmt.Sprintf(`
+	return testAccCheckVRAMachineConfig(rInt) + `
 	data "vra_machine" "this" {
 		filter = "name eq 'foobar'"
-	}`)
+	}`
 }
 
 func testAccDataSourceVRAMachineNameFilter(rInt int) string {
-	return testAccCheckVRAMachineConfig(rInt) + fmt.Sprintf(`
+	return testAccCheckVRAMachineConfig(rInt) + `
 	data "vra_machine" "this" {
 		filter = "name eq '${vra_machine.my_machine.name}'"
-	}`)
+	}`
 }
 
 func testAccDataSourceVRAMachineByID(rInt int) string {
-	return testAccCheckVRAMachineConfig(rInt) + fmt.Sprintf(`
+	return testAccCheckVRAMachineConfig(rInt) + `
 	data "vra_machine" "this" {
 		id = vra_machine.my_machine.id
-	}`)
+	}`
 }

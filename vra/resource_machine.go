@@ -334,7 +334,6 @@ func resourceMachineUpdate(d *schema.ResourceData, m interface{}) error {
 	}
 
 	log.Printf("finished updating the vra_machine resource with name %s", d.Get("name"))
-	d.Partial(false)
 	return resourceMachineRead(d, m)
 }
 
@@ -434,7 +433,6 @@ func attachAndDetachDisks(d *schema.ResourceData, apiClient *client.MulticloudIa
 
 	}
 
-	d.SetPartial("disks")
 	log.Printf("finished to attach/detach disks to vra_machine resource with name %s", d.Get("name"))
 	return nil
 }
@@ -456,8 +454,6 @@ func updateMachine(d *schema.ResourceData, apiClient *client.MulticloudIaaS, id 
 		return err
 	}
 
-	d.SetPartial("description")
-	d.SetPartial("tags")
 	log.Printf("finished updating description/tags in vra_machine resource with name %s", d.Get("name"))
 	return nil
 }
@@ -504,7 +500,6 @@ func resizeMachine(d *schema.ResourceData, apiClient *client.MulticloudIaaS, id 
 	}
 	machineIds := resourceIds.([]string)
 	d.SetId(machineIds[0])
-	d.SetPartial("flavor")
 	log.Printf("Finished to resize vra_machine resource with name %s", d.Get("name"))
 	return nil
 }
