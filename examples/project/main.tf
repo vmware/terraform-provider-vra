@@ -21,7 +21,11 @@ resource "vra_project" "this" {
     storage_limit_gb = 65536
   }
 
-  shared_resources = true
+  shared_resources = false
 
   administrators = ["jason@vra.local"]
+}
+
+data "vra_project" "this" {
+  name = vra_project.this.name
 }
