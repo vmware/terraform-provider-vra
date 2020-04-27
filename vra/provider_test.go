@@ -378,3 +378,23 @@ func testAccPreCheckVra(t *testing.T) {
 		t.Fatal("VRA_REFRESH_TOKEN or VRA_ACCESS_TOKEN must be set for acceptance tests")
 	}
 }
+
+func testAccPreCheckContentSource(t *testing.T) {
+	if os.Getenv("VRA_REFRESH_TOKEN") == "" && os.Getenv("VRA_ACCESS_TOKEN") == "" {
+		t.Fatal("VRA_REFRESH_TOKEN or VRA_ACCESS_TOKEN must be set for acceptance tests")
+	}
+
+	envVars := [...]string{
+		"VRA_URL",
+		"VRA_INTEGRATION_ID",
+		"VRA_CONTENT_SOURCE_PATH",
+		"VRA_CONTENT_SOURCE_BRANCH",
+		"VRA_CONTENT_SOURCE_REPO",
+	}
+
+	for _, name := range envVars {
+		if v := os.Getenv(name); v == "" {
+			t.Fatalf("%s must be set for acceptance tests\n", name)
+		}
+	}
+}

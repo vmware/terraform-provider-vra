@@ -80,6 +80,7 @@ func Provider() *schema.Provider {
 			"vra_cloud_account_nsxv":    resourceCloudAccountNSXV(),
 			"vra_cloud_account_vmc":     resourceCloudAccountVMC(),
 			"vra_cloud_account_vsphere": resourceCloudAccountVsphere(),
+			"vra_content_source":        resourceContentSource(),
 			"vra_deployment":            resourceDeployment(),
 			"vra_flavor_profile":        resourceFlavorProfile(),
 			"vra_image_profile":         resourceImageProfile(),
