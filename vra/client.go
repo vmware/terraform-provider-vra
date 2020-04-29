@@ -6,6 +6,7 @@ import (
 	"net/http"
 	neturl "net/url"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/go-openapi/runtime"
@@ -17,12 +18,6 @@ import (
 	"github.com/vmware/vra-sdk-go/pkg/models"
 )
 
-// Client the VRA Client
-type Client struct {
-	url       string
-	apiClient *client.MulticloudIaaS
-}
-
 // API Versions
 const (
 	CatalogAPIVersion = "2019-01-15"
@@ -30,15 +25,62 @@ const (
 
 const IncreasedTimeOut = 60 * time.Second
 
+type ReauthTimeout struct {
+	mu      sync.Mutex
+	seconds time.Duration
+	f       func()
+	timer   *time.Timer
+	reload  bool
+}
+
+func InitializeTimeout(d time.Duration) *ReauthTimeout {
+	t := ReauthTimeout{seconds: d, reload: false}
+
+	if d.Seconds() != 0 {
+		t.f = func() {
+			t.mu.Lock()
+			t.reload = true
+			t.mu.Unlock()
+		}
+		t.timer = time.AfterFunc(d, t.f)
+	}
+
+	return &t
+}
+
+func (t *ReauthTimeout) ShouldReload() bool {
+	t.mu.Lock()
+	reload := t.reload
+	if reload {
+		// reset the timer
+		t.reload = false
+		t.timer = time.AfterFunc(t.seconds, t.f)
+	}
+	t.mu.Unlock()
+	return reload
+}
+
 type ReauthorizeRuntime struct {
 	origClient   httptransport.Runtime
 	url          string
 	refreshToken string
 	insecure     bool
+	reauthtimer  *ReauthTimeout
 }
 
 // Submit implements the ClientTransport interface as a wrapper to retry a 401 with a new token.
 func (r *ReauthorizeRuntime) Submit(operation *runtime.ClientOperation) (interface{}, error) {
+	if r.reauthtimer.ShouldReload() {
+		log.Printf("Reauthorize timer expired, generating a new access token")
+		token, tokenErr := getToken(r.url, r.refreshToken, r.insecure)
+		if tokenErr != nil {
+			return nil, tokenErr
+		}
+
+		// Fix up the Authorization header with the new token
+		r.origClient.DefaultAuthentication = httptransport.APIKeyAuth("Authorization", "header", "Bearer "+token)
+	}
+
 	result, err := r.origClient.Submit(operation)
 	if err == nil {
 		return result, err
@@ -62,8 +104,14 @@ func (r *ReauthorizeRuntime) Submit(operation *runtime.ClientOperation) (interfa
 	return result, err
 }
 
+// Client the VRA Client
+type Client struct {
+	url       string
+	apiClient *client.MulticloudIaaS
+}
+
 // NewClientFromRefreshToken configures and returns a VRA "Client" struct using "refresh_token" from provider config
-func NewClientFromRefreshToken(url, refreshToken string, insecure bool) (interface{}, error) {
+func NewClientFromRefreshToken(url, refreshToken string, insecure bool, reauth string) (interface{}, error) {
 	token, err := getToken(url, refreshToken, insecure)
 	if err != nil {
 		return "", err
@@ -74,7 +122,12 @@ func NewClientFromRefreshToken(url, refreshToken string, insecure bool) (interfa
 	}
 
 	t := apiClient.Transport.(*httptransport.Runtime)
-	apiClient.SetTransport(&ReauthorizeRuntime{*t, url, refreshToken, insecure})
+	reautDuration, err := time.ParseDuration(reauth)
+
+	if err != nil {
+		return "", err
+	}
+	apiClient.SetTransport(&ReauthorizeRuntime{*t, url, refreshToken, insecure, InitializeTimeout(reautDuration)})
 
 	return &Client{url, apiClient}, nil
 }
