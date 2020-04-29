@@ -36,6 +36,12 @@ func Provider() *schema.Provider {
 				Optional:    true,
 				Description: "Specify whether to validate TLS certificates.",
 			},
+			"reauthorize_timeout": {
+				Type:        schema.TypeString,
+				DefaultFunc: schema.EnvDefaultFunc("VRA7_REAUTHORIZE_TIMEOUT", nil),
+				Optional:    true,
+				Description: "Specify timeout for how often to reauthorize the access token",
+			},
 		},
 
 		DataSourcesMap: map[string]*schema.Resource{
@@ -113,6 +119,7 @@ func configureProvider(d *schema.ResourceData) (interface{}, error) {
 	}
 
 	insecure := d.Get("insecure").(bool)
+	reauth := d.Get("reauthorize_timeout").(string)
 
 	if accessToken == "" && refreshToken == "" {
 		return nil, errors.New("refresh_token or access_token required")
@@ -122,5 +129,5 @@ func configureProvider(d *schema.ResourceData) (interface{}, error) {
 		return NewClientFromAccessToken(url, accessToken, insecure)
 	}
 
-	return NewClientFromRefreshToken(url, refreshToken, insecure)
+	return NewClientFromRefreshToken(url, refreshToken, insecure, reauth)
 }
