@@ -17,15 +17,15 @@ func resourceFlavorProfile() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
-			"description": &schema.Schema{
+			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"flavor_mapping": &schema.Schema{
+			"flavor_mapping": {
 				Type:     schema.TypeSet,
 				Optional: true,
 				Elem: &schema.Resource{
@@ -49,7 +49,7 @@ func resourceFlavorProfile() *schema.Resource {
 					},
 				},
 			},
-			"region_id": &schema.Schema{
+			"region_id": {
 				Type:     schema.TypeString,
 				Required: true,
 			},

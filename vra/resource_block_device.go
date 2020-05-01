@@ -26,83 +26,83 @@ func resourceBlockDevice() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
-			"capacity_in_gb": &schema.Schema{
+			"capacity_in_gb": {
 				Type:     schema.TypeInt,
 				Required: true,
 			},
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 				DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
 					return !strings.HasPrefix(new, old)
 				},
 			},
-			"project_id": &schema.Schema{
+			"project_id": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
 			"constraints": constraintsSchema(),
-			"custom_properties": &schema.Schema{
+			"custom_properties": {
 				Type:     schema.TypeMap,
 				Computed: true,
 				Optional: true,
 			},
-			"description": &schema.Schema{
+			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"deployment_id": &schema.Schema{
+			"deployment_id": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 			},
-			"disk_content_base_64": &schema.Schema{
+			"disk_content_base_64": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"encrypted": &schema.Schema{
+			"encrypted": {
 				Type:     schema.TypeBool,
 				Optional: true,
 			},
-			"persistent": &schema.Schema{
+			"persistent": {
 				Type:     schema.TypeBool,
 				Optional: true,
 			},
-			"source_reference": &schema.Schema{
+			"source_reference": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
 			"tags": tagsSchema(),
-			"created_at": &schema.Schema{
+			"created_at": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"external_id": &schema.Schema{
+			"external_id": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"external_region_id": &schema.Schema{
+			"external_region_id": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"external_zone_id": &schema.Schema{
+			"external_zone_id": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"org_id": &schema.Schema{
+			"org_id": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"owner": &schema.Schema{
+			"owner": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
 			"links": linksSchema(),
-			"status": &schema.Schema{
+			"status": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"updated_at": &schema.Schema{
+			"updated_at": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},

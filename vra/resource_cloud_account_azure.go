@@ -21,38 +21,38 @@ func resourceCloudAccountAzure() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 
-			"description": &schema.Schema{
+			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"application_id": &schema.Schema{
+			"application_id": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"application_key": &schema.Schema{
+			"application_key": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"subscription_id": &schema.Schema{
+			"subscription_id": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"tenant_id": &schema.Schema{
+			"tenant_id": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"regions": &schema.Schema{
+			"regions": {
 				Type:     schema.TypeList,
 				Optional: true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
 			},
-			"region_ids": &schema.Schema{
+			"region_ids": {
 				Type:     schema.TypeList,
 				Computed: true,
 				Elem: &schema.Schema{

@@ -19,7 +19,7 @@ func dataSourceNetwork() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
@@ -27,53 +27,53 @@ func dataSourceNetwork() *schema.Resource {
 					return !strings.HasPrefix(new, old)
 				},
 			},
-			"cidr": &schema.Schema{
+			"cidr": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"description": &schema.Schema{
+			"description": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"deployment_id": &schema.Schema{
+			"deployment_id": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"project_id": &schema.Schema{
+			"project_id": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"custom_properties": &schema.Schema{
+			"custom_properties": {
 				Type:     schema.TypeMap,
 				Computed: true,
 			},
 			"constraints": constraintsSchema(),
 			"tags":        tagsSchema(),
-			"outbound_access": &schema.Schema{
+			"outbound_access": {
 				Type:     schema.TypeBool,
 				Computed: true,
 			},
-			"external_zone_id": &schema.Schema{
+			"external_zone_id": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"external_id": &schema.Schema{
+			"external_id": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"self_link": &schema.Schema{
+			"self_link": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"updated_at": &schema.Schema{
+			"updated_at": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"owner": &schema.Schema{
+			"owner": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"organization_id": &schema.Schema{
+			"organization_id": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},

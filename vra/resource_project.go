@@ -17,34 +17,34 @@ func resourceProject() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
-			"administrators": &schema.Schema{
+			"administrators": {
 				Type:     schema.TypeSet,
 				Optional: true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
 			},
-			"description": &schema.Schema{
+			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"members": &schema.Schema{
+			"members": {
 				Type:     schema.TypeSet,
 				Optional: true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
 			},
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"shared_resources": &schema.Schema{
+			"shared_resources": {
 				Type:     schema.TypeBool,
 				Optional: true,
 				Default:  true,
 			},
-			"zone_assignments": &schema.Schema{
+			"zone_assignments": {
 				Type:     schema.TypeSet,
 				Optional: true,
 				Elem: &schema.Resource{

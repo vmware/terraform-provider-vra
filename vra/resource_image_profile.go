@@ -17,15 +17,15 @@ func resourceImageProfile() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
-			"description": &schema.Schema{
+			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"image_mapping": &schema.Schema{
+			"image_mapping": {
 				Type:     schema.TypeSet,
 				Optional: true,
 				Elem: &schema.Resource{
@@ -73,7 +73,7 @@ func resourceImageProfile() *schema.Resource {
 					},
 				},
 			},
-			"region_id": &schema.Schema{
+			"region_id": {
 				Type:     schema.TypeString,
 				Required: true,
 			},

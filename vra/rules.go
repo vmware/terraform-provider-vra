@@ -12,31 +12,31 @@ func rulesSchema(isRequired bool) *schema.Schema {
 		Optional: !isRequired,
 		Elem: &schema.Resource{
 			Schema: map[string]*schema.Schema{
-				"access": &schema.Schema{
+				"access": {
 					Type:     schema.TypeString,
 					Required: true,
 				},
-				"direction": &schema.Schema{
+				"direction": {
 					Type:     schema.TypeString,
 					Required: true,
 				},
-				"ip_range_cidr": &schema.Schema{
+				"ip_range_cidr": {
 					Type:     schema.TypeInt,
 					Required: true,
 				},
-				"name": &schema.Schema{
+				"name": {
 					Type:     schema.TypeString,
 					Optional: true,
 				},
-				"ports": &schema.Schema{
+				"ports": {
 					Type:     schema.TypeString,
 					Required: true,
 				},
-				"protocol": &schema.Schema{
+				"protocol": {
 					Type:     schema.TypeString,
 					Required: true,
 				},
-				"service": &schema.Schema{
+				"service": {
 					Type:     schema.TypeString,
 					Optional: true,
 				},

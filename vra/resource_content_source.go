@@ -22,18 +22,18 @@ func resourceContentSource() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
-			"type_id": &schema.Schema{
+			"type_id": {
 				Type:         schema.TypeString,
 				Required:     true,
 				ForceNew:     true,
 				ValidateFunc: validation.StringInSlice([]string{"com.gitlab", "com.github", "com.vmware.marketplace"}, true),
 			},
-			"project_id": &schema.Schema{
+			"project_id": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
@@ -47,33 +47,33 @@ func resourceContentSource() *schema.Resource {
 			//		Type: schema.TypeString,
 			//	},
 			//},
-			"created_at": &schema.Schema{
+			"created_at": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"created_by": &schema.Schema{
+			"created_by": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"last_updated_at": &schema.Schema{
+			"last_updated_at": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"last_updated_by": &schema.Schema{
+			"last_updated_by": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"org_id": &schema.Schema{
+			"org_id": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"description": &schema.Schema{
+			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
 			},
 			//Treating this as a set requires us to do some gymnastics later with expanding/flattening
-			"config": &schema.Schema{
+			"config": {
 				Type:     schema.TypeSet,
 				MaxItems: 1,
 				Required: true,
@@ -108,7 +108,7 @@ func resourceContentSource() *schema.Resource {
 					},
 				},
 			},
-			"sync_enabled": &schema.Schema{
+			"sync_enabled": {
 				Type:     schema.TypeBool,
 				Required: true,
 				ForceNew: true,

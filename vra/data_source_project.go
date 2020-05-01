@@ -14,7 +14,7 @@ func dataSourceProject() *schema.Resource {
 		Read: dataSourceProjectRead,
 
 		Schema: map[string]*schema.Schema{
-			"administrators": &schema.Schema{
+			"administrators": {
 				Type:     schema.TypeSet,
 				Computed: true,
 				Optional: true,
@@ -27,7 +27,7 @@ func dataSourceProject() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
-			"members": &schema.Schema{
+			"members": {
 				Type:     schema.TypeSet,
 				Computed: true,
 				Optional: true,
@@ -45,12 +45,12 @@ func dataSourceProject() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
-			"shared_resources": &schema.Schema{
+			"shared_resources": {
 				Type:     schema.TypeBool,
 				Computed: true,
 				Optional: true,
 			},
-			"zone_assignments": &schema.Schema{
+			"zone_assignments": {
 				Type:     schema.TypeSet,
 				Optional: true,
 				Elem: &schema.Resource{

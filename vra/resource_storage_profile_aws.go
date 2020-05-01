@@ -21,62 +21,62 @@ func resourceStorageProfileAws() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"default_item": &schema.Schema{
+			"default_item": {
 				Type:     schema.TypeBool,
 				Required: true,
 			},
-			"region_id": &schema.Schema{
+			"region_id": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"description": &schema.Schema{
+			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 			},
-			"device_type": &schema.Schema{
+			"device_type": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 			},
-			"iops": &schema.Schema{
+			"iops": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 			},
-			"supports_encryption": &schema.Schema{
+			"supports_encryption": {
 				Type:     schema.TypeBool,
 				Computed: true,
 				Optional: true,
 			},
 			"tags": tagsSchema(),
-			"volume_type": &schema.Schema{
+			"volume_type": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 			},
-			"created_at": &schema.Schema{
+			"created_at": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"external_region_id": &schema.Schema{
+			"external_region_id": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
 			"links": linksSchema(),
-			"organization_id": &schema.Schema{
+			"organization_id": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"owner": &schema.Schema{
+			"owner": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"updated_at": &schema.Schema{
+			"updated_at": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},

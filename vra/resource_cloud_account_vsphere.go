@@ -20,47 +20,47 @@ func resourceCloudAccountVsphere() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
-			"accept_self_signed_cert": &schema.Schema{
+			"accept_self_signed_cert": {
 				Type:     schema.TypeBool,
 				Optional: true,
 				Default:  false,
 			},
-			"associated_cloud_account_ids": &schema.Schema{
+			"associated_cloud_account_ids": {
 				Type:     schema.TypeList,
 				Optional: true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
 			},
-			"dcid": &schema.Schema{
+			"dcid": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"description": &schema.Schema{
+			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"hostname": &schema.Schema{
+			"hostname": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"password": &schema.Schema{
+			"password": {
 				Type:      schema.TypeString,
 				Required:  true,
 				Sensitive: true,
 			},
-			"regions": &schema.Schema{
+			"regions": {
 				Type:     schema.TypeList,
 				Required: true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
 			},
-			"region_ids": &schema.Schema{
+			"region_ids": {
 				Type:     schema.TypeList,
 				Computed: true,
 				Elem: &schema.Schema{
@@ -68,7 +68,7 @@ func resourceCloudAccountVsphere() *schema.Resource {
 				},
 			},
 			"tags": tagsSchema(),
-			"username": &schema.Schema{
+			"username": {
 				Type:     schema.TypeString,
 				Required: true,
 			},

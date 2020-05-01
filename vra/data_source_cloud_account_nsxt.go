@@ -13,22 +13,22 @@ func dataSourceCloudAccountNSXT() *schema.Resource {
 		Read: dataSourceCloudAccountNSXTRead,
 
 		Schema: map[string]*schema.Schema{
-			"associated_cloud_account_ids": &schema.Schema{
+			"associated_cloud_account_ids": {
 				Type:     schema.TypeList,
 				Computed: true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
 			},
-			"dc_id": &schema.Schema{
+			"dc_id": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"description": &schema.Schema{
+			"description": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"hostname": &schema.Schema{
+			"hostname": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -43,7 +43,7 @@ func dataSourceCloudAccountNSXT() *schema.Resource {
 				Computed: true,
 			},
 			"tags": tagsSchema(),
-			"username": &schema.Schema{
+			"username": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},

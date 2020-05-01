@@ -21,51 +21,51 @@ func resourceNetworkProfile() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"region_id": &schema.Schema{
+			"region_id": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"custom_properties": &schema.Schema{
+			"custom_properties": {
 				Type:     schema.TypeMap,
 				Computed: true,
 				Optional: true,
 			},
-			"description": &schema.Schema{
+			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"fabric_network_ids": &schema.Schema{
+			"fabric_network_ids": {
 				Type:     schema.TypeList,
 				Optional: true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
 			},
-			"isolated_network_cidr_prefix": &schema.Schema{
+			"isolated_network_cidr_prefix": {
 				Type:     schema.TypeInt,
 				Optional: true,
 			},
-			"isolated_external_fabric_network_id": &schema.Schema{
+			"isolated_external_fabric_network_id": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"isolated_network_domain_cidr": &schema.Schema{
+			"isolated_network_domain_cidr": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"isolated_network_domain_id": &schema.Schema{
+			"isolated_network_domain_id": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"isolation_type": &schema.Schema{
+			"isolation_type": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"security_group_ids": &schema.Schema{
+			"security_group_ids": {
 				Type:     schema.TypeList,
 				Optional: true,
 				Elem: &schema.Schema{
@@ -73,20 +73,20 @@ func resourceNetworkProfile() *schema.Resource {
 				},
 			},
 			"tags": tagsSchema(),
-			"external_region_id": &schema.Schema{
+			"external_region_id": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
 			"links": linksSchema(),
-			"organization_id": &schema.Schema{
+			"organization_id": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"owner": &schema.Schema{
+			"owner": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"updated_at": &schema.Schema{
+			"updated_at": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},

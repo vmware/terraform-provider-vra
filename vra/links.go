@@ -14,15 +14,15 @@ func linksSchema() *schema.Schema {
 		Computed: true,
 		Elem: &schema.Resource{
 			Schema: map[string]*schema.Schema{
-				"rel": &schema.Schema{
+				"rel": {
 					Type:     schema.TypeString,
 					Required: true,
 				},
-				"href": &schema.Schema{
+				"href": {
 					Type:     schema.TypeString,
 					Optional: true,
 				},
-				"hrefs": &schema.Schema{
+				"hrefs": {
 					Type:     schema.TypeList,
 					Optional: true,
 					Elem: &schema.Schema{

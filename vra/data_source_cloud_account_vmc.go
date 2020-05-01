@@ -13,11 +13,11 @@ func dataSourceCloudAccountVMC() *schema.Resource {
 		Read: dataSourceCloudAccountVMCRead,
 
 		Schema: map[string]*schema.Schema{
-			"dc_id": &schema.Schema{
+			"dc_id": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"description": &schema.Schema{
+			"description": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -31,27 +31,27 @@ func dataSourceCloudAccountVMC() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
-			"nsx_hostname": &schema.Schema{
+			"nsx_hostname": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"regions": &schema.Schema{
+			"regions": {
 				Type:     schema.TypeList,
 				Computed: true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
 			},
-			"sddc_name": &schema.Schema{
+			"sddc_name": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
 			"tags": tagsSchema(),
-			"vcenter_hostname": &schema.Schema{
+			"vcenter_hostname": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"vcenter_username": &schema.Schema{
+			"vcenter_username": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},

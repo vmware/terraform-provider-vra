@@ -12,67 +12,67 @@ func deploymentRequestSchema() *schema.Schema {
 		Computed: true,
 		Elem: &schema.Resource{
 			Schema: map[string]*schema.Schema{
-				"action_id": &schema.Schema{
+				"action_id": {
 					Type:     schema.TypeString,
 					Optional: true,
 					Computed: true,
 				},
-				"approved_at": &schema.Schema{
+				"approved_at": {
 					Type:     schema.TypeString,
 					Optional: true,
 					Computed: true,
 				},
-				"blueprint_id": &schema.Schema{
+				"blueprint_id": {
 					Type:     schema.TypeString,
 					Optional: true,
 					Computed: true,
 				},
-				"cancelable": &schema.Schema{
+				"cancelable": {
 					Type:     schema.TypeBool,
 					Optional: true,
 					Computed: true,
 				},
-				"catalog_item_id": &schema.Schema{
+				"catalog_item_id": {
 					Type:     schema.TypeString,
 					Optional: true,
 					Computed: true,
 				},
-				"completed_at": &schema.Schema{
+				"completed_at": {
 					Type:     schema.TypeString,
 					Optional: true,
 					Computed: true,
 				},
-				"completed_tasks": &schema.Schema{
+				"completed_tasks": {
 					Type:     schema.TypeInt,
 					Optional: true,
 					Computed: true,
 				},
-				"created_at": &schema.Schema{
+				"created_at": {
 					Type:     schema.TypeString,
 					Optional: true,
 					Computed: true,
 				},
-				"deployment_id": &schema.Schema{
+				"deployment_id": {
 					Type:     schema.TypeString,
 					Optional: true,
 					Computed: true,
 				},
-				"details": &schema.Schema{
+				"details": {
 					Type:     schema.TypeString,
 					Optional: true,
 					Computed: true,
 				},
-				"dismissed": &schema.Schema{
+				"dismissed": {
 					Type:     schema.TypeBool,
 					Optional: true,
 					Computed: true,
 				},
-				"id": &schema.Schema{
+				"id": {
 					Type:     schema.TypeString,
 					Optional: true,
 					Computed: true,
 				},
-				"initialized_at": &schema.Schema{
+				"initialized_at": {
 					Type:     schema.TypeString,
 					Optional: true,
 					Computed: true,
@@ -85,42 +85,42 @@ func deploymentRequestSchema() *schema.Schema {
 						Type: schema.TypeString,
 					},
 				},
-				"name": &schema.Schema{
+				"name": {
 					Type:     schema.TypeString,
 					Optional: true,
 					Computed: true,
 				},
-				"parent_id": &schema.Schema{
+				"parent_id": {
 					Type:     schema.TypeString,
 					Optional: true,
 					Computed: true,
 				},
-				"requested_by": &schema.Schema{
+				"requested_by": {
 					Type:     schema.TypeString,
 					Optional: true,
 					Computed: true,
 				},
-				"resource_name": &schema.Schema{
+				"resource_name": {
 					Type:     schema.TypeString,
 					Optional: true,
 					Computed: true,
 				},
-				"resource_type": &schema.Schema{
+				"resource_type": {
 					Type:     schema.TypeString,
 					Optional: true,
 					Computed: true,
 				},
-				"status": &schema.Schema{
+				"status": {
 					Type:     schema.TypeString,
 					Optional: true,
 					Computed: true,
 				},
-				"total_tasks": &schema.Schema{
+				"total_tasks": {
 					Type:     schema.TypeInt,
 					Optional: true,
 					Computed: true,
 				},
-				"updated_at": &schema.Schema{
+				"updated_at": {
 					Type:     schema.TypeString,
 					Optional: true,
 					Computed: true,

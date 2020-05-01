@@ -11,24 +11,24 @@ func dataSourceRegionEnumerationGCP() *schema.Resource {
 		Read: dataSourceRegionEnumerationGCPRead,
 
 		Schema: map[string]*schema.Schema{
-			"client_email": &schema.Schema{
+			"client_email": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"private_key": &schema.Schema{
+			"private_key": {
 				Type:      schema.TypeString,
 				Required:  true,
 				Sensitive: true,
 			},
-			"private_key_id": &schema.Schema{
+			"private_key_id": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"project_id": &schema.Schema{
+			"project_id": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"regions": &schema.Schema{
+			"regions": {
 				Type:     schema.TypeList,
 				Computed: true,
 				Elem: &schema.Schema{

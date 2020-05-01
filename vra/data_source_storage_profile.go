@@ -15,7 +15,7 @@ func dataSourceStorageProfile() *schema.Resource {
 		Read: dataSourceStorageProfileRead,
 
 		Schema: map[string]*schema.Schema{
-			"default_item": &schema.Schema{
+			"default_item": {
 				Type:     schema.TypeBool,
 				Optional: true,
 			},
@@ -28,41 +28,41 @@ func dataSourceStorageProfile() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
-			"created_at": &schema.Schema{
+			"created_at": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"description": &schema.Schema{
+			"description": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"disk_properties": &schema.Schema{
+			"disk_properties": {
 				Type:     schema.TypeMap,
 				Computed: true,
 			},
-			"external_region_id": &schema.Schema{
+			"external_region_id": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
 			"links": linksSchema(),
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"org_id": &schema.Schema{
+			"org_id": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"owner": &schema.Schema{
+			"owner": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"supports_encryption": &schema.Schema{
+			"supports_encryption": {
 				Type:     schema.TypeBool,
 				Computed: true,
 			},
 			"tags": tagsSchema(),
-			"updated_at": &schema.Schema{
+			"updated_at": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
