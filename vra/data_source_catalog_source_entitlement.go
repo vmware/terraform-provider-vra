@@ -21,7 +21,7 @@ func dataSourceCatalogSourceEntitlement() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"definition": &schema.Schema{
+			"definition": {
 				Type:     schema.TypeSet,
 				MaxItems: 1,
 				Computed: true,
@@ -58,7 +58,7 @@ func dataSourceCatalogSourceEntitlement() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"project_id": &schema.Schema{
+			"project_id": {
 				Type:     schema.TypeString,
 				Required: true,
 			},

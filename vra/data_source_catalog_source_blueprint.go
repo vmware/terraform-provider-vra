@@ -24,19 +24,19 @@ func dataSourceCatalogSourceBlueprint() *schema.Resource {
 					Type: schema.TypeString,
 				},
 			},
-			"created_at": &schema.Schema{
+			"created_at": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"created_by": &schema.Schema{
+			"created_by": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"description": &schema.Schema{
+			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"global": &schema.Schema{
+			"global": {
 				Type:     schema.TypeBool,
 				Computed: true,
 			},
@@ -44,44 +44,44 @@ func dataSourceCatalogSourceBlueprint() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"items_found": &schema.Schema{
+			"items_found": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"items_imported": &schema.Schema{
+			"items_imported": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"last_import_completed_at": &schema.Schema{
+			"last_import_completed_at": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"last_import_errors": &schema.Schema{
+			"last_import_errors": {
 				Type:     schema.TypeList,
 				Computed: true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
 			},
-			"last_import_started_at": &schema.Schema{
+			"last_import_started_at": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"last_updated_by": &schema.Schema{
+			"last_updated_by": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"name": &schema.Schema{
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-			},
-			"project_id": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 			},
-			"type_id": &schema.Schema{
+			"project_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+			"type_id": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},

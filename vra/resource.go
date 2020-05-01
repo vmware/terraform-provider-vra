@@ -14,44 +14,44 @@ func resourcesSchema() *schema.Schema {
 		Computed: true,
 		Elem: &schema.Resource{
 			Schema: map[string]*schema.Schema{
-				"created_at": &schema.Schema{
+				"created_at": {
 					Type:     schema.TypeString,
 					Optional: true,
 				},
-				"depends_on": &schema.Schema{
+				"depends_on": {
 					Type:     schema.TypeList,
 					Optional: true,
 					Elem: &schema.Schema{
 						Type: schema.TypeString,
 					},
 				},
-				"description": &schema.Schema{
+				"description": {
 					Type:     schema.TypeString,
 					Optional: true,
 				},
 				"expense": expenseSchema(),
 				// TODO:  Add metadata
-				"id": &schema.Schema{
+				"id": {
 					Type:     schema.TypeString,
 					Required: true,
 				},
-				"name": &schema.Schema{
+				"name": {
 					Type:     schema.TypeString,
 					Required: true,
 				},
-				"properties_json": &schema.Schema{
+				"properties_json": {
 					Type:     schema.TypeString,
 					Optional: true,
 				},
-				"state": &schema.Schema{
+				"state": {
 					Type:     schema.TypeString,
 					Optional: true,
 				},
-				"sync_status": &schema.Schema{
+				"sync_status": {
 					Type:     schema.TypeString,
 					Optional: true,
 				},
-				"type": &schema.Schema{
+				"type": {
 					Type:     schema.TypeString,
 					Optional: true,
 				},

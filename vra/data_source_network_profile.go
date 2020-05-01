@@ -16,19 +16,19 @@ func dataSourceNetworkProfile() *schema.Resource {
 		Read: dataSourceNetworkProfileRead,
 
 		Schema: map[string]*schema.Schema{
-			"custom_properties": &schema.Schema{
+			"custom_properties": {
 				Type:     schema.TypeMap,
 				Computed: true,
 			},
-			"description": &schema.Schema{
+			"description": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"external_region_id": &schema.Schema{
+			"external_region_id": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"fabric_network_ids": &schema.Schema{
+			"fabric_network_ids": {
 				Type:     schema.TypeList,
 				Computed: true,
 				Elem: &schema.Schema{
@@ -44,44 +44,44 @@ func dataSourceNetworkProfile() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
-			"isolated_network_cidr_prefix": &schema.Schema{
+			"isolated_network_cidr_prefix": {
 				Type:     schema.TypeInt,
 				Computed: true,
 			},
-			"isolated_external_fabric_network_id": &schema.Schema{
+			"isolated_external_fabric_network_id": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"isolated_network_domain_cidr": &schema.Schema{
+			"isolated_network_domain_cidr": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"isolated_network_domain_id": &schema.Schema{
+			"isolated_network_domain_id": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"isolation_type": &schema.Schema{
+			"isolation_type": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
 			"links": linksSchema(),
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"organization_id": &schema.Schema{
+			"organization_id": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"owner": &schema.Schema{
+			"owner": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"region_id": &schema.Schema{
+			"region_id": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"security_group_ids": &schema.Schema{
+			"security_group_ids": {
 				Type:     schema.TypeList,
 				Computed: true,
 				Elem: &schema.Schema{
@@ -89,7 +89,7 @@ func dataSourceNetworkProfile() *schema.Resource {
 				},
 			},
 			"tags": tagsSchema(),
-			"updated_at": &schema.Schema{
+			"updated_at": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},

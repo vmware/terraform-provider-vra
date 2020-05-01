@@ -20,41 +20,41 @@ func resourceCloudAccountNSXT() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
-			"associated_cloud_account_ids": &schema.Schema{
+			"associated_cloud_account_ids": {
 				Type:     schema.TypeList,
 				Computed: true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
 			},
-			"accept_self_signed_cert": &schema.Schema{
+			"accept_self_signed_cert": {
 				Type:     schema.TypeBool,
 				Optional: true,
 				Default:  false,
 			},
-			"dc_id": &schema.Schema{
+			"dc_id": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"description": &schema.Schema{
+			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"hostname": &schema.Schema{
+			"hostname": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"password": &schema.Schema{
+			"password": {
 				Type:      schema.TypeString,
 				Required:  true,
 				Sensitive: true,
 			},
 			"tags": tagsSchema(),
-			"username": &schema.Schema{
+			"username": {
 				Type:     schema.TypeString,
 				Required: true,
 			},

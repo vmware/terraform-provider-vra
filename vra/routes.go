@@ -14,55 +14,55 @@ func routesSchema(isRequired bool) *schema.Schema {
 		Required: true,
 		Elem: &schema.Resource{
 			Schema: map[string]*schema.Schema{
-				"health_check_configuration": &schema.Schema{
+				"health_check_configuration": {
 					Type:     schema.TypeMap,
 					Optional: true,
 					Elem: &schema.Resource{
 						Schema: map[string]*schema.Schema{
-							"healthy_threshold": &schema.Schema{
+							"healthy_threshold": {
 								Type:     schema.TypeInt,
 								Optional: true,
 							},
-							"interval_seconds": &schema.Schema{
+							"interval_seconds": {
 								Type:     schema.TypeInt,
 								Optional: true,
 							},
-							"port": &schema.Schema{
+							"port": {
 								Type:     schema.TypeString,
 								Required: true,
 							},
-							"protocol": &schema.Schema{
+							"protocol": {
 								Type:     schema.TypeString,
 								Required: true,
 							},
-							"timeout_seconds": &schema.Schema{
+							"timeout_seconds": {
 								Type:     schema.TypeInt,
 								Optional: true,
 							},
-							"unhealthy_threshold": &schema.Schema{
+							"unhealthy_threshold": {
 								Type:     schema.TypeInt,
 								Optional: true,
 							},
-							"url_path": &schema.Schema{
+							"url_path": {
 								Type:     schema.TypeString,
 								Optional: true,
 							},
 						},
 					},
 				},
-				"member_port": &schema.Schema{
+				"member_port": {
 					Type:     schema.TypeString,
 					Required: true,
 				},
-				"member_protocol": &schema.Schema{
+				"member_protocol": {
 					Type:     schema.TypeString,
 					Required: true,
 				},
-				"port": &schema.Schema{
+				"port": {
 					Type:     schema.TypeString,
 					Required: true,
 				},
-				"protocol": &schema.Schema{
+				"protocol": {
 					Type:     schema.TypeString,
 					Required: true,
 				},

@@ -13,7 +13,7 @@ func dataSourceCloudAccountGCP() *schema.Resource {
 		Read: dataSourceCloudAccountGCPRead,
 
 		Schema: map[string]*schema.Schema{
-			"client_email": &schema.Schema{
+			"client_email": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -31,15 +31,15 @@ func dataSourceCloudAccountGCP() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
-			"private_key_id": &schema.Schema{
+			"private_key_id": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"project_id": &schema.Schema{
+			"project_id": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"regions": &schema.Schema{
+			"regions": {
 				Type:     schema.TypeList,
 				Computed: true,
 				Elem: &schema.Schema{

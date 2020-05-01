@@ -16,47 +16,47 @@ func dataSourceDeployment() *schema.Resource {
 		Read: dataSourceDeploymentRead,
 
 		Schema: map[string]*schema.Schema{
-			"blueprint_id": &schema.Schema{
+			"blueprint_id": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 			},
-			"blueprint_version": &schema.Schema{
+			"blueprint_version": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 			},
-			"blueprint_content": &schema.Schema{
+			"blueprint_content": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 			},
-			"catalog_item_id": &schema.Schema{
+			"catalog_item_id": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 			},
-			"catalog_item_version": &schema.Schema{
+			"catalog_item_version": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 			},
-			"created_at": &schema.Schema{
+			"created_at": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 			},
-			"created_by": &schema.Schema{
+			"created_by": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 			},
-			"description": &schema.Schema{
+			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 			},
-			"expand_last_request": &schema.Schema{
+			"expand_last_request": {
 				Type:     schema.TypeBool,
 				Optional: true,
 			},
@@ -64,7 +64,7 @@ func dataSourceDeployment() *schema.Resource {
 				Type:     schema.TypeBool,
 				Optional: true,
 			},
-			"expand_resources": &schema.Schema{
+			"expand_resources": {
 				Type:     schema.TypeBool,
 				Optional: true,
 			},
@@ -74,7 +74,7 @@ func dataSourceDeployment() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
-			"inputs": &schema.Schema{
+			"inputs": {
 				Type:     schema.TypeMap,
 				Optional: true,
 				Computed: true,
@@ -83,34 +83,34 @@ func dataSourceDeployment() *schema.Resource {
 				},
 			},
 			"last_request": deploymentRequestSchema(),
-			"last_updated_at": &schema.Schema{
+			"last_updated_at": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 			},
-			"last_updated_by": &schema.Schema{
+			"last_updated_by": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 			},
-			"lease_expire_at": &schema.Schema{
+			"lease_expire_at": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 			},
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 			},
 			"project": resourceReferenceSchema(),
-			"project_id": &schema.Schema{
+			"project_id": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 			},
 			"resources": resourcesSchema(),
-			"status": &schema.Schema{
+			"status": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,

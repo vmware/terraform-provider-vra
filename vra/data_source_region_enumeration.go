@@ -12,29 +12,29 @@ func dataSourceRegionEnumeration() *schema.Resource {
 		DeprecationMessage: "'region_enumeration' is deprecated. Use 'region_enumeration_vsphere' instead.",
 
 		Schema: map[string]*schema.Schema{
-			"accept_self_signed_cert": &schema.Schema{
+			"accept_self_signed_cert": {
 				Type:     schema.TypeBool,
 				Optional: true,
 				Default:  false,
 			},
-			"dcid": &schema.Schema{
+			"dcid": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"hostname": &schema.Schema{
+			"hostname": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"password": &schema.Schema{
+			"password": {
 				Type:      schema.TypeString,
 				Required:  true,
 				Sensitive: true,
 			},
-			"username": &schema.Schema{
+			"username": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"regions": &schema.Schema{
+			"regions": {
 				Type:     schema.TypeList,
 				Computed: true,
 				Elem: &schema.Schema{

@@ -24,7 +24,7 @@ func resourceCatalogSourceEntitlement() *schema.Resource {
 				Required: true,
 				ForceNew: true,
 			},
-			"definition": &schema.Schema{
+			"definition": {
 				Type:     schema.TypeSet,
 				MaxItems: 1,
 				Computed: true,
@@ -57,7 +57,7 @@ func resourceCatalogSourceEntitlement() *schema.Resource {
 					},
 				},
 			},
-			"project_id": &schema.Schema{
+			"project_id": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,

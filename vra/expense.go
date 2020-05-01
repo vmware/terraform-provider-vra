@@ -12,47 +12,47 @@ func expenseSchema() *schema.Schema {
 		Computed: true,
 		Elem: &schema.Resource{
 			Schema: map[string]*schema.Schema{
-				"additional_expense": &schema.Schema{
+				"additional_expense": {
 					Type:     schema.TypeFloat,
 					Optional: true,
 					Computed: true,
 				},
-				"code": &schema.Schema{
+				"code": {
 					Type:     schema.TypeString,
 					Optional: true,
 					Computed: true,
 				},
-				"compute_expense": &schema.Schema{
+				"compute_expense": {
 					Type:     schema.TypeFloat,
 					Optional: true,
 					Computed: true,
 				},
-				"last_update_time": &schema.Schema{
+				"last_update_time": {
 					Type:     schema.TypeString,
 					Optional: true,
 					Computed: true,
 				},
-				"message": &schema.Schema{
+				"message": {
 					Type:     schema.TypeString,
 					Optional: true,
 					Computed: true,
 				},
-				"network_expense": &schema.Schema{
+				"network_expense": {
 					Type:     schema.TypeFloat,
 					Optional: true,
 					Computed: true,
 				},
-				"storage_expense": &schema.Schema{
+				"storage_expense": {
 					Type:     schema.TypeFloat,
 					Optional: true,
 					Computed: true,
 				},
-				"total_expense": &schema.Schema{
+				"total_expense": {
 					Type:     schema.TypeFloat,
 					Optional: true,
 					Computed: true,
 				},
-				"unit": &schema.Schema{
+				"unit": {
 					Type:     schema.TypeString,
 					Optional: true,
 					Computed: true,

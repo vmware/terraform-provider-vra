@@ -21,60 +21,60 @@ func resourceCloudAccountVMC() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
-			"accept_self_signed_cert": &schema.Schema{
+			"accept_self_signed_cert": {
 				Type:     schema.TypeBool,
 				Optional: true,
 				Default:  false,
 			},
-			"api_token": &schema.Schema{
+			"api_token": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"dc_id": &schema.Schema{
+			"dc_id": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"description": &schema.Schema{
+			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"nsx_hostname": &schema.Schema{
+			"nsx_hostname": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"regions": &schema.Schema{
+			"regions": {
 				Type:     schema.TypeList,
 				Required: true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
 			},
-			"region_ids": &schema.Schema{
+			"region_ids": {
 				Type:     schema.TypeList,
 				Computed: true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
 			},
-			"sddc_name": &schema.Schema{
+			"sddc_name": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
 			"tags": tagsSchema(),
-			"vcenter_hostname": &schema.Schema{
+			"vcenter_hostname": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"vcenter_password": &schema.Schema{
+			"vcenter_password": {
 				Type:      schema.TypeString,
 				Required:  true,
 				Sensitive: true,
 			},
-			"vcenter_username": &schema.Schema{
+			"vcenter_username": {
 				Type:     schema.TypeString,
 				Required: true,
 			},

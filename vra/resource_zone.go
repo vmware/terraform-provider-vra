@@ -19,15 +19,15 @@ func resourceZone() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
-			"description": &schema.Schema{
+			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"placement_policy": &schema.Schema{
+			"placement_policy": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Default:  "DEFAULT",
@@ -40,7 +40,7 @@ func resourceZone() *schema.Resource {
 					return
 				},
 			},
-			"region_id": &schema.Schema{
+			"region_id": {
 				Type:     schema.TypeString,
 				Required: true,
 			},

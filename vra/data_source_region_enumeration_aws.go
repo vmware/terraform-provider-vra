@@ -11,18 +11,18 @@ func dataSourceRegionEnumerationAWS() *schema.Resource {
 		Read: dataSourceRegionEnumerationAWSRead,
 
 		Schema: map[string]*schema.Schema{
-			"access_key": &schema.Schema{
+			"access_key": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"regions": &schema.Schema{
+			"regions": {
 				Type:     schema.TypeList,
 				Computed: true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
 			},
-			"secret_key": &schema.Schema{
+			"secret_key": {
 				Type:      schema.TypeString,
 				Required:  true,
 				Sensitive: true,

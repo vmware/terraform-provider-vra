@@ -11,27 +11,27 @@ func dataSourceRegionEnumerationAzure() *schema.Resource {
 		Read: dataSourceRegionEnumerationAzureRead,
 
 		Schema: map[string]*schema.Schema{
-			"application_id": &schema.Schema{
+			"application_id": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"application_key": &schema.Schema{
+			"application_key": {
 				Type:      schema.TypeString,
 				Required:  true,
 				Sensitive: true,
 			},
-			"regions": &schema.Schema{
+			"regions": {
 				Type:     schema.TypeList,
 				Computed: true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
 			},
-			"subscription_id": &schema.Schema{
+			"subscription_id": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"tenant_id": &schema.Schema{
+			"tenant_id": {
 				Type:     schema.TypeString,
 				Required: true,
 			},

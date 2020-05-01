@@ -14,37 +14,37 @@ func nicsSchema(isRequired bool) *schema.Schema {
 		Optional: !isRequired,
 		Elem: &schema.Resource{
 			Schema: map[string]*schema.Schema{
-				"name": &schema.Schema{
+				"name": {
 					Type:     schema.TypeString,
 					Optional: true,
 				},
-				"description": &schema.Schema{
+				"description": {
 					Type:     schema.TypeString,
 					Optional: true,
 				},
-				"device_index": &schema.Schema{
+				"device_index": {
 					Type:     schema.TypeInt,
 					Optional: true,
 				},
-				"network_id": &schema.Schema{
+				"network_id": {
 					Type:     schema.TypeString,
 					Required: true,
 				},
-				"addresses": &schema.Schema{
+				"addresses": {
 					Type:     schema.TypeList,
 					Optional: true,
 					Elem: &schema.Schema{
 						Type: schema.TypeString,
 					},
 				},
-				"security_group_ids": &schema.Schema{
+				"security_group_ids": {
 					Type:     schema.TypeList,
 					Optional: true,
 					Elem: &schema.Schema{
 						Type: schema.TypeString,
 					},
 				},
-				"custom_properties": &schema.Schema{
+				"custom_properties": {
 					Type:     schema.TypeMap,
 					Optional: true,
 				},
