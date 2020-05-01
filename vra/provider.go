@@ -47,7 +47,10 @@ func Provider() *schema.Provider {
 		DataSourcesMap: map[string]*schema.Resource{
 			"vra_block_device":               dataSourceBlockDevice(),
 			"vra_blueprint":                  dataSourceBlueprint(),
+			"vra_blueprint_version":          dataSourceBlueprintVersion(),
 			"vra_catalog_item":               dataSourceCatalogItem(),
+			"vra_catalog_source_blueprint":   dataSourceCatalogSourceBlueprint(),
+			"vra_catalog_source_entitlement": dataSourceCatalogSourceEntitlement(),
 			"vra_cloud_account_aws":          dataSourceCloudAccountAWS(),
 			"vra_cloud_account_azure":        dataSourceCloudAccountAzure(),
 			"vra_cloud_account_gcp":          dataSourceCloudAccountGCP(),
@@ -77,28 +80,31 @@ func Provider() *schema.Provider {
 		},
 
 		ResourcesMap: map[string]*schema.Resource{
-			"vra_block_device":          resourceBlockDevice(),
-			"vra_blueprint":             resourceBlueprint(),
-			"vra_cloud_account_aws":     resourceCloudAccountAWS(),
-			"vra_cloud_account_azure":   resourceCloudAccountAzure(),
-			"vra_cloud_account_gcp":     resourceCloudAccountGCP(),
-			"vra_cloud_account_nsxt":    resourceCloudAccountNSXT(),
-			"vra_cloud_account_nsxv":    resourceCloudAccountNSXV(),
-			"vra_cloud_account_vmc":     resourceCloudAccountVMC(),
-			"vra_cloud_account_vsphere": resourceCloudAccountVsphere(),
-			"vra_content_source":        resourceContentSource(),
-			"vra_deployment":            resourceDeployment(),
-			"vra_flavor_profile":        resourceFlavorProfile(),
-			"vra_image_profile":         resourceImageProfile(),
-			"vra_load_balancer":         resourceLoadBalancer(),
-			"vra_machine":               resourceMachine(),
-			"vra_network":               resourceNetwork(),
-			"vra_network_profile":       resourceNetworkProfile(),
-			"vra_project":               resourceProject(),
-			"vra_storage_profile":       resourceStorageProfile(),
-			"vra_storage_profile_aws":   resourceStorageProfileAws(),
-			"vra_storage_profile_azure": resourceStorageProfileAzure(),
-			"vra_zone":                  resourceZone(),
+			"vra_block_device":               resourceBlockDevice(),
+			"vra_blueprint":                  resourceBlueprint(),
+			"vra_blueprint_version":          resourceBlueprintVersion(),
+			"vra_catalog_source_blueprint":   resourceCatalogSourceBlueprint(),
+			"vra_catalog_source_entitlement": resourceCatalogSourceEntitlement(),
+			"vra_cloud_account_aws":          resourceCloudAccountAWS(),
+			"vra_cloud_account_azure":        resourceCloudAccountAzure(),
+			"vra_cloud_account_gcp":          resourceCloudAccountGCP(),
+			"vra_cloud_account_nsxt":         resourceCloudAccountNSXT(),
+			"vra_cloud_account_nsxv":         resourceCloudAccountNSXV(),
+			"vra_cloud_account_vmc":          resourceCloudAccountVMC(),
+			"vra_cloud_account_vsphere":      resourceCloudAccountVsphere(),
+			"vra_content_source":             resourceContentSource(),
+			"vra_deployment":                 resourceDeployment(),
+			"vra_flavor_profile":             resourceFlavorProfile(),
+			"vra_image_profile":              resourceImageProfile(),
+			"vra_load_balancer":              resourceLoadBalancer(),
+			"vra_machine":                    resourceMachine(),
+			"vra_network":                    resourceNetwork(),
+			"vra_network_profile":            resourceNetworkProfile(),
+			"vra_project":                    resourceProject(),
+			"vra_storage_profile":            resourceStorageProfile(),
+			"vra_storage_profile_aws":        resourceStorageProfileAws(),
+			"vra_storage_profile_azure":      resourceStorageProfileAzure(),
+			"vra_zone":                       resourceZone(),
 		},
 
 		ConfigureFunc: configureProvider,
@@ -109,6 +115,7 @@ func configureProvider(d *schema.ResourceData) (interface{}, error) {
 	url := d.Get("url").(string)
 	refreshToken := ""
 	accessToken := ""
+	reauth := "0"
 
 	if v, ok := d.GetOk("refresh_token"); ok {
 		refreshToken = v.(string)
@@ -119,7 +126,10 @@ func configureProvider(d *schema.ResourceData) (interface{}, error) {
 	}
 
 	insecure := d.Get("insecure").(bool)
-	reauth := d.Get("reauthorize_timeout").(string)
+
+	if v, ok := d.GetOk("reauthorize_timeout"); ok {
+		reauth = v.(string)
+	}
 
 	if accessToken == "" && refreshToken == "" {
 		return nil, errors.New("refresh_token or access_token required")

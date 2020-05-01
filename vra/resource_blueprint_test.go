@@ -28,7 +28,6 @@ func TestAccVRABlueprint_Valid(t *testing.T) {
 			{
 				Config: testAccCheckVRABlueprintValidContentConfig(rInt),
 				Check: resource.ComposeAggregateTestCheckFunc(
-					testAccCheckVRADeploymentExists(resource1),
 					resource.TestMatchResourceAttr(resource1, "name", regexp.MustCompile("^test-blueprint-"+strconv.Itoa(rInt))),
 					resource.TestCheckResourceAttrPair(resource1, "project_id", project, "id"),
 					resource.TestCheckResourceAttr(resource1, "description", "terraform test blueprint"),

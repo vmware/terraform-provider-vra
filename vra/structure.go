@@ -160,3 +160,31 @@ func expandInputs(configInputs interface{}) map[string]interface{} {
 
 	return inputs
 }
+
+// expandCatalogSourceConfig will convert the interface into a map of interface
+func expandCatalogSourceConfig(catalogSourceConfig interface{}) map[string]interface{} {
+	config := make(map[string]interface{})
+	for key, value := range catalogSourceConfig.(map[string]interface{}) {
+		if value != nil {
+			config[key] = fmt.Sprint(value)
+		}
+	}
+
+	return config
+}
+
+// flattenContentDefinition will convert the ContentDefinition to map of interface
+func flattenContentDefinition(contentDefinition *models.ContentDefinition) interface{} {
+	helper := make(map[string]interface{})
+
+	helper["description"] = contentDefinition.Description
+	helper["id"] = contentDefinition.ID
+	helper["name"] = contentDefinition.Name
+	helper["number_of_items"] = contentDefinition.NumItems
+	helper["source_type"] = contentDefinition.SourceType
+	helper["type"] = contentDefinition.Type
+
+	definition := make([]interface{}, 0)
+	definition = append(definition, helper)
+	return definition
+}
