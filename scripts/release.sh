@@ -52,6 +52,13 @@ release(){
 		--file FILE
 }
 
+# Verify GITHUB_TOKEN is available before doing any further processing
+if [ -z "$GITHUB_TOKEN" ]
+then
+    echo "GITHUB_TOKEN not set in environment...exiting"
+    exit 1
+fi
+
 check_dependencies "$COMMANDS"
 build_providers
 package
