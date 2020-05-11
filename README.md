@@ -78,6 +78,7 @@ These are the Terraform commands that can be used for the vRA plugin:
 * `terraform refresh` - By using the refresh command you can check the status of the request.
 * `terraform show` - show will set a console output for resource configuration and request status.
 * `terraform destroy` - destroy command will destroy all the  resources present in terraform configuration file.
+* `terraform import` - import existing infrastructure into terraforrm state file to manage from current workspace.
 
 Navigate to the location where `main.tf` and binary are placed and use the above commands as needed.
 
