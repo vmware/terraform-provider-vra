@@ -283,15 +283,19 @@ func resourceDeploymentCreate(d *schema.ResourceData, m interface{}) error {
 
 	stateChangeFunc := resource.StateChangeConf{
 		Delay:      5 * time.Second,
-		Pending:    []string{models.DeploymentStatusCREATEINPROGRESS},
+		Pending:    []string{models.DeploymentStatusCREATEINPROGRESS, models.DeploymentStatusUPDATEINPROGRESS},
 		Refresh:    deploymentCreateStatusRefreshFunc(*apiClient, d.Id()),
-		Target:     []string{models.DeploymentStatusCREATESUCCESSFUL, models.DeploymentStatusCREATEFAILED},
+		Target:     []string{models.DeploymentStatusCREATESUCCESSFUL, models.DeploymentStatusUPDATESUCCESSFUL},
 		Timeout:    d.Timeout(schema.TimeoutCreate),
 		MinTimeout: 5 * time.Second,
 	}
 
 	deploymentID, err := stateChangeFunc.WaitForState()
 	if err != nil {
+		readError := resourceDeploymentRead(d, m)
+		if readError != nil {
+			return fmt.Errorf("failed to create deployment: %v \nfailed to read deployment state: %v", err.Error(), readError.Error())
+		}
 		return err
 	}
 
@@ -318,8 +322,12 @@ func getCatalogItemSchema(apiClient *client.MulticloudIaaS, catalogItemID string
 		}
 		catalogItemSchema = getVersionResp.GetPayload().Schema
 	}
-	inputsSchemaMap := (catalogItemSchema.(map[string]interface{}))["properties"].(map[string]interface{})
-	return inputsSchemaMap, nil
+
+	if catalogItemSchema != nil && (catalogItemSchema.(map[string]interface{}))["properties"] != nil {
+		inputsSchemaMap := (catalogItemSchema.(map[string]interface{}))["properties"].(map[string]interface{})
+		return inputsSchemaMap, nil
+	}
+	return make(map[string]interface{}), nil
 }
 
 func getBlueprintSchema(apiClient *client.MulticloudIaaS, blueprintID string, blueprintVersion string) (map[string]models.PropertyDefinition, error) {
@@ -347,18 +355,22 @@ func getBlueprintSchema(apiClient *client.MulticloudIaaS, blueprintID string, bl
 func deploymentCreateStatusRefreshFunc(apiClient client.MulticloudIaaS, id string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		ret, err := apiClient.Deployments.GetDeploymentByIDUsingGET(
-			deployments.NewGetDeploymentByIDUsingGETParams().WithDepID(strfmt.UUID(id)))
+			deployments.NewGetDeploymentByIDUsingGETParams().
+				WithDepID(strfmt.UUID(id)).
+				WithExpandLastRequest(withBool(true)))
 		if err != nil {
-			return ret.Payload.ID.String(), models.DeploymentStatusCREATEFAILED, err
+			return id, models.DeploymentStatusCREATEFAILED, err
 		}
 
 		status := ret.Payload.Status
 		switch status {
-		case models.DeploymentStatusCREATEINPROGRESS:
+		case models.DeploymentStatusCREATEINPROGRESS, models.DeploymentStatusUPDATEINPROGRESS:
 			return ret.Payload.ID.String(), status, nil
-		case models.DeploymentStatusCREATESUCCESSFUL, models.DeploymentStatusCREATEFAILED:
+		case models.DeploymentStatusCREATESUCCESSFUL, models.DeploymentStatusUPDATESUCCESSFUL:
 			deploymentID := ret.Payload.ID
 			return deploymentID.String(), status, nil
+		case models.DeploymentStatusCREATEFAILED, models.DeploymentStatusUPDATEFAILED:
+			return ret.Payload.ID.String(), status, fmt.Errorf(ret.Payload.LastRequest.Details)
 		default:
 			return [...]string{id}, ret.Error(), fmt.Errorf("deploymentCreateStatusRefreshFunc: unknown status %v", status)
 		}
