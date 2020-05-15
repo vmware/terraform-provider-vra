@@ -151,6 +151,10 @@ func flattenAndNormalizeCLoudAccountGcpRegionIds(regionOrder []string, cloudAcco
 
 // expandInputs will convert the interface  into a map of interface
 func expandInputs(configInputs interface{}) map[string]interface{} {
+	if configInputs == nil {
+		return nil
+	}
+
 	inputs := make(map[string]interface{})
 	for key, value := range configInputs.(map[string]interface{}) {
 		if value != nil {
