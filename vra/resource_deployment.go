@@ -84,9 +84,17 @@ func resourceDeployment() *schema.Resource {
 			},
 			"expense": expenseSchema(),
 			"inputs": {
-				Type:     schema.TypeMap,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeMap,
+				Optional:    true,
+				Description: "Inputs provided by the user. For inputs including those with default values, refer to inputs_including_defaults.",
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			},
+			"inputs_including_defaults": {
+				Type:        schema.TypeMap,
+				Computed:    true,
+				Description: "All the inputs applied during last create/update operation, including those with default values.",
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
@@ -284,7 +292,7 @@ func resourceDeploymentCreate(d *schema.ResourceData, m interface{}) error {
 	stateChangeFunc := resource.StateChangeConf{
 		Delay:      5 * time.Second,
 		Pending:    []string{models.DeploymentStatusCREATEINPROGRESS, models.DeploymentStatusUPDATEINPROGRESS},
-		Refresh:    deploymentCreateStatusRefreshFunc(*apiClient, d.Id()),
+		Refresh:    deploymentStatusRefreshFunc(*apiClient, d.Id()),
 		Target:     []string{models.DeploymentStatusCREATESUCCESSFUL, models.DeploymentStatusUPDATESUCCESSFUL},
 		Timeout:    d.Timeout(schema.TimeoutCreate),
 		MinTimeout: 5 * time.Second,
@@ -352,7 +360,7 @@ func getBlueprintSchema(apiClient *client.MulticloudIaaS, blueprintID string, bl
 	return blueprintInputsSchema, nil
 }
 
-func deploymentCreateStatusRefreshFunc(apiClient client.MulticloudIaaS, id string) resource.StateRefreshFunc {
+func deploymentStatusRefreshFunc(apiClient client.MulticloudIaaS, id string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		ret, err := apiClient.Deployments.GetDeploymentByIDUsingGET(
 			deployments.NewGetDeploymentByIDUsingGETParams().
@@ -372,7 +380,7 @@ func deploymentCreateStatusRefreshFunc(apiClient client.MulticloudIaaS, id strin
 		case models.DeploymentStatusCREATEFAILED, models.DeploymentStatusUPDATEFAILED:
 			return ret.Payload.ID.String(), status, fmt.Errorf(ret.Payload.LastRequest.Details)
 		default:
-			return [...]string{id}, ret.Error(), fmt.Errorf("deploymentCreateStatusRefreshFunc: unknown status %v", status)
+			return [...]string{id}, ret.Error(), fmt.Errorf("deploymentStatusRefreshFunc: unknown status %v", status)
 		}
 	}
 }
@@ -408,32 +416,43 @@ func resourceDeploymentRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("created_at", deployment.CreatedAt)
 	d.Set("created_by", deployment.CreatedBy)
 	d.Set("description", deployment.Description)
-	d.Set("last_updated_at", deployment.LastUpdatedAt)
-	d.Set("last_updated_by", deployment.LastUpdatedBy)
-	d.Set("lease_expire_at", deployment.LeaseExpireAt)
-	d.Set("name", deployment.Name)
-	d.Set("project_id", deployment.ProjectID)
-	d.Set("status", deployment.Status)
 
 	if err := d.Set("expense", flattenExpense(deployment.Expense)); err != nil {
 		return fmt.Errorf("error setting deployment expense - error: %#v", err)
 	}
 
-	if err := d.Set("inputs", expandInputs(deployment.Inputs)); err != nil {
-		return fmt.Errorf("error setting deployment inputs - error: %#v", err)
+	allInputs := expandInputs(deployment.Inputs)
+	if err := d.Set("inputs_including_defaults", allInputs); err != nil {
+		return fmt.Errorf("error setting deployment inputs_including_defaults - error: %#v", err)
+	}
+
+	if v, ok := d.GetOk("inputs"); ok {
+		userInputs := v.(map[string]interface{})
+		if err := d.Set("inputs", updateUserInputs(allInputs, userInputs)); err != nil {
+			return fmt.Errorf("error setting deployment inputs - error: %#v", err)
+		}
 	}
 
 	if err := d.Set("last_request", flattenDeploymentRequest(deployment.LastRequest)); err != nil {
 		return fmt.Errorf("error setting deployment last_request - error: %#v", err)
 	}
 
+	d.Set("last_updated_at", deployment.LastUpdatedAt)
+	d.Set("last_updated_by", deployment.LastUpdatedBy)
+	d.Set("lease_expire_at", deployment.LeaseExpireAt)
+	d.Set("name", deployment.Name)
+
 	if err := d.Set("project", flattenResourceReference(deployment.Project)); err != nil {
 		return fmt.Errorf("error setting project in deployment - error: %#v", err)
 	}
 
+	d.Set("project_id", deployment.ProjectID)
+
 	if err := d.Set("resources", flattenResources(deployment.Resources)); err != nil {
 		return fmt.Errorf("error setting resources in deployment - error: %#v", err)
 	}
+
+	d.Set("status", deployment.Status)
 
 	log.Printf("Finished reading the vra_deployment resource with name '%s'. Current status: '%s'", d.Get("name"), d.Get("status"))
 	return nil
@@ -457,6 +476,24 @@ func resourceDeploymentUpdate(d *schema.ResourceData, m interface{}) error {
 		if err != nil {
 			return err
 		}
+	}
+
+	stateChangeFunc := resource.StateChangeConf{
+		Delay:      5 * time.Second,
+		Pending:    []string{models.DeploymentStatusCREATEINPROGRESS, models.DeploymentStatusUPDATEINPROGRESS},
+		Refresh:    deploymentStatusRefreshFunc(*apiClient, d.Id()),
+		Target:     []string{models.DeploymentStatusCREATESUCCESSFUL, models.DeploymentStatusUPDATESUCCESSFUL},
+		Timeout:    d.Timeout(schema.TimeoutCreate),
+		MinTimeout: 5 * time.Second,
+	}
+
+	_, err := stateChangeFunc.WaitForState()
+	if err != nil {
+		readError := resourceDeploymentRead(d, m)
+		if readError != nil {
+			return fmt.Errorf("failed to update deployment: %v \nfailed to read deployment state: %v", err.Error(), readError.Error())
+		}
+		return err
 	}
 
 	log.Printf("Finished updating the vra_deployment resource with name %s", d.Get("name"))
@@ -678,11 +715,11 @@ func deploymentActionStatusRefreshFunc(apiClient client.MulticloudIaaS, deployme
 
 		status := ret.Payload.LastRequest.Status
 		switch status {
-		case models.DeploymentRequestStatusPENDING, models.DeploymentRequestStatusINITIALIZATION, models.DeploymentRequestStatusAPPROVALPENDING, models.DeploymentRequestStatusINPROGRESS:
+		case models.DeploymentRequestStatusPENDING, models.DeploymentRequestStatusINITIALIZATION, models.DeploymentRequestStatusAPPROVALPENDING, models.DeploymentRequestStatusINPROGRESS, models.DeploymentRequestStatusCOMPLETION:
 			return [...]string{deploymentUUID.String()}, status, nil
 		case models.DeploymentRequestStatusAPPROVALREJECTED, models.DeploymentRequestStatusABORTED, models.DeploymentRequestStatusFAILED:
 			return []string{""}, status, fmt.Errorf(ret.Error())
-		case models.DeploymentRequestStatusCOMPLETION, models.DeploymentRequestStatusSUCCESSFUL:
+		case models.DeploymentRequestStatusSUCCESSFUL:
 			deploymentID := ret.Payload.ID
 			return deploymentID.String(), status, nil
 		default:
@@ -737,4 +774,20 @@ func deploymentDeleteStatusRefreshFunc(apiClient client.MulticloudIaaS, id strin
 
 		return [...]string{id}, reflect.TypeOf(ret).String(), nil
 	}
+}
+
+// Updates only user inputs from all the inputs
+func updateUserInputs(allInputs, userInputs map[string]interface{}) map[string]interface{} {
+	if allInputs == nil || userInputs == nil {
+		return nil
+	}
+
+	inputs := make(map[string]interface{})
+	for key, value := range userInputs {
+		if value != nil {
+			inputs[key] = fmt.Sprint(allInputs[key])
+		}
+	}
+
+	return inputs
 }
