@@ -547,81 +547,82 @@ func runDeploymentUpdateAction(d *schema.ResourceData, apiClient *client.Multicl
 
 	name := d.Get("name")
 	if !updateAvailable {
-		log.Printf("Update action is not available on the vra_deployment %s, hence new inputs are not applied", name)
-	} else {
-		var inputs = make(map[string]interface{})
-		blueprintID, catalogItemID := "", ""
-		if v, ok := d.GetOk("catalog_item_id"); ok {
-			catalogItemID = v.(string)
-		}
-
-		if v, ok := d.GetOk("blueprint_id"); ok {
-			blueprintID = v.(string)
-		}
-
-		// If catalog_item_id is provided, get the catalog item schema deployment with the catalog item
-		if catalogItemID != "" {
-			catalogItemVersion := ""
-			if v, ok := d.GetOk("catalog_item_version"); ok {
-				catalogItemVersion = v.(string)
-			}
-
-			if v, ok := d.GetOk("inputs"); ok {
-				// If the inputs are provided, get the schema from catalog item to convert the provided input values
-				// to the type defined in the schema.
-				inputsSchemaMap, err := getCatalogItemSchema(apiClient, catalogItemID, catalogItemVersion)
-				if err != nil {
-					return err
-				}
-
-				log.Printf("Inputs Schema: %v", inputsSchemaMap)
-				inputTypesMap, err := getInputTypesMapFromCatalogItemSchema(inputsSchemaMap)
-				if err != nil {
-					return err
-				}
-
-				log.Printf("InputTypesMap: %v", inputTypesMap)
-				inputs, err = getInputsByType(v.(map[string]interface{}), inputTypesMap)
-				if err != nil {
-					return err
-				}
-			}
-		} else if blueprintID != "" {
-			blueprintVersion := ""
-			if v, ok := d.GetOk("blueprint_version"); ok {
-				blueprintVersion = v.(string)
-			}
-
-			if v, ok := d.GetOk("inputs"); ok {
-				// If the inputs are provided, get the schema from blueprint to convert the provided input values
-				// to the type defined in the schema.
-				inputsSchemaMap, err := getBlueprintSchema(apiClient, blueprintID, blueprintVersion)
-				if err != nil {
-					return err
-				}
-
-				log.Printf("Inputs Schema: %v", inputsSchemaMap)
-				inputTypesMap, err := getInputTypesMapFromBlueprintInputsSchema(inputsSchemaMap)
-				if err != nil {
-					return err
-				}
-
-				log.Printf("InputTypesMap: %v", inputTypesMap)
-				inputs, err = getInputsByType(v.(map[string]interface{}), inputTypesMap)
-				if err != nil {
-					return err
-				}
-			}
-		}
-
-		reason := "Updated deployment inputs from vRA provider for Terraform."
-		err := runAction(d, apiClient, deploymentUUID, actionID, inputs, reason)
-		if err != nil {
-			return err
-		}
-
-		log.Printf("Finished updating vra_deployment %s with inputs", name)
+		return fmt.Errorf("noticed changes to inputs, but 'Update' action is not supported based on the current state of the deployment %s", name)
 	}
+
+	// Continue if update action is available.
+	var inputs = make(map[string]interface{})
+	blueprintID, catalogItemID := "", ""
+	if v, ok := d.GetOk("catalog_item_id"); ok {
+		catalogItemID = v.(string)
+	}
+
+	if v, ok := d.GetOk("blueprint_id"); ok {
+		blueprintID = v.(string)
+	}
+
+	// If catalog_item_id is provided, get the catalog item schema deployment with the catalog item
+	if catalogItemID != "" {
+		catalogItemVersion := ""
+		if v, ok := d.GetOk("catalog_item_version"); ok {
+			catalogItemVersion = v.(string)
+		}
+
+		if v, ok := d.GetOk("inputs"); ok {
+			// If the inputs are provided, get the schema from catalog item to convert the provided input values
+			// to the type defined in the schema.
+			inputsSchemaMap, err := getCatalogItemSchema(apiClient, catalogItemID, catalogItemVersion)
+			if err != nil {
+				return err
+			}
+
+			log.Printf("Inputs Schema: %v", inputsSchemaMap)
+			inputTypesMap, err := getInputTypesMapFromCatalogItemSchema(inputsSchemaMap)
+			if err != nil {
+				return err
+			}
+
+			log.Printf("InputTypesMap: %v", inputTypesMap)
+			inputs, err = getInputsByType(v.(map[string]interface{}), inputTypesMap)
+			if err != nil {
+				return err
+			}
+		}
+	} else if blueprintID != "" {
+		blueprintVersion := ""
+		if v, ok := d.GetOk("blueprint_version"); ok {
+			blueprintVersion = v.(string)
+		}
+
+		if v, ok := d.GetOk("inputs"); ok {
+			// If the inputs are provided, get the schema from blueprint to convert the provided input values
+			// to the type defined in the schema.
+			inputsSchemaMap, err := getBlueprintSchema(apiClient, blueprintID, blueprintVersion)
+			if err != nil {
+				return err
+			}
+
+			log.Printf("Inputs Schema: %v", inputsSchemaMap)
+			inputTypesMap, err := getInputTypesMapFromBlueprintInputsSchema(inputsSchemaMap)
+			if err != nil {
+				return err
+			}
+
+			log.Printf("InputTypesMap: %v", inputTypesMap)
+			inputs, err = getInputsByType(v.(map[string]interface{}), inputTypesMap)
+			if err != nil {
+				return err
+			}
+		}
+	}
+
+	reason := "Updated deployment inputs from vRA provider for Terraform."
+	err = runAction(d, apiClient, deploymentUUID, actionID, inputs, reason)
+	if err != nil {
+		return err
+	}
+
+	log.Printf("Finished updating vra_deployment %s with inputs", name)
 
 	return nil
 }
