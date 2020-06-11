@@ -27,6 +27,10 @@ func dataSourceProject() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
+			"machine_naming_template": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 			"members": {
 				Type:     schema.TypeSet,
 				Computed: true,
@@ -40,6 +44,10 @@ func dataSourceProject() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
+			"operation_timeout": {
+				Type:     schema.TypeInt,
+				Optional: true,
+			},
 			"id": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -49,6 +57,14 @@ func dataSourceProject() *schema.Resource {
 				Type:     schema.TypeBool,
 				Computed: true,
 				Optional: true,
+			},
+			"viewers": {
+				Type:     schema.TypeSet,
+				Computed: true,
+				Optional: true,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
 			},
 			"zone_assignments": {
 				Type:     schema.TypeSet,
@@ -111,9 +127,12 @@ func dataSourceProjectRead(d *schema.ResourceData, meta interface{}) error {
 		d.SetId(*project.ID)
 		d.Set("administrators", flattenUserList(project.Administrators))
 		d.Set("description", project.Description)
+		d.Set("machine_naming_template", project.MachineNamingTemplate)
 		d.Set("members", flattenUserList(project.Members))
 		d.Set("name", project.Name)
+		d.Set("operation_timeout", project.OperationTimeout)
 		d.Set("shared_resources", project.SharedResources)
+		d.Set("viewers", flattenUserList(project.Viewers))
 		d.Set("zone_assignments", flattenZoneAssignment(project.Zones))
 	}
 
