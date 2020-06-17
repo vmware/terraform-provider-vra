@@ -10,7 +10,7 @@ import (
 // resourcesSchema returns the schema to use for the resource property
 func resourcesSchema() *schema.Schema {
 	return &schema.Schema{
-		Type:     schema.TypeSet,
+		Type:     schema.TypeList,
 		Computed: true,
 		Elem: &schema.Resource{
 			Schema: map[string]*schema.Schema{
