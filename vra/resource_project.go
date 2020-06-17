@@ -28,6 +28,10 @@ func resourceProject() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
+			"machine_naming_template": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 			"members": {
 				Type:     schema.TypeSet,
 				Optional: true,
@@ -39,10 +43,21 @@ func resourceProject() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 			},
+			"operation_timeout": {
+				Type:     schema.TypeInt,
+				Optional: true,
+			},
 			"shared_resources": {
 				Type:     schema.TypeBool,
 				Optional: true,
 				Default:  true,
+			},
+			"viewers": {
+				Type:     schema.TypeSet,
+				Optional: true,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
 			},
 			"zone_assignments": {
 				Type:     schema.TypeSet,
@@ -91,17 +106,23 @@ func resourceProjectCreate(d *schema.ResourceData, m interface{}) error {
 
 	administrators := expandUserList(d.Get("administrators").(*schema.Set).List())
 	description := d.Get("description").(string)
+	machineNamingTemplate := d.Get("machine_naming_template").(string)
 	members := expandUserList(d.Get("members").(*schema.Set).List())
 	name := d.Get("name").(string)
+	operationTimeout := d.Get("operation_timeout").(int)
 	sharedResources := d.Get("shared_resources").(bool)
+	viewers := expandUserList(d.Get("viewers").(*schema.Set).List())
 	zoneAssignment := expandZoneAssignment(d.Get("zone_assignments").(*schema.Set).List())
 
 	createResp, err := apiClient.Project.CreateProject(project.NewCreateProjectParams().WithBody(&models.ProjectSpecification{
 		Administrators:               administrators,
 		Description:                  description,
+		MachineNamingTemplate:        machineNamingTemplate,
 		Members:                      members,
 		Name:                         &name,
+		OperationTimeout:             int64(operationTimeout),
 		SharedResources:              withBool(sharedResources),
+		Viewers:                      viewers,
 		ZoneAssignmentConfigurations: zoneAssignment,
 	}))
 	if err != nil {
@@ -129,9 +150,12 @@ func resourceProjectRead(d *schema.ResourceData, m interface{}) error {
 	Project := *ret.Payload
 	d.Set("administrators", flattenUserList(Project.Administrators))
 	d.Set("description", Project.Description)
+	d.Set("machine_naming_template", Project.MachineNamingTemplate)
 	d.Set("members", flattenUserList(Project.Members))
 	d.Set("name", Project.Name)
+	d.Set("operation_timeout", Project.OperationTimeout)
 	d.Set("shared_resources", Project.SharedResources)
+	d.Set("viewers", flattenUserList(Project.Viewers))
 	d.Set("zone_assignments", flattenZoneAssignment(Project.Zones))
 
 	return nil
@@ -143,17 +167,23 @@ func resourceProjectUpdate(d *schema.ResourceData, m interface{}) error {
 	id := d.Id()
 	administrators := expandUserList(d.Get("administrators").(*schema.Set).List())
 	description := d.Get("description").(string)
+	machineNamingTemplate := d.Get("machine_naming_template").(string)
 	members := expandUserList(d.Get("members").(*schema.Set).List())
+	viewers := expandUserList(d.Get("viewers").(*schema.Set).List())
 	name := d.Get("name").(string)
+	operationTimeout := d.Get("operation_timeout").(int)
 	sharedResources := d.Get("shared_resources").(bool)
 	zoneAssignment := expandZoneAssignment(d.Get("zone_assignments").(*schema.Set).List())
 
 	_, err := apiClient.Project.UpdateProject(project.NewUpdateProjectParams().WithID(id).WithBody(&models.ProjectSpecification{
 		Administrators:               administrators,
 		Description:                  description,
+		MachineNamingTemplate:        machineNamingTemplate,
 		Members:                      members,
 		Name:                         &name,
+		OperationTimeout:             int64(operationTimeout),
 		SharedResources:              withBool(sharedResources),
+		Viewers:                      viewers,
 		ZoneAssignmentConfigurations: zoneAssignment,
 	}))
 	if err != nil {

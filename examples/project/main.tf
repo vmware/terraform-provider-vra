@@ -24,6 +24,14 @@ resource "vra_project" "this" {
   shared_resources = false
 
   administrators = ["jason@vra.local"]
+
+  members = ["tony@vra.local"]
+
+  viewers = ["shauna@vra.local"]
+
+  operation_timeout = 6000
+
+  machine_naming_template = "$${resource.name}-$${####}"
 }
 
 data "vra_project" "this" {
