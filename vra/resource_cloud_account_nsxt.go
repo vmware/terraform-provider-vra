@@ -34,7 +34,7 @@ func resourceCloudAccountNSXT() *schema.Resource {
 			},
 			"dc_id": {
 				Type:     schema.TypeString,
-				Required: true,
+				Optional: true,
 			},
 			"description": {
 				Type:     schema.TypeString,
