@@ -32,3 +32,4 @@ terraform-provider-cas*
 test.sh
 terraform-provider-cas.exe
 vendor/
+dist/
