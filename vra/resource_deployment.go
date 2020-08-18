@@ -319,6 +319,7 @@ func resourceDeploymentRead(d *schema.ResourceData, m interface{}) error {
 			WithExpandResources(withBool(true)).
 			WithExpandLastRequest(withBool(true)).
 			WithExpandProject(withBool(expandProject)).
+			WithAPIVersion(withString(DeploymentsAPIVersion)).
 			WithTimeout(IncreasedTimeOut))
 	if err != nil {
 		switch err.(type) {
@@ -553,7 +554,8 @@ func deploymentStatusRefreshFunc(apiClient client.MulticloudIaaS, id string) res
 		ret, err := apiClient.Deployments.GetDeploymentByIDUsingGET(
 			deployments.NewGetDeploymentByIDUsingGETParams().
 				WithDepID(strfmt.UUID(id)).
-				WithExpandLastRequest(withBool(true)))
+				WithExpandLastRequest(withBool(true)).
+				WithAPIVersion(withString(DeploymentsAPIVersion)))
 		if err != nil {
 			return id, models.DeploymentStatusCREATEFAILED, err
 		}
@@ -865,6 +867,7 @@ func deploymentActionStatusRefreshFunc(apiClient client.MulticloudIaaS, deployme
 			deployments.NewGetDeploymentByIDUsingGETParams().
 				WithDepID(deploymentUUID).
 				WithExpandLastRequest(withBool(true)).
+				WithAPIVersion(withString(DeploymentsAPIVersion)).
 				WithTimeout(IncreasedTimeOut))
 		if err != nil {
 			return "", models.DeploymentRequestStatusFAILED, err
