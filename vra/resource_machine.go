@@ -33,14 +33,16 @@ func resourceMachine() *schema.Resource {
 				Computed: true,
 			},
 			"boot_config": {
-				Type:     schema.TypeSet,
-				Optional: true,
-				MaxItems: 1,
+				Type:        schema.TypeSet,
+				Optional:    true,
+				MaxItems:    1,
+				Description: "Machine boot config that will be passed to the instance that can be used to perform common automated configuration tasks and even run scripts after the instance starts.",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"content": {
-							Type:     schema.TypeString,
-							Optional: true,
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: "A valid cloud config data in json-escaped yaml syntax.",
 						},
 					},
 				},
@@ -51,35 +53,66 @@ func resourceMachine() *schema.Resource {
 				Computed: true,
 			},
 			"custom_properties": {
-				Type:     schema.TypeMap,
-				Computed: true,
-				Optional: true,
+				Type:        schema.TypeMap,
+				Computed:    true,
+				Optional:    true,
+				Description: "Additional custom properties that may be used to extend the machine.",
 			},
 			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "Describes machine within the scope of your organization and is not propagated to the cloud.",
 			},
 			"deployment_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: "The id of the deployment that is associated with this resource.",
 			},
 			"disks": {
-				Type:     schema.TypeSet,
-				Optional: true,
+				Type:        schema.TypeSet,
+				Optional:    true,
+				Description: "Specification for attaching/detaching disks to a machine.",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"name": {
-							Type:     schema.TypeString,
-							Optional: true,
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: "A human-friendly block-device name used as an identifier in APIs that support this option.",
 						},
 						"description": {
-							Type:     schema.TypeString,
-							Optional: true,
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: "A human-friendly description.",
 						},
 						"block_device_id": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: "The id of the existing block device.",
+						},
+					},
+				},
+			},
+			"disks_list": {
+				Type:        schema.TypeSet,
+				Computed:    true,
+				Description: "List of all disks attached to a machine including boot disk, and additional block devices attached using the disks attribute.",
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"name": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: "A human-friendly block-device name used as an identifier in APIs that support this option.",
+						},
+						"description": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: "A human-friendly description.",
+						},
+						"block_device_id": {
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: "The id of the existing block device.",
 						},
 					},
 				},
@@ -101,9 +134,10 @@ func resourceMachine() *schema.Resource {
 				Required: true,
 			},
 			"image": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Description: "Type of image used for this machine.",
 			},
 			"image_disk_constraints": constraintsSchema(),
 			"image_ref": {
@@ -299,6 +333,21 @@ func resourceMachineRead(d *schema.ResourceData, m interface{}) error {
 
 	if err := d.Set("links", flattenLinks(machine.Links)); err != nil {
 		return fmt.Errorf("error setting machine links - error: %#v", err)
+	}
+
+	// get all the disks currently attached to the machine
+	getMachineDisksOk, err := apiClient.Disk.GetMachineDisks(disk.NewGetMachineDisksParams().WithID(id))
+	if err != nil {
+		return err
+	}
+
+	if err := d.Set("disks_list", flattenDisks(getMachineDisksOk.Payload.Content)); err != nil {
+		return fmt.Errorf("error setting machine disks list - error: %#v", err)
+	}
+
+	disksConfig := d.Get("disks").(*schema.Set).List()
+	if err := d.Set("disks", filterDisks(disksConfig, getMachineDisksOk.Payload.Content)); err != nil {
+		return fmt.Errorf("error setting machine disks - error: %#v", err)
 	}
 
 	log.Printf("Finished reading the vra_machine resource with name %s", d.Get("name"))
@@ -552,6 +601,58 @@ func expandDisks(configDisks []interface{}) []*models.DiskAttachmentSpecificatio
 		}
 
 		disks = append(disks, &disk)
+	}
+
+	return disks
+}
+
+func flattenDisks(blockDevices []*models.BlockDevice) []interface{} {
+	if len(blockDevices) == 0 {
+		return make([]interface{}, 0)
+	}
+
+	configDisks := make([]interface{}, 0, len(blockDevices))
+
+	for _, blockDevice := range blockDevices {
+		helper := make(map[string]interface{})
+		helper["name"] = blockDevice.Name
+		helper["description"] = blockDevice.Description
+		helper["block_device_id"] = blockDevice.ID
+
+		configDisks = append(configDisks, helper)
+	}
+
+	return configDisks
+}
+
+func filterDisks(disksConfig []interface{}, blockDevices []*models.BlockDevice) []interface{} {
+	if len(disksConfig) == 0 {
+		return make([]interface{}, 0)
+	}
+
+	disks := make([]interface{}, 0, len(disksConfig))
+
+	// Look for existing disks configuration in the block devices received and map only those.
+	// This filters the default boot disk, CD and Floppy drives that are attached by default to machine resource and avoid incorrect plan even when no changes are made to config file.
+	for _, diskConfig := range disksConfig {
+		diskConfigMap := diskConfig.(map[string]interface{})
+		for _, blockDevice := range blockDevices {
+			if diskConfigMap["block_device_id"].(string) == *blockDevice.ID {
+				helper := make(map[string]interface{})
+				helper["block_device_id"] = blockDevice.ID
+
+				if diskConfigMap["name"].(string) != "" {
+					helper["name"] = blockDevice.Name
+				}
+
+				if diskConfigMap["description"].(string) != "" {
+					helper["description"] = blockDevice.Description
+				}
+
+				disks = append(disks, helper)
+				break
+			}
+		}
 	}
 
 	return disks
