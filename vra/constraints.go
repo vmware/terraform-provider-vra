@@ -43,8 +43,24 @@ func expandConstraints(configConstraints []interface{}) []*models.Constraint {
 	return constraints
 }
 
-/*
-func flattenConstraints(constraints []*models.Constraint) []interface{} {
+func expandConstraintsForProject(configConstraints []interface{}) []models.Constraint {
+	constraints := make([]models.Constraint, 0, len(configConstraints))
+
+	for _, configConstraint := range configConstraints {
+		constraintMap := configConstraint.(map[string]interface{})
+
+		constraint := models.Constraint{
+			Mandatory:  withBool(constraintMap["mandatory"].(bool)),
+			Expression: withString(constraintMap["expression"].(string)),
+		}
+
+		constraints = append(constraints, constraint)
+	}
+
+	return constraints
+}
+
+func flattenConstraints(constraints []models.Constraint) []interface{} {
 	if len(constraints) == 0 {
 		return make([]interface{}, 0)
 	}
@@ -61,4 +77,3 @@ func flattenConstraints(constraints []*models.Constraint) []interface{} {
 
 	return configConstraints
 }
-*/
