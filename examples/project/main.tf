@@ -32,6 +32,35 @@ resource "vra_project" "this" {
   operation_timeout = 6000
 
   machine_naming_template = "$${resource.name}-$${####}"
+
+  constraints {
+    extensibility {
+      expression = "foo:bar"
+      mandatory  = false
+    }
+    extensibility {
+      expression = "environment:Test"
+      mandatory  = true
+    }
+
+    network {
+      expression = "foo:bar"
+      mandatory  = false
+    }
+    network {
+      expression = "environment:Test"
+      mandatory  = true
+    }
+
+    storage {
+      expression = "foo:bar"
+      mandatory  = false
+    }
+    storage {
+      expression = "environment:Test"
+      mandatory  = true
+    }
+  }
 }
 
 data "vra_project" "this" {
