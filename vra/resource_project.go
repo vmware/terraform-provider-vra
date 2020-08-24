@@ -325,6 +325,10 @@ func expandProjectConstraints(configProjectConstraints []interface{}) map[string
 }
 
 func flattenProjectConstraints(projectConstraints map[string][]models.Constraint) []map[string]interface{} {
+	if projectConstraints == nil {
+		return nil
+	}
+
 	result := make([]map[string]interface{}, 0, 1)
 
 	helper := make(map[string]interface{})
