@@ -325,7 +325,7 @@ func expandProjectConstraints(configProjectConstraints []interface{}) map[string
 }
 
 func flattenProjectConstraints(projectConstraints map[string][]models.Constraint) []map[string]interface{} {
-	if projectConstraints == nil {
+	if len(projectConstraints) == 0 {
 		return nil
 	}
 
