@@ -69,8 +69,8 @@ func flattenConstraints(constraints []models.Constraint) []interface{} {
 
 	for _, constraint := range constraints {
 		helper := make(map[string]interface{})
-		helper["mandatory"] = constraint.Mandatory
-		helper["expression"] = constraint.Expression
+		helper["mandatory"] = *constraint.Mandatory
+		helper["expression"] = *constraint.Expression
 
 		configConstraints = append(configConstraints, helper)
 	}

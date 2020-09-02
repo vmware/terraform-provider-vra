@@ -191,6 +191,7 @@ func resourceProjectUpdate(d *schema.ResourceData, m interface{}) error {
 
 	id := d.Id()
 	administrators := expandUserList(d.Get("administrators").(*schema.Set).List())
+	constraints := expandProjectConstraints(d.Get("constraints").(*schema.Set).List())
 	description := d.Get("description").(string)
 	machineNamingTemplate := d.Get("machine_naming_template").(string)
 	members := expandUserList(d.Get("members").(*schema.Set).List())
@@ -202,6 +203,7 @@ func resourceProjectUpdate(d *schema.ResourceData, m interface{}) error {
 
 	_, err := apiClient.Project.UpdateProject(project.NewUpdateProjectParams().WithID(id).WithBody(&models.ProjectSpecification{
 		Administrators:               administrators,
+		Constraints:                  constraints,
 		Description:                  description,
 		MachineNamingTemplate:        machineNamingTemplate,
 		Members:                      members,
