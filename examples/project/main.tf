@@ -65,4 +65,6 @@ resource "vra_project" "this" {
 
 data "vra_project" "this" {
   name = vra_project.this.name
+
+  depends_on = [vra_project.this]
 }
