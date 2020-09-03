@@ -62,6 +62,7 @@ func Provider() *schema.Provider {
 			"vra_deployment":                 dataSourceDeployment(),
 			"vra_fabric_network":             dataSourceFabricNetwork(),
 			"vra_image":                      dataSourceImage(),
+			"vra_image_profile":              dataSourceImageProfile(),
 			"vra_machine":                    dataSourceMachine(),
 			"vra_network":                    dataSourceNetwork(),
 			"vra_network_domain":             dataSourceNetworkDomain(),

@@ -14,6 +14,8 @@ import (
 
 func TestAccVRAImageProfileBasic(t *testing.T) {
 	rInt := acctest.RandInt()
+	resourceName := "vra_image_profile.this"
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckImageProfile(t) },
 		Providers:    testAccProviders,
@@ -22,25 +24,26 @@ func TestAccVRAImageProfileBasic(t *testing.T) {
 			{
 				Config: testAccCheckVRAImageProfileConfig(rInt),
 				Check: resource.ComposeAggregateTestCheckFunc(
-					testAccCheckVRAImageProfileExists("vra_image_profile.my-image-profile"),
+					testAccCheckVRAImageProfileExists(resourceName),
 					resource.TestCheckResourceAttr(
-						"vra_image_profile.my-image-profile", "name", "my-image-profile-"+strconv.Itoa(rInt)),
+						resourceName, "name", "my-image-profile-"+strconv.Itoa(rInt)),
 					resource.TestCheckResourceAttr(
-						"vra_image_profile.my-image-profile", "description", "my image profile"),
+						resourceName, "description", "my image profile"),
 					resource.TestCheckResourceAttr(
-						"vra_image_profile.my-image-profile", "image_mapping.#", "1"),
+						resourceName, "image_mapping.#", "1"),
+					resource.TestCheckResourceAttrSet(resourceName, "external_region_id"),
 				),
 			},
 			{
 				Config: testAccCheckVRAImageProfileUpdateConfig(rInt),
 				Check: resource.ComposeAggregateTestCheckFunc(
-					testAccCheckVRAImageProfileExists("vra_image_profile.my-image-profile"),
+					testAccCheckVRAImageProfileExists(resourceName),
 					resource.TestCheckResourceAttr(
-						"vra_image_profile.my-image-profile", "name", "my-image-profile-"+strconv.Itoa(rInt)),
+						resourceName, "name", "my-image-profile-"+strconv.Itoa(rInt)),
 					resource.TestCheckResourceAttr(
-						"vra_image_profile.my-image-profile", "description", "my image profile update"),
+						resourceName, "description", "my image profile update"),
 					resource.TestCheckResourceAttr(
-						"vra_image_profile.my-image-profile", "image_mapping.#", "1"),
+						resourceName, "image_mapping.#", "1"),
 				),
 			},
 		},
@@ -92,14 +95,19 @@ data "vra_region" "my-region" {
     region = "%s"
 }
 
-resource "vra_image_profile" "my-image-profile" {
+resource "vra_image_profile" "this" {
 	name = "my-image-profile-%d"
     description = "my image profile"
     region_id = data.vra_region.my-region.id
     image_mapping {
         name = "image"
         image_name = "%s"
-    }
+
+		constraints {
+			mandatory = true
+			expression = "env:test"
+    	}
+	}
 }`, name, region, rInt, image)
 }
 
@@ -117,7 +125,8 @@ func testAccCheckVRAImageProfileUpdateConfig(rInt int) string {
 		cloud_account_id = data.vra_cloud_account_aws.my-cloud-account.id
 		region = "%s"
 	}
-resource "vra_image_profile" "my-image-profile" {
+
+resource "vra_image_profile" "this" {
 	name = "my-image-profile-%d"
     description = "my image profile update"
     region_id = data.vra_region.my-region.id
