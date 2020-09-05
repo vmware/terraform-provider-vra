@@ -24,7 +24,7 @@ func TestAccVRANetworkIPRangeBasic(t *testing.T) {
 			{
 				Config: testAccCheckVRANetworkIPRangeConfig(rInt),
 				Check: resource.ComposeAggregateTestCheckFunc(
-					testAccCheckVRANetworkProfileExists("vra_network_ip_range.this"),
+					testAccCheckVRANetworkIPRangeExists("vra_network_ip_range.this"),
 					resource.TestMatchResourceAttr(
 						"vra_network_ip_range.this", "name", regexp.MustCompile("^my-vra-network-ip-range-"+strconv.Itoa(rInt))),
 				),
@@ -98,7 +98,7 @@ func testAccCheckVRANetworkIPRangeConfig(rInt int) string {
 		name              = "my-vra-network-range-%d"
 		start_ip_address  = "%s"
 		end_ip_address    = "%s"
-		ip_version        = "IPv4"
+		ip_version        = "%s"
 		fabric_network_id = data.vra_fabric_network.this.id
 	}	  
 	 
