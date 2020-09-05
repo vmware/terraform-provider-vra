@@ -58,7 +58,7 @@ func testAccCheckVRANetworkIPRangeDestroy(s *terraform.State) error {
 			}
 		}
 		if rs.Type == "vra_network_ip_range" {
-			_, err := apiClient.NetworkIPRange.GetInternalNetworkIPRange(network_ip_range.NewGetInternalNetworkIPRangeParams().WithID(id))
+			_, err := apiClient.NetworkIPRange.GetInternalNetworkIPRange(network_ip_range.NewGetInternalNetworkIPRangeParams().WithID(rs.Primary.ID))
 			if err == nil {
 				return fmt.Errorf("Resource 'vra_network_ip_range' still exists with id %s", rs.Primary.ID)
 			}
