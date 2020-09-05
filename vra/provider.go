@@ -100,6 +100,7 @@ func Provider() *schema.Provider {
 			"vra_machine":                    resourceMachine(),
 			"vra_network":                    resourceNetwork(),
 			"vra_network_profile":            resourceNetworkProfile(),
+			"vra_network_ip_range":           resourceNetworkIPRange(),
 			"vra_project":                    resourceProject(),
 			"vra_storage_profile":            resourceStorageProfile(),
 			"vra_storage_profile_aws":        resourceStorageProfileAws(),
