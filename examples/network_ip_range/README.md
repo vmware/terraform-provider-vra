@@ -4,7 +4,7 @@ This is an example on how to create a Network IP Range associated with a network
 
 ## Getting Started
 
-There are variables which need to be added to terraform.tfvars. The first are for connecting to the vRealize Automation (vRA) endpoint. The others are names of cloud_account, and subnet that already setup in vRA.
+There are variables which need to be added to terraform.tfvars. The first two are for connecting to the vRealize Automation (vRA) endpoint. The next two are the names of a cloud_account, and subnet that already setup in vRA. The last three are the actual values needed to create the ip range. 
 
 Following is the full list of variables used in this example.
 
