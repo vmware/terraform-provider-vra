@@ -9,17 +9,20 @@ import (
 // constraintsSchema returns the schema to use for the constraints property
 func constraintsSchema() *schema.Schema {
 	return &schema.Schema{
-		Type:     schema.TypeSet,
-		Optional: true,
+		Type:        schema.TypeSet,
+		Optional:    true,
+		Description: "Constraints that are used to drive placement policies for entities such as image, network, storage, etc. Constraint expressions are matched against tags on existing placement targets.",
 		Elem: &schema.Resource{
 			Schema: map[string]*schema.Schema{
 				"mandatory": {
-					Type:     schema.TypeBool,
-					Required: true,
+					Type:        schema.TypeBool,
+					Required:    true,
+					Description: "Indicates whether this constraint should be strictly enforced or not.",
 				},
 				"expression": {
-					Type:     schema.TypeString,
-					Required: true,
+					Type:        schema.TypeString,
+					Required:    true,
+					Description: "An expression of the form \"[!]tag-key[:[tag-value]]\", used to indicate a constraint match on keys and values of tags.",
 				},
 			},
 		},

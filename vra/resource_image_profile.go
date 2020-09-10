@@ -4,6 +4,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/vmware/vra-sdk-go/pkg/client/image_profile"
 	"github.com/vmware/vra-sdk-go/pkg/models"
+
+	"fmt"
+	"strings"
 )
 
 func resourceImageProfile() *schema.Resource {
@@ -17,65 +20,41 @@ func resourceImageProfile() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
+			"created_at": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "Date when the entity was created. The date is in ISO 8601 and UTC.",
+			},
 			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "A human-friendly description.",
+			},
+			"external_region_id": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "The id of the region for which this profile is defined as in the cloud provider.",
+			},
+			"image_mapping": imageMappingSchema(),
+			"owner": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "Email of the user that owns the entity.",
 			},
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
-			},
-			"image_mapping": {
-				Type:     schema.TypeSet,
-				Optional: true,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"name": {
-							Type:     schema.TypeString,
-							Required: true,
-						},
-						"image_id": {
-							Type:     schema.TypeString,
-							Optional: true,
-						},
-						"image_name": {
-							Type:     schema.TypeString,
-							Optional: true,
-						},
-						"cloud_config": {
-							Type:     schema.TypeString,
-							Optional: true,
-						},
-						"external_id": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
-						"external_region_id": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
-						"organization": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
-						"os_family": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
-						"owner": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
-						"private": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
-					},
-				},
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "A human-friendly name used as an identifier in APIs that support this option.",
 			},
 			"region_id": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "The if of the region for which this profile is defined as in vRealize Automation(vRA).",
+			},
+			"updated_at": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "Date when the entity was last updated. The date is ISO 8601 and UTC.",
 			},
 		},
 	}
@@ -114,16 +93,33 @@ func resourceImageProfileRead(d *schema.ResourceData, m interface{}) error {
 		}
 		return err
 	}
-	image := *ret.Payload
-	d.Set("description", image.Description)
-	d.Set("name", image.Name)
-	d.Set("image_mapping", flattenImageMapping(image.ImageMappings.Mapping))
+	imageProfile := *ret.Payload
+	d.Set("created_at", imageProfile.CreatedAt)
+	d.Set("description", imageProfile.Description)
+	d.Set("external_region_id", imageProfile.ExternalRegionID)
+	d.Set("name", imageProfile.Name)
+	d.Set("owner", imageProfile.Owner)
+	d.Set("updated_at", imageProfile.UpdatedAt)
+
+	if regionLink, ok := imageProfile.Links["region"]; ok {
+		if regionLink.Href != "" {
+			d.Set("region_id", strings.TrimPrefix(regionLink.Href, "/iaas/api/regions/"))
+		}
+	}
+
+	if err := d.Set("image_mapping", flattenImageMappings(imageProfile.ImageMappings.Mapping)); err != nil {
+		return fmt.Errorf("error setting image mappings - error: %#v", err)
+	}
 
 	return nil
 }
 
 func resourceImageProfileUpdate(d *schema.ResourceData, m interface{}) error {
 	apiClient := m.(*Client).apiClient
+
+	if d.HasChange("region_id") {
+		return fmt.Errorf("change detected in region_id, but not supported on an image profile")
+	}
 
 	id := d.Id()
 	imageMapping := expandImageMapping(d.Get("image_mapping").(*schema.Set).List())
@@ -152,39 +148,4 @@ func resourceImageProfileDelete(d *schema.ResourceData, m interface{}) error {
 	d.SetId("")
 
 	return nil
-}
-
-func expandImageMapping(configImageMappings []interface{}) map[string]models.FabricImageDescription {
-	images := make(map[string]models.FabricImageDescription)
-
-	for _, configImageMapping := range configImageMappings {
-		image := configImageMapping.(map[string]interface{})
-
-		i := models.FabricImageDescription{
-			CloudConfig: image["cloud_config"].(string),
-			ID:          image["image_id"].(string),
-			Name:        image["image_name"].(string),
-		}
-		images[image["name"].(string)] = i
-	}
-
-	return images
-}
-
-func flattenImageMapping(list map[string]models.ImageMappingDescription) []map[string]interface{} {
-	result := make([]map[string]interface{}, 0, len(list))
-	for _, image := range list {
-		l := map[string]interface{}{
-			"description":        image.Description,
-			"id":                 image.ID,
-			"external_id":        image.ExternalID,
-			"external_region_id": image.ExternalRegionID,
-			"organization":       image.OrganizationID,
-			"os_family":          image.OsFamily,
-			"owner":              image.Owner,
-			"private":            image.IsPrivate,
-		}
-		result = append(result, l)
-	}
-	return result
 }
