@@ -67,3 +67,8 @@ data "vra_image_profile" "filter" {
 
   depends_on = [vra_image_profile.this]
 }
+
+// Image profile data source by id
+data "vra_image_profile" "id" {
+  id = vra_image_profile.this.id
+}
