@@ -22,50 +22,46 @@ func resourceNetworkIPRange() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
-			"name": &schema.Schema{
+			"created_at": {
 				Type:     schema.TypeString,
-				Required: true,
+				Computed: true,
 			},
-			"description": &schema.Schema{
-				Type:     schema.TypeString,
-				Optional: true,
-			},
-			"fabric_network_id": &schema.Schema{
+			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"start_ip_address": &schema.Schema{
+			"end_ip_address": {
 				Type:     schema.TypeString,
 				Required: true,
 				// Do we need to validate?
 			},
-			"end_ip_address": &schema.Schema{
+			"external_id": {
 				Type:     schema.TypeString,
-				Required: true,
-				// Do we need to validate?
+				Computed: true,
 			},
-			"ip_version": &schema.Schema{
+			"fabric_network_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"ip_version": {
 				Type:         schema.TypeString,
 				Required:     true,
 				ValidateFunc: validation.StringInSlice([]string{"IPv4", "IPv6"}, true),
 			},
-			"progress": &schema.Schema{
-				Type:     schema.TypeInt,
-				Computed: true,
+			"name": {
+				Type:     schema.TypeString,
+				Required: true,
 			},
-			"created_at": &schema.Schema{
+			"org_id": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"updated_at": &schema.Schema{
+			"start_ip_address": {
 				Type:     schema.TypeString,
-				Computed: true,
+				Required: true,
+				// Do we need to validate?
 			},
-			"external_id": &schema.Schema{
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"org_id": &schema.Schema{
+			"updated_at": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},

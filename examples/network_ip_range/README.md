@@ -13,7 +13,7 @@ Following is the full list of variables used in this example.
 * `cloud_account` - The name of the cloud account in vRA that the network is attached to
 * `subnet_name` - The name of the subnet to associate the ip range with. *Must have CIDR info and gateway populated*
 * `start_ip` - First IP of the range. Can not include the default gateway.
-* `end_up` - Last IP of the range
+* `end_ip` - Last IP of the range
 * `ip_version` - IP networking version either IPv4 or IPv6
 
 To facilitate adding these variables, a sample tfvars file can be copied first:
