@@ -50,11 +50,13 @@ func resourceDeployment() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
+				ForceNew: true,
 			},
 			"catalog_item_version": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
+				ForceNew: true,
 			},
 			"created_at": {
 				Type:     schema.TypeString,
@@ -84,9 +86,17 @@ func resourceDeployment() *schema.Resource {
 			},
 			"expense": expenseSchema(),
 			"inputs": {
-				Type:     schema.TypeMap,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeMap,
+				Optional:    true,
+				Description: "Inputs provided by the user. For inputs including those with default values, refer to inputs_including_defaults.",
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			},
+			"inputs_including_defaults": {
+				Type:        schema.TypeMap,
+				Computed:    true,
+				Description: "All the inputs applied during last create/update operation, including those with default values.",
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
@@ -165,6 +175,8 @@ func resourceDeploymentCreate(d *schema.ResourceData, m interface{}) error {
 		return fmt.Errorf("a deployment with name '%v' exists already. Try with a differnet name", deploymentName)
 	}
 
+	inputs := make(map[string]interface{})
+
 	// If catalog_item_id is provided, request deployment with the catalog item
 	if catalogItemID != "" {
 		log.Printf("Requesting vra_deployment '%s' from catalog item", d.Get("name"))
@@ -180,27 +192,12 @@ func resourceDeploymentCreate(d *schema.ResourceData, m interface{}) error {
 		}
 
 		if v, ok := d.GetOk("inputs"); ok {
-			inputsSchemaMap, err := getCatalogItemSchema(apiClient, catalogItemID, catalogItemVersion)
+			inputs, err = getCatalogItemInputsByType(apiClient, catalogItemID, catalogItemVersion, v)
 			if err != nil {
 				return err
 			}
-
-			log.Printf("Inputs Schema: %v", inputsSchemaMap)
-
-			inputTypesMap, err := getInputTypesMapFromCatalogItemSchema(inputsSchemaMap)
-			if err != nil {
-				return err
-			}
-
-			log.Printf("InputTypesMap: %v", inputTypesMap)
-
-			catalogItemRequest.Inputs, err = getInputsByType(v.(map[string]interface{}), inputTypesMap)
-			if err != nil {
-				return err
-			}
-		} else {
-			catalogItemRequest.Inputs = make(map[string]interface{})
 		}
+		catalogItemRequest.Inputs = inputs
 
 		if v, ok := d.GetOk("description"); ok {
 			catalogItemRequest.Reason = v.(string)
@@ -218,9 +215,15 @@ func resourceDeploymentCreate(d *schema.ResourceData, m interface{}) error {
 		d.SetId(postOk.GetPayload().DeploymentID)
 		log.Printf("Finished requesting vra_deployment '%s' from catalog item", d.Get("name"))
 	} else {
+		blueprintVersion := ""
+		if v, ok := d.GetOk("blueprint_version"); ok {
+			blueprintVersion = v.(string)
+		}
+
 		blueprintRequest := models.BlueprintRequest{
-			DeploymentName: deploymentName,
-			ProjectID:      projectID,
+			BlueprintVersion: blueprintVersion,
+			DeploymentName:   deploymentName,
+			ProjectID:        projectID,
 		}
 
 		if blueprintID != "" {
@@ -228,10 +231,6 @@ func resourceDeploymentCreate(d *schema.ResourceData, m interface{}) error {
 		} else {
 			// Create empty content in the blueprint
 			blueprintRequest.Content = " "
-		}
-
-		if v, ok := d.GetOk("blueprint_version"); ok {
-			blueprintRequest.BlueprintVersion = v.(string)
 		}
 
 		if blueprintContent != "" {
@@ -243,10 +242,12 @@ func resourceDeploymentCreate(d *schema.ResourceData, m interface{}) error {
 		}
 
 		if v, ok := d.GetOk("inputs"); ok {
-			blueprintRequest.Inputs = v
-		} else {
-			blueprintRequest.Inputs = make(map[string]interface{})
+			inputs, err = getBlueprintInputsByType(apiClient, blueprintID, blueprintVersion, v)
+			if err != nil {
+				return err
+			}
 		}
+		blueprintRequest.Inputs = inputs
 
 		bpRequestCreated, bpRequestAccepted, err := apiClient.BlueprintRequests.CreateBlueprintRequestUsingPOST1(
 			blueprint_requests.NewCreateBlueprintRequestUsingPOST1Params().WithRequest(&blueprintRequest))
@@ -283,15 +284,19 @@ func resourceDeploymentCreate(d *schema.ResourceData, m interface{}) error {
 
 	stateChangeFunc := resource.StateChangeConf{
 		Delay:      5 * time.Second,
-		Pending:    []string{models.DeploymentStatusCREATEINPROGRESS},
-		Refresh:    deploymentCreateStatusRefreshFunc(*apiClient, d.Id()),
-		Target:     []string{models.DeploymentStatusCREATESUCCESSFUL, models.DeploymentStatusCREATEFAILED},
+		Pending:    []string{models.DeploymentStatusCREATEINPROGRESS, models.DeploymentStatusUPDATEINPROGRESS},
+		Refresh:    deploymentStatusRefreshFunc(*apiClient, d.Id()),
+		Target:     []string{models.DeploymentStatusCREATESUCCESSFUL, models.DeploymentStatusUPDATESUCCESSFUL},
 		Timeout:    d.Timeout(schema.TimeoutCreate),
 		MinTimeout: 5 * time.Second,
 	}
 
 	deploymentID, err := stateChangeFunc.WaitForState()
 	if err != nil {
+		readError := resourceDeploymentRead(d, m)
+		if readError != nil {
+			return fmt.Errorf("failed to create deployment: %v \nfailed to read deployment state: %v", err.Error(), readError.Error())
+		}
 		return err
 	}
 
@@ -299,6 +304,202 @@ func resourceDeploymentCreate(d *schema.ResourceData, m interface{}) error {
 	log.Printf("Finished to create vra_deployment resource with name %s", d.Get("name"))
 
 	return resourceDeploymentRead(d, m)
+}
+
+func resourceDeploymentRead(d *schema.ResourceData, m interface{}) error {
+	log.Printf("Reading the vra_deployment resource with name %s", d.Get("name"))
+	apiClient := m.(*Client).apiClient
+
+	id := d.Id()
+	expandProject := d.Get("expand_project").(bool)
+
+	resp, err := apiClient.Deployments.GetDeploymentByIDUsingGET(
+		deployments.NewGetDeploymentByIDUsingGETParams().
+			WithDepID(strfmt.UUID(id)).
+			WithExpandResources(withBool(true)).
+			WithExpandLastRequest(withBool(true)).
+			WithExpandProject(withBool(expandProject)).
+			WithAPIVersion(withString(DeploymentsAPIVersion)).
+			WithTimeout(IncreasedTimeOut))
+	if err != nil {
+		switch err.(type) {
+		case *deployments.GetDeploymentByIDUsingGETNotFound:
+			d.SetId("")
+			return nil
+		}
+		return err
+	}
+
+	deployment := *resp.Payload
+	d.Set("blueprint_id", deployment.BlueprintID)
+	d.Set("blueprint_version", deployment.BlueprintVersion)
+	d.Set("catalog_item_id", deployment.CatalogItemID)
+	d.Set("catalog_item_version", deployment.CatalogItemVersion)
+	d.Set("created_at", deployment.CreatedAt)
+	d.Set("created_by", deployment.CreatedBy)
+	d.Set("description", deployment.Description)
+
+	if err := d.Set("expense", flattenExpense(deployment.Expense)); err != nil {
+		return fmt.Errorf("error setting deployment expense - error: %#v", err)
+	}
+
+	allInputs := expandInputs(deployment.Inputs)
+	if err := d.Set("inputs_including_defaults", allInputs); err != nil {
+		return fmt.Errorf("error setting deployment inputs_including_defaults - error: %#v", err)
+	}
+
+	if v, ok := d.GetOk("inputs"); ok {
+		userInputs := v.(map[string]interface{})
+		if err := d.Set("inputs", updateUserInputs(allInputs, userInputs)); err != nil {
+			return fmt.Errorf("error setting deployment inputs - error: %#v", err)
+		}
+	}
+
+	if err := d.Set("last_request", flattenDeploymentRequest(deployment.LastRequest)); err != nil {
+		return fmt.Errorf("error setting deployment last_request - error: %#v", err)
+	}
+
+	d.Set("last_updated_at", deployment.LastUpdatedAt)
+	d.Set("last_updated_by", deployment.LastUpdatedBy)
+	d.Set("lease_expire_at", deployment.LeaseExpireAt)
+	d.Set("name", deployment.Name)
+
+	if err := d.Set("project", flattenResourceReference(deployment.Project)); err != nil {
+		return fmt.Errorf("error setting project in deployment - error: %#v", err)
+	}
+
+	d.Set("project_id", deployment.ProjectID)
+
+	if err := d.Set("resources", flattenResources(deployment.Resources)); err != nil {
+		return fmt.Errorf("error setting resources in deployment - error: %#v", err)
+	}
+
+	d.Set("status", deployment.Status)
+
+	log.Printf("Finished reading the vra_deployment resource with name '%s'. Current status: '%s'", d.Get("name"), d.Get("status"))
+	return nil
+}
+
+func resourceDeploymentUpdate(d *schema.ResourceData, m interface{}) error {
+	log.Printf("Starting to update the vra_deployment resource with name %s", d.Get("name"))
+	apiClient := m.(*Client).apiClient
+
+	if d.HasChange("blueprint_id") || d.HasChange("blueprint_version") || d.HasChange("blueprint_content") {
+		err := updateDeploymentWithNewBlueprint(d, m, apiClient)
+		if err != nil {
+			return err
+		}
+	} else {
+		id := d.Id()
+		deploymentUUID := strfmt.UUID(id)
+		if d.HasChange("name") || d.HasChange("description") {
+			err := updateDeploymentMetadata(d, apiClient, deploymentUUID)
+			if err != nil {
+				return err
+			}
+		}
+
+		if d.HasChange("inputs") {
+			err := runDeploymentUpdateAction(d, apiClient, deploymentUUID)
+			if err != nil {
+				return err
+			}
+		}
+
+		stateChangeFunc := resource.StateChangeConf{
+			Delay:      5 * time.Second,
+			Pending:    []string{models.DeploymentStatusCREATEINPROGRESS, models.DeploymentStatusUPDATEINPROGRESS},
+			Refresh:    deploymentStatusRefreshFunc(*apiClient, d.Id()),
+			Target:     []string{models.DeploymentStatusCREATESUCCESSFUL, models.DeploymentStatusUPDATESUCCESSFUL},
+			Timeout:    d.Timeout(schema.TimeoutCreate),
+			MinTimeout: 5 * time.Second,
+		}
+
+		_, err := stateChangeFunc.WaitForState()
+		if err != nil {
+			readError := resourceDeploymentRead(d, m)
+			if readError != nil {
+				return fmt.Errorf("failed to update deployment: %v \nfailed to read deployment state: %v", err.Error(), readError.Error())
+			}
+			return err
+		}
+	}
+
+	log.Printf("Finished updating the vra_deployment resource with name %s", d.Get("name"))
+	return resourceDeploymentRead(d, m)
+}
+
+func resourceDeploymentDelete(d *schema.ResourceData, m interface{}) error {
+	log.Printf("Starting to delete the vra_deployment resource with name %s", d.Get("name"))
+	apiClient := m.(*Client).apiClient
+
+	id := d.Id()
+	_, err := apiClient.Deployments.DeleteDeploymentUsingDELETE(deployments.NewDeleteDeploymentUsingDELETEParams().WithDepID(strfmt.UUID(id)))
+	if err != nil {
+		return err
+	}
+
+	log.Printf("Requested for deleting the vra_deployment resource with name %s", d.Get("name"))
+
+	stateChangeFunc := resource.StateChangeConf{
+		Delay:      5 * time.Second,
+		Pending:    []string{reflect.TypeOf((*deployments.GetDeploymentByIDUsingGETOK)(nil)).String()},
+		Refresh:    deploymentDeleteStatusRefreshFunc(*apiClient, d.Id()),
+		Target:     []string{reflect.TypeOf((*deployments.GetDeploymentByIDUsingGETNotFound)(nil)).String()},
+		Timeout:    d.Timeout(schema.TimeoutDelete),
+		MinTimeout: 5 * time.Second,
+	}
+
+	_, err = stateChangeFunc.WaitForState()
+	if err != nil {
+		return err
+	}
+
+	d.SetId("")
+	log.Printf("Finished deleting the vra_deployment resource with name %s", d.Get("name"))
+	return nil
+}
+
+func getCatalogItemInputsByType(apiClient *client.MulticloudIaaS, catalogItemID string, catalogItemVersion string, inputValues interface{}) (map[string]interface{}, error) {
+	inputsSchemaMap, err := getCatalogItemSchema(apiClient, catalogItemID, catalogItemVersion)
+	if err != nil {
+		return nil, err
+	}
+
+	log.Printf("Inputs Schema: %v", inputsSchemaMap)
+	inputTypesMap, err := getInputTypesMapFromCatalogItemSchema(inputsSchemaMap)
+	if err != nil {
+		return nil, err
+	}
+
+	log.Printf("InputTypesMap: %v", inputTypesMap)
+	inputs, err := getInputsByType(inputValues.(map[string]interface{}), inputTypesMap)
+	if err != nil {
+		return nil, err
+	}
+
+	return inputs, nil
+}
+
+func getBlueprintInputsByType(apiClient *client.MulticloudIaaS, blueprintID string, blueprintVersion string, inputValues interface{}) (map[string]interface{}, error) {
+	inputsSchemaMap, err := getBlueprintSchema(apiClient, blueprintID, blueprintVersion)
+	if err != nil {
+		return nil, err
+	}
+
+	log.Printf("Inputs Schema: %v", inputsSchemaMap)
+	inputTypesMap, err := getInputTypesMapFromBlueprintInputsSchema(inputsSchemaMap)
+	if err != nil {
+		return nil, err
+	}
+
+	log.Printf("InputTypesMap: %v", inputTypesMap)
+	inputs, err := getInputsByType(inputValues.(map[string]interface{}), inputTypesMap)
+	if err != nil {
+		return nil, err
+	}
+
+	return inputs, nil
 }
 
 func getCatalogItemSchema(apiClient *client.MulticloudIaaS, catalogItemID string, catalogItemVersion string) (map[string]interface{}, error) {
@@ -318,8 +519,12 @@ func getCatalogItemSchema(apiClient *client.MulticloudIaaS, catalogItemID string
 		}
 		catalogItemSchema = getVersionResp.GetPayload().Schema
 	}
-	inputsSchemaMap := (catalogItemSchema.(map[string]interface{}))["properties"].(map[string]interface{})
-	return inputsSchemaMap, nil
+
+	if catalogItemSchema != nil && (catalogItemSchema.(map[string]interface{}))["properties"] != nil {
+		inputsSchemaMap := (catalogItemSchema.(map[string]interface{}))["properties"].(map[string]interface{})
+		return inputsSchemaMap, nil
+	}
+	return make(map[string]interface{}), nil
 }
 
 func getBlueprintSchema(apiClient *client.MulticloudIaaS, blueprintID string, blueprintVersion string) (map[string]models.PropertyDefinition, error) {
@@ -344,111 +549,137 @@ func getBlueprintSchema(apiClient *client.MulticloudIaaS, blueprintID string, bl
 	return blueprintInputsSchema, nil
 }
 
-func deploymentCreateStatusRefreshFunc(apiClient client.MulticloudIaaS, id string) resource.StateRefreshFunc {
+func deploymentStatusRefreshFunc(apiClient client.MulticloudIaaS, id string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		ret, err := apiClient.Deployments.GetDeploymentByIDUsingGET(
-			deployments.NewGetDeploymentByIDUsingGETParams().WithDepID(strfmt.UUID(id)))
+			deployments.NewGetDeploymentByIDUsingGETParams().
+				WithDepID(strfmt.UUID(id)).
+				WithExpandLastRequest(withBool(true)).
+				WithAPIVersion(withString(DeploymentsAPIVersion)))
 		if err != nil {
-			return ret.Payload.ID.String(), models.DeploymentStatusCREATEFAILED, err
+			return id, models.DeploymentStatusCREATEFAILED, err
 		}
 
 		status := ret.Payload.Status
 		switch status {
-		case models.DeploymentStatusCREATEINPROGRESS:
+		case models.DeploymentStatusCREATEINPROGRESS, models.DeploymentStatusUPDATEINPROGRESS:
 			return ret.Payload.ID.String(), status, nil
-		case models.DeploymentStatusCREATESUCCESSFUL, models.DeploymentStatusCREATEFAILED:
+		case models.DeploymentStatusCREATESUCCESSFUL, models.DeploymentStatusUPDATESUCCESSFUL:
 			deploymentID := ret.Payload.ID
 			return deploymentID.String(), status, nil
+		case models.DeploymentStatusCREATEFAILED, models.DeploymentStatusUPDATEFAILED:
+			return ret.Payload.ID.String(), status, fmt.Errorf(ret.Payload.LastRequest.Details)
 		default:
-			return [...]string{id}, ret.Error(), fmt.Errorf("deploymentCreateStatusRefreshFunc: unknown status %v", status)
+			return [...]string{id}, ret.Error(), fmt.Errorf("deploymentStatusRefreshFunc: unknown status %v", status)
 		}
 	}
 }
 
-func resourceDeploymentRead(d *schema.ResourceData, m interface{}) error {
-	log.Printf("Reading the vra_deployment resource with name %s", d.Get("name"))
-	apiClient := m.(*Client).apiClient
+func updateDeploymentWithNewBlueprint(d *schema.ResourceData, m interface{}, apiClient *client.MulticloudIaaS) error {
+	log.Printf("Noticed changes to blueprint_id/blueprint_version/blueprint_content. Starting to update existing deployment...")
 
-	id := d.Id()
-	expandProject := d.Get("expand_project").(bool)
+	blueprintID, blueprintVersion, blueprintContent := "", "", ""
+	if v, ok := d.GetOk("blueprint_id"); ok {
+		blueprintID = v.(string)
+	}
 
-	resp, err := apiClient.Deployments.GetDeploymentByIDUsingGET(
-		deployments.NewGetDeploymentByIDUsingGETParams().
-			WithDepID(strfmt.UUID(id)).
-			WithExpandResources(withBool(true)).
-			WithExpandLastRequest(withBool(true)).
-			WithExpandProject(withBool(expandProject)).
-			WithTimeout(IncreasedTimeOut))
+	if v, ok := d.GetOk("blueprint_content"); ok {
+		blueprintContent = v.(string)
+	}
+
+	if blueprintID != "" && blueprintContent != "" {
+		return fmt.Errorf("only one of (blueprint_id, blueprintContent) required")
+	}
+
+	deploymentName := d.Get("name").(string)
+	projectID := d.Get("project_id").(string)
+	deploymentID := d.Id()
+
+	blueprintRequest := models.BlueprintRequest{
+		DeploymentID:   deploymentID,
+		DeploymentName: deploymentName,
+		ProjectID:      projectID,
+	}
+
+	if blueprintID != "" {
+		blueprintRequest.BlueprintID = strfmt.UUID(blueprintID)
+	}
+
+	if v, ok := d.GetOk("blueprint_version"); ok {
+		blueprintVersion = v.(string)
+		blueprintRequest.BlueprintVersion = blueprintVersion
+	}
+
+	if blueprintContent != "" {
+		blueprintRequest.Content = blueprintContent
+	}
+
+	if v, ok := d.GetOk("description"); ok {
+		blueprintRequest.Description = v.(string)
+	}
+
+	if v, ok := d.GetOk("inputs"); ok {
+		// If the inputs are provided, get the schema from blueprint to convert the provided input values
+		// to the type defined in the schema.
+		inputs, err := getBlueprintInputsByType(apiClient, blueprintID, blueprintVersion, v)
+		if err != nil {
+			return err
+		}
+		blueprintRequest.Inputs = inputs
+	} else {
+		blueprintRequest.Inputs = make(map[string]interface{})
+	}
+
+	bpRequestCreated, bpRequestAccepted, err := apiClient.BlueprintRequests.CreateBlueprintRequestUsingPOST1(
+		blueprint_requests.NewCreateBlueprintRequestUsingPOST1Params().WithRequest(&blueprintRequest))
+
 	if err != nil {
-		switch err.(type) {
-		case *deployments.GetDeploymentByIDUsingGETNotFound:
-			d.SetId("")
-			return nil
+		log.Printf("Received error. err=%s, bpRequestCreated=%v, bpRequestAccepted=%v", err, bpRequestCreated, bpRequestAccepted)
+		return err
+	}
+
+	// blueprint_requests service may return either 201 or 202 depending on whether the request is in terminal state vs or in-progress
+	log.Printf("Requested deployment '%s' update from blueprint '%s'. bpRequestCreated=%v, bpRequestAccepted=%v", deploymentName, blueprintID, bpRequestCreated, bpRequestAccepted)
+	deploymentID, status, failureMessage := "", "", ""
+	var bpRequest *models.BlueprintRequest
+	if bpRequestAccepted != nil {
+		bpRequest = bpRequestAccepted.GetPayload()
+	} else {
+		bpRequest = bpRequestCreated.GetPayload()
+	}
+
+	if bpRequest != nil {
+		deploymentID = bpRequest.DeploymentID
+		status = bpRequest.Status
+		failureMessage = bpRequest.FailureMessage
+	}
+
+	if deploymentID != "" {
+		d.SetId(deploymentID)
+	} else {
+		return fmt.Errorf("failed to request update to existing deployment. status: %v, message: %v", status, failureMessage)
+	}
+
+	stateChangeFunc := resource.StateChangeConf{
+		Delay:      5 * time.Second,
+		Pending:    []string{models.DeploymentStatusCREATEINPROGRESS, models.DeploymentStatusUPDATEINPROGRESS},
+		Refresh:    deploymentStatusRefreshFunc(*apiClient, deploymentID),
+		Target:     []string{models.DeploymentStatusCREATESUCCESSFUL, models.DeploymentStatusUPDATESUCCESSFUL},
+		Timeout:    d.Timeout(schema.TimeoutCreate),
+		MinTimeout: 5 * time.Second,
+	}
+
+	_, err = stateChangeFunc.WaitForState()
+	if err != nil {
+		readError := resourceDeploymentRead(d, m)
+		if readError != nil {
+			return fmt.Errorf("failed to update deployment: %v \nfailed to read deployment state: %v", err.Error(), readError.Error())
 		}
 		return err
 	}
 
-	deployment := *resp.Payload
-	d.Set("blueprint_id", deployment.BlueprintID)
-	d.Set("blueprint_version", deployment.BlueprintVersion)
-	d.Set("catalog_item_id", deployment.CatalogItemID)
-	d.Set("catalog_item_version", deployment.CatalogItemVersion)
-	d.Set("created_at", deployment.CreatedAt)
-	d.Set("created_by", deployment.CreatedBy)
-	d.Set("description", deployment.Description)
-	d.Set("last_updated_at", deployment.LastUpdatedAt)
-	d.Set("last_updated_by", deployment.LastUpdatedBy)
-	d.Set("lease_expire_at", deployment.LeaseExpireAt)
-	d.Set("name", deployment.Name)
-	d.Set("project_id", deployment.ProjectID)
-	d.Set("status", deployment.Status)
-
-	if err := d.Set("expense", flattenExpense(deployment.Expense)); err != nil {
-		return fmt.Errorf("error setting deployment expense - error: %#v", err)
-	}
-
-	if err := d.Set("inputs", expandInputs(deployment.Inputs)); err != nil {
-		return fmt.Errorf("error setting deployment inputs - error: %#v", err)
-	}
-
-	if err := d.Set("last_request", flattenDeploymentRequest(deployment.LastRequest)); err != nil {
-		return fmt.Errorf("error setting deployment last_request - error: %#v", err)
-	}
-
-	if err := d.Set("project", flattenResourceReference(deployment.Project)); err != nil {
-		return fmt.Errorf("error setting project in deployment - error: %#v", err)
-	}
-
-	if err := d.Set("resources", flattenResources(deployment.Resources)); err != nil {
-		return fmt.Errorf("error setting resources in deployment - error: %#v", err)
-	}
-
-	log.Printf("Finished reading the vra_deployment resource with name '%s'. Current status: '%s'", d.Get("name"), d.Get("status"))
+	log.Printf("Finished to update vra_deployment '%s' with blueprint '%s'", deploymentName, blueprintID)
 	return nil
-}
-
-func resourceDeploymentUpdate(d *schema.ResourceData, m interface{}) error {
-	log.Printf("Starting to update the vra_deployment resource with name %s", d.Get("name"))
-	apiClient := m.(*Client).apiClient
-
-	id := d.Id()
-	deploymentUUID := strfmt.UUID(id)
-	if d.HasChange("name") || d.HasChange("description") {
-		err := updateDeploymentMetadata(d, apiClient, deploymentUUID)
-		if err != nil {
-			return err
-		}
-	}
-
-	if d.HasChange("inputs") {
-		err := runDeploymentUpdateAction(d, apiClient, deploymentUUID)
-		if err != nil {
-			return err
-		}
-	}
-
-	log.Printf("Finished updating the vra_deployment resource with name %s", d.Get("name"))
-	return resourceDeploymentRead(d, m)
 }
 
 func updateDeploymentMetadata(d *schema.ResourceData, apiClient *client.MulticloudIaaS, deploymentUUID strfmt.UUID) error {
@@ -498,81 +729,58 @@ func runDeploymentUpdateAction(d *schema.ResourceData, apiClient *client.Multicl
 
 	name := d.Get("name")
 	if !updateAvailable {
-		log.Printf("Update action is not available on the vra_deployment %s, hence new inputs are not applied", name)
-	} else {
-		var inputs = make(map[string]interface{})
-		blueprintID, catalogItemID := "", ""
-		if v, ok := d.GetOk("catalog_item_id"); ok {
-			catalogItemID = v.(string)
-		}
-
-		if v, ok := d.GetOk("blueprint_id"); ok {
-			blueprintID = v.(string)
-		}
-
-		// If catalog_item_id is provided, get the catalog item schema deployment with the catalog item
-		if catalogItemID != "" {
-			catalogItemVersion := ""
-			if v, ok := d.GetOk("catalog_item_version"); ok {
-				catalogItemVersion = v.(string)
-			}
-
-			if v, ok := d.GetOk("inputs"); ok {
-				// If the inputs are provided, get the schema from catalog item to convert the provided input values
-				// to the type defined in the schema.
-				inputsSchemaMap, err := getCatalogItemSchema(apiClient, catalogItemID, catalogItemVersion)
-				if err != nil {
-					return err
-				}
-
-				log.Printf("Inputs Schema: %v", inputsSchemaMap)
-				inputTypesMap, err := getInputTypesMapFromCatalogItemSchema(inputsSchemaMap)
-				if err != nil {
-					return err
-				}
-
-				log.Printf("InputTypesMap: %v", inputTypesMap)
-				inputs, err = getInputsByType(v.(map[string]interface{}), inputTypesMap)
-				if err != nil {
-					return err
-				}
-			}
-		} else if blueprintID != "" {
-			blueprintVersion := ""
-			if v, ok := d.GetOk("blueprint_version"); ok {
-				blueprintVersion = v.(string)
-			}
-
-			if v, ok := d.GetOk("inputs"); ok {
-				// If the inputs are provided, get the schema from blueprint to convert the provided input values
-				// to the type defined in the schema.
-				inputsSchemaMap, err := getBlueprintSchema(apiClient, blueprintID, blueprintVersion)
-				if err != nil {
-					return err
-				}
-
-				log.Printf("Inputs Schema: %v", inputsSchemaMap)
-				inputTypesMap, err := getInputTypesMapFromBlueprintInputsSchema(inputsSchemaMap)
-				if err != nil {
-					return err
-				}
-
-				log.Printf("InputTypesMap: %v", inputTypesMap)
-				inputs, err = getInputsByType(v.(map[string]interface{}), inputTypesMap)
-				if err != nil {
-					return err
-				}
-			}
-		}
-
-		reason := "Updated deployment inputs from vRA provider for Terraform."
-		err := runAction(d, apiClient, deploymentUUID, actionID, inputs, reason)
-		if err != nil {
-			return err
-		}
-
-		log.Printf("Finished updating vra_deployment %s with inputs", name)
+		return fmt.Errorf("noticed changes to inputs, but 'Update' action is not supported based on the current state of the deployment %s", name)
 	}
+
+	// Continue if update action is available.
+	var inputs = make(map[string]interface{})
+	blueprintID, catalogItemID := "", ""
+	if v, ok := d.GetOk("catalog_item_id"); ok {
+		catalogItemID = v.(string)
+	}
+
+	if v, ok := d.GetOk("blueprint_id"); ok {
+		blueprintID = v.(string)
+	}
+
+	// If catalog_item_id is provided, get the catalog item schema deployment with the catalog item
+	if catalogItemID != "" {
+		catalogItemVersion := ""
+		if v, ok := d.GetOk("catalog_item_version"); ok {
+			catalogItemVersion = v.(string)
+		}
+
+		if v, ok := d.GetOk("inputs"); ok {
+			// If the inputs are provided, get the schema from catalog item to convert the provided input values
+			// to the type defined in the schema.
+			inputs, err = getCatalogItemInputsByType(apiClient, catalogItemID, catalogItemVersion, v)
+			if err != nil {
+				return err
+			}
+		}
+	} else if blueprintID != "" {
+		blueprintVersion := ""
+		if v, ok := d.GetOk("blueprint_version"); ok {
+			blueprintVersion = v.(string)
+		}
+
+		if v, ok := d.GetOk("inputs"); ok {
+			// If the inputs are provided, get the schema from blueprint to convert the provided input values
+			// to the type defined in the schema.
+			inputs, err = getBlueprintInputsByType(apiClient, blueprintID, blueprintVersion, v)
+			if err != nil {
+				return err
+			}
+		}
+	}
+
+	reason := "Updated deployment inputs from vRA provider for Terraform."
+	err = runAction(d, apiClient, deploymentUUID, actionID, inputs, reason)
+	if err != nil {
+		return err
+	}
+
+	log.Printf("Finished updating vra_deployment %s with inputs", name)
 
 	return nil
 }
@@ -659,6 +867,7 @@ func deploymentActionStatusRefreshFunc(apiClient client.MulticloudIaaS, deployme
 			deployments.NewGetDeploymentByIDUsingGETParams().
 				WithDepID(deploymentUUID).
 				WithExpandLastRequest(withBool(true)).
+				WithAPIVersion(withString(DeploymentsAPIVersion)).
 				WithTimeout(IncreasedTimeOut))
 		if err != nil {
 			return "", models.DeploymentRequestStatusFAILED, err
@@ -666,48 +875,17 @@ func deploymentActionStatusRefreshFunc(apiClient client.MulticloudIaaS, deployme
 
 		status := ret.Payload.LastRequest.Status
 		switch status {
-		case models.DeploymentRequestStatusPENDING, models.DeploymentRequestStatusINITIALIZATION, models.DeploymentRequestStatusAPPROVALPENDING, models.DeploymentRequestStatusINPROGRESS:
+		case models.DeploymentRequestStatusPENDING, models.DeploymentRequestStatusINITIALIZATION, models.DeploymentRequestStatusAPPROVALPENDING, models.DeploymentRequestStatusINPROGRESS, models.DeploymentRequestStatusCOMPLETION:
 			return [...]string{deploymentUUID.String()}, status, nil
 		case models.DeploymentRequestStatusAPPROVALREJECTED, models.DeploymentRequestStatusABORTED, models.DeploymentRequestStatusFAILED:
 			return []string{""}, status, fmt.Errorf(ret.Error())
-		case models.DeploymentRequestStatusCOMPLETION, models.DeploymentRequestStatusSUCCESSFUL:
+		case models.DeploymentRequestStatusSUCCESSFUL:
 			deploymentID := ret.Payload.ID
 			return deploymentID.String(), status, nil
 		default:
 			return [...]string{deploymentUUID.String()}, ret.Error(), fmt.Errorf("deploymentActionStatusRefreshFunc: unknown status %v", status)
 		}
 	}
-}
-
-func resourceDeploymentDelete(d *schema.ResourceData, m interface{}) error {
-	log.Printf("Starting to delete the vra_deployment resource with name %s", d.Get("name"))
-	apiClient := m.(*Client).apiClient
-
-	id := d.Id()
-	_, err := apiClient.Deployments.DeleteDeploymentUsingDELETE(deployments.NewDeleteDeploymentUsingDELETEParams().WithDepID(strfmt.UUID(id)))
-	if err != nil {
-		return err
-	}
-
-	log.Printf("Requested for deleting the vra_deployment resource with name %s", d.Get("name"))
-
-	stateChangeFunc := resource.StateChangeConf{
-		Delay:      5 * time.Second,
-		Pending:    []string{reflect.TypeOf((*deployments.GetDeploymentByIDUsingGETOK)(nil)).String()},
-		Refresh:    deploymentDeleteStatusRefreshFunc(*apiClient, d.Id()),
-		Target:     []string{reflect.TypeOf((*deployments.GetDeploymentByIDUsingGETNotFound)(nil)).String()},
-		Timeout:    d.Timeout(schema.TimeoutDelete),
-		MinTimeout: 5 * time.Second,
-	}
-
-	_, err = stateChangeFunc.WaitForState()
-	if err != nil {
-		return err
-	}
-
-	d.SetId("")
-	log.Printf("Finished deleting the vra_deployment resource with name %s", d.Get("name"))
-	return nil
 }
 
 func deploymentDeleteStatusRefreshFunc(apiClient client.MulticloudIaaS, id string) resource.StateRefreshFunc {
@@ -725,4 +903,20 @@ func deploymentDeleteStatusRefreshFunc(apiClient client.MulticloudIaaS, id strin
 
 		return [...]string{id}, reflect.TypeOf(ret).String(), nil
 	}
+}
+
+// Updates only user inputs from all the inputs
+func updateUserInputs(allInputs, userInputs map[string]interface{}) map[string]interface{} {
+	if allInputs == nil || userInputs == nil {
+		return nil
+	}
+
+	inputs := make(map[string]interface{})
+	for key, value := range userInputs {
+		if value != nil {
+			inputs[key] = fmt.Sprint(allInputs[key])
+		}
+	}
+
+	return inputs
 }

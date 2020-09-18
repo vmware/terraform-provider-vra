@@ -29,6 +29,8 @@ func TestAccDataSourceVRAProject(t *testing.T) {
 					resource.TestCheckResourceAttrPair(resourceName1, "description", dataSourceName1, "description"),
 					resource.TestCheckResourceAttrPair(resourceName1, "id", dataSourceName1, "id"),
 					resource.TestCheckResourceAttrPair(resourceName1, "name", dataSourceName1, "name"),
+					resource.TestCheckResourceAttr(resourceName1, "constraints.#", "1"),
+					resource.TestCheckResourceAttr(dataSourceName1, "constraints.#", "1"),
 				),
 			},
 			{
@@ -37,6 +39,8 @@ func TestAccDataSourceVRAProject(t *testing.T) {
 					resource.TestCheckResourceAttrPair(resourceName1, "description", dataSourceName2, "description"),
 					resource.TestCheckResourceAttrPair(resourceName1, "id", dataSourceName2, "id"),
 					resource.TestCheckResourceAttrPair(resourceName1, "name", dataSourceName2, "name"),
+					resource.TestCheckResourceAttr(resourceName1, "constraints.#", "1"),
+					resource.TestCheckResourceAttr(dataSourceName2, "constraints.#", "1"),
 				),
 			},
 		},
@@ -49,6 +53,35 @@ func testAccDataSourceVRAProject(rInt int) string {
 	resource "vra_project" "my-project" {
 		name = "my-project-%d"
 		description = "test project"
+
+		constraints {
+    		extensibility {
+      			expression = "foo:bar"
+      			mandatory  = false
+    		}
+    		extensibility {
+      			expression = "environment:Test"
+      			mandatory  = true
+			}
+
+    		network {
+      			expression = "foo:bar"
+      			mandatory  = false
+    		}
+    		network {
+      			expression = "environment:Test"
+      			mandatory  = true
+    		}
+
+    		storage {
+      			expression = "foo:bar"
+      			mandatory  = false
+			}
+    		storage {
+      			expression = "environment:Test"
+      			mandatory  = true
+    		}
+  		}
 	 }`, rInt)
 }
 

@@ -8,8 +8,9 @@ import (
 // deploymentRequest returns the schema to use for the last_request property
 func deploymentRequestSchema() *schema.Schema {
 	return &schema.Schema{
-		Type:     schema.TypeSet,
+		Type:     schema.TypeList,
 		Computed: true,
+		MaxItems: 1,
 		Elem: &schema.Resource{
 			Schema: map[string]*schema.Schema{
 				"action_id": {

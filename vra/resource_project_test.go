@@ -1,18 +1,103 @@
 package vra
 
 import (
-	"fmt"
-	"os"
-	"strconv"
-	"testing"
-
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 	"github.com/vmware/vra-sdk-go/pkg/client/cloud_account"
 	"github.com/vmware/vra-sdk-go/pkg/client/location"
 	"github.com/vmware/vra-sdk-go/pkg/client/project"
+	"github.com/vmware/vra-sdk-go/pkg/models"
+
+	"fmt"
+	"math/rand"
+	"os"
+	"strconv"
+	"testing"
 )
+
+func TestExpandProjectConstraints(t *testing.T) {
+	c1 := map[string]interface{}{"mandatory": true, "expression": "Foo:Bar"}
+	c2 := map[string]interface{}{"mandatory": false, "expression": "Env:Test"}
+
+	projectConstraints := make([]interface{}, 0)
+	expandedConstraints := expandProjectConstraints(projectConstraints)
+
+	if len(expandedConstraints) != 0 {
+		t.Errorf("error while expanding when there are no project constraints")
+	}
+
+	constraints := make([]interface{}, 0)
+	constraints = append(constraints, c1)
+	constraints = append(constraints, c2)
+
+	pc1 := make(map[string]interface{})
+	pc1["extensibility"] = schema.NewSet(testSetFunc, constraints)
+	pc1["storage"] = schema.NewSet(testSetFunc, constraints)
+	pc1["network"] = schema.NewSet(testSetFunc, constraints)
+
+	pc := make([]interface{}, 0)
+
+	pc = append(pc, pc1)
+
+	expandedConstraints = expandProjectConstraints(pc)
+
+	if expandedConstraints == nil {
+		t.Errorf("expanded constraints is nil")
+	}
+
+	if len(expandedConstraints) != 3 {
+		t.Errorf("not all project constraints expanded correctly")
+	}
+
+	if len(expandedConstraints["extensibility"]) != 2 || len(expandedConstraints["network"]) != 2 || len(expandedConstraints["storage"]) != 2 {
+		t.Errorf("not all extensibility / network / storage constraints expanded correctly")
+	}
+}
+
+func testSetFunc(_ interface{}) int {
+	return rand.Int()
+}
+
+func TestFlattenProjectConstraints(t *testing.T) {
+	projectConstraints := make(map[string][]models.Constraint)
+	flattenedConstraints := flattenProjectConstraints(projectConstraints)
+
+	if len(flattenedConstraints) != 0 {
+		t.Errorf("error while flattening when there are no project constraints")
+	}
+
+	constraint1 := models.Constraint{Expression: withString("Foo:Bar"), Mandatory: withBool(true)}
+	constraint2 := models.Constraint{Expression: withString("Env:Test"), Mandatory: withBool(false)}
+
+	constraints := make([]models.Constraint, 0)
+	constraints = append(constraints, constraint1)
+	constraints = append(constraints, constraint2)
+
+	projectConstraints["extensibility"] = constraints
+	projectConstraints["network"] = constraints
+	projectConstraints["storage"] = constraints
+
+	flattenedConstraints = flattenProjectConstraints(projectConstraints)
+
+	if len(flattenedConstraints) != 1 {
+		t.Errorf("not all project constraints are flattened correctly")
+	}
+
+	fc1 := flattenedConstraints[0]
+	if len(fc1["extensibility"].([]interface{})) != 2 {
+		t.Errorf("extensibility constraints are not flattened correctly")
+	}
+
+	if len(fc1["network"].([]interface{})) != 2 {
+		t.Errorf("network constraints are not flattened correctly")
+	}
+
+	if len(fc1["storage"].([]interface{})) != 2 {
+		t.Errorf("storage constraints are not flattened correctly")
+	}
+}
 
 func TestAccVRAProjectBasic(t *testing.T) {
 	rInt := acctest.RandInt()
@@ -39,6 +124,7 @@ func TestAccVRAProjectBasic(t *testing.T) {
 						"vra_project.my-project", "description", "update test project"),
 					resource.TestCheckResourceAttr(
 						"vra_project.my-project", "zone_assignments.#", "1"),
+					resource.TestCheckResourceAttr("vra_project.my-project", "constraints.#", "1"),
 				),
 			},
 		},
@@ -134,6 +220,35 @@ resource "vra_project" "my-project" {
 		memory_limit_mb  = 8192
 		storage_limit_gb = 65536
 	  }
+
+	constraints {
+    	extensibility {
+      		expression = "foo:bar"
+      		mandatory  = false
+    	}
+    	extensibility {
+      		expression = "environment:Test"
+      		mandatory  = true
+		}
+
+    	network {
+      		expression = "foo:bar"
+      		mandatory  = false
+    	}
+    	network {
+      		expression = "environment:Test"
+      		mandatory  = true
+    	}
+
+    	storage {
+      		expression = "foo:bar"
+      		mandatory  = false
+		}
+    	storage {
+      		expression = "environment:Test"
+      		mandatory  = true
+    	}
+  	}
  }`, id, secret, rInt, rInt)
 }
 

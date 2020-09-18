@@ -195,6 +195,7 @@ func dataSourceDeploymentRead(d *schema.ResourceData, m interface{}) error {
 			WithExpandProject(withBool(expandProject)).
 			WithExpandResources(withBool(expandResources)).
 			WithExpandLastRequest(withBool(expandLastRequest)).
+			WithAPIVersion(withString(DeploymentsAPIVersion)).
 			WithTimeout(IncreasedTimeOut))
 
 	if err != nil {

@@ -15,44 +15,83 @@ func dataSourceProject() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"administrators": {
-				Type:     schema.TypeSet,
-				Computed: true,
-				Optional: true,
+				Type:        schema.TypeSet,
+				Computed:    true,
+				Optional:    true,
+				Description: "List of administrator users associated with the project. Only administrators can manage project's configuration.",
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
 			},
+			"constraints": {
+				Type:        schema.TypeSet,
+				Optional:    true,
+				MaxItems:    1,
+				Description: "List of storage, network and extensibility constraints to be applied when provisioning through this project.",
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"extensibility": constraintsSchema(),
+						"network":       constraintsSchema(),
+						"storage":       constraintsSchema(),
+					},
+				},
+			},
 			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: "A human-friendly description.",
+			},
+			"machine_naming_template": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "The naming template to be used for resources provisioned in this project.",
 			},
 			"members": {
-				Type:     schema.TypeSet,
-				Computed: true,
-				Optional: true,
+				Type:        schema.TypeSet,
+				Computed:    true,
+				Optional:    true,
+				Description: "List of member users associated with the project.",
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
 			},
 			"name": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: "A human-friendly name used as an identifier in APIs that support this option.",
+			},
+			"operation_timeout": {
+				Type:        schema.TypeInt,
+				Optional:    true,
+				Description: "The timeout that should be used for Blueprint operations and Provisioning tasks. The timeout is in seconds.",
 			},
 			"id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: "The id of this project resource.",
 			},
 			"shared_resources": {
-				Type:     schema.TypeBool,
-				Computed: true,
-				Optional: true,
+				Type:        schema.TypeBool,
+				Computed:    true,
+				Optional:    true,
+				Description: "Specifies whether the resources in this projects are shared or not. If not set default will be used.",
+			},
+			"viewers": {
+				Type:        schema.TypeSet,
+				Computed:    true,
+				Optional:    true,
+				Description: "List of viewer users associated with the project.",
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
 			},
 			"zone_assignments": {
-				Type:     schema.TypeSet,
-				Optional: true,
+				Type:        schema.TypeSet,
+				Optional:    true,
+				Description: "List of configurations for zone assignment to a project.",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"cpu_limit": {
@@ -110,10 +149,14 @@ func dataSourceProjectRead(d *schema.ResourceData, meta interface{}) error {
 	setFields := func(project *models.Project) {
 		d.SetId(*project.ID)
 		d.Set("administrators", flattenUserList(project.Administrators))
+		d.Set("constraints", flattenProjectConstraints(project.Constraints))
 		d.Set("description", project.Description)
+		d.Set("machine_naming_template", project.MachineNamingTemplate)
 		d.Set("members", flattenUserList(project.Members))
 		d.Set("name", project.Name)
+		d.Set("operation_timeout", project.OperationTimeout)
 		d.Set("shared_resources", project.SharedResources)
+		d.Set("viewers", flattenUserList(project.Viewers))
 		d.Set("zone_assignments", flattenZoneAssignment(project.Zones))
 	}
 

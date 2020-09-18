@@ -24,8 +24,47 @@ resource "vra_project" "this" {
   shared_resources = false
 
   administrators = ["jason@vra.local"]
+
+  members = ["tony@vra.local"]
+
+  viewers = ["shauna@vra.local"]
+
+  operation_timeout = 6000
+
+  machine_naming_template = "$${resource.name}-$${####}"
+
+  constraints {
+    extensibility {
+      expression = "foo:bar"
+      mandatory  = false
+    }
+    extensibility {
+      expression = "environment:Test"
+      mandatory  = true
+    }
+
+    network {
+      expression = "foo:bar"
+      mandatory  = false
+    }
+    network {
+      expression = "environment:Test"
+      mandatory  = true
+    }
+
+    storage {
+      expression = "foo:bar"
+      mandatory  = false
+    }
+    storage {
+      expression = "environment:Test"
+      mandatory  = true
+    }
+  }
 }
 
 data "vra_project" "this" {
   name = vra_project.this.name
+
+  depends_on = [vra_project.this]
 }

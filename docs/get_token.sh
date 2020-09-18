@@ -10,7 +10,7 @@
 if  ! [ -x "$(command -v jq)" ]
 then
 	echo -e "\nthe jq utility is missing. See https://stedolan.github.io/jq/ for instructions to get it\n"
-	return 1
+	exit 1
 fi
 
 #Check for an already existing username value
