@@ -217,6 +217,39 @@ func testAccPreCheckVsphere(t *testing.T) {
 	}
 }
 
+func testAccPreCheckVsphereForDataStore(t *testing.T) {
+	testAccPreCheckVra(t)
+
+	// The vCenter should have already been added into the vRA
+	// Set the VRA_VSPHERE_DATASTORE_NAME to an existing unique datastore name
+	envVars := [...]string{
+		"VRA_VSPHERE_DATASTORE_NAME",
+	}
+
+	for _, name := range envVars {
+		if v := os.Getenv(name); v == "" {
+			t.Fatalf("%s must be set for acceptance tests\n", name)
+		}
+	}
+}
+
+func testAccPreCheckVsphereForStoragePolicy(t *testing.T) {
+	testAccPreCheckVra(t)
+
+	// The vCenter should have already been added into the vRA
+	// Set the VRA_VSPHERE_STORAGE_POLICY_NAME to an existing unique data policy name
+	envVars := [...]string{
+		//"VRA_URL",
+		"VRA_VSPHERE_STORAGE_POLICY_NAME",
+	}
+
+	for _, name := range envVars {
+		if v := os.Getenv(name); v == "" {
+			t.Fatalf("%s must be set for acceptance tests\n", name)
+		}
+	}
+}
+
 func testAccPreCheckGCP(t *testing.T) {
 	if os.Getenv("VRA_REFRESH_TOKEN") == "" && os.Getenv("VRA_ACCESS_TOKEN") == "" {
 		t.Fatal("VRA_REFRESH_TOKEN or VRA_ACCESS_TOKEN must be set for acceptance tests")
