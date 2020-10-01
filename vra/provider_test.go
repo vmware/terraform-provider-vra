@@ -431,3 +431,22 @@ func testAccPreCheckContentSource(t *testing.T) {
 		}
 	}
 }
+
+func testAccPreCheckFabricStorageAccountAzure(t *testing.T) {
+	if os.Getenv("VRA_REFRESH_TOKEN") == "" && os.Getenv("VRA_ACCESS_TOKEN") == "" {
+		t.Fatal("VRA_REFRESH_TOKEN or VRA_ACCESS_TOKEN must be set for acceptance tests")
+	}
+
+	envVars := [...]string{
+		"VRA_URL",
+		"VRA_ARM_CLOUD_ACCOUNT_NAME",
+		"VRA_ARM_REGION_NAME",
+		"VRA_ARM_FABRIC_STORAGE_ACCOUNT_NAME",
+	}
+
+	for _, name := range envVars {
+		if v := os.Getenv(name); v == "" {
+			t.Fatalf("%s must be set for acceptance tests\n", name)
+		}
+	}
+}

@@ -62,6 +62,7 @@ func Provider() *schema.Provider {
 			"vra_deployment":                    dataSourceDeployment(),
 			"vra_fabric_datastore_vsphere":      dataSourceFabricDatastoreVsphere(),
 			"vra_fabric_network":                dataSourceFabricNetwork(),
+			"vra_fabric_storage_account_azure":  dataSourceFabricStorageAccountAzure(),
 			"vra_fabric_storage_policy_vsphere": dataSourceFabricStoragePolicyVsphere(),
 			"vra_image":                         dataSourceImage(),
 			"vra_image_profile":                 dataSourceImageProfile(),
