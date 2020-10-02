@@ -21,58 +21,73 @@ func resourceStorageProfile() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
-			"name": {
-				Type:     schema.TypeString,
-				Required: true,
+			"cloud_account_id": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "Id of the cloud account this storage profile belongs to.",
+			},
+			"created_at": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "Date when the entity was created. The date is in ISO 8601 and UTC.",
 			},
 			"default_item": {
-				Type:     schema.TypeBool,
-				Required: true,
-			},
-			"region_id": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeBool,
+				Required:    true,
+				Description: "Indicates if this storage profile is a default profile.",
 			},
 			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "A human-friendly description.",
 			},
 			"disk_properties": {
-				Type:     schema.TypeMap,
-				Computed: true,
-				Optional: true,
+				Type:        schema.TypeMap,
+				Optional:    true,
+				Description: "Map of storage properties that are to be applied on disk while provisioning.",
 			},
 			"disk_target_properties": {
-				Type:     schema.TypeMap,
-				Computed: true,
-				Optional: true,
-			},
-			"supports_encryption": {
-				Type:     schema.TypeBool,
-				Computed: true,
-				Optional: true,
-			},
-			"tags": tagsSchema(),
-			"created_at": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeMap,
+				Optional:    true,
+				Description: "Map of storage placements to know where the disk is provisioned.",
 			},
 			"external_region_id": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "The id of the region as seen in the cloud provider for which this profile is defined.",
 			},
 			"links": linksSchema(),
-			"organization_id": {
-				Type:     schema.TypeString,
-				Computed: true,
+			"name": {
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "A human-friendly name for storage profile.",
+			},
+			"org_id": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "The id of the organization this entity belongs to.",
 			},
 			"owner": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "Email of the user that owns the entity.",
 			},
+			"region_id": {
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "The id of the region that is associated with the storage profile.",
+			},
+			"supports_encryption": {
+				Type:        schema.TypeBool,
+				Computed:    true,
+				Optional:    true,
+				Description: "Indicates whether this storage profile supports encryption or not.",
+			},
+			"tags": tagsSchema(),
 			"updated_at": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "Date when the entity was last updated. The date is ISO 8601 and UTC.",
 			},
 		},
 	}
@@ -129,7 +144,7 @@ func resourceStorageProfileRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("disk_properties", storageProfile.DiskProperties)
 	d.Set("external_region_id", storageProfile.ExternalRegionID)
 	d.Set("name", storageProfile.Name)
-	d.Set("organization_id", storageProfile.OrganizationID)
+	d.Set("org_id", storageProfile.OrgID)
 	d.Set("owner", storageProfile.Owner)
 	d.Set("supports_encryption", storageProfile.SupportsEncryption)
 	d.Set("updated_at", storageProfile.UpdatedAt)
@@ -147,6 +162,7 @@ func resourceStorageProfileRead(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceStorageProfileUpdate(d *schema.ResourceData, m interface{}) error {
+	log.Printf("Starting to update the vra_storage_profile resource with name %s", d.Get("name"))
 	apiClient := m.(*Client).apiClient
 
 	id := d.Id()
@@ -172,6 +188,7 @@ func resourceStorageProfileUpdate(d *schema.ResourceData, m interface{}) error {
 		return err
 	}
 
+	log.Printf("Finished updating the vra_storage_profile resource with name %s", d.Get("name"))
 	return resourceStorageProfileRead(d, m)
 }
 

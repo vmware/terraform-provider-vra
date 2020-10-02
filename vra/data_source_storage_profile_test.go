@@ -11,8 +11,8 @@ import (
 
 func TestAccDataSourceVRAStorageProfile(t *testing.T) {
 	rInt := acctest.RandInt()
-	resourceName1 := "vra_storage_profile.this"
-	dataSourceName1 := "data.vra_storage_profile.this"
+	resourceName := "vra_storage_profile.this"
+	dataSourceName := "data.vra_storage_profile.this"
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheckStorageProfile(t) },
@@ -23,35 +23,37 @@ func TestAccDataSourceVRAStorageProfile(t *testing.T) {
 				Config:      testAccDataSourceVRAStorageProfileNotFound(rInt),
 				ExpectError: regexp.MustCompile("vra_storage_profile filter did not match any storage profile"),
 			},
-			// TBD: Enable filter by name once this is fixed https://jira.eng.vmware.com/browse/VCOM-13947
+			// TODO: Enable filter by name once this is fixed https://jira.eng.vmware.com/browse/VCOM-13947
 			// {
 			// 	Config: testAccDataSourceVRAStorageProfileNameFilter(rInt),
 			// 	Check: resource.ComposeTestCheckFunc(
-			// 		resource.TestCheckResourceAttrPair(resourceName1, "id", dataSourceName1, "id"),
-			// 		resource.TestCheckResourceAttrPair(resourceName1, "description", dataSourceName1, "description"),
-			// 		resource.TestCheckResourceAttrPair(resourceName1, "name", dataSourceName1, "name"),
-			// 		resource.TestCheckResourceAttrPair(resourceName1, "default_item", dataSourceName1, "default_item"),
-			// 		resource.TestCheckResourceAttrPair(resourceName1, "external_region_id", dataSourceName1, "region_id"),
+			// 		resource.TestCheckResourceAttrPair(resourceName, "id", dataSourceName, "id"),
+			// 		resource.TestCheckResourceAttrPair(resourceName, "description", dataSourceName, "description"),
+			// 		resource.TestCheckResourceAttrPair(resourceName, "name", dataSourceName, "name"),
+			// 		resource.TestCheckResourceAttrPair(resourceName, "default_item", dataSourceName, "default_item"),
+			// 		resource.TestCheckResourceAttrPair(resourceName, "external_region_id", dataSourceName, "region_id"),
 			// 	),
 			// },
-			{
-				Config: testAccDataSourceVRAStorageProfileExternalRegionIDFilter(rInt),
-				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttrPair(resourceName1, "id", dataSourceName1, "id"),
-					resource.TestCheckResourceAttrPair(resourceName1, "description", dataSourceName1, "description"),
-					resource.TestCheckResourceAttrPair(resourceName1, "name", dataSourceName1, "name"),
-					resource.TestCheckResourceAttrPair(resourceName1, "default_item", dataSourceName1, "default_item"),
-					resource.TestCheckResourceAttrPair(resourceName1, "external_region_id", dataSourceName1, "external_region_id"),
-				),
-			},
+			// TODO: Enable once https://jira.eng.vmware.com/browse/VCOM-13947 is fixed and include name in the filter to narrow the results to 1.
+			// This works only if there is one storage profile with the externalRegionId.
+			//{
+			//	Config: testAccDataSourceVRAStorageProfileExternalRegionIDFilter(rInt),
+			//	Check: resource.ComposeTestCheckFunc(
+			//		resource.TestCheckResourceAttrPair(resourceName, "id", dataSourceName, "id"),
+			//		resource.TestCheckResourceAttrPair(resourceName, "description", dataSourceName, "description"),
+			//		resource.TestCheckResourceAttrPair(resourceName, "name", dataSourceName, "name"),
+			//		resource.TestCheckResourceAttrPair(resourceName, "default_item", dataSourceName, "default_item"),
+			//		resource.TestCheckResourceAttrPair(resourceName, "external_region_id", dataSourceName, "external_region_id"),
+			//	),
+			//},
 			{
 				Config: testAccDataSourceVRAStorageProfileByID(rInt),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttrPair(resourceName1, "id", dataSourceName1, "id"),
-					resource.TestCheckResourceAttrPair(resourceName1, "description", dataSourceName1, "description"),
-					resource.TestCheckResourceAttrPair(resourceName1, "name", dataSourceName1, "name"),
-					resource.TestCheckResourceAttrPair(resourceName1, "default_item", dataSourceName1, "default_item"),
-					resource.TestCheckResourceAttrPair(resourceName1, "external_region_id", dataSourceName1, "external_region_id"),
+					resource.TestCheckResourceAttrPair(resourceName, "id", dataSourceName, "id"),
+					resource.TestCheckResourceAttrPair(resourceName, "description", dataSourceName, "description"),
+					resource.TestCheckResourceAttrPair(resourceName, "name", dataSourceName, "name"),
+					resource.TestCheckResourceAttrPair(resourceName, "default_item", dataSourceName, "default_item"),
+					resource.TestCheckResourceAttrPair(resourceName, "external_region_id", dataSourceName, "external_region_id"),
 				),
 			},
 		},
@@ -59,7 +61,7 @@ func TestAccDataSourceVRAStorageProfile(t *testing.T) {
 }
 
 func testAccDataSourceVRAStorageProfileNotFound(rInt int) string {
-	return testAccCheckVRAStorageProfileConfig(rInt) + `
+	return testAccCheckVRAStorageProfileAWSConfig(rInt) + `
 	data "vra_storage_profile" "this" {
 		filter = "externalRegionId eq 'foobar'"
 	}`
@@ -67,21 +69,21 @@ func testAccDataSourceVRAStorageProfileNotFound(rInt int) string {
 
 // TBD: Enable filter by name once this is fixed https://jira.eng.vmware.com/browse/VCOM-13947
 // func testAccDataSourceVRAStorageProfileNameFilter(rInt int) string {
-// 	return testAccCheckVRAStorageProfileConfig(rInt) + fmt.Sprintf(`
+// 	return testAccCheckVRAStorageProfileAWSConfig(rInt) + fmt.Sprintf(`
 // 	data "vra_storage_profile" "this" {
 // 		filter = "name eq '${vra_storage_profile.my-storage-profile.name}'"
 // 	}`)
 // }
 
-func testAccDataSourceVRAStorageProfileExternalRegionIDFilter(rInt int) string {
-	return testAccCheckVRAStorageProfileConfig(rInt) + `
-	data "vra_storage_profile" "this" {
-		filter = "externalRegionId eq '${data.vra_region.this.id}'"
-	}`
-}
+//func testAccDataSourceVRAStorageProfileExternalRegionIDFilter(rInt int) string {
+//	return testAccCheckVRAStorageProfileAWSConfig(rInt) + `
+//	data "vra_storage_profile" "this" {
+//		filter = "externalRegionId eq '${data.vra_region.this.region}' and cloudAccountId eq '${data.vra_cloud_account_aws.this.id}'"
+//	}`
+//}
 
 func testAccDataSourceVRAStorageProfileByID(rInt int) string {
-	return testAccCheckVRAStorageProfileConfig(rInt) + `
+	return testAccCheckVRAStorageProfileAWSConfig(rInt) + `
 	data "vra_storage_profile" "this" {
 		id = vra_storage_profile.this.id
 	}`
