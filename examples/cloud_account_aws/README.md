@@ -1,6 +1,6 @@
 # cloud\_account\_aws example
 
-This is an example on how to setup an AWS cloud account for vSphere along with regions
+This is an example on how to setup an AWS cloud account.
 
 ## Getting Started
 

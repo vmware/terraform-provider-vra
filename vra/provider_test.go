@@ -131,7 +131,13 @@ func testAccPreCheckStorageProfile(t *testing.T) {
 
 	envVars := [...]string{
 		"VRA_URL",
-		"VRA_REGION",
+		"VRA_AWS_CLOUD_ACCOUNT_NAME",
+		"VRA_AWS_REGION_NAME",
+		"VRA_ARM_CLOUD_ACCOUNT_NAME",
+		"VRA_ARM_REGION_NAME",
+		"VRA_ARM_FABRIC_STORAGE_ACCOUNT_NAME",
+		"VRA_VSPHERE_CLOUD_ACCOUNT_NAME",
+		"VRA_VSPHERE_REGION_NAME",
 	}
 
 	for _, name := range envVars {
