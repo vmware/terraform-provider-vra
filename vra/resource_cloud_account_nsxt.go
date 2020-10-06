@@ -67,16 +67,19 @@ func resourceCloudAccountNSXTCreate(d *schema.ResourceData, m interface{}) error
 
 	tags := expandTags(d.Get("tags").(*schema.Set).List())
 
-	createResp, err := apiClient.CloudAccount.CreateNsxTCloudAccount(cloud_account.NewCreateNsxTCloudAccountParams().WithBody(&models.CloudAccountNsxTSpecification{
-		AcceptSelfSignedCertificate: d.Get("accept_self_signed_cert").(bool),
-		Dcid:                        withString(d.Get("dc_id").(string)),
-		Description:                 d.Get("description").(string),
-		HostName:                    withString(d.Get("hostname").(string)),
-		Name:                        withString(d.Get("name").(string)),
-		Password:                    withString(d.Get("password").(string)),
-		Tags:                        tags,
-		Username:                    withString(d.Get("username").(string)),
-	}))
+	createResp, err := apiClient.CloudAccount.CreateNsxTCloudAccount(
+		cloud_account.NewCreateNsxTCloudAccountParams().
+			WithTimeout(IncreasedTimeOut).
+			WithBody(&models.CloudAccountNsxTSpecification{
+				AcceptSelfSignedCertificate: d.Get("accept_self_signed_cert").(bool),
+				Dcid:                        withString(d.Get("dc_id").(string)),
+				Description:                 d.Get("description").(string),
+				HostName:                    withString(d.Get("hostname").(string)),
+				Name:                        withString(d.Get("name").(string)),
+				Password:                    withString(d.Get("password").(string)),
+				Tags:                        tags,
+				Username:                    withString(d.Get("username").(string)),
+			}))
 
 	if err != nil {
 		return err

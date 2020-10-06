@@ -96,19 +96,22 @@ func resourceCloudAccountVsphereCreate(d *schema.ResourceData, m interface{}) er
 		associatedCloudAccountIds = expandStringList(v.([]interface{}))
 	}
 
-	createResp, err := apiClient.CloudAccount.CreateVSphereCloudAccount(cloud_account.NewCreateVSphereCloudAccountParams().WithBody(&models.CloudAccountVsphereSpecification{
-		AcceptSelfSignedCertificate: d.Get("accept_self_signed_cert").(bool),
-		AssociatedCloudAccountIds:   associatedCloudAccountIds,
-		CreateDefaultZones:          false,
-		Dcid:                        d.Get("dcid").(string),
-		Description:                 d.Get("description").(string),
-		HostName:                    withString(d.Get("hostname").(string)),
-		Name:                        withString(d.Get("name").(string)),
-		Password:                    withString(d.Get("password").(string)),
-		RegionIds:                   regions,
-		Tags:                        tags,
-		Username:                    withString(d.Get("username").(string)),
-	}))
+	createResp, err := apiClient.CloudAccount.CreateVSphereCloudAccount(
+		cloud_account.NewCreateVSphereCloudAccountParams().
+			WithTimeout(IncreasedTimeOut).
+			WithBody(&models.CloudAccountVsphereSpecification{
+				AcceptSelfSignedCertificate: d.Get("accept_self_signed_cert").(bool),
+				AssociatedCloudAccountIds:   associatedCloudAccountIds,
+				CreateDefaultZones:          false,
+				Dcid:                        d.Get("dcid").(string),
+				Description:                 d.Get("description").(string),
+				HostName:                    withString(d.Get("hostname").(string)),
+				Name:                        withString(d.Get("name").(string)),
+				Password:                    withString(d.Get("password").(string)),
+				RegionIds:                   regions,
+				Tags:                        tags,
+				Username:                    withString(d.Get("username").(string)),
+			}))
 
 	if err != nil {
 		return err
