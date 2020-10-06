@@ -20,12 +20,19 @@ func resourceZone() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "A human-friendly description for the zone",
+			},
+			"folder": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "The folder relative path to the datacenter where resources are deployed to. (only applicable for vSphere cloud zones)",
 			},
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "A human-friendly name for the zone",
 			},
 			"placement_policy": {
 				Type:     schema.TypeString,
@@ -39,10 +46,12 @@ func resourceZone() *schema.Resource {
 					}
 					return
 				},
+				Description: "Placement policy for the zone. One of DEFAULT, SPREAD or BINPACK.",
 			},
 			"region_id": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "The id of the region for which this profile is created",
 			},
 			"tags":          tagsSchema(),
 			"tags_to_match": tagsSchema(),
@@ -54,6 +63,7 @@ func resourceZoneCreate(d *schema.ResourceData, m interface{}) error {
 	apiClient := m.(*Client).apiClient
 
 	description := d.Get("description").(string)
+	folder := d.Get("folder").(string)
 	name := d.Get("name").(string)
 	placementPolicy := d.Get("placement_policy").(string)
 	regionID := d.Get("region_id").(string)
@@ -62,6 +72,7 @@ func resourceZoneCreate(d *schema.ResourceData, m interface{}) error {
 
 	createResp, err := apiClient.Location.CreateZone(location.NewCreateZoneParams().WithBody(&models.ZoneSpecification{
 		Description:     description,
+		Folder:          folder,
 		Name:            &name,
 		PlacementPolicy: placementPolicy,
 		RegionID:        &regionID,
@@ -114,6 +125,7 @@ func resourceZoneUpdate(d *schema.ResourceData, m interface{}) error {
 
 	id := d.Id()
 	description := d.Get("description").(string)
+	folder := d.Get("folder").(string)
 	name := d.Get("name").(string)
 	placementPolicy := d.Get("placement_policy").(string)
 	regionID := d.Get("region_id").(string)
@@ -122,6 +134,7 @@ func resourceZoneUpdate(d *schema.ResourceData, m interface{}) error {
 
 	_, err := apiClient.Location.UpdateZone(location.NewUpdateZoneParams().WithID(id).WithBody(&models.ZoneSpecification{
 		Description:     description,
+		Folder:          folder,
 		Name:            &name,
 		PlacementPolicy: placementPolicy,
 		RegionID:        &regionID,
