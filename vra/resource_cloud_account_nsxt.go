@@ -122,7 +122,7 @@ func resourceCloudAccountNSXTUpdate(d *schema.ResourceData, m interface{}) error
 
 	id := d.Id()
 
-	_, err := apiClient.CloudAccount.UpdateNsxTCloudAccount(cloud_account.NewUpdateNsxTCloudAccountParams().WithID(id).WithBody(&models.UpdateCloudAccountSpecificationBase{
+	_, err := apiClient.CloudAccount.UpdateNsxTCloudAccount(cloud_account.NewUpdateNsxTCloudAccountParams().WithID(id).WithBody(&models.UpdateCloudAccountNsxTSpecification{
 		Description: d.Get("description").(string),
 		Tags:        expandTags(d.Get("tags").(*schema.Set).List()),
 	}))
