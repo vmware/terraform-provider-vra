@@ -80,6 +80,7 @@ func Provider() *schema.Provider {
 			"vra_region_enumeration_vsphere":    dataSourceRegionEnumerationVsphere(),
 			"vra_security_group":                dataSourceSecurityGroup(),
 			"vra_storage_profile":               dataSourceStorageProfile(),
+			"vra_storage_profile_vsphere":       dataSourceStorageProfileVsphere(),
 			"vra_zone":                          dataSourceZone(),
 		},
 
@@ -109,6 +110,7 @@ func Provider() *schema.Provider {
 			"vra_storage_profile":            resourceStorageProfile(),
 			"vra_storage_profile_aws":        resourceStorageProfileAws(),
 			"vra_storage_profile_azure":      resourceStorageProfileAzure(),
+			"vra_storage_profile_vsphere":    resourceStorageProfileVsphere(),
 			"vra_zone":                       resourceZone(),
 		},
 
