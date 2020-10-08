@@ -103,18 +103,21 @@ func resourceCloudAccountVMCCreate(d *schema.ResourceData, m interface{}) error 
 	cloudAccountProperties["nsxHostName"] = d.Get("nsx_hostname").(string)
 	cloudAccountProperties["sddcId"] = d.Get("sddc_name").(string)
 
-	createResp, err := apiClient.CloudAccount.CreateCloudAccount(cloud_account.NewCreateCloudAccountParams().WithBody(&models.CloudAccountSpecification{
-		AssociatedCloudAccountIds: []string{},
-		CloudAccountProperties:    cloudAccountProperties,
-		CloudAccountType:          withString("vmc"),
-		CreateDefaultZones:        false,
-		Description:               d.Get("description").(string),
-		Name:                      withString(d.Get("name").(string)),
-		PrivateKey:                withString(d.Get("vcenter_password").(string)),
-		PrivateKeyID:              withString(d.Get("vcenter_username").(string)),
-		RegionIds:                 regions,
-		Tags:                      tags,
-	}))
+	createResp, err := apiClient.CloudAccount.CreateCloudAccount(
+		cloud_account.NewCreateCloudAccountParams().
+			WithTimeout(IncreasedTimeOut).
+			WithBody(&models.CloudAccountSpecification{
+				AssociatedCloudAccountIds: []string{},
+				CloudAccountProperties:    cloudAccountProperties,
+				CloudAccountType:          withString("vmc"),
+				CreateDefaultZones:        false,
+				Description:               d.Get("description").(string),
+				Name:                      withString(d.Get("name").(string)),
+				PrivateKey:                withString(d.Get("vcenter_password").(string)),
+				PrivateKeyID:              withString(d.Get("vcenter_username").(string)),
+				RegionIds:                 regions,
+				Tags:                      tags,
+			}))
 
 	if err != nil {
 		return err
