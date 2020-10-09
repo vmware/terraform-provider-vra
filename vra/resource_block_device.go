@@ -26,17 +26,28 @@ func resourceBlockDevice() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
+			// Required arguments
 			"capacity_in_gb": {
 				Type:        schema.TypeInt,
 				Required:    true,
 				Description: "Capacity of the block device in GB.",
 			},
-			"constraints": constraintsSchema(),
-			"created_at": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: "Date when the entity was created. The date is in ISO 8601 and UTC.",
+			"name": {
+				Type:     schema.TypeString,
+				Required: true,
+				DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
+					return !strings.HasPrefix(new, old)
+				},
+				Description: "A human-friendly name for the block device.",
 			},
+			"project_id": {
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "The id of the project this resource belongs to.",
+			},
+
+			// Optional arguments
+			"constraints": constraintsSchema(),
 			"custom_properties": {
 				Type:        schema.TypeMap,
 				Computed:    true,
@@ -64,6 +75,28 @@ func resourceBlockDevice() *schema.Resource {
 				Optional:    true,
 				Description: "Indicates whether the block device should be encrypted or not.",
 			},
+			"expand_snapshots": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: "Indicates whether the snapshots of the block-devices should be included in the resource state. Applicable only for first class block devices.",
+			},
+			"persistent": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: "Indicates whether the block device survives a delete action.",
+			},
+			"source_reference": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "Reference to URI using which the block device has to be created. Example: ami-0d4cfd66",
+			},
+
+			// Imported attributes
+			"created_at": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "Date when the entity was created. The date is in ISO 8601 and UTC.",
+			},
 			"external_id": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -79,20 +112,7 @@ func resourceBlockDevice() *schema.Resource {
 				Computed:    true,
 				Description: "The external zoneId of the resource.",
 			},
-			"expand_snapshots": {
-				Type:        schema.TypeBool,
-				Optional:    true,
-				Description: "Indicates whether the snapshots of the block-devices should be included in the resource state. Applicable only for first class block devices.",
-			},
 			"links": linksSchema(),
-			"name": {
-				Type:     schema.TypeString,
-				Required: true,
-				DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
-					return !strings.HasPrefix(new, old)
-				},
-				Description: "A human-friendly name for the block device.",
-			},
 			"org_id": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -103,22 +123,7 @@ func resourceBlockDevice() *schema.Resource {
 				Computed:    true,
 				Description: "Email of the user that owns this block device.",
 			},
-			"persistent": {
-				Type:        schema.TypeBool,
-				Optional:    true,
-				Description: "Indicates whether the block device survives a delete action.",
-			},
-			"project_id": {
-				Type:        schema.TypeString,
-				Required:    true,
-				Description: "The id of the project this resource belongs to.",
-			},
 			"snapshots": snapshotsSchema(),
-			"source_reference": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Description: "Reference to URI using which the block device has to be created. Example: ami-0d4cfd66",
-			},
 			"status": {
 				Type:        schema.TypeString,
 				Computed:    true,

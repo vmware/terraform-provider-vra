@@ -15,6 +15,22 @@ func dataSourceBlockDevice() *schema.Resource {
 		Read: dataSourceBlockDeviceRead,
 
 		Schema: map[string]*schema.Schema{
+			// Optional arguments
+			"filter": {
+				Type:          schema.TypeString,
+				Optional:      true,
+				ConflictsWith: []string{"id"},
+				Description:   "Search criteria to filter the list of block devices.",
+			},
+			"id": {
+				Type:          schema.TypeString,
+				Optional:      true,
+				Computed:      true,
+				ConflictsWith: []string{"filter"},
+				Description:   "The id of the block device.",
+			},
+
+			// Imported attributes
 			"capacity_in_gb": {
 				Type:        schema.TypeInt,
 				Computed:    true,
@@ -67,19 +83,6 @@ func dataSourceBlockDevice() *schema.Resource {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: "The external zoneId of the resource.",
-			},
-			"filter": {
-				Type:          schema.TypeString,
-				Optional:      true,
-				ConflictsWith: []string{"id"},
-				Description:   "Search criteria to filter the list of block devices.",
-			},
-			"id": {
-				Type:          schema.TypeString,
-				Optional:      true,
-				Computed:      true,
-				ConflictsWith: []string{"filter"},
-				Description:   "The id of the block device.",
 			},
 			"links": linksSchema(),
 			"name": {
