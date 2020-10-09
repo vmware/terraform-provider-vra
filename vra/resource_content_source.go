@@ -31,7 +31,7 @@ func resourceContentSource() *schema.Resource {
 				Type:         schema.TypeString,
 				Required:     true,
 				ForceNew:     true,
-				ValidateFunc: validation.StringInSlice([]string{"com.gitlab", "com.github", "com.vmware.marketplace"}, true),
+				ValidateFunc: validation.StringInSlice([]string{"com.gitlab", "com.github", "com.vmware.marketplace", "org.bitbucket"}, true),
 			},
 			"project_id": {
 				Type:     schema.TypeString,
@@ -95,7 +95,7 @@ func resourceContentSource() *schema.Resource {
 						"content_type": {
 							Type:         schema.TypeString,
 							Optional:     true,
-							ValidateFunc: validation.StringInSlice([]string{"BLUEPRINT", "IMAGE", "ABX_SCRIPTS"}, true),
+							ValidateFunc: validation.StringInSlice([]string{"BLUEPRINT", "IMAGE", "ABX_SCRIPTS", "TERRAFORM_CONFIGURATION"}, true),
 						},
 						"project_name": {
 							Type:     schema.TypeString,
