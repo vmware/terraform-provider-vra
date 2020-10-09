@@ -1,0 +1,9 @@
+refresh_token = ""
+url = ""
+cloud_account = ""
+region = ""
+zone = ""
+project = ""
+datastore_name = ""
+storage_policy_name = ""
+

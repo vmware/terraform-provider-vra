@@ -59,7 +59,7 @@ resource "vra_block_device" "disk2" {
 
 resource "vra_machine" "machine" {
   name        = "tf-machine"
-  description = "terrafrom test machine"
+  description = "terraform test machine"
   project_id  = data.vra_project.this.id
   image       = "ubuntu"
   flavor      = "small"

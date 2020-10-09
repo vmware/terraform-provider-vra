@@ -102,6 +102,27 @@ func testAccPreCheckBlockDevice(t *testing.T) {
 	}
 }
 
+func testAccPreCheckBlockDeviceSnapshotResource(t *testing.T) {
+	if os.Getenv("VRA_REFRESH_TOKEN") == "" && os.Getenv("VRA_ACCESS_TOKEN") == "" {
+		t.Fatal("VRA_REFRESH_TOKEN or VRA_ACCESS_TOKEN must be set for acceptance tests")
+	}
+
+	envVars := [...]string{
+		"VRA_URL",
+		"VRA_VSPHERE_CLOUD_ACCOUNT_NAME",
+		"VRA_REGION",
+		"VRA_PROJECT",
+		"VRA_VSPHERE_DATASTORE_NAME",
+		"VRA_VSPHERE_STORAGE_POLICY_NAME",
+	}
+
+	for _, name := range envVars {
+		if v := os.Getenv(name); v == "" {
+			t.Fatalf("%s must be set for acceptance tests\n", name)
+		}
+	}
+}
+
 func testAccPreCheckImageProfile(t *testing.T) {
 	if os.Getenv("VRA_REFRESH_TOKEN") == "" && os.Getenv("VRA_ACCESS_TOKEN") == "" {
 		t.Fatal("VRA_REFRESH_TOKEN or VRA_ACCESS_TOKEN must be set for acceptance tests")
@@ -265,6 +286,22 @@ func testAccPreCheckVsphereForStoragePolicy(t *testing.T) {
 	envVars := [...]string{
 		//"VRA_URL",
 		"VRA_VSPHERE_STORAGE_POLICY_NAME",
+	}
+
+	for _, name := range envVars {
+		if v := os.Getenv(name); v == "" {
+			t.Fatalf("%s must be set for acceptance tests\n", name)
+		}
+	}
+}
+
+func testAccPreCheckBlockDeviceSnapshot(t *testing.T) {
+	testAccPreCheckVra(t)
+
+	// The vCenter should have already been added into the vRA
+	// Set the VRA_BLOCK_DEVICE_ID to an existing block device id which has snapshots created
+	envVars := [...]string{
+		"VRA_BLOCK_DEVICE_ID",
 	}
 
 	for _, name := range envVars {
