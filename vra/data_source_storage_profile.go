@@ -50,7 +50,7 @@ func dataSourceStorageProfile() *schema.Resource {
 				Type:          schema.TypeString,
 				Optional:      true,
 				ConflictsWith: []string{"id"},
-				Description:   "Search criteria to filter the list of fabric networks.",
+				Description:   "Search criteria to filter the list of storage profiles.",
 			},
 			"id": {
 				Type:          schema.TypeString,
