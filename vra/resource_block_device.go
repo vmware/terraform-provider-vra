@@ -26,9 +26,11 @@ func resourceBlockDevice() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
+			// Required arguments
 			"capacity_in_gb": {
-				Type:     schema.TypeInt,
-				Required: true,
+				Type:        schema.TypeInt,
+				Required:    true,
+				Description: "Capacity of the block device in GB.",
 			},
 			"name": {
 				Type:     schema.TypeString,
@@ -36,75 +38,102 @@ func resourceBlockDevice() *schema.Resource {
 				DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
 					return !strings.HasPrefix(new, old)
 				},
+				Description: "A human-friendly name for the block device.",
 			},
 			"project_id": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "The id of the project this resource belongs to.",
 			},
+
+			// Optional arguments
 			"constraints": constraintsSchema(),
 			"custom_properties": {
-				Type:     schema.TypeMap,
-				Computed: true,
-				Optional: true,
-			},
-			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeMap,
+				Computed:    true,
+				Optional:    true,
+				Description: "Additional custom properties that may be used to extend the block device. Following disk custom properties can be passed while creating a block device: \n\n1. dataStore: Defines name of the datastore in which the disk has to be provisioned.\n2. storagePolicy: Defines name of the storage policy in which the disk has to be provisioned. If name of the datastore is specified in the custom properties then, datastore takes precedence.\n3. provisioningType: Defines the type of provisioning. For eg. thick/thin.",
 			},
 			"deployment_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: "The id of the deployment that is associated with this resource.",
+			},
+			"description": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "A human-friendly description.",
 			},
 			"disk_content_base_64": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "Content of a disk, base64 encoded.",
 			},
 			"encrypted": {
-				Type:     schema.TypeBool,
-				Optional: true,
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: "Indicates whether the block device should be encrypted or not.",
+			},
+			"expand_snapshots": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: "Indicates whether the snapshots of the block-devices should be included in the resource state. Applicable only for first class block devices.",
 			},
 			"persistent": {
-				Type:     schema.TypeBool,
-				Optional: true,
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: "Indicates whether the block device survives a delete action.",
 			},
 			"source_reference": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "Reference to URI using which the block device has to be created. Example: ami-0d4cfd66",
 			},
-			"tags": tagsSchema(),
+
+			// Imported attributes
 			"created_at": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "Date when the entity was created. The date is in ISO 8601 and UTC.",
 			},
 			"external_id": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "External entity id on the cloud provider side.",
 			},
 			"external_region_id": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "The external regionId of the resource.",
 			},
 			"external_zone_id": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"org_id": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"owner": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "The external zoneId of the resource.",
 			},
 			"links": linksSchema(),
-			"status": {
-				Type:     schema.TypeString,
-				Computed: true,
+			"org_id": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "The id of the organization this block device belongs to.",
 			},
+			"owner": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "Email of the user that owns this block device.",
+			},
+			"snapshots": snapshotsSchema(),
+			"status": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "Status of the block device.",
+			},
+			"tags": tagsSchema(),
 			"updated_at": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "Date when the entity was last updated. The date is ISO 8601 and UTC.",
 			},
 		},
 
@@ -251,6 +280,18 @@ func resourceBlockDeviceRead(d *schema.ResourceData, m interface{}) error {
 
 	if err := d.Set("links", flattenLinks(blockDevice.Links)); err != nil {
 		return fmt.Errorf("error setting block device links - error: %#v", err)
+	}
+
+	expandSnapshots := d.Get("expand_snapshots").(bool)
+	if expandSnapshots {
+		snapshots, err := apiClient.Disk.GetDiskSnapshots(disk.NewGetDiskSnapshotsParams().WithID(d.Id()))
+		if err != nil {
+			return fmt.Errorf("error getting block device snapshots - error: %#v", err)
+		}
+
+		if err := d.Set("snapshots", flattenSnapshots(snapshots.Payload)); err != nil {
+			return fmt.Errorf("error setting block device snapshots - error: %#v", err)
+		}
 	}
 
 	log.Printf("Finished reading the vra_block_device resource with name %s", d.Get("name"))

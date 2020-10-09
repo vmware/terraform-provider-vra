@@ -199,7 +199,12 @@ func resourceStorageProfileDelete(d *schema.ResourceData, m interface{}) error {
 	id := d.Id()
 	_, err := apiClient.StorageProfile.DeleteStorageProfile(storage_profile.NewDeleteStorageProfileParams().WithID(id))
 	if err != nil {
-		return err
+		switch err.(type) {
+		case *storage_profile.GetStorageProfileNotFound:
+			log.Printf("vra_storage_profile resource with id '%s' is not found", d.Get("name"))
+		default:
+			return err
+		}
 	}
 
 	d.SetId("")
