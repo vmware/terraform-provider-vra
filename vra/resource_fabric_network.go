@@ -140,7 +140,7 @@ func resourceVsphereFabricNetworkRead(d *schema.ResourceData, m interface{}) err
 	d.Set("ipv6_cidr", VsphereFabricNetwork.IPV6Cidr)
 	d.Set("is_default", VsphereFabricNetwork.IsDefault)
 	d.Set("is_public", VsphereFabricNetwork.IsPublic)
-	d.Set("org_id", VsphereFabricNetwork.OrganizationID)
+	d.Set("org_id", VsphereFabricNetwork.OrgID)
 	d.Set("name", VsphereFabricNetwork.Name)
 	d.Set("owner", VsphereFabricNetwork.Owner)
 	d.Set("updated_at", VsphereFabricNetwork.UpdatedAt)
@@ -195,9 +195,6 @@ func resourceVsphereFabricNetworkUpdate(d *schema.ResourceData, m interface{}) e
 		Tags:               expandTags(d.Get("tags").(*schema.Set).List()),
 	}
 
-	log.Printf("[DEBUG]zzz update fabric network vsphere: %#v", VsphereFabricNetworkSpecification)
-	tmpbody := fabric_network.NewUpdatevSphereFabricNetworkParams().WithID(id).WithBody(&VsphereFabricNetworkSpecification)
-	log.Printf("[DEBUG]zzz Tmp Body is %#v", tmpbody.Body)
 	_, err := apiClient.FabricNetwork.UpdatevSphereFabricNetwork(fabric_network.NewUpdatevSphereFabricNetworkParams().WithID(id).WithBody(&VsphereFabricNetworkSpecification))
 	if err != nil {
 		return err

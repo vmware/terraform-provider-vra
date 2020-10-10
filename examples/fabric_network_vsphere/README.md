@@ -26,7 +26,16 @@ This examples assumes a vsphere cloud account is already set up, if not please r
 
 * Setup [cloud\_account\_vsphere](../cloud_account_vsphere/README.md)
 
-To import the resource you must find the ID of the fabric network. This can be done via API calls or by viewing the object in a browser and pulling the ID from the url. (ex value: bea2cb32-ba08-4876-bb6c-9ce8af6cd90c)
+To import the resource you must find the ID of the fabric network. There are a couple of way this ID can be aquired:
+
+1. Use of the vra_fabric_network data source. ex:  
+```
+  data "vra_fabric_network" "subnet" {
+  filter = "name eq '${var.subnet_name}' and cloudAccountId eq '${var.cloud_account_vsphere_id}' and externalRegionId eq '${var.region_id_vsphere}'"
+}
+```
+2. via API calls 
+3. Viewing the object in a browser and pulling the ID from the url. (ex value: bea2cb32-ba08-4876-bb6c-9ce8af6cd90c)
 
 Once the information is added to `terraform.tfvars` the resource can be imported and the manage via:
 

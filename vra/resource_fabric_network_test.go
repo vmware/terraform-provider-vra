@@ -54,7 +54,7 @@ func testAccCheckVRAFabricNetworkVsphereDestroy(s *terraform.State) error {
 		if rs.Type == "vra_fabric_network_vsphere" {
 			_, err := apiClient.FabricNetwork.GetVsphereFabricNetwork(fabric_network.NewGetVsphereFabricNetworkParams().WithID(rs.Primary.ID))
 			if err == nil {
-				return fmt.Errorf("Resource 'vra_fabric_network_vsphere' still exists with id %s", rs.Primary.ID)
+				return fmt.Errorf("Resource 'vra_fabric_network_vsphere' with id %s does not exist", rs.Primary.ID)
 			}
 		}
 
