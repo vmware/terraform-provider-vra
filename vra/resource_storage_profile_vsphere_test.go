@@ -7,7 +7,6 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
-	"github.com/vmware/vra-sdk-go/pkg/client/cloud_account"
 	"github.com/vmware/vra-sdk-go/pkg/client/storage_profile"
 )
 
@@ -57,12 +56,6 @@ func testAccCheckVRAStorageProfileVsphereDestroy(s *terraform.State) error {
 	apiClient := testAccProviderVRA.Meta().(*Client).apiClient
 
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type == "vra_cloud_account_vsphere" {
-			_, err := apiClient.CloudAccount.GetVSphereCloudAccount(cloud_account.NewGetVSphereCloudAccountParams().WithID(rs.Primary.ID))
-			if err == nil {
-				return fmt.Errorf("Resource 'vra_cloud_account_vsphere' still exists with id %s", rs.Primary.ID)
-			}
-		}
 		if rs.Type == "vra_storage_profile_vsphere" {
 			_, err := apiClient.StorageProfile.GetVSphereStorageProfile(storage_profile.NewGetVSphereStorageProfileParams().WithID(rs.Primary.ID))
 			if err == nil {

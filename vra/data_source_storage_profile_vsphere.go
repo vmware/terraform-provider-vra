@@ -16,11 +16,6 @@ func dataSourceStorageProfileVsphere() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			// Optional arguments
-			"default_item": {
-				Type:        schema.TypeBool,
-				Optional:    true,
-				Description: "Indicates if a storage profile acts as a default storage profile for a disk.",
-			},
 			"filter": {
 				Type:          schema.TypeString,
 				Optional:      true,
@@ -42,6 +37,11 @@ func dataSourceStorageProfileVsphere() *schema.Resource {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: "Date when the entity was created. The date is in ISO 8601 and UTC.",
+			},
+			"default_item": {
+				Type:        schema.TypeBool,
+				Computed:    true,
+				Description: "Indicates if a storage profile acts as a default storage profile for a disk.",
 			},
 			"description": {
 				Type:        schema.TypeString,
