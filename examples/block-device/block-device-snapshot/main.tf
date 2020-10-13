@@ -50,6 +50,7 @@ resource "vra_storage_profile" "this" {
   }
 }
 
+// This block device depends on the storage profile created, and the constraints matches the tags of the storage profile
 resource "vra_block_device" "disk1" {
   capacity_in_gb = 10
   name = "terraform_vra_block_device_1"
@@ -63,6 +64,9 @@ resource "vra_block_device" "disk1" {
   }
 }
 
+// This block device will be created based on the dataStore and storagePolicy defined in the custom_properties
+// If the dataStore and storagePolicy are different from the ones used in the vra_storage_profile,
+// then this disk will land into a different datastore
 resource "vra_block_device" "disk2" {
   capacity_in_gb = 10
   name = "terraform_vra_block_device_2"

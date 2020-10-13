@@ -6,4 +6,5 @@ zone = ""
 project = ""
 datastore_name = ""
 storage_policy_name = ""
-
+datastore_name_b = ""
+storage_policy_name_b = ""

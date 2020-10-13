@@ -12,7 +12,7 @@ import (
 
 func dataSourceBlockDeviceSnapshots() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceBlockDeviceSnapshotRead,
+		Read: dataSourceBlockDeviceSnapshotsRead,
 		Schema: map[string]*schema.Schema{
 			"block_device_id": {
 				Type:     schema.TypeString,
@@ -23,7 +23,7 @@ func dataSourceBlockDeviceSnapshots() *schema.Resource {
 	}
 }
 
-func dataSourceBlockDeviceSnapshotRead(d *schema.ResourceData, meta interface{}) error {
+func dataSourceBlockDeviceSnapshotsRead(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("Reading the vra_block_device_snapshots data source with block_device_id %s", d.Get("block_device_id"))
 	apiClient := meta.(*Client).apiClient
 
@@ -39,7 +39,7 @@ func dataSourceBlockDeviceSnapshotRead(d *schema.ResourceData, meta interface{})
 	diskSnapshot = getResp.GetPayload()
 
 	if len(diskSnapshot) == 0 {
-		log.Printf("No vra_block_device_snapshots data source was found with block_device_id %s", id)
+		log.Printf("No snapshots were found with block_device_id %s", id)
 		return nil
 	}
 

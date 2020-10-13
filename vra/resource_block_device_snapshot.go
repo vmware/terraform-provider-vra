@@ -73,14 +73,14 @@ func resourceBlockDeviceSnapshotCreate(d *schema.ResourceData, m interface{}) er
 	apiClient := m.(*Client).apiClient
 
 	description := d.Get("description").(string)
-	id := d.Get("block_device_id").(string)
+	blockDeviceID := d.Get("block_device_id").(string)
 
 	DiskSnapshotSpecification := models.DiskSnapshotSpecification{
 		Description: description,
 	}
 
 	log.Printf("[DEBUG] create vra_block_device_snapshot: %#v", DiskSnapshotSpecification)
-	createDiskSnapshotCreated, _, err := apiClient.Disk.CreateFirstClassDiskSnapshot(disk.NewCreateFirstClassDiskSnapshotParams().WithID(id).WithBody(&DiskSnapshotSpecification))
+	createDiskSnapshotCreated, _, err := apiClient.Disk.CreateFirstClassDiskSnapshot(disk.NewCreateFirstClassDiskSnapshotParams().WithID(blockDeviceID).WithBody(&DiskSnapshotSpecification))
 	if err != nil {
 		return err
 	}
@@ -99,9 +99,16 @@ func resourceBlockDeviceSnapshotCreate(d *schema.ResourceData, m interface{}) er
 		return err
 	}
 
-	log.Printf("Finished to create vra_block_device_snapshot resource with for vra_block_device: %s", id)
+	log.Printf("Finished to create vra_block_device_snapshot resource with for vra_block_device: %s", blockDeviceID)
 
-	return findCreatedBlockDeviceSnapshot(d, m)
+	snapshotID, err := findCreatedBlockDeviceSnapshot(blockDeviceID, m)
+	d.SetId(snapshotID)
+
+	if err != nil {
+		return nil
+	}
+
+	return resourceBlockDeviceSnapshotRead(d, m)
 }
 
 func BlockDeviceSnapshotStateRefreshFunc(apiClient client.MulticloudIaaS, id string) resource.StateRefreshFunc {
@@ -126,47 +133,30 @@ func BlockDeviceSnapshotStateRefreshFunc(apiClient client.MulticloudIaaS, id str
 	}
 }
 
-func findCreatedBlockDeviceSnapshot(d *schema.ResourceData, m interface{}) error {
-	blockDeviceID := d.Get("block_device_id").(string)
+func findCreatedBlockDeviceSnapshot(blockDeviceID string, m interface{}) (string, error) {
+
 	log.Printf("Reading the vra_block_device_snapshot resource for vra_block_device %s ", blockDeviceID)
 	apiClient := m.(*Client).apiClient
 
-	resp, err := apiClient.Disk.GetDiskSnapshots(disk.NewGetDiskSnapshotsParams().WithID(blockDeviceID))
-	// TODO need to change to the correct behavior after the API is updated
-	//resp, err := apiClient.Disk.GetDiskSnapshot(disk.NewGetDiskSnapshotParams().WithID(blockDeviceID).WithId1(d.Id()))
-	if err != nil {
-		switch err.(type) {
-		case *disk.GetDiskSnapshotNotFound:
-			d.SetId("")
-			return nil
-		}
-		return err
-	}
-
 	errMsg := "failed to find the created snapshot for the vra_block_device_snapshot resource with id %s"
+
+	resp, err := apiClient.Disk.GetDiskSnapshots(disk.NewGetDiskSnapshotsParams().WithID(blockDeviceID))
+	if err != nil {
+		return "", fmt.Errorf(errMsg, blockDeviceID)
+	}
 
 	diskSnapshots := resp.Payload
 	if len(diskSnapshots) < 1 {
-		return fmt.Errorf(errMsg, d.Get("id"))
+		return "", fmt.Errorf(errMsg, blockDeviceID)
 	}
 
 	for _, diskSnapshot := range diskSnapshots {
 		if diskSnapshot.IsCurrent {
-			d.Set("created_at", diskSnapshot.CreatedAt)
-			d.Set("description", diskSnapshot.Desc)
-			d.Set("name", diskSnapshot.Name)
-			d.SetId(*diskSnapshot.ID)
-			d.Set("is_current", diskSnapshot.IsCurrent)
-			d.Set("org_id", diskSnapshot.OrgID)
-			d.Set("owner", diskSnapshot.Owner)
-			d.Set("updated_at", diskSnapshot.UpdatedAt)
-			d.Set("links", flattenLinks(diskSnapshot.Links))
-			log.Printf("Finished reading the vra_block_device_snapshot resource with id %s", *diskSnapshot.ID)
-			return nil
+			return *diskSnapshot.ID, nil
 		}
 	}
 
-	return fmt.Errorf(errMsg, d.Get("id"))
+	return "", fmt.Errorf(errMsg, blockDeviceID)
 }
 
 func resourceBlockDeviceSnapshotRead(d *schema.ResourceData, m interface{}) error {

@@ -29,4 +29,3 @@ variable "datastore_name_b" {
 variable "storage_policy_name_b" {
 
 }
-

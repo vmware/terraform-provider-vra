@@ -132,6 +132,7 @@ func testAccCheckVRABlockDeviceBasicConfig(rInt int) string {
 	  project_id = data.vra_project.this.id
       depends_on = [vra_storage_profile.this]
       persistent = true
+      purge = true
 	
 	  constraints {
 		mandatory  = true
