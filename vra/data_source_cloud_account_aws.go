@@ -13,7 +13,26 @@ func dataSourceCloudAccountAWS() *schema.Resource {
 		Read: dataSourceCloudAccountAWSRead,
 
 		Schema: map[string]*schema.Schema{
+			// Optional arguments
+			"id": {
+				Type:          schema.TypeString,
+				Optional:      true,
+				Computed:      true,
+				ConflictsWith: []string{"name"},
+			},
+			"name": {
+				Type:          schema.TypeString,
+				Optional:      true,
+				Computed:      true,
+				ConflictsWith: []string{"id"},
+			},
+
+			// Computed attributes
 			"access_key": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"created_at": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -21,14 +40,25 @@ func dataSourceCloudAccountAWS() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"id": {
+			"links": linksSchema(),
+			"org_id": {
 				Type:     schema.TypeString,
-				Optional: true,
 				Computed: true,
 			},
-			"name": {
+			"owner": {
 				Type:     schema.TypeString,
-				Optional: true,
+				Computed: true,
+			},
+			"regions": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			},
+			"tags": tagsSchema(),
+			"updated_at": {
+				Type:     schema.TypeString,
 				Computed: true,
 			},
 		},
@@ -42,7 +72,7 @@ func dataSourceCloudAccountAWSRead(d *schema.ResourceData, meta interface{}) err
 	name, nameOk := d.GetOk("name")
 
 	if !idOk && !nameOk {
-		return fmt.Errorf("One of id or name must be assigned")
+		return fmt.Errorf("one of id or name must be assigned")
 	}
 
 	getResp, err := apiClient.CloudAccount.GetAwsCloudAccounts(cloud_account.NewGetAwsCloudAccountsParams())
@@ -50,20 +80,31 @@ func dataSourceCloudAccountAWSRead(d *schema.ResourceData, meta interface{}) err
 		return err
 	}
 
-	setFields := func(account *models.CloudAccountAws) {
+	setFields := func(account *models.CloudAccountAws) error {
 		d.SetId(*account.ID)
 		d.Set("access_key", account.AccessKeyID)
+		d.Set("created_at", account.CreatedAt)
 		d.Set("description", account.Description)
+
+		if err := d.Set("links", flattenLinks(account.Links)); err != nil {
+			return fmt.Errorf("error setting cloud_account_aws links - error: %#v", err)
+		}
+
 		d.Set("name", account.Name)
+		d.Set("org_id", account.OrgID)
+		d.Set("regions", account.EnabledRegionIds)
+
+		if err := d.Set("tags", flattenTags(account.Tags)); err != nil {
+			return fmt.Errorf("error setting cloud_account_aws tags - error: %v", err)
+		}
+
+		d.Set("updated_at", account.UpdatedAt)
+
+		return nil
 	}
 	for _, account := range getResp.Payload.Content {
-		if idOk && account.ID == id {
-			setFields(account)
-			return nil
-		}
-		if nameOk && account.Name == name {
-			setFields(account)
-			return nil
+		if (idOk && account.ID == id) || (nameOk && account.Name == name) {
+			return setFields(account)
 		}
 	}
 

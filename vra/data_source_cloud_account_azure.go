@@ -14,29 +14,53 @@ func dataSourceCloudAccountAzure() *schema.Resource {
 		Read: dataSourceCloudAccountAzureRead,
 
 		Schema: map[string]*schema.Schema{
+			// Optional arguments
+			"id": {
+				Type:          schema.TypeString,
+				Optional:      true,
+				Computed:      true,
+				ConflictsWith: []string{"name"},
+			},
+			"name": {
+				Type:          schema.TypeString,
+				Optional:      true,
+				Computed:      true,
+				ConflictsWith: []string{"id"},
+			},
 
+			"application_id": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"created_at": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 			"description": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"id": {
+			"links": linksSchema(),
+			"org_id": {
 				Type:     schema.TypeString,
-				Optional: true,
 				Computed: true,
 			},
-			"name": {
+			"owner": {
 				Type:     schema.TypeString,
-				Optional: true,
 				Computed: true,
 			},
-			"application_id": {
-				Type:     schema.TypeString,
+			"regions": {
+				Type:     schema.TypeList,
 				Computed: true,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
 			},
 			"subscription_id": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"tags": tagsSchema(),
 			"tenant_id": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -60,22 +84,34 @@ func dataSourceCloudAccountAzureRead(d *schema.ResourceData, meta interface{}) e
 		return err
 	}
 
-	setFields := func(account *models.CloudAccountAzure) {
+	setFields := func(account *models.CloudAccountAzure) error {
 		d.SetId(*account.ID)
-		d.Set("description", account.Description)
-		d.Set("name", account.Name)
 		d.Set("application_id", account.ClientApplicationID)
-		d.Set("subscription_id", account.SubscriptionID)
-		d.Set("tenant_id", account.TenantID)
-	}
-	for _, account := range getResp.Payload.Content {
-		if idOk && account.ID == id {
-			setFields(account)
-			return nil
+		d.Set("created_at", account.CreatedAt)
+		d.Set("description", account.Description)
+
+		if err := d.Set("links", flattenLinks(account.Links)); err != nil {
+			return fmt.Errorf("error setting cloud_account_azure links - error: %#v", err)
 		}
-		if nameOk && account.Name == name {
-			setFields(account)
-			return nil
+
+		d.Set("name", account.Name)
+		d.Set("org_id", account.OrgID)
+		d.Set("regions", account.EnabledRegionIds)
+		d.Set("subscription_id", account.SubscriptionID)
+
+		if err := d.Set("tags", flattenTags(account.Tags)); err != nil {
+			return fmt.Errorf("error setting cloud_account_azure tags - error: %v", err)
+		}
+
+		d.Set("tenant_id", account.TenantID)
+		d.Set("updated_at", account.UpdatedAt)
+
+		return nil
+	}
+
+	for _, account := range getResp.Payload.Content {
+		if (idOk && account.ID == id) || (nameOk && account.Name == name) {
+			return setFields(account)
 		}
 	}
 
