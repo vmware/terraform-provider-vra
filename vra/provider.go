@@ -46,6 +46,7 @@ func Provider() *schema.Provider {
 
 		DataSourcesMap: map[string]*schema.Resource{
 			"vra_block_device":                  dataSourceBlockDevice(),
+			"vra_block_device_snapshots":        dataSourceBlockDeviceSnapshots(),
 			"vra_blueprint":                     dataSourceBlueprint(),
 			"vra_blueprint_version":             dataSourceBlueprintVersion(),
 			"vra_catalog_item":                  dataSourceCatalogItem(),
@@ -86,6 +87,7 @@ func Provider() *schema.Provider {
 
 		ResourcesMap: map[string]*schema.Resource{
 			"vra_block_device":               resourceBlockDevice(),
+			"vra_block_device_snapshot":      resourceBlockDeviceSnapshot(),
 			"vra_blueprint":                  resourceBlueprint(),
 			"vra_blueprint_version":          resourceBlueprintVersion(),
 			"vra_catalog_source_blueprint":   resourceCatalogSourceBlueprint(),

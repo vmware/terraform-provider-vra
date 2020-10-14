@@ -85,6 +85,11 @@ func resourceBlockDevice() *schema.Resource {
 				Optional:    true,
 				Description: "Indicates whether the block device survives a delete action.",
 			},
+			"purge": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: "Indicates if the disk has to be completely destroyed or should be kept in the system. Valid only for block devices with ‘persistent’ set to true, only used for destroy the resource",
+			},
 			"source_reference": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -292,6 +297,8 @@ func resourceBlockDeviceRead(d *schema.ResourceData, m interface{}) error {
 		if err := d.Set("snapshots", flattenSnapshots(snapshots.Payload)); err != nil {
 			return fmt.Errorf("error setting block device snapshots - error: %#v", err)
 		}
+	} else {
+		d.Set("snapshots", make([]map[string]interface{}, 0))
 	}
 
 	log.Printf("Finished reading the vra_block_device resource with name %s", d.Get("name"))
@@ -350,7 +357,25 @@ func resourceBlockDeviceDelete(d *schema.ResourceData, m interface{}) error {
 	apiClient := m.(*Client).apiClient
 
 	id := d.Id()
-	deleteBlockDeviceAccepted, deleteBlockDeviceCompleted, err := apiClient.Disk.DeleteBlockDevice(disk.NewDeleteBlockDeviceParams().WithID(id))
+	deleteBlockDeviceParams := disk.NewDeleteBlockDeviceParams().WithID(id)
+	purge := false
+	persistent := false
+
+	if v, ok := d.GetOk("persistent"); ok {
+		persistent = v.(bool)
+	}
+
+	// If the disk is persistent type, have to pass purge query parameter
+	if v, ok := d.GetOk("purge"); ok {
+		purge = v.(bool)
+	}
+
+	if purge && persistent {
+		log.Printf("The vra_block_device %s is persistent type and purge set to true, it will be purged", d.Get("name"))
+		deleteBlockDeviceParams.WithPurge(&purge)
+	}
+
+	deleteBlockDeviceAccepted, deleteBlockDeviceCompleted, err := apiClient.Disk.DeleteBlockDevice(deleteBlockDeviceParams)
 	if err != nil {
 		return err
 	}
