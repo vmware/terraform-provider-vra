@@ -1,7 +1,6 @@
 package vra
 
 import (
-	"fmt"
 	"testing"
 )
 
@@ -22,7 +21,7 @@ func TestExpandInputs(t *testing.T) {
 
 	expandedInputs := expandInputs(inputs)
 
-	if expandedInputs["whole"] != fmt.Sprint(2) {
+	if expandedInputs["whole"] != 2 {
 		t.Errorf("int type input is not expanded correctly.")
 	}
 
@@ -30,15 +29,15 @@ func TestExpandInputs(t *testing.T) {
 		t.Errorf("string type input is not expanded correctly.")
 	}
 
-	if expandedInputs["flag"] != fmt.Sprint(true) {
+	if expandedInputs["flag"] != true {
 		t.Errorf("bool type input is not expanded correctly.")
 	}
 
-	if expandedInputs["fraction"] != "2.4" {
+	if expandedInputs["fraction"] != 2.4 {
 		t.Errorf("float type input is not expanded correctly.")
 	}
 
-	if expandedInputs["message"] != fmt.Sprint(m) {
-		t.Errorf("float type input is not expanded correctly.")
+	if expandedInputs["message"] != m {
+		t.Errorf("object type input is not expanded correctly.")
 	}
 }

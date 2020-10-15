@@ -1,6 +1,7 @@
 package vra
 
 import (
+	"encoding/json"
 	"fmt"
 	"strconv"
 
@@ -242,6 +243,8 @@ func resourceDeploymentCreate(d *schema.ResourceData, m interface{}) error {
 		}
 
 		if v, ok := d.GetOk("inputs"); ok {
+			// If the inputs are provided, get the schema from blueprint to convert the provided input values
+			// to the type defined in the schema.
 			inputs, err = getBlueprintInputsByType(apiClient, blueprintID, blueprintVersion, v)
 			if err != nil {
 				return err
@@ -310,6 +313,9 @@ func resourceDeploymentRead(d *schema.ResourceData, m interface{}) error {
 	log.Printf("Reading the vra_deployment resource with name %s", d.Get("name"))
 	apiClient := m.(*Client).apiClient
 
+	// Getting the input types map
+	inputTypesMap := getInputTypesMap(d, apiClient)
+
 	id := d.Id()
 	expandProject := d.Get("expand_project").(bool)
 
@@ -343,14 +349,14 @@ func resourceDeploymentRead(d *schema.ResourceData, m interface{}) error {
 		return fmt.Errorf("error setting deployment expense - error: %#v", err)
 	}
 
-	allInputs := expandInputs(deployment.Inputs)
-	if err := d.Set("inputs_including_defaults", allInputs); err != nil {
+	if err := d.Set("inputs_including_defaults", expandInputsToString(deployment.Inputs)); err != nil {
 		return fmt.Errorf("error setting deployment inputs_including_defaults - error: %#v", err)
 	}
 
+	allInputs := expandInputs(deployment.Inputs)
 	if v, ok := d.GetOk("inputs"); ok {
 		userInputs := v.(map[string]interface{})
-		if err := d.Set("inputs", updateUserInputs(allInputs, userInputs)); err != nil {
+		if err := d.Set("inputs", updateUserInputs(allInputs, userInputs, inputTypesMap)); err != nil {
 			return fmt.Errorf("error setting deployment inputs - error: %#v", err)
 		}
 	}
@@ -378,6 +384,46 @@ func resourceDeploymentRead(d *schema.ResourceData, m interface{}) error {
 
 	log.Printf("Finished reading the vra_deployment resource with name '%s'. Current status: '%s'", d.Get("name"), d.Get("status"))
 	return nil
+}
+
+// Gets the inputs and their types as map[string]string
+func getInputTypesMap(d *schema.ResourceData, apiClient *client.MulticloudIaaS) map[string]string {
+	inputTypesMap := make(map[string]string)
+
+	if _, ok := d.GetOk("inputs"); !ok {
+		return inputTypesMap
+	}
+
+	// Get blueprint_id and catalog_item_id
+	blueprintID, catalogItemID := "", ""
+	if v, ok := d.GetOk("blueprint_id"); ok {
+		blueprintID = v.(string)
+	}
+
+	if v, ok := d.GetOk("catalog_item_id"); ok {
+		catalogItemID = v.(string)
+	}
+
+	if catalogItemID != "" {
+		// Get the catalog item inputs and their types
+		catalogItemVersion := ""
+		if v, ok := d.GetOk("catalog_item_version"); ok {
+			catalogItemVersion = v.(string)
+		}
+
+		inputTypesMap, _ = getCatalogItemInputTypesMap(apiClient, catalogItemID, catalogItemVersion)
+	} else if blueprintID != "" {
+		// Get the blueprint inputs and their types
+		blueprintVersion := ""
+		if v, ok := d.GetOk("blueprint_version"); ok {
+			blueprintVersion = v.(string)
+		}
+
+		inputTypesMap, _ = getBlueprintInputTypesMap(apiClient, blueprintID, blueprintVersion)
+	}
+
+	log.Printf("InputTypesMap: %v", inputTypesMap)
+	return inputTypesMap
 }
 
 func resourceDeploymentUpdate(d *schema.ResourceData, m interface{}) error {
@@ -461,13 +507,7 @@ func resourceDeploymentDelete(d *schema.ResourceData, m interface{}) error {
 }
 
 func getCatalogItemInputsByType(apiClient *client.MulticloudIaaS, catalogItemID string, catalogItemVersion string, inputValues interface{}) (map[string]interface{}, error) {
-	inputsSchemaMap, err := getCatalogItemSchema(apiClient, catalogItemID, catalogItemVersion)
-	if err != nil {
-		return nil, err
-	}
-
-	log.Printf("Inputs Schema: %v", inputsSchemaMap)
-	inputTypesMap, err := getInputTypesMapFromCatalogItemSchema(inputsSchemaMap)
+	inputTypesMap, err := getCatalogItemInputTypesMap(apiClient, catalogItemID, catalogItemVersion)
 	if err != nil {
 		return nil, err
 	}
@@ -481,14 +521,23 @@ func getCatalogItemInputsByType(apiClient *client.MulticloudIaaS, catalogItemID 
 	return inputs, nil
 }
 
-func getBlueprintInputsByType(apiClient *client.MulticloudIaaS, blueprintID string, blueprintVersion string, inputValues interface{}) (map[string]interface{}, error) {
-	inputsSchemaMap, err := getBlueprintSchema(apiClient, blueprintID, blueprintVersion)
+func getCatalogItemInputTypesMap(apiClient *client.MulticloudIaaS, catalogItemID string, catalogItemVersion string) (map[string]string, error) {
+	log.Printf("Getting Catalog Item Schema for catalog_item_id: [%v], catalog_item_version: [%v]", catalogItemID, catalogItemVersion)
+	inputsSchemaMap, err := getCatalogItemSchema(apiClient, catalogItemID, catalogItemVersion)
 	if err != nil {
 		return nil, err
 	}
 
 	log.Printf("Inputs Schema: %v", inputsSchemaMap)
-	inputTypesMap, err := getInputTypesMapFromBlueprintInputsSchema(inputsSchemaMap)
+	inputTypesMap, err := getInputTypesMapFromCatalogItemSchema(inputsSchemaMap)
+	if err != nil {
+		return nil, err
+	}
+	return inputTypesMap, nil
+}
+
+func getBlueprintInputsByType(apiClient *client.MulticloudIaaS, blueprintID string, blueprintVersion string, inputValues interface{}) (map[string]interface{}, error) {
+	inputTypesMap, err := getBlueprintInputTypesMap(apiClient, blueprintID, blueprintVersion)
 	if err != nil {
 		return nil, err
 	}
@@ -500,6 +549,21 @@ func getBlueprintInputsByType(apiClient *client.MulticloudIaaS, blueprintID stri
 	}
 
 	return inputs, nil
+}
+
+func getBlueprintInputTypesMap(apiClient *client.MulticloudIaaS, blueprintID string, blueprintVersion string) (map[string]string, error) {
+	log.Printf("Getting Blueprint Schema for blueprint_id: [%v], blueprint_version: [%v]", blueprintID, blueprintVersion)
+	inputsSchemaMap, err := getBlueprintSchema(apiClient, blueprintID, blueprintVersion)
+	if err != nil {
+		return nil, err
+	}
+
+	log.Printf("Inputs Schema: %v", inputsSchemaMap)
+	inputTypesMap, err := getInputTypesMapFromBlueprintInputsSchema(inputsSchemaMap)
+	if err != nil {
+		return nil, err
+	}
+	return inputTypesMap, nil
 }
 
 func getCatalogItemSchema(apiClient *client.MulticloudIaaS, catalogItemID string, catalogItemVersion string) (map[string]interface{}, error) {
@@ -791,12 +855,28 @@ func getInputsByType(inputs map[string]interface{}, inputTypesMap map[string]str
 	var err error
 	for k, v := range inputs {
 		if t, ok := inputTypesMap[k]; ok {
-			log.Printf("input_key: %s, type: %#v", k, t)
+			log.Printf("input_key: %s, type: %#v, value provided: %#v", k, t, v)
 			switch strings.ToLower(t) {
+			case "array":
+				value := make([]interface{}, 0)
+				err := json.Unmarshal([]byte(v.(string)), &value)
+				if err != nil {
+					return nil, fmt.Errorf("cannot convert input '%v' value '%v' into type '%s'. %#v", k, v, t, err)
+				}
+				inputsByType[k] = value
 			case "boolean":
 				inputsByType[k], err = strconv.ParseBool(v.(string))
 			case "integer":
 				inputsByType[k], err = strconv.Atoi(v.(string))
+			case "number":
+				inputsByType[k], err = strconv.ParseFloat(v.(string), 32)
+			case "object":
+				var value interface{}
+				err := json.Unmarshal([]byte(v.(string)), &value)
+				if err != nil {
+					return nil, fmt.Errorf("cannot convert input '%v' value '%v' into type '%s'. %#v", k, v, t, err)
+				}
+				inputsByType[k] = value
 			default:
 				inputsByType[k] = v
 			}
@@ -838,7 +918,9 @@ func runAction(d *schema.ResourceData, apiClient *client.MulticloudIaaS, deploym
 	}
 
 	resp, err := apiClient.DeploymentActions.SubmitDeploymentActionRequestUsingPOST(
-		deployment_actions.NewSubmitDeploymentActionRequestUsingPOSTParams().WithDepID(deploymentUUID).
+		deployment_actions.NewSubmitDeploymentActionRequestUsingPOSTParams().
+			WithAPIVersion(withString(DeploymentsAPIVersion)).
+			WithDepID(deploymentUUID).
 			WithActionRequest(&resourceActionRequest))
 	if err != nil {
 		return err
@@ -905,18 +987,40 @@ func deploymentDeleteStatusRefreshFunc(apiClient client.MulticloudIaaS, id strin
 	}
 }
 
-// Updates only user inputs from all the inputs
-func updateUserInputs(allInputs, userInputs map[string]interface{}) map[string]interface{} {
+func updateUserInputs(allInputs, userInputs map[string]interface{}, inputTypesMap map[string]string) map[string]interface{} {
 	if allInputs == nil || userInputs == nil {
 		return nil
 	}
 
 	inputs := make(map[string]interface{})
-	for key, value := range userInputs {
+	for name, value := range userInputs {
 		if value != nil {
-			inputs[key] = fmt.Sprint(allInputs[key])
+			inputs[name] = decodeInputValue(name, allInputs[name], inputTypesMap)
 		}
+		log.Printf("Converted incoming value to string: Key: %v, Value: %v, Converted value: %#v", name, allInputs[name], inputs[name])
 	}
 
 	return inputs
+}
+
+func decodeInputValue(inputName string, inputValue interface{}, inputTypesMap map[string]string) interface{} {
+	if t, ok := inputTypesMap[inputName]; ok {
+		log.Printf("input_key: %s, type: %#v, value: %#v", inputName, t, inputValue)
+		switch strings.ToLower(t) {
+		case "array":
+			fallthrough
+		case "object":
+			log.Printf("Converting input '%v' of type '%v'", inputName, t)
+			value, err := json.Marshal(inputValue)
+			if err != nil {
+				log.Printf("cannot convert input '%v' value '%v' into type '%v'. %#v", inputName, inputValue, t, err)
+				return fmt.Sprint(inputValue)
+			}
+			return string(value)
+		default:
+			return fmt.Sprint(inputValue)
+		}
+	}
+
+	return fmt.Sprint(inputValue)
 }

@@ -151,7 +151,7 @@ func flattenDeploymentRequest(deploymentRequest *models.DeploymentRequest) inter
 	helper["dismissed"] = deploymentRequest.Dismissed
 	helper["id"] = deploymentRequest.ID.String()
 	helper["initialized_at"] = deploymentRequest.InitializedAt.String()
-	helper["inputs"] = expandInputs(deploymentRequest.Inputs)
+	helper["inputs"] = expandInputsToString(deploymentRequest.Inputs)
 	helper["name"] = deploymentRequest.Name
 	helper["parent_id"] = deploymentRequest.ParentID.String()
 	helper["requested_by"] = deploymentRequest.RequestedBy

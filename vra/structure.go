@@ -54,6 +54,24 @@ func compareUnique(s []interface{}) bool {
 	return j == len(s)
 }
 
+////diff returns the elements in 's1' that are not in 's2'
+//func diff(s1, s2 []interface{}) []interface{} {
+//	m2 := make(map[string]struct{}, len(s2))
+//
+//	for _, v := range s2 {
+//		m2[v.(string)] = struct{}{}
+//	}
+//
+//	var diff []interface{}
+//	for _, v := range s1 {
+//		if _, found := m2[v.(string)]; !found {
+//			diff = append(diff, v)
+//		}
+//	}
+//
+//	return diff
+//}
+
 // indexOf will lookup and return the index of value in the list of items
 func indexOf(value string, items []string) (int, error) {
 	for i, v := range items {
@@ -149,13 +167,30 @@ func flattenAndNormalizeCLoudAccountGcpRegionIds(regionOrder []string, cloudAcco
 	return m, nil
 }
 
-// expandInputs will convert the interface  into a map of interface
+// expandInputs will convert the interface  into a map of [string:interface]
 func expandInputs(configInputs interface{}) map[string]interface{} {
 	if configInputs == nil {
 		return nil
 	}
 
 	inputs := make(map[string]interface{})
+	for key, value := range configInputs.(map[string]interface{}) {
+		if value != nil {
+			//inputs[key] = fmt.Sprint(value)
+			inputs[key] = value
+		}
+	}
+
+	return inputs
+}
+
+// expandInputsToString will convert the interface  into a map of string:string
+func expandInputsToString(configInputs interface{}) map[string]string {
+	if configInputs == nil {
+		return nil
+	}
+
+	inputs := make(map[string]string)
 	for key, value := range configInputs.(map[string]interface{}) {
 		if value != nil {
 			inputs[key] = fmt.Sprint(value)
