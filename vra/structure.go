@@ -54,24 +54,6 @@ func compareUnique(s []interface{}) bool {
 	return j == len(s)
 }
 
-////diff returns the elements in 's1' that are not in 's2'
-//func diff(s1, s2 []interface{}) []interface{} {
-//	m2 := make(map[string]struct{}, len(s2))
-//
-//	for _, v := range s2 {
-//		m2[v.(string)] = struct{}{}
-//	}
-//
-//	var diff []interface{}
-//	for _, v := range s1 {
-//		if _, found := m2[v.(string)]; !found {
-//			diff = append(diff, v)
-//		}
-//	}
-//
-//	return diff
-//}
-
 // indexOf will lookup and return the index of value in the list of items
 func indexOf(value string, items []string) (int, error) {
 	for i, v := range items {
