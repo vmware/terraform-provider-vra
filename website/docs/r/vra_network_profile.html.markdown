@@ -1,0 +1,78 @@
+---
+layout: "vra"
+page_title: "VMware vRealize Automation: vra_region"
+sidebar_current: "docs-vra-resource-vra-region"
+description: |-
+  Provides a data lookup for vra_network_profile.
+---
+
+# Resource: vra_network_profile
+## Example Usages
+This is an example of how to create a network profile resource.
+
+**Network profile:**
+
+```hcl
+resource "vra_network_profile" "simple" {
+  name        = "no-isolation"
+  description = "Simple Network Profile with no isolation."
+  region_id   = data.vra_region.this.id
+
+  fabric_network_ids = [
+    data.vra_fabric_network.subnet_1.id,
+    data.vra_fabric_network.subnet_2.id
+  ]
+
+  isolation_type = "NONE"
+
+  tags {
+    key   = "foo"
+    value = "bar"
+  }
+}
+```
+
+A network profile resource supports the following arguments:
+
+## Required arguments
+
+* `name` - A human-friendly name used as an identifier in APIs that support this option.  Only one of 'filter', 'id', 'name' or 'region_id' must be specified.
+
+* `region_id` - The id of the region for which this profile is defined as in vRealize Automation(vRA).  Only one of 'filter', 'id', 'name' or 'region_id' must be specified.
+
+## Optional arguments
+
+* `custom_properties` - Additional properties that may be used to extend the Network Profile object that is produced from this specification. For isolationType security group, datastoreId identifies the Compute Resource Edge datastore. computeCluster and resourcePoolId identify the Compute Resource Edge cluster. For isolationType subnet, distributedLogicalRouterStateLink identifies the on-demand network distributed local router. onDemandNetworkIPAssignmentType identifies the on-demand network IP range assignment type static, dynamic, or mixed.
+
+* `description` - A human-friendly description.
+
+* `fabric_network_ids` - A list of fabric network Ids which are assigned to the network profile.
+                         example:[ "6543" ]
+
+* `isolated_external_fabric_network_id` - The id of the fabric network used for outbound access.
+
+## Imported attributes
+
+* `external_region_id` - The external regionId of the resource. 
+
+* `isolated_network_cidr_prefix` - The CIDR prefix length to be used for the isolated networks that are created with the network profile.
+
+* `isolated_network_domain_cidr` - CIDR of the isolation network domain.
+
+* `isolated_network_domain_id` - The id of the network domain used for creating isolated networks.
+
+* `isolation_type` - Specifies the isolation type e.g. none, subnet or security group
+
+* `links` - HATEOAS of the entity
+
+* `organization_id` - The id of the organization this entity belongs to.
+
+* `owner` - Email of the user that owns the entity.
+
+* `security_group_ids` - A list of security group Ids which are assigned to the network profile.
+                         example:[ "6545" ]
+
+* `tags` - A set of tag keys and optional values that were set on this Network Profile.
+           example:[ { "key" : "ownedBy", "value": "Rainpole" } ]
+
+* `updated_at` - Date when the entity was last updated. The date is ISO 8601 and UTC.

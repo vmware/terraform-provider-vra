@@ -44,7 +44,7 @@ data "vra_block_device" "this" {
 
 This is an example of how to create a block device resource and filter it as a data source using its name.
 NOTE: The block device resource need not be created through terraform.
-To create a block device, follow the resource block device documentation
+To create a block device, follow the resource block device documentation.
 
 ```hcl
 
