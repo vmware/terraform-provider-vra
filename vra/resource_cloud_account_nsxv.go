@@ -20,26 +20,7 @@ func resourceCloudAccountNSXV() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
-			"associated_cloud_account_ids": {
-				Type:     schema.TypeList,
-				Computed: true,
-				Elem: &schema.Schema{
-					Type: schema.TypeString,
-				},
-			},
-			"accept_self_signed_cert": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				Default:  false,
-			},
-			"dc_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-			},
-			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
-			},
+			// Required arguments
 			"hostname": {
 				Type:     schema.TypeString,
 				Required: true,
@@ -53,10 +34,49 @@ func resourceCloudAccountNSXV() *schema.Resource {
 				Required:  true,
 				Sensitive: true,
 			},
-			"tags": tagsSchema(),
 			"username": {
 				Type:     schema.TypeString,
 				Required: true,
+			},
+			// Optional arguments
+			"accept_self_signed_cert": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  false,
+			},
+			"dc_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"description": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"tags": tagsSchema(),
+			// Computed attributes
+			"associated_cloud_account_ids": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			},
+			"created_at": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"links": linksSchema(),
+			"org_id": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"owner": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"updated_at": {
+				Type:     schema.TypeString,
+				Computed: true,
 			},
 		},
 	}
@@ -108,10 +128,18 @@ func resourceCloudAccountNSXVRead(d *schema.ResourceData, m interface{}) error {
 	}
 	nsxvAccount := *ret.Payload
 	d.Set("associated_cloud_account_ids", flattenAssociatedCloudAccountIds(nsxvAccount.Links))
+	d.Set("created_at", nsxvAccount.CreatedAt)
 	d.Set("dc_id", nsxvAccount.Dcid)
 	d.Set("description", nsxvAccount.Description)
 	d.Set("name", nsxvAccount.Name)
+	d.Set("org_id", nsxvAccount.OrgID)
+	d.Set("owner", nsxvAccount.Owner)
+	d.Set("updated_at", nsxvAccount.UpdatedAt)
 	d.Set("username", nsxvAccount.Username)
+
+	if err := d.Set("links", flattenLinks(nsxvAccount.Links)); err != nil {
+		return fmt.Errorf("error setting cloud_account_nsxv links - error: %#v", err)
+	}
 
 	if err := d.Set("tags", flattenTags(nsxvAccount.Tags)); err != nil {
 		return fmt.Errorf("error setting cloud account tags - error: %#v", err)

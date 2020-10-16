@@ -13,12 +13,30 @@ func dataSourceCloudAccountNSXT() *schema.Resource {
 		Read: dataSourceCloudAccountNSXTRead,
 
 		Schema: map[string]*schema.Schema{
+			// Optional arguments
+			"id": {
+				Type:          schema.TypeString,
+				Optional:      true,
+				Computed:      true,
+				ConflictsWith: []string{"name"},
+			},
+			"name": {
+				Type:          schema.TypeString,
+				Optional:      true,
+				Computed:      true,
+				ConflictsWith: []string{"id"},
+			},
+			// Computed attributes
 			"associated_cloud_account_ids": {
 				Type:     schema.TypeList,
 				Computed: true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
+			},
+			"created_at": {
+				Type:     schema.TypeString,
+				Computed: true,
 			},
 			"dc_id": {
 				Type:     schema.TypeString,
@@ -32,17 +50,20 @@ func dataSourceCloudAccountNSXT() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"id": {
+			"links": linksSchema(),
+			"org_id": {
 				Type:     schema.TypeString,
-				Optional: true,
 				Computed: true,
 			},
-			"name": {
+			"owner": {
 				Type:     schema.TypeString,
-				Optional: true,
 				Computed: true,
 			},
 			"tags": tagsSchema(),
+			"updated_at": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 			"username": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -68,12 +89,20 @@ func dataSourceCloudAccountNSXTRead(d *schema.ResourceData, meta interface{}) er
 
 	setFields := func(account *models.CloudAccountNsxT) error {
 		d.SetId(*account.ID)
+		d.Set("created_at", account.CreatedAt)
 		d.Set("associated_cloud_account_ids", flattenAssociatedCloudAccountIds(account.Links))
 		d.Set("dc_id", account.Dcid)
 		d.Set("description", account.Description)
 		d.Set("hostname", account.HostName)
 		d.Set("name", account.Name)
+		d.Set("org_id", account.OrgID)
+		d.Set("owner", account.Owner)
+		d.Set("updated_at", account.UpdatedAt)
 		d.Set("username", account.Username)
+
+		if err := d.Set("links", flattenLinks(account.Links)); err != nil {
+			return fmt.Errorf("error setting cloud_account_nsxt links - error: %#v", err)
+		}
 
 		if err := d.Set("tags", flattenTags(account.Tags)); err != nil {
 			return fmt.Errorf("error setting cloud account tags - error: %#v", err)

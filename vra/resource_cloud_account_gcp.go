@@ -20,14 +20,10 @@ func resourceCloudAccountGCP() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
-
+			// Required arguments
 			"client_email": {
 				Type:     schema.TypeString,
 				Required: true,
-			},
-			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
 			},
 			"name": {
 				Type:     schema.TypeString,
@@ -46,12 +42,32 @@ func resourceCloudAccountGCP() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 			},
+			// Optional arguments
+			"description": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 			"regions": {
 				Type:     schema.TypeList,
 				Optional: true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
+			},
+			"tags": tagsSchema(),
+			// Computed attributes
+			"created_at": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"links": linksSchema(),
+			"org_id": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"owner": {
+				Type:     schema.TypeString,
+				Computed: true,
 			},
 			"region_ids": {
 				Type:     schema.TypeList,
@@ -60,7 +76,10 @@ func resourceCloudAccountGCP() *schema.Resource {
 					Type: schema.TypeString,
 				},
 			},
-			"tags": tagsSchema(),
+			"updated_at": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 		},
 	}
 }
@@ -112,16 +131,22 @@ func resourceCloudAccountGCPRead(d *schema.ResourceData, m interface{}) error {
 		return err
 	}
 	gcpAccount := *ret.Payload
-
-	d.Set("description", gcpAccount.Description)
-	d.Set("name", gcpAccount.Name)
+	regions := gcpAccount.EnabledRegionIds
 
 	d.Set("client_email", gcpAccount.ClientEmail)
+	d.Set("created_at", gcpAccount.CreatedAt)
+	d.Set("description", gcpAccount.Description)
+	d.Set("name", gcpAccount.Name)
+	d.Set("org_id", gcpAccount.OrgID)
+	d.Set("owner", gcpAccount.Owner)
 	d.Set("private_key_id", gcpAccount.PrivateKeyID)
 	d.Set("project_id", gcpAccount.ProjectID)
-
-	regions := gcpAccount.EnabledRegionIds
 	d.Set("regions", regions)
+	d.Set("updated_at", gcpAccount.UpdatedAt)
+
+	if err := d.Set("links", flattenLinks(gcpAccount.Links)); err != nil {
+		return fmt.Errorf("error setting cloud_account_gcp links - error: %#v", err)
+	}
 
 	// The returned EnabledRegionIds and Hrefs containing the region ids can be in a different order than the request order.
 	// Call a routine to normalize the order to correspond with the users region order.
