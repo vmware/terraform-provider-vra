@@ -149,13 +149,30 @@ func flattenAndNormalizeCLoudAccountGcpRegionIds(regionOrder []string, cloudAcco
 	return m, nil
 }
 
-// expandInputs will convert the interface  into a map of interface
+// expandInputs will convert the interface  into a map of [string:interface]
 func expandInputs(configInputs interface{}) map[string]interface{} {
 	if configInputs == nil {
 		return nil
 	}
 
 	inputs := make(map[string]interface{})
+	for key, value := range configInputs.(map[string]interface{}) {
+		if value != nil {
+			//inputs[key] = fmt.Sprint(value)
+			inputs[key] = value
+		}
+	}
+
+	return inputs
+}
+
+// expandInputsToString will convert the interface  into a map of string:string
+func expandInputsToString(configInputs interface{}) map[string]string {
+	if configInputs == nil {
+		return nil
+	}
+
+	inputs := make(map[string]string)
 	for key, value := range configInputs.(map[string]interface{}) {
 		if value != nil {
 			inputs[key] = fmt.Sprint(value)

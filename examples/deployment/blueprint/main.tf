@@ -22,8 +22,10 @@ resource "vra_deployment" "this" {
   inputs = {
     flavor = "small"
     image  = "centos"
-    count  = 2
+    count  = 1
     flag   = true
+    arrayProp = jsonencode(["foo", "bar", "baz"])
+    objectProp = jsonencode({ "key": "value", "key2": [1, 2, 3] })
   }
 
   timeouts {

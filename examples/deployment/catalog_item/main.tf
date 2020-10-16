@@ -26,6 +26,9 @@ resource "vra_deployment" "this" {
     image  = "centos"
     count  = 1
     flag   = false
+    number = 10.0
+    arrayProp = jsonencode(["foo", "bar", "where", "waldo"])
+    objectProp = jsonencode({ "key1": "value1", "key2": [1, 2, 3, 4] })
   }
 
   timeouts {
