@@ -20,17 +20,24 @@ func resourceCloudAccountAWS() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
+			// Required arguments
 			"access_key": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
-			},
 			"name": {
 				Type:     schema.TypeString,
 				Required: true,
+			},
+			"secret_key": {
+				Type:      schema.TypeString,
+				Required:  true,
+				Sensitive: true,
+			},
+			// Optional arguments
+			"description": {
+				Type:     schema.TypeString,
+				Optional: true,
 			},
 			"regions": {
 				Type:     schema.TypeList,
@@ -39,6 +46,21 @@ func resourceCloudAccountAWS() *schema.Resource {
 					Type: schema.TypeString,
 				},
 			},
+			"tags": tagsSchema(),
+			// Computed attributes
+			"created_at": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"links": linksSchema(),
+			"org_id": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"owner": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 			"region_ids": {
 				Type:     schema.TypeList,
 				Computed: true,
@@ -46,12 +68,10 @@ func resourceCloudAccountAWS() *schema.Resource {
 					Type: schema.TypeString,
 				},
 			},
-			"secret_key": {
-				Type:      schema.TypeString,
-				Required:  true,
-				Sensitive: true,
+			"updated_at": {
+				Type:     schema.TypeString,
+				Computed: true,
 			},
-			"tags": tagsSchema(),
 		},
 	}
 }
@@ -118,12 +138,20 @@ func resourceCloudAccountAWSRead(d *schema.ResourceData, m interface{}) error {
 		return err
 	}
 	awsAccount := *ret.Payload
+	regions := awsAccount.EnabledRegionIds
 
 	d.Set("access_key", awsAccount.AccessKeyID)
+	d.Set("created_at", awsAccount.CreatedAt)
 	d.Set("description", awsAccount.Description)
 	d.Set("name", awsAccount.Name)
-	regions := awsAccount.EnabledRegionIds
+	d.Set("org_id", awsAccount.OrgID)
+	d.Set("owner", awsAccount.Owner)
 	d.Set("regions", regions)
+	d.Set("updated_at", awsAccount.UpdatedAt)
+
+	if err := d.Set("links", flattenLinks(awsAccount.Links)); err != nil {
+		return fmt.Errorf("error setting cloud_account_aws links - error: %#v", err)
+	}
 
 	// The returned EnabledRegionIds and Hrefs containing the region ids can be in a different order than the request order.
 	// Call a routine to normalize the order to correspond with the users region order.

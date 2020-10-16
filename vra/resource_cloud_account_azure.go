@@ -20,20 +20,16 @@ func resourceCloudAccountAzure() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
-
-			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
-			},
-			"name": {
-				Type:     schema.TypeString,
-				Required: true,
-			},
+			// Required arguments
 			"application_id": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
 			"application_key": {
+				Type:     schema.TypeString,
+				Required: true,
+			},
+			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
@@ -45,12 +41,32 @@ func resourceCloudAccountAzure() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 			},
+			// Optional arguments
+			"description": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 			"regions": {
 				Type:     schema.TypeList,
 				Optional: true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
+			},
+			"tags": tagsSchema(),
+			//Computed attributes
+			"created_at": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"links": linksSchema(),
+			"org_id": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"owner": {
+				Type:     schema.TypeString,
+				Computed: true,
 			},
 			"region_ids": {
 				Type:     schema.TypeList,
@@ -59,7 +75,10 @@ func resourceCloudAccountAzure() *schema.Resource {
 					Type: schema.TypeString,
 				},
 			},
-			"tags": tagsSchema(),
+			"updated_at": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 		},
 	}
 }
@@ -114,16 +133,22 @@ func resourceCloudAccountAzureRead(d *schema.ResourceData, m interface{}) error 
 		return err
 	}
 	azureAccount := *ret.Payload
-
-	d.Set("description", azureAccount.Description)
-	d.Set("name", azureAccount.Name)
+	regions := azureAccount.EnabledRegionIds
 
 	d.Set("application_id", azureAccount.ClientApplicationID)
+	d.Set("created_at", azureAccount.CreatedAt)
+	d.Set("description", azureAccount.Description)
+	d.Set("name", azureAccount.Name)
+	d.Set("org_id", azureAccount.OrgID)
+	d.Set("owner", azureAccount.Owner)
+	d.Set("regions", regions)
 	d.Set("subscription_id", azureAccount.SubscriptionID)
 	d.Set("tenant_id", azureAccount.TenantID)
+	d.Set("updated_at", azureAccount.UpdatedAt)
 
-	regions := azureAccount.EnabledRegionIds
-	d.Set("regions", regions)
+	if err := d.Set("links", flattenLinks(azureAccount.Links)); err != nil {
+		return fmt.Errorf("error setting cloud_account_azure links - error: %#v", err)
+	}
 
 	// The returned EnabledRegionIds and Hrefs containing the region ids can be in a different order than the request order.
 	// Call a routine to normalize the order to correspond with the users region order.

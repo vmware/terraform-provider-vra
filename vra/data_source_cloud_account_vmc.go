@@ -13,6 +13,24 @@ func dataSourceCloudAccountVMC() *schema.Resource {
 		Read: dataSourceCloudAccountVMCRead,
 
 		Schema: map[string]*schema.Schema{
+			// Optional arguments
+			"id": {
+				Type:          schema.TypeString,
+				Optional:      true,
+				Computed:      true,
+				ConflictsWith: []string{"name"},
+			},
+			"name": {
+				Type:          schema.TypeString,
+				Optional:      true,
+				Computed:      true,
+				ConflictsWith: []string{"id"},
+			},
+			// Computed attributes
+			"created_at": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 			"dc_id": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -21,17 +39,16 @@ func dataSourceCloudAccountVMC() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-			},
-			"name": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-			},
+			"links": linksSchema(),
 			"nsx_hostname": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"org_id": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"owner": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -47,6 +64,10 @@ func dataSourceCloudAccountVMC() *schema.Resource {
 				Computed: true,
 			},
 			"tags": tagsSchema(),
+			"updated_at": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 			"vcenter_hostname": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -78,14 +99,22 @@ func dataSourceCloudAccountVMCRead(d *schema.ResourceData, meta interface{}) err
 		cloudAccountProperties := account.CloudAccountProperties
 
 		d.SetId(*account.ID)
+		d.Set("created_at", account.CreatedAt)
 		d.Set("dc_id", cloudAccountProperties["dcId"])
 		d.Set("description", account.Description)
 		d.Set("name", account.Name)
 		d.Set("nsx_hostname", cloudAccountProperties["nsxHostName"])
+		d.Set("owner", account.Owner)
+		d.Set("org_id", account.OrgID)
 		d.Set("regions", account.EnabledRegionIds)
 		d.Set("sddc_name", cloudAccountProperties["sddcId"])
+		d.Set("updated_at", account.UpdatedAt)
 		d.Set("vcenter_hostname", cloudAccountProperties["hostName"])
 		d.Set("vcenter_username", cloudAccountProperties["privateKeyId"])
+
+		if err := d.Set("links", flattenLinks(account.Links)); err != nil {
+			return fmt.Errorf("error setting cloud_account_vmc links - error: %#v", err)
+		}
 
 		if err := d.Set("tags", flattenTags(account.Tags)); err != nil {
 			return fmt.Errorf("error setting cloud account tags - error: %#v", err)

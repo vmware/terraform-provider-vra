@@ -27,7 +27,7 @@ func dataSourceCloudAccountAzure() *schema.Resource {
 				Computed:      true,
 				ConflictsWith: []string{"id"},
 			},
-
+			// Computed attributes
 			"application_id": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -89,22 +89,20 @@ func dataSourceCloudAccountAzureRead(d *schema.ResourceData, meta interface{}) e
 		d.Set("application_id", account.ClientApplicationID)
 		d.Set("created_at", account.CreatedAt)
 		d.Set("description", account.Description)
+		d.Set("name", account.Name)
+		d.Set("org_id", account.OrgID)
+		d.Set("regions", account.EnabledRegionIds)
+		d.Set("subscription_id", account.SubscriptionID)
+		d.Set("tenant_id", account.TenantID)
+		d.Set("updated_at", account.UpdatedAt)
 
 		if err := d.Set("links", flattenLinks(account.Links)); err != nil {
 			return fmt.Errorf("error setting cloud_account_azure links - error: %#v", err)
 		}
 
-		d.Set("name", account.Name)
-		d.Set("org_id", account.OrgID)
-		d.Set("regions", account.EnabledRegionIds)
-		d.Set("subscription_id", account.SubscriptionID)
-
 		if err := d.Set("tags", flattenTags(account.Tags)); err != nil {
 			return fmt.Errorf("error setting cloud_account_azure tags - error: %v", err)
 		}
-
-		d.Set("tenant_id", account.TenantID)
-		d.Set("updated_at", account.UpdatedAt)
 
 		return nil
 	}

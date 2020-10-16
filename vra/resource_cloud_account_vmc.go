@@ -21,22 +21,10 @@ func resourceCloudAccountVMC() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
-			"accept_self_signed_cert": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				Default:  false,
-			},
+			// Required arguments
 			"api_token": {
 				Type:     schema.TypeString,
 				Required: true,
-			},
-			"dc_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-			},
-			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
 			},
 			"name": {
 				Type:     schema.TypeString,
@@ -53,18 +41,10 @@ func resourceCloudAccountVMC() *schema.Resource {
 					Type: schema.TypeString,
 				},
 			},
-			"region_ids": {
-				Type:     schema.TypeList,
-				Computed: true,
-				Elem: &schema.Schema{
-					Type: schema.TypeString,
-				},
-			},
 			"sddc_name": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"tags": tagsSchema(),
 			"vcenter_hostname": {
 				Type:     schema.TypeString,
 				Required: true,
@@ -77,6 +57,46 @@ func resourceCloudAccountVMC() *schema.Resource {
 			"vcenter_username": {
 				Type:     schema.TypeString,
 				Required: true,
+			},
+			// Optional arguments
+			"accept_self_signed_cert": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  false,
+			},
+			"dc_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"description": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"tags": tagsSchema(),
+			// Computed attributes
+			"created_at": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"links": linksSchema(),
+			"org_id": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"owner": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"region_ids": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			},
+			"updated_at": {
+				Type:     schema.TypeString,
+				Computed: true,
 			},
 		},
 	}
@@ -153,17 +173,24 @@ func resourceCloudAccountVMCRead(d *schema.ResourceData, m interface{}) error {
 		return err
 	}
 	vmcAccount := *ret.Payload
+	regions := vmcAccount.EnabledRegionIds
 
+	d.Set("created_at", vmcAccount.CreatedAt)
 	d.Set("dc_id", vmcAccount.CloudAccountProperties["dcId"])
 	d.Set("description", vmcAccount.Description)
 	d.Set("name", vmcAccount.Name)
 	d.Set("nsx_hostname", vmcAccount.CloudAccountProperties["nsxHostName"])
+	d.Set("org_id", vmcAccount.OrgID)
+	d.Set("owner", vmcAccount.Owner)
+	d.Set("regions", regions)
 	d.Set("sddc_name", vmcAccount.CloudAccountProperties["sddcId"])
+	d.Set("updated_at", vmcAccount.UpdatedAt)
 	d.Set("vcenter_hostname", vmcAccount.CloudAccountProperties["hostName"])
 	d.Set("vcenter_username", vmcAccount.CloudAccountProperties["privateKeyId"])
 
-	regions := vmcAccount.EnabledRegionIds
-	d.Set("regions", regions)
+	if err := d.Set("links", flattenLinks(vmcAccount.Links)); err != nil {
+		return fmt.Errorf("error setting cloud_account_vmc links - error: %#v", err)
+	}
 
 	// The returned EnabledRegionIds and Hrefs containing the region ids can be in a different order than the request order.
 	// Call a routine to normalize the order to correspond with the users region order.

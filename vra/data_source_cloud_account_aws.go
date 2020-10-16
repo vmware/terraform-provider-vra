@@ -85,20 +85,18 @@ func dataSourceCloudAccountAWSRead(d *schema.ResourceData, meta interface{}) err
 		d.Set("access_key", account.AccessKeyID)
 		d.Set("created_at", account.CreatedAt)
 		d.Set("description", account.Description)
+		d.Set("name", account.Name)
+		d.Set("org_id", account.OrgID)
+		d.Set("regions", account.EnabledRegionIds)
+		d.Set("updated_at", account.UpdatedAt)
 
 		if err := d.Set("links", flattenLinks(account.Links)); err != nil {
 			return fmt.Errorf("error setting cloud_account_aws links - error: %#v", err)
 		}
 
-		d.Set("name", account.Name)
-		d.Set("org_id", account.OrgID)
-		d.Set("regions", account.EnabledRegionIds)
-
 		if err := d.Set("tags", flattenTags(account.Tags)); err != nil {
 			return fmt.Errorf("error setting cloud_account_aws tags - error: %v", err)
 		}
-
-		d.Set("updated_at", account.UpdatedAt)
 
 		return nil
 	}

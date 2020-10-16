@@ -20,26 +20,7 @@ func resourceCloudAccountVsphere() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
-			"accept_self_signed_cert": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				Default:  false,
-			},
-			"associated_cloud_account_ids": {
-				Type:     schema.TypeList,
-				Optional: true,
-				Elem: &schema.Schema{
-					Type: schema.TypeString,
-				},
-			},
-			"dcid": {
-				Type:     schema.TypeString,
-				Optional: true,
-			},
-			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
-			},
+			// Required arguments
 			"hostname": {
 				Type:     schema.TypeString,
 				Required: true,
@@ -60,6 +41,46 @@ func resourceCloudAccountVsphere() *schema.Resource {
 					Type: schema.TypeString,
 				},
 			},
+			"username": {
+				Type:     schema.TypeString,
+				Required: true,
+			},
+			// Optional arguments
+			"accept_self_signed_cert": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  false,
+			},
+			"associated_cloud_account_ids": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			},
+			"dcid": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"description": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"tags": tagsSchema(),
+			// Computed attributes
+			"created_at": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"links": linksSchema(),
+			"org_id": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"owner": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 			"region_ids": {
 				Type:     schema.TypeList,
 				Computed: true,
@@ -67,10 +88,9 @@ func resourceCloudAccountVsphere() *schema.Resource {
 					Type: schema.TypeString,
 				},
 			},
-			"tags": tagsSchema(),
-			"username": {
+			"updated_at": {
 				Type:     schema.TypeString,
-				Required: true,
+				Computed: true,
 			},
 		},
 	}
@@ -147,16 +167,22 @@ func resourceCloudAccountVsphereRead(d *schema.ResourceData, m interface{}) erro
 		return err
 	}
 	vsphereAccount := *ret.Payload
+	regions := vsphereAccount.EnabledRegionIds
 
-	// d.Set("accept_self_signed_cert", vsphereAccount.AcceptSelfSignedCertificate)
 	d.Set("associated_cloud_account_ids", flattenAssociatedCloudAccountIds(vsphereAccount.Links))
+	d.Set("created_at", vsphereAccount.CreatedAt)
 	d.Set("dcid", vsphereAccount.Dcid)
 	d.Set("description", vsphereAccount.Description)
 	d.Set("name", vsphereAccount.Name)
+	d.Set("org_id", vsphereAccount.OrgID)
+	d.Set("owner", vsphereAccount.Owner)
+	d.Set("regions", regions)
+	d.Set("updated_at", vsphereAccount.UpdatedAt)
 	d.Set("username", vsphereAccount.Username)
 
-	regions := vsphereAccount.EnabledRegionIds
-	d.Set("regions", regions)
+	if err := d.Set("links", flattenLinks(vsphereAccount.Links)); err != nil {
+		return fmt.Errorf("error setting cloud_account_vsphere links - error: %#v", err)
+	}
 
 	// The returned EnabledRegionIds and Hrefs containing the region ids can be in a different order than the request order.
 	// Call a routine to normalize the order to correspond with the users region order.
