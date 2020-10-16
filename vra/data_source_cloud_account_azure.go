@@ -91,6 +91,7 @@ func dataSourceCloudAccountAzureRead(d *schema.ResourceData, meta interface{}) e
 		d.Set("description", account.Description)
 		d.Set("name", account.Name)
 		d.Set("org_id", account.OrgID)
+		d.Set("owner", account.Owner)
 		d.Set("regions", account.EnabledRegionIds)
 		d.Set("subscription_id", account.SubscriptionID)
 		d.Set("tenant_id", account.TenantID)
