@@ -11,12 +11,12 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
 
-func resourceVsphereFabricNetwork() *schema.Resource {
+func resourceFabricNetworkVsphere() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceVsphereFabricNetworkCreate,
-		Read:   resourceVsphereFabricNetworkRead,
-		Update: resourceVsphereFabricNetworkUpdate,
-		Delete: resourceVsphereFabricNetworkDelete,
+		Create: resourceFabricNetworkVsphereCreate,
+		Read:   resourceFabricNetworkVsphereRead,
+		Update: resourceFabricNetworkVsphereUpdate,
+		Delete: resourceFabricNetworkVsphereDelete,
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
 		},
@@ -113,12 +113,12 @@ func resourceVsphereFabricNetwork() *schema.Resource {
 	}
 }
 
-func resourceVsphereFabricNetworkCreate(d *schema.ResourceData, m interface{}) error {
+func resourceFabricNetworkVsphereCreate(d *schema.ResourceData, m interface{}) error {
 	log.Printf("Starting to create vra_fabric_network resource")
-	return errors.New("vra_fabric_network resources are only importable")
+	return errors.New("vra_fabric_network_vsphere resources are only importable")
 }
 
-func resourceVsphereFabricNetworkRead(d *schema.ResourceData, m interface{}) error {
+func resourceFabricNetworkVsphereRead(d *schema.ResourceData, m interface{}) error {
 	log.Printf("Reading the vra_fabric_network_vsphere resource with name %s", d.Get("name"))
 	apiClient := m.(*Client).apiClient
 
@@ -158,7 +158,7 @@ func resourceVsphereFabricNetworkRead(d *schema.ResourceData, m interface{}) err
 	return nil
 }
 
-func resourceVsphereFabricNetworkUpdate(d *schema.ResourceData, m interface{}) error {
+func resourceFabricNetworkVsphereUpdate(d *schema.ResourceData, m interface{}) error {
 	log.Printf("Starting to Update vra_fabric_network resource")
 	var dnsSearchDomains []string
 	var dnsServerAddresses []string
@@ -200,11 +200,11 @@ func resourceVsphereFabricNetworkUpdate(d *schema.ResourceData, m interface{}) e
 		return err
 	}
 	log.Printf("finished Updating vra_fabric_network_vsphere resource")
-	return resourceVsphereFabricNetworkRead(d, m)
+	return resourceFabricNetworkVsphereRead(d, m)
 
 }
 
-func resourceVsphereFabricNetworkDelete(d *schema.ResourceData, m interface{}) error {
+func resourceFabricNetworkVsphereDelete(d *schema.ResourceData, m interface{}) error {
 	log.Printf("Starting to delete the vra_fabric_network_vsphere resource with name %s", d.Get("name"))
 	return nil
 }

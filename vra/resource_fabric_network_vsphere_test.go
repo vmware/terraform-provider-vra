@@ -14,7 +14,7 @@ import (
 func TestAccVRAFabricNetworkVsphere_importBasic(t *testing.T) {
 	resourceName := "vra_fabric_network_vsphere.this"
 	fabricNetworkID := os.Getenv("VRA_FABRIC_NETWORK_VSPHERE_ID")
-	createErrorRegex := regexp.MustCompile("vra_fabric_network resources are only importable")
+	createErrorRegex := regexp.MustCompile("vra_fabric_network_vsphere resources are only importable")
 
 	checkFn := func(s []*terraform.InstanceState) error {
 		if len(s) != 1 {
