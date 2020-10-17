@@ -101,7 +101,7 @@ func Provider() *schema.Provider {
 			"vra_cloud_account_vsphere":      resourceCloudAccountVsphere(),
 			"vra_content_source":             resourceContentSource(),
 			"vra_deployment":                 resourceDeployment(),
-			"vra_fabric_network_vsphere":     resourceVsphereFabricNetwork(),
+			"vra_fabric_network_vsphere":     resourceFabricNetworkVsphere(),
 			"vra_flavor_profile":             resourceFlavorProfile(),
 			"vra_image_profile":              resourceImageProfile(),
 			"vra_load_balancer":              resourceLoadBalancer(),

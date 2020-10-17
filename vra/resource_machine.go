@@ -208,7 +208,6 @@ func resourceMachineCreate(d *schema.ResourceData, m interface{}) error {
 		CustomProperties:     customProperties,
 		Nics:                 nics,
 		ImageDiskConstraints: imageDiskConstraints,
-		Disks:                disks,
 	}
 
 	image, imageRef := "", ""
@@ -264,9 +263,35 @@ func resourceMachineCreate(d *schema.ResourceData, m interface{}) error {
 		return err
 	}
 
-	machineIds := resourceIds.([]string)
-	d.SetId(machineIds[0])
+	machineID := (resourceIds.([]string))[0]
+	d.SetId(machineID)
 	log.Printf("Finished to create vra_machine resource with name %s", d.Get("name"))
+
+	// As FCDs cannot be attached to machine as day 0, the machine is first provisioned without requested disks attached.
+	// Once the machine provisioning is complete, disks are attached one by one as day-2 action.
+	for i, diskAttachmentSpecification := range disks {
+		log.Printf("Attaching the disk %v of %v (disk id: %v) to vra_machine resource %v", i+1, len(disks), diskAttachmentSpecification.BlockDeviceID, d.Get("name"))
+
+		attachMachineDiskOk, err := apiClient.Disk.AttachMachineDisk(disk.NewAttachMachineDiskParams().WithID(machineID).WithBody(diskAttachmentSpecification))
+
+		if err != nil {
+			return err
+		}
+
+		stateChangeFunc := resource.StateChangeConf{
+			Delay:      5 * time.Second,
+			Pending:    []string{models.RequestTrackerStatusINPROGRESS},
+			Refresh:    machineStateRefreshFunc(*apiClient, *attachMachineDiskOk.Payload.ID),
+			Target:     []string{models.RequestTrackerStatusFINISHED},
+			Timeout:    d.Timeout(schema.TimeoutCreate),
+			MinTimeout: 5 * time.Second,
+		}
+
+		_, e := stateChangeFunc.WaitForState()
+		if e != nil {
+			return e
+		}
+	}
 
 	return resourceMachineRead(d, m)
 }
@@ -326,6 +351,14 @@ func resourceMachineRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("owner", machine.Owner)
 	d.Set("organization_id", machine.OrganizationID)
 	d.Set("custom_properties", machine.CustomProperties)
+
+	if image, found := machine.CustomProperties["image"]; found {
+		d.Set("image", image)
+	}
+
+	if imageRef, found := machine.CustomProperties["imageRef"]; found {
+		d.Set("imageRef", imageRef)
+	}
 
 	if err := d.Set("tags", flattenTags(machine.Tags)); err != nil {
 		return fmt.Errorf("error setting machine tags - error: %v", err)
