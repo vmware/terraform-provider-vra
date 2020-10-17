@@ -206,6 +206,24 @@ func testAccCheckVRAStorageProfileDestroy(s *terraform.State) error {
 		}
 	}
 
+	for _, rs := range s.RootModule().Resources {
+		if rs.Type == "vra_storage_profile_aws" {
+			_, err := apiClient.StorageProfile.GetStorageProfile(storage_profile.NewGetStorageProfileParams().WithID(rs.Primary.ID))
+			if err == nil {
+				return fmt.Errorf("Resource 'vra_storage_profile_aws' still exists with id %s", rs.Primary.ID)
+			}
+		}
+	}
+
+	for _, rs := range s.RootModule().Resources {
+		if rs.Type == "vra_storage_profile_azure" {
+			_, err := apiClient.StorageProfile.GetStorageProfile(storage_profile.NewGetStorageProfileParams().WithID(rs.Primary.ID))
+			if err == nil {
+				return fmt.Errorf("Resource 'vra_storage_profile_azure' still exists with id %s", rs.Primary.ID)
+			}
+		}
+	}
+
 	return nil
 }
 

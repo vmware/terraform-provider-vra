@@ -4,6 +4,7 @@
 provider "vra" {
   url           = var.url
   refresh_token = var.refresh_token
+  insecure      = true
 }
 
 ######################################
@@ -25,6 +26,11 @@ data "vra_storage_profile" "this" {
   id = vra_storage_profile.this.id
 }
 
+# Lookup AWS storage profile once it is created, using specific vra_storage_profile_aws data source.
+data "vra_storage_profile_aws" "this" {
+  id = vra_storage_profile_aws.this.id
+}
+
 ######################################
 # Resources
 ######################################
@@ -38,6 +44,21 @@ resource "vra_storage_profile" "this" {
   disk_properties = {
     deviceType = "instance-store"
   }
+
+  tags {
+    key   = "foo"
+    value = "bar"
+  }
+}
+
+# AWS storage profile using vra_storage_profile_aws resource.
+resource "vra_storage_profile_aws" "this" {
+  name         = "aws-with-instance-store-1"
+  description  = "AWS Storage Profile with instance store device type."
+  region_id    = data.vra_region.this.id
+  default_item = false
+
+  device_type  = "instance-store"
 
   tags {
     key   = "foo"
