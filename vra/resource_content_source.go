@@ -1,8 +1,6 @@
 package vra
 
 import (
-	"fmt"
-
 	"github.com/go-openapi/strfmt"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
@@ -38,15 +36,6 @@ func resourceContentSource() *schema.Resource {
 				Required: true,
 				ForceNew: true,
 			},
-			//project_ids exists in the model but isn't actually fed back in a read operation
-			//"project_ids": &schema.Schema{
-			//	Type:     schema.TypeList,
-			//	Optional: true,
-			//	ForceNew: true,
-			//	Elem: &schema.Schema{
-			//		Type: schema.TypeString,
-			//	},
-			//},
 			"created_at": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -120,7 +109,6 @@ func resourceContentSource() *schema.Resource {
 func resourceContentSourceCreate(d *schema.ResourceData, m interface{}) error {
 	log.Printf("Starting to create vra_ContentSource resource3")
 
-	var projectIds []string
 	apiClient := m.(*Client).apiClient
 
 	name := d.Get("name").(string)
@@ -129,17 +117,10 @@ func resourceContentSourceCreate(d *schema.ResourceData, m interface{}) error {
 
 	config := expandContentSourceRepositoryConfig(d.Get("config").(*schema.Set).List())
 
-	if v, ok := d.GetOk("project_ids"); ok {
-		if !compareUnique(v.([]interface{})) {
-			return fmt.Errorf("Specified project_ids are not unique")
-		}
-		projectIds = expandStringList(v.([]interface{}))
-	}
 	contentSourceSpecification := models.ContentSource{
 		Name:        &name,
 		TypeID:      &typeID,
 		Config:      config[0],
-		ProjectIds:  projectIds,
 		ProjectID:   &projectID,
 		SyncEnabled: d.Get("sync_enabled").(bool),
 	}
@@ -191,10 +172,8 @@ func resourceContentSourceRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("name", ContentSource.Name)
 	d.Set("org_id", ContentSource.OrgID)
 	d.Set("project_id", ContentSource.ProjectID)
-	d.Set("project_ids", ContentSource.ProjectIds)
 
 	d.Set("sync_enabled", ContentSource.SyncEnabled)
-	d.Set("type", ContentSource.Type)
 	d.Set("type_id", ContentSource.TypeID)
 
 	log.Printf("Finished reading the vra_ContentSource resource with name %s", d.Get("name"))

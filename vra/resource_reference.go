@@ -12,15 +12,19 @@ func resourceReferenceSchema() *schema.Schema {
 		Computed: true,
 		Elem: &schema.Resource{
 			Schema: map[string]*schema.Schema{
+				"description": {
+					Type:     schema.TypeString,
+					Optional: true,
+				},
 				"id": {
 					Type:     schema.TypeString,
 					Optional: true,
 				},
-				"link": {
+				"name": {
 					Type:     schema.TypeString,
 					Optional: true,
 				},
-				"name": {
+				"version": {
 					Type:     schema.TypeString,
 					Optional: true,
 				},
@@ -38,9 +42,10 @@ func flattenResourceReferences(resourceReferences []*models.ResourceReference) [
 
 	for _, resourceRef := range resourceReferences {
 		helper := make(map[string]interface{})
+		helper["description"] = resourceRef.Description
 		helper["id"] = resourceRef.ID
-		helper["link"] = resourceRef.Link
 		helper["name"] = resourceRef.Name
+		helper["version"] = resourceRef.Version
 
 		resourceRefs = append(resourceRefs, helper)
 	}
@@ -53,9 +58,10 @@ func flattenResourceReference(resourceReference *models.ResourceReference) []int
 		return make([]interface{}, 0)
 	}
 	helper := make(map[string]interface{})
+	helper["description"] = resourceReference.Description
 	helper["id"] = resourceReference.ID
-	helper["link"] = resourceReference.Link
 	helper["name"] = resourceReference.Name
+	helper["version"] = resourceReference.Version
 
 	return []interface{}{helper}
 }
