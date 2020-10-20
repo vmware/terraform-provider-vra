@@ -53,11 +53,6 @@ func deploymentRequestSchema() *schema.Schema {
 					Optional: true,
 					Computed: true,
 				},
-				"deployment_id": {
-					Type:     schema.TypeString,
-					Optional: true,
-					Computed: true,
-				},
 				"details": {
 					Type:     schema.TypeString,
 					Optional: true,
@@ -91,10 +86,13 @@ func deploymentRequestSchema() *schema.Schema {
 					Optional: true,
 					Computed: true,
 				},
-				"parent_id": {
-					Type:     schema.TypeString,
+				"outputs": {
+					Type:     schema.TypeMap,
 					Optional: true,
 					Computed: true,
+					Elem: &schema.Schema{
+						Type: schema.TypeString,
+					},
 				},
 				"requested_by": {
 					Type:     schema.TypeString,
@@ -102,11 +100,6 @@ func deploymentRequestSchema() *schema.Schema {
 					Computed: true,
 				},
 				"resource_name": {
-					Type:     schema.TypeString,
-					Optional: true,
-					Computed: true,
-				},
-				"resource_type": {
 					Type:     schema.TypeString,
 					Optional: true,
 					Computed: true,
@@ -131,7 +124,7 @@ func deploymentRequestSchema() *schema.Schema {
 	}
 }
 
-func flattenDeploymentRequest(deploymentRequest *models.DeploymentRequest) interface{} {
+func flattenDeploymentRequest(deploymentRequest *models.Request) interface{} {
 	if deploymentRequest == nil {
 		return make([]interface{}, 0)
 	}
@@ -146,17 +139,15 @@ func flattenDeploymentRequest(deploymentRequest *models.DeploymentRequest) inter
 	helper["completed_at"] = deploymentRequest.CompletedAt.String()
 	helper["completed_tasks"] = deploymentRequest.CompletedTasks
 	helper["created_at"] = deploymentRequest.CreatedAt.String()
-	helper["deployment_id"] = deploymentRequest.DeploymentID.String()
 	helper["details"] = deploymentRequest.Details
 	helper["dismissed"] = deploymentRequest.Dismissed
 	helper["id"] = deploymentRequest.ID.String()
 	helper["initialized_at"] = deploymentRequest.InitializedAt.String()
 	helper["inputs"] = expandInputsToString(deploymentRequest.Inputs)
 	helper["name"] = deploymentRequest.Name
-	helper["parent_id"] = deploymentRequest.ParentID.String()
+	helper["outputs"] = expandInputsToString(deploymentRequest.Outputs)
 	helper["requested_by"] = deploymentRequest.RequestedBy
 	helper["resource_name"] = deploymentRequest.ResourceName
-	helper["resource_type"] = deploymentRequest.ResourceType
 	helper["status"] = deploymentRequest.Status
 	helper["total_tasks"] = deploymentRequest.TotalTasks
 	helper["updated_at"] = deploymentRequest.UpdatedAt.String()

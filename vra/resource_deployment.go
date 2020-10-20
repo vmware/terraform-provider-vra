@@ -930,9 +930,9 @@ func runAction(d *schema.ResourceData, apiClient *client.MulticloudIaaS, deploym
 
 	stateChangeFunc := resource.StateChangeConf{
 		Delay:      5 * time.Second,
-		Pending:    []string{models.DeploymentRequestStatusPENDING, models.DeploymentRequestStatusINITIALIZATION, models.DeploymentRequestStatusAPPROVALPENDING, models.DeploymentRequestStatusINPROGRESS},
+		Pending:    []string{models.RequestStatusPENDING, models.RequestStatusINITIALIZATION, models.RequestStatusCHECKINGAPPROVAL, models.RequestStatusAPPROVALPENDING, models.RequestStatusINPROGRESS},
 		Refresh:    deploymentActionStatusRefreshFunc(*apiClient, deploymentUUID, requestID),
-		Target:     []string{models.DeploymentRequestStatusCOMPLETION, models.DeploymentRequestStatusAPPROVALREJECTED, models.DeploymentRequestStatusABORTED, models.DeploymentRequestStatusSUCCESSFUL, models.DeploymentRequestStatusFAILED},
+		Target:     []string{models.RequestStatusCOMPLETION, models.RequestStatusAPPROVALREJECTED, models.RequestStatusABORTED, models.RequestStatusSUCCESSFUL, models.RequestStatusFAILED},
 		Timeout:    d.Timeout(schema.TimeoutUpdate),
 		MinTimeout: 5 * time.Second,
 	}
@@ -952,16 +952,16 @@ func deploymentActionStatusRefreshFunc(apiClient client.MulticloudIaaS, deployme
 				WithAPIVersion(withString(DeploymentsAPIVersion)).
 				WithTimeout(IncreasedTimeOut))
 		if err != nil {
-			return "", models.DeploymentRequestStatusFAILED, err
+			return "", models.RequestStatusFAILED, err
 		}
 
 		status := ret.Payload.LastRequest.Status
 		switch status {
-		case models.DeploymentRequestStatusPENDING, models.DeploymentRequestStatusINITIALIZATION, models.DeploymentRequestStatusAPPROVALPENDING, models.DeploymentRequestStatusINPROGRESS, models.DeploymentRequestStatusCOMPLETION:
+		case models.RequestStatusPENDING, models.RequestStatusINITIALIZATION, models.RequestStatusCHECKINGAPPROVAL, models.RequestStatusAPPROVALPENDING, models.RequestStatusINPROGRESS, models.RequestStatusCOMPLETION:
 			return [...]string{deploymentUUID.String()}, status, nil
-		case models.DeploymentRequestStatusAPPROVALREJECTED, models.DeploymentRequestStatusABORTED, models.DeploymentRequestStatusFAILED:
+		case models.RequestStatusAPPROVALREJECTED, models.RequestStatusABORTED, models.RequestStatusFAILED:
 			return []string{""}, status, fmt.Errorf(ret.Error())
-		case models.DeploymentRequestStatusSUCCESSFUL:
+		case models.RequestStatusSUCCESSFUL:
 			deploymentID := ret.Payload.ID
 			return deploymentID.String(), status, nil
 		default:
