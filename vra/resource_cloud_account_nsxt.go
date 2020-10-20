@@ -22,35 +22,47 @@ func resourceCloudAccountNSXT() *schema.Resource {
 		Schema: map[string]*schema.Schema{
 			// Required arguments
 			"hostname": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "Host name for the NSX-T endpoint.",
 			},
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "A human-friendly name used as an identifier in APIs that support this option.",
 			},
 			"password": {
-				Type:      schema.TypeString,
-				Required:  true,
-				Sensitive: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Sensitive:   true,
+				Description: "Password for the user used to authenticate with the cloud Account.",
 			},
 			"username": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "Username to authenticate with the cloud account.",
 			},
 			// Optional arguments
 			"accept_self_signed_cert": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				Default:  false,
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Default:     false,
+				Description: "Accept self signed certificate when connecting.",
 			},
 			"dc_id": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "Identifier of a data collector vm deployed in the on premise infrastructure. Refer to the data-collector API to create or list data collectors.",
 			},
 			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "A human-friendly description.",
+			},
+			"manager_mode": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: "Create NSX-T cloud account in Manager (legacy) mode. When set to true, NSX-T cloud account is created in Manager mode. Mode cannot be changed after cloud account is created. Default value is false.",
 			},
 			"tags": tagsSchema(),
 			// Computed attributes
@@ -62,21 +74,25 @@ func resourceCloudAccountNSXT() *schema.Resource {
 				},
 			},
 			"created_at": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "Date when the entity was created. The date is in ISO 8601 and UTC.",
 			},
 			"links": linksSchema(),
 			"org_id": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "The id of the organization this entity belongs to.",
 			},
 			"owner": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "Email of the user that owns the entity.",
 			},
 			"updated_at": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "Date when the entity was last updated. The date is ISO 8601 and UTC.",
 			},
 		},
 	}
@@ -95,6 +111,7 @@ func resourceCloudAccountNSXTCreate(d *schema.ResourceData, m interface{}) error
 				Dcid:                        withString(d.Get("dc_id").(string)),
 				Description:                 d.Get("description").(string),
 				HostName:                    withString(d.Get("hostname").(string)),
+				ManagerMode:                 d.Get("manager_mode").(bool),
 				Name:                        withString(d.Get("name").(string)),
 				Password:                    withString(d.Get("password").(string)),
 				Tags:                        tags,
@@ -131,6 +148,7 @@ func resourceCloudAccountNSXTRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("created_at", nsxtAccount.CreatedAt)
 	d.Set("dc_id", nsxtAccount.Dcid)
 	d.Set("description", nsxtAccount.Description)
+	d.Set("manager_mode", nsxtAccount.ManagerMode)
 	d.Set("name", nsxtAccount.Name)
 	d.Set("org_id", nsxtAccount.OrgID)
 	d.Set("owner", nsxtAccount.Owner)
