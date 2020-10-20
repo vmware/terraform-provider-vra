@@ -19,12 +19,14 @@ func dataSourceCloudAccountNSXT() *schema.Resource {
 				Optional:      true,
 				Computed:      true,
 				ConflictsWith: []string{"name"},
+				Description:   "The id of this resource instance.",
 			},
 			"name": {
 				Type:          schema.TypeString,
 				Optional:      true,
 				Computed:      true,
 				ConflictsWith: []string{"id"},
+				Description:   "A human-friendly description.",
 			},
 			// Computed attributes
 			"associated_cloud_account_ids": {
@@ -35,38 +37,51 @@ func dataSourceCloudAccountNSXT() *schema.Resource {
 				},
 			},
 			"created_at": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "Date when the entity was created. The date is in ISO 8601 and UTC.",
 			},
 			"dc_id": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "Identifier of a data collector vm deployed in the on premise infrastructure. Refer to the data-collector API to create or list data collectors.",
 			},
 			"description": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "A human-friendly description.",
 			},
 			"hostname": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "Host name for the NSX-T endpoint.",
 			},
 			"links": linksSchema(),
+			"manager_mode": {
+				Type:        schema.TypeBool,
+				Computed:    true,
+				Description: "Indicates if NSX-T cloud account is created in Manager (legacy) mode. When set to true, NSX-T cloud account is created in Manager mode. Mode cannot be changed after cloud account is created. Default value is false.",
+			},
 			"org_id": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "The id of the organization this entity belongs to.",
 			},
 			"owner": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "Email of the user that owns the entity.",
 			},
 			"tags": tagsSchema(),
 			"updated_at": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "Date when the entity was last updated. The date is ISO 8601 and UTC.",
 			},
 			"username": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "Username to authenticate with the cloud account.",
 			},
 		},
 	}
@@ -94,6 +109,7 @@ func dataSourceCloudAccountNSXTRead(d *schema.ResourceData, meta interface{}) er
 		d.Set("dc_id", account.Dcid)
 		d.Set("description", account.Description)
 		d.Set("hostname", account.HostName)
+		d.Set("manager_mode", account.ManagerMode)
 		d.Set("name", account.Name)
 		d.Set("org_id", account.OrgID)
 		d.Set("owner", account.Owner)

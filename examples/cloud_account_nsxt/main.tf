@@ -24,3 +24,9 @@ resource "vra_cloud_account_nsxt" "this" {
     value = "bar"
   }
 }
+
+data "vra_cloud_account_nsxt" "this" {
+  name = vra_cloud_account_nsxt.this.name
+
+  depends_on = [vra_cloud_account_nsxt.this]
+}
