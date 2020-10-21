@@ -107,6 +107,7 @@ func dataSourceCloudAccountVsphereRead(d *schema.ResourceData, meta interface{})
 		d.Set("org_id", account.OrgID)
 		d.Set("owner", account.Owner)
 		d.Set("tags", account.Tags)
+		d.Set("updated_at", account.UpdatedAt)
 	}
 	for _, account := range getResp.Payload.Content {
 		if idOk && account.ID == id {

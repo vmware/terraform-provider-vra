@@ -33,7 +33,7 @@ resource "vra_cloud_account_vmc" "this" {
   nsx_hostname     = var.nsx_hostname
   dc_id            = var.data_collector_name != "" ? data.vra_data_collector.this[0].id : "" // Required for vRA Cloud, Optional for vRA on-prem
 
-  regions                 = data.vra_region_enumeration.this.regions
+  regions                 = data.vra_region_enumeration_vmc.this.regions
   accept_self_signed_cert = true
 
   tags {

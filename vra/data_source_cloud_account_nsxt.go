@@ -104,8 +104,8 @@ func dataSourceCloudAccountNSXTRead(d *schema.ResourceData, meta interface{}) er
 
 	setFields := func(account *models.CloudAccountNsxT) error {
 		d.SetId(*account.ID)
-		d.Set("created_at", account.CreatedAt)
 		d.Set("associated_cloud_account_ids", flattenAssociatedCloudAccountIds(account.Links))
+		d.Set("created_at", account.CreatedAt)
 		d.Set("dc_id", account.Dcid)
 		d.Set("description", account.Description)
 		d.Set("hostname", account.HostName)

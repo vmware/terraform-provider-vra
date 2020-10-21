@@ -4,7 +4,7 @@ provider "vra" {
   insecure      = var.insecure // false for vRA Cloud and true for vRA 8.0
 }
 
-// Required for vRA Cloud, Optional for vRA 8.0
+// Required for vRA Cloud, Optional for vRA 8.X
 data "vra_data_collector" "dc" {
   count = var.datacollector != "" ? 1 : 0
   name  = var.datacollector
@@ -16,7 +16,7 @@ resource "vra_cloud_account_nsxt" "this" {
   username    = var.nsxt_username
   password    = var.nsxt_password
   hostname    = var.nsxt_hostname
-  dc_id       = var.datacollector != "" ? data.vra_data_collector.dc[0].id : "" // Required for vRA Cloud, Optional for vRA 8.0
+  dc_id       = var.datacollector != "" ? data.vra_data_collector.dc[0].id : "" // Required for vRA Cloud, Optional for vRA 8.X
 
   accept_self_signed_cert = true
 
@@ -30,7 +30,7 @@ data "vra_region_enumeration_vsphere" "this" {
   username                = var.username
   password                = var.password
   hostname                = var.hostname
-  dcid                    = var.datacollector != "" ? data.vra_data_collector.dc[0].id : "" // Required for vRA Cloud, Optional for vRA 8.0
+  dcid                    = var.datacollector != "" ? data.vra_data_collector.dc[0].id : "" // Required for vRA Cloud, Optional for vRA 8.X
   accept_self_signed_cert = true
 }
 
@@ -40,7 +40,7 @@ resource "vra_cloud_account_vsphere" "this" {
   username    = var.username
   password    = var.password
   hostname    = var.hostname
-  dcid        = var.datacollector != "" ? data.vra_data_collector.dc[0].id : "" // Required for vRA Cloud, Optional for vRA 8.0
+  dcid        = var.datacollector != "" ? data.vra_data_collector.dc[0].id : "" // Required for vRA Cloud, Optional for vRA 8.X
 
   regions                      = data.vra_region_enumeration_vsphere.this.regions
   associated_cloud_account_ids = [vra_cloud_account_nsxt.this.id]

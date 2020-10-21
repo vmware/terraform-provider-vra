@@ -87,6 +87,7 @@ func dataSourceCloudAccountAWSRead(d *schema.ResourceData, meta interface{}) err
 		d.Set("description", account.Description)
 		d.Set("name", account.Name)
 		d.Set("org_id", account.OrgID)
+		d.Set("owner", account.Owner)
 		d.Set("regions", account.EnabledRegionIds)
 		d.Set("updated_at", account.UpdatedAt)
 
