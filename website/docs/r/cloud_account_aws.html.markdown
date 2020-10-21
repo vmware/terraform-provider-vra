@@ -5,7 +5,7 @@ description: |-
   Provides a VMware vRA vra_cloud_account_aws resource.
 ---
 
-# vra\_cloud\_account\_aws
+# Resource: vra\_cloud\_account\_aws
 
 Provides a VMware vRA vra_cloud_account_aws resource.
 

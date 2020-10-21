@@ -5,7 +5,7 @@ description: |-
     Provides a VMware vRA vra_cloud_account_nsxt resource.
 ---
 
-# Data Source: vra\_cloud\_account\_nsxt
+# Resource: vra\_cloud\_account\_nsxt
 
 Provides a VMware vRA vra_cloud_account_nsxt resource.
 
@@ -28,8 +28,7 @@ resource "vra_cloud_account_nsxt" "this" {
   username    = var.username
   password    = var.password
   hostname    = var.hostname
-
-  dc_id       = var.cloud_proxy != "" ? data.vra_data_collector.dc[0].id : ""
+  dc_id       = var.vra_data_collector_id
 
   accept_self_signed_cert = true
 

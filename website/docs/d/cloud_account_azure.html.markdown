@@ -13,53 +13,24 @@ Provides a VMware vRA vra_cloud_account_azure data source.
 
 **Azure cloud account data source by its id:**
 
-This is an example of how to create an Azure cloud account resource and read it as a data source using its id.
-NOTE: The Azure cloud account resource need not be created through terraform.
-To create an Azure cloud account, follow the resource Azure cloud account documentation:
+This is an example of how to read the cloud account data source using its id.
 
 ```hcl
 
-resource "vra_cloud_account_azure" "this" {
-  name = "my-cloud-account-%d"
-  description = "test cloud account"
-  subscription_id = "sample-subscription-id"
-  tenant_id = "sample-tenant-id"
-  application_id = "sample-application-id"
-  application_key = "sample-application=key"
-  regions = ["centralus"]
-}
-
 data "vra_cloud_account_azure" "this" {
-  id = "vra_cloud_account_azure.this.id"
+  id = "var.vra_cloud_account_azure_id"
 }
 
 ```
 
 **Azure cloud account data source by its name:**
 
-This is an example of how to create an Azure cloud account resource and read it as a data source using its name.
-NOTE: The Azure cloud account resource need not be created through terraform.
-To create an Azure cloud account , follow the resource Azure cloud account documentation:
+This is an example of how to read the cloud account data source using its name.
 
 ```hcl
 
-resource "vra_cloud_account_azure" "this" {
-  name = "my-cloud-account-%d"
-  description = "test cloud account"
-  subscription_id = "subscription-id"
-  tenant_id = "tenant-id"
-  application_id = "application-id"
-  application_key = "application=key"
-  regions = ["centralus"]
-
-  tags {
-    key   = "foo"
-    value = "bar"
-  }
-}
-
 data "vra_cloud_account_azure" "this" {
-  name = "vra_cloud_account_azure.this.name"
+  name = "var.vra_cloud_account_azure_name"
 }
 
 ```

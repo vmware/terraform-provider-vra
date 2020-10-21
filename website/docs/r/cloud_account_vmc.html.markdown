@@ -5,7 +5,7 @@ description: |-
     Provides a VMware vRA vra_cloud_account_vmc resource.
 ---
 
-# Data Source: vra\_cloud\_account\_vmc
+# Resource: vra\_cloud\_account\_vmc
 
 Provides a VMware vRA vra_cloud_account_vmc resource.
 
@@ -17,22 +17,6 @@ This is an example of how to create a VMC cloud account resource.
 
 ```hcl
 
-// Required for vRA Cloud, Optional for vRA on-prem
-data "vra_data_collector" "this" {
-  count = var.data_collector_name != "" ? 1 : 0
-  name  = var.data_collector_name
-}
-
-data "vra_region_enumeration_vmc" "this" {
-  api_token = var.api_token
-  sddc_name = var.sddc_name
-
-  vcenter_hostname = var.vcenter_hostname
-  vcenter_password = var.vcenter_password
-  vcenter_username = var.vcenter_username
-  dc_id            = var.data_collector_name != "" ? data.vra_data_collector.this[0].id : "" // Required for vRA Cloud, Optional for vRA on-prem
-}
-
 resource "vra_cloud_account_vmc" "this" {
   name        = "tf-vra-cloud-account-vmc"
   description = "tf test vmc cloud account"
@@ -43,9 +27,9 @@ resource "vra_cloud_account_vmc" "this" {
   vcenter_password = var.vcenter_password
   vcenter_username = var.vcenter_username
   nsx_hostname     = var.nsx_hostname
-  dc_id            = var.data_collector_name != "" ? data.vra_data_collector.this[0].id : "" // Required for vRA Cloud, Optional for vRA on-prem
+  dc_id            = var.data_collector_id  // Required for vRA Cloud, Optional for vRA on-prem
+  regions                 = var.regions
 
-  regions                 = data.vra_region_enumeration_vmc.this.regions
   accept_self_signed_cert = true
 
   tags {

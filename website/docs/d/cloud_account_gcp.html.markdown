@@ -14,52 +14,23 @@ Provides a VMware vRA vra_cloud_account_gcp data source.
 **GCP cloud account data source by its id:**
 
 This is an example of how to create an GCP cloud account resource and read it as a data source using its id.
-NOTE: The GCP cloud account resource need not be created through terraform.
-To create an GCP cloud account, follow the resource GCP cloud account documentation:
 
 ```hcl
 
-resource "vra_cloud_account_gcp" "this" {
-  name           = "tf-vra-cloud-account-gcp"
-  description    = "terraform test cloud account gcp"
-  client_email   = "client_email"
-  private_key_id = "private_key_id"
-  private_key    = "private_key"
-  project_id     = "project_id"
-  regions        = ["us-west1", "us-west2"]
-
-  tags {
-    key   = "foo"
-    value = "bar"
-  }
-}
-
 data "vra_cloud_account_gcp" "this" {
-  id = "vra_cloud_account_gcp.this.id"
+  id = "var.vra_cloud_account_gcp_id"
 }
 
 ```
 
 **GCP cloud account data source by its name:**
 
-This is an example of how to create an GCP cloud account resource and read it as a data source using its name.
-NOTE: The GCP cloud account resource need not be created through terraform.
-To create an GCP cloud account , follow the resource GCP cloud account documentation:
+This is an example of how to read the cloud account data source using its name.
 
 ```hcl
 
-resource "vra_cloud_account_gcp" "this" {
-  name = "my-cloud-account-gcp"
-  description = "test cloud account"
-  subscription_id = "sample-subscription-id"
-  tenant_id = "sample-tenant-id"
-  application_id = "sample-application-id"
-  application_key = "sample-application=key"
-  regions = ["centralus"]
-}
-
 data "vra_cloud_account_gcp" "this" {
-  name = "vra_cloud_account_gcp.this.name"
+  name = "var.vra_cloud_account_gcp_name"
 }
 
 ```

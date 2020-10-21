@@ -5,7 +5,7 @@ description: |-
     Provides a VMware vRA vra_cloud_account_nsxv resource.
 ---
 
-# Data Source: vra\_cloud\_account\_nsxv
+# Resource: vra\_cloud\_account\_nsxv
 
 Provides a VMware vRA vra_cloud_account_nsxt resource.
 
@@ -17,18 +17,13 @@ This is an example of how to create a NSX-V cloud account resource.
 
 ```hcl
 
-data "vra_data_collector" "dc" {
-  count = var.cloud_proxy != "" ? 1 : 0
-  name  = var.cloud_proxy
-}
-
 resource "vra_cloud_account_nsxv" "this" {
   name        = "tf-NSX-V-account"
   description = "foobar"
   username    = var.username
   password    = var.password
   hostname    = var.hostname
-  dc_id       = var.cloud_proxy != "" ? data.vra_data_collector.dc[0].id : ""
+  dc_id       = var.vra_data_collector_id
 
   accept_self_signed_cert = true
 
@@ -43,7 +38,7 @@ resource "vra_cloud_account_nsxv" "this" {
 
 ## Argument Reference
 
-The following arguments are supported for an NSX-T cloud account resource:
+The following arguments are supported for an NSX-V cloud account resource:
 
 * `accept_self_signed_cert` - (Optional) Accept self signed certificate when connecting to the cloud account.
 
@@ -51,9 +46,9 @@ The following arguments are supported for an NSX-T cloud account resource:
 
 * `description` - (Optional) A human-friendly description.
 
-* `hostname` - (Required) Host name for the NSX-T cloud account.
+* `hostname` - (Required) Host name for the NSX-V cloud account.
 
-* `name` - (Optional) The name of this NSX-T cloud account.
+* `name` - (Optional) The name of this NSX-V cloud account.
 
 * `password` - (Required) Password for the user used to authenticate with the cloud Account.
 
@@ -70,7 +65,7 @@ example:[ { "key" : "vmware", "value": "provider" } ]
 
 * `created_at` - Date when the entity was created. The date is in ISO 6801 and UTC.
 
-* `id` - The id of this NSX-T cloud account.
+* `id` - The id of this NSX-V cloud account.
 
 * `links` - HATEOAS of the entity.
 

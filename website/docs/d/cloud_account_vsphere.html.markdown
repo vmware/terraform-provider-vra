@@ -13,100 +13,24 @@ Provides a VMware vRA vra_cloud_account_vsphere data source.
 
 **vSphere cloud account data source by its id:**
 
-This is an example of how to create a vSphere cloud account resource and read it as a data source using its id.
-NOTE: The vSphere cloud account resource need not be created through terraform.
-To create a vSphere cloud account, follow the resource vSphere cloud account documentation:
+This is an example of how to read the cloud account data source using its id.
 
 ```hcl
 
-data "vra_data_collector" "dc" {
-  count = var.cloud_proxy != "" ? 1 : 0
-  name  = var.cloud_proxy
-}
-
-data "vra_region_enumeration_vsphere" "this" {
-  username                = var.username
-  password                = var.password
-  hostname                = var.hostname
-  dcid                    = var.cloud_proxy != "" ? data.vra_data_collector.dc[0].id : "" // Required for vRA Cloud, Optional for vRA 8.X
-  accept_self_signed_cert = true
-}
-
-data "vra_cloud_account_nsxt" "this" {
-  name        = var.vra_cloud_account_nsxt_name
-}
-
-resource "vra_cloud_account_vsphere" "this" {
-  name        = "tf-vSphere-account"
-  description = "foobar"
-  username    = var.username
-  password    = var.password
-  hostname    = var.hostname
-  dcid        = var.cloud_proxy != "" ? data.vra_data_collector.dc[0].id : "" // Required for vRA Cloud, Optional for vRA 8.X
-
-  regions                      = data.vra_region_enumeration_vsphere.this.regions
-  associated_cloud_account_ids = [data.vra_cloud_account_nsxt.this.id]
-
-  accept_self_signed_cert = true
-
-  tags {
-    key   = "foo"
-    value = "bar"
-  }
-}
-
 data "vra_cloud_account_vsphere" "this" {
-  id = "vra_cloud_account_vsphere.this.id"
+  id = "var.vra_cloud_account_vsphere_id"
 }
 
 ```
 
 **vSphere cloud account data source by its name:**
 
-This is an example of how to create a vSphere cloud account resource and read it as a data source using its name.
-NOTE: The vSphere cloud account resource need not be created through terraform.
-To create a vSphere cloud account, follow the resource vSphere cloud account documentation:
+This is an example of how to read the cloud account data source using its name.
 
 ```hcl
 
-data "vra_data_collector" "dc" {
-  count = var.cloud_proxy != "" ? 1 : 0
-  name  = var.cloud_proxy
-}
-
-data "vra_region_enumeration_vsphere" "this" {
-  username                = var.username
-  password                = var.password
-  hostname                = var.hostname
-  dcid                    = var.cloud_proxy != "" ? data.vra_data_collector.dc[0].id : "" // Required for vRA Cloud, Optional for vRA 8.X
-  accept_self_signed_cert = true
-}
-
-data "vra_cloud_account_nsxt" "this" {
-  name        = var.vra_cloud_account_nsxt_name
-}
-
-resource "vra_cloud_account_vsphere" "this" {
-  name        = "tf-vsphere-account"
-  description = "foobar"
-  username    = var.username
-  password    = var.password
-  hostname    = var.hostname
-  dcid        = var.cloud_proxy != "" ? data.vra_data_collector.dc[0].id : "" // Required for vRA Cloud, Optional for vRA 8.X
-
-  regions                      = data.vra_region_enumeration_vsphere.this.regions
-  associated_cloud_account_ids = [data.vra_cloud_account_nsxt.this.id]
-
-  accept_self_signed_cert = true
-
-  tags {
-    key   = "foo"
-    value = "bar"
-  }
-}
-
 data "vra_cloud_account_vsphere" "this" {
-  name = "vra_cloud_account_vsphere.this.name"
+  name = "var.vra_cloud_account_vsphere_name"
 }
 
 ```

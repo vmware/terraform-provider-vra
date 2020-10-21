@@ -13,60 +13,24 @@ Provides a VMware vRA vra_cloud_account_nsxt data source.
 
 **NSX-T cloud account data source by its id:**
 
-This is an example of how to create a NSX-T cloud account resource and read it as a data source using its id.
-NOTE: The NSX-T cloud account resource need not be created through terraform.
-To create a NSX-T cloud account, follow the resource NSX-T cloud account documentation:
+This is an example of how to read the cloud account data source using its id.
 
 ```hcl
 
-resource "vra_cloud_account_nsxt" "this" {
-  name        = "tf-nsx-t-account"
-  description = "foobar"
-  username    = var.username
-  password    = var.password
-  hostname    = var.hostname
-  dc_id       = var.cloud_proxy != "" ? data.vra_data_collector.dc[0].id : ""
-
-  accept_self_signed_cert = true
-
-  tags {
-    key   = "foo"
-    value = "bar"
-  }
-}
-
 data "vra_cloud_account_nsxt" "this" {
-  id = "vra_cloud_account_nsxt.this.id"
+  id = "var.vra_cloud_account_nsxt_id"
 }
 
 ```
 
 **NSX-T cloud account data source by its name:**
 
-This is an example of how to create a NSX-T cloud account resource and read it as a data source using its name.
-NOTE: The NSX-T cloud account resource need not be created through terraform.
-To create a NSX-T cloud account, follow the resource NSX-T cloud account documentation:
+This is an example of how to read the cloud account data source using its name.
 
 ```hcl
 
-resource "vra_cloud_account_nsxt" "this" {
-  name        = "tf-nsx-t-account"
-  description = "foobar"
-  username    = var.username
-  password    = var.password
-  hostname    = var.hostname
-  dc_id       = var.cloud_proxy != "" ? data.vra_data_collector.dc[0].id : ""
-
-  accept_self_signed_cert = true
-
-  tags {
-    key   = "foo"
-    value = "bar"
-  }
-}
-
 data "vra_cloud_account_nsxt" "this" {
-  name = "vra_cloud_account_nsxt.this.name"
+  name = "var.vra_cloud_account_nsxt_name"
 }
 
 ```

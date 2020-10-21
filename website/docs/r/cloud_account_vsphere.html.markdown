@@ -5,7 +5,7 @@ description: |-
     Provides a VMware vRA vra_cloud_account_vsphere resource.
 ---
 
-# Data Source: vra\_cloud\_account\_vsphere
+# Resource: vra\_cloud\_account\_vsphere
 
 Provides a VMware vRA vra_cloud_account_vsphere resource.
 
@@ -17,33 +17,15 @@ This is an example of how to create a vSphere cloud account resource.
 
 ```hcl
 
-data "vra_data_collector" "dc" {
-  count = var.cloud_proxy != "" ? 1 : 0
-  name  = var.cloud_proxy
-}
-
-data "vra_region_enumeration_vsphere" "this" {
-  username                = var.username
-  password                = var.password
-  hostname                = var.hostname
-  dcid                    = var.cloud_proxy != "" ? data.vra_data_collector.dc[0].id : "" // Required for vRA Cloud, Optional for vRA 8.X
-  accept_self_signed_cert = true
-}
-
-data "vra_cloud_account_nsxt" "this" {
-  name        = var.vra_cloud_account_nsxt_name
-}
-
 resource "vra_cloud_account_vsphere" "this" {
   name        = "tf-vSphere-account"
   description = "foobar"
   username    = var.username
   password    = var.password
   hostname    = var.hostname
-  dcid        = var.cloud_proxy != "" ? data.vra_data_collector.dc[0].id : "" // Required for vRA Cloud, Optional for vRA 8.X
-
-  regions                      = data.vra_region_enumeration_vsphere.this.regions
-  associated_cloud_account_ids = [data.vra_cloud_account_nsxt.this.id]
+  dcid        = var.vra_data_collector_id // Required for vRA Cloud, Optional for vRA 8.X
+  regions                      = var.regions
+  associated_cloud_account_ids = [var.vra_cloud_account_nsxt_id]
 
   accept_self_signed_cert = true
 

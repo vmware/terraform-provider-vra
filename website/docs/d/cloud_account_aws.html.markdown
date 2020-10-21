@@ -12,54 +12,24 @@ Provides a VMware vRA vra_cloud_account_aws data source.
 
 **AWS cloud account data source by its id:**
 
-This is an example of how to create an AWS cloud account resource and read it as a data source using its id.
-NOTE: The AWS cloud account resource need not be created through terraform.
-To create an AWS cloud account, follow the resource AWS cloud account documentation:
+This is an example of how to read the cloud account data source using its id.
 
 ```hcl
 
-resource "vra_cloud_account_aws" "this" {
-  name        = "tf-vra-cloud-account-aws"
-  description = "terraform test cloud account aws"
-  access_key  = var.access_key
-  secret_key  = var.secret_key
-  regions     = ["us-east-1", "us-west-1"]
-
-  tags {
-    key   = "foo"
-    value = "bar"
-  }
-}
-
 data "vra_cloud_account_aws" "this" {
-  id = "vra_cloud_account_aws.this.id"
+  id = "var.vra_cloud_account_aws_id"
 }
 
 ```
 
 **AWS cloud account data source by its name:**
 
-This is an example of how to create an AWS cloud account resource and read it as a data source using its name.
-NOTE: The AWS cloud account resource need not be created through terraform.
-To create an AWS cloud account, follow the resource AWS cloud account documentation:
+This is an example of how to read the cloud account data source using its name.
 
 ```hcl
 
-resource "vra_cloud_account_aws" "this" {
-  name        = "tf-vra-cloud-account-aws"
-  description = "terraform test cloud account aws"
-  access_key  = var.access_key
-  secret_key  = var.secret_key
-  regions     = ["us-east-1", "us-west-1"]
-
-  tags {
-    key   = "foo"
-    value = "bar"
-  }
-}
-
 data "vra_cloud_account_aws" "this" {
-  name = "vra_cloud_account_aws.this.name"
+  name = "var.vra_cloud_account_aws_name"
 }
 
 ```

@@ -5,7 +5,7 @@ description: |-
     Provides a VMware vRA vra_cloud_account_gcp resource.
 ---
 
-# Data Source: vra\_cloud\_account\_gcp
+# Resource: vra\_cloud\_account\_gcp
 
 Provides a VMware vRA vra_cloud_account_gcp resource.
 
