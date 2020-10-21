@@ -85,6 +85,6 @@ example:[ { "key" : "vmware", "value": "provider" } ]
 
 ## Import
 
-VMC cloud account can be imported using the id, e.g.
+vSphere cloud account can be imported using the id, e.g.
 
 `$ terraform import vra_cloud_account_vsphere.new_vsphere 05956583-6488-4e7d-84c9-92a7b7219a15`

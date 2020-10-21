@@ -17,11 +17,6 @@ This is an example of how to create a NSX-T cloud account resource.
 
 ```hcl
 
-data "vra_data_collector" "dc" {
-  count = var.cloud_proxy != "" ? 1 : 0
-  name  = var.cloud_proxy
-}
-
 resource "vra_cloud_account_nsxt" "this" {
   name        = "tf-nsx-t-account"
   description = "foobar"

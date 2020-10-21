@@ -18,7 +18,7 @@ This is an example of how to read the cloud account data source using its id.
 ```hcl
 
 data "vra_cloud_account_vsphere" "this" {
-  id = "var.vra_cloud_account_vsphere_id"
+  id = var.vra_cloud_account_vsphere_id
 }
 
 ```
@@ -30,7 +30,7 @@ This is an example of how to read the cloud account data source using its name.
 ```hcl
 
 data "vra_cloud_account_vsphere" "this" {
-  name = "var.vra_cloud_account_vsphere_name"
+  name = var.vra_cloud_account_vsphere_name
 }
 
 ```

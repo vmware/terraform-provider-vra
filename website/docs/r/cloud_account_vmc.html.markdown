@@ -44,7 +44,7 @@ resource "vra_cloud_account_vmc" "this" {
 
 ## Argument Reference
 
-The following arguments are supported for an NSX-T cloud account resource:
+The following arguments are supported for an VMC cloud account resource:
 
 * `accept_self_signed_cert` - (Optional) Accept self signed certificate when connecting to the cloud account.
 
@@ -77,7 +77,7 @@ example:[ { "key" : "vmware", "value": "provider" } ]
 
 * `created_at` - Date when the entity was created. The date is in ISO 6801 and UTC.
 
-* `id` - The id of this NSX-T cloud account.
+* `id` - The id of this VMC cloud account.
 
 * `links` - HATEOAS of the entity.
 

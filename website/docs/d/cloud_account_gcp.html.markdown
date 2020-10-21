@@ -18,7 +18,7 @@ This is an example of how to create an GCP cloud account resource and read it as
 ```hcl
 
 data "vra_cloud_account_gcp" "this" {
-  id = "var.vra_cloud_account_gcp_id"
+  id = var.vra_cloud_account_gcp_id
 }
 
 ```
@@ -30,7 +30,7 @@ This is an example of how to read the cloud account data source using its name.
 ```hcl
 
 data "vra_cloud_account_gcp" "this" {
-  name = "var.vra_cloud_account_gcp_name"
+  name = var.vra_cloud_account_gcp_name
 }
 
 ```
