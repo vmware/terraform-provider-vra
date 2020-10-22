@@ -27,6 +27,11 @@ func dataSourceStorageProfileVsphere() *schema.Resource {
 				Computed:      true,
 				ConflictsWith: []string{"filter"},
 			},
+			"shares_level": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "Indicates whether this storage profile supports encryption or not.",
+			},
 			// Imported attributes
 			"cloud_account_id": {
 				Type:        schema.TypeString,
@@ -93,11 +98,6 @@ func dataSourceStorageProfileVsphere() *schema.Resource {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: "A specific number of shares assigned to each virtual machine.",
-			},
-			"shares_level": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Description: "Indicates whether this storage profile supports encryption or not.",
 			},
 			"supports_encryption": {
 				Type:        schema.TypeBool,
