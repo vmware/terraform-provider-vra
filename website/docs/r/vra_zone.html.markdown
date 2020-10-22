@@ -32,17 +32,17 @@ A zone profile resource supports the following arguments:
 
 ## Argument Reference
 
-* `description` - A human-friendly description.
+* `description` - (Optional) A human-friendly description.
 
-* `folder` - The folder relative path to the datacenter where resources are deployed to. (only applicable for vSphere cloud zones)
+* `folder` - (Optional) The folder relative path to the datacenter where resources are deployed to. (only applicable for vSphere cloud zones)
 
-* `name` - A human-friendly name used as an identifier in APIs that support this option.
+* `name` - (Required) A human-friendly name used as an identifier in APIs that support this option.
 
-* `placement_policy` - The id of the region for which this zone is defined
+* `placement_policy` - (Required) The id of the region for which this zone is defined
 
-* `region_id` - A link to the region that is associated with the storage profile.                      example:[ { "key" : "ownedBy", "value": "Rainpole" } ]
+* `region_id` - (Required) A link to the region that is associated with the storage profile.                      example:[ { "key" : "ownedBy", "value": "Rainpole" } ]
 
-* `tags` - A set of tag keys and optional values that were set on this Network Profile.
+* `tags` - (Optional) A set of tag keys and optional values that were set on this Network Profile.
 
-* `tags_to_match` - A set of tag keys and optional values for compute resource filtering.
+* `tags_to_match` - (Optional) A set of tag keys and optional values for compute resource filtering.
                    example:[ { "key" : "compliance", "value": "pci" } ]

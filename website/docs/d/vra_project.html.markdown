@@ -29,26 +29,26 @@ A project data source supports the following arguments:
 
 ## Argument Reference
 
-* `administrators` - List of administrator users associated with the project. Only administrators can manage project's configuration.
+* `administrators` - (Optional) List of administrator users associated with the project. Only administrators can manage project's configuration.
 
-* `constraints` - List of storage, network and extensibility constraints to be applied when provisioning through this project.
+* `constraints` - (Optional) List of storage, network and extensibility constraints to be applied when provisioning through this project.
 
-* `description` - A human-friendly description.
+* `description` - (Optional) A human-friendly description.
 
-* `id` - The id of the image profile instance.
+* `id` - (Optional) The id of the image profile instance.
 
-* `machine_naming_template` - The naming template to be used for resources provisioned in this project.
+* `machine_naming_template` - (Optional) The naming template to be used for resources provisioned in this project.
 
-* `members` - List of member users associated with the project.
+* `members` - (Optional) List of member users associated with the project.
 
-* `name` - A human-friendly name used as an identifier in APIs that support this option.
+* `name` - (Optional) A human-friendly name used as an identifier in APIs that support this option.
 
-* `operation_timeout` - The timeout that should be used for Blueprint operations and Provisioning tasks. The timeout is in seconds.
+* `operation_timeout` - (Optional) The timeout that should be used for Blueprint operations and Provisioning tasks. The timeout is in seconds.
 
-* `shared_resources` - Specifies whether the resources in this projects are shared or not. If not set default will be used.
+* `shared_resources` - (Optional) Specifies whether the resources in this projects are shared or not. If not set default will be used.
 
-* `zone_assignments` - List of configurations for zone assignment to a project.
+* `zone_assignments` - (Optional) List of configurations for zone assignment to a project.
 
-* `shared_resources` - The id of the organization this entity belongs to.
+* `shared_resources` - (Optional) The id of the organization this entity belongs to.
 
-* `viewer` - List of viewer users associated with the project.
+* `viewer` - (Optional) List of viewer users associated with the project.

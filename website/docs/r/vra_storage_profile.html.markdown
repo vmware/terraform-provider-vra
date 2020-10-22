@@ -81,13 +81,15 @@ A storage profile resource supports the following arguments:
 
 ## Argument Reference
 
-* `description` - A human-friendly description.
+* `description` - (Optional) A human-friendly description.
 
-* `disk_properties` -  Map of storage properties that are to be applied on disk while provisioning.
+* `disk_properties` - (Optional) Map of storage properties that are to be applied on disk while provisioning.
 
-* `disk_target_properties` - Map of storage placements to know where the disk is provisioned.
+* `disk_target_properties` - (Optional) Map of storage placements to know where the disk is provisioned.
 
-* `supports_encryption` - Indicates whether this storage profile supports encryption or not.
+* `region_id` - (Required) The id of the region for which this profile is defined as in vRealize Automation(vRA).
+
+* `supports_encryption` - (Optional) Indicates whether this storage profile supports encryption or not.
 
 ## Attributes Reference
 

@@ -45,10 +45,9 @@ An image profile resource supports the following arguments:
 
 ## Argument Reference
 
-* `name` - A human-friendly name used as an identifier in APIs that support this option.
+* `name` - (Required) A human-friendly name used as an identifier in APIs that support this option.
 
-
-* `region_id` - The id of the region for which this profile is defined as in vRealize Automation(vRA).
+* `region_id` - (Required) The id of the region for which this profile is defined as in vRealize Automation(vRA).
 
 ## Attributes Reference
 

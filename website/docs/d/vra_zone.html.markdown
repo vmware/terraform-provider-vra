@@ -19,17 +19,17 @@ A zone data source supports the following arguments:
 
 ## Argument Reference
 
-* `custom_properties` - A list of key value pair of properties that will be used.
+* `custom_properties` - (Optional) A list of key value pair of properties that will be used.
 
-* `id` - The id of the image profile instance.
+* `id` - (Optional) The id of the image profile instance.
 
-* `name` - A human-friendly name used as an identifier in APIs that support this option.
+* `name` - (Optional) A human-friendly name used as an identifier in APIs that support this option.
 
-* `owner` - Email of the user that owns the entity.
+* `owner` - (Optional) Email of the user that owns the entity.
 
-* `placement_policy` - The id of the region for which this zone is defined
+* `placement_policy` - (Optional) The id of the region for which this zone is defined
 
-* `region_id` - A link to the region that is associated with the storage profile.
+* `region_id` - (Optional) A link to the region that is associated with the storage profile.
 
 ## Attributes Reference
 

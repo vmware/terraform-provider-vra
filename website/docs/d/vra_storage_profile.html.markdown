@@ -28,13 +28,13 @@ data "vra_storage_profile" "this" {
 A storage profile data source supports the following arguments:
 
 ## Argument Reference
-* `description` - A human-friendly description.
+* `description` - (Optional) A human-friendly description.
 
-* `disk_properties` -  Map of storage properties that are to be applied on disk while provisioning.
+* `disk_properties` - (Optional) Map of storage properties that are to be applied on disk while provisioning.
 
-* `filter` - Filter query string that is supported by vRA multi-cloud IaaS API. Example: regionId eq '<regionId>' and cloudAccountId eq '<cloudAccountId>'.
+* `filter` - (Optional) Filter query string that is supported by vRA multi-cloud IaaS API. Example: regionId eq '<regionId>' and cloudAccountId eq '<cloudAccountId>'.
 
-* `id` - The id of the image profile instance.
+* `id` - (Optional) The id of the image profile instance.
 
 ## Attributes Reference
 * `cloud_account_id` - Id of the cloud account this storage profile belongs to.

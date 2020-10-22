@@ -53,24 +53,24 @@ A storage profile aws resource supports the following arguments:
 
 ## Argument Reference
 
-* `default_item` - Indicates if this storage profile is a default profile.
+* `default_item` - (Required) Indicates if this storage profile is a default profile.
 
-* `description` - A human-friendly description.
+* `description` - (Optional) A human-friendly description.
 
-* `device_type` - Indicates the type of storage device.
+* `device_type` - (Optional) Indicates the type of storage device.
 
-* `iops` -  Indicates maximum I/O operations per second in range(1-20,000).
+* `iops` - (Optional) Indicates maximum I/O operations per second in range(1-20,000).
 
-* `name` - A human-friendly name used as an identifier in APIs that support this option.
+* `name` - (Required) A human-friendly name used as an identifier in APIs that support this option.
 
-* `region_id` - A link to the region that is associated with the storage profile.
+* `region_id` - (Required) A link to the region that is associated with the storage profile.
 
-* `supports_encryption` - Indicates whether this storage profile supports encryption or not.
+* `supports_encryption` - (Optional) Indicates whether this storage profile supports encryption or not.
 
-* `tags` - A set of tag keys and optional values that were set on this Network Profile.
+* `tags` - (Optional) A set of tag keys and optional values that were set on this Network Profile.
            example:[ { "key" : "ownedBy", "value": "Rainpole" } ]
 
-* `volume_type` - Indicates the type of volume associated with type of storage.
+* `volume_type` - (Optional) Indicates the type of volume associated with type of storage.
 
 ## Attributes Reference
 

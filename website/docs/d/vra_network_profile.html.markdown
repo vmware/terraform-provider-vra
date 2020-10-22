@@ -29,13 +29,13 @@ A network profile data source supports the following arguments:
 
 ## Argument Reference
 
-* `filter` - Filter query string that is supported by vRA multi-cloud IaaS API. Example: regionId eq '<regionId>' and cloudAccountId eq '<cloudAccountId>'.
+* `filter` - (Optional) Filter query string that is supported by vRA multi-cloud IaaS API. Example: regionId eq '<regionId>' and cloudAccountId eq '<cloudAccountId>'.
 
-* `id` - The id of the image profile instance.
+* `id` - (Optional) The id of the image profile instance.
 
-* `isolated_external_fabric_network_id` - The Id of the fabric network used for outbound access.
+* `isolated_external_fabric_network_id` - (Optional) The Id of the fabric network used for outbound access.
 
-* `isolated_network_domain_id` - The Id of the network domain used for creating isolated networks.
+* `isolated_network_domain_id` - (Optional) The Id of the network domain used for creating isolated networks.
 
 ## Attributes Reference
 

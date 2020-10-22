@@ -38,31 +38,31 @@ A storage profile vsphere resource supports the following arguments:
 
 ## Argument Reference
 
-* `datastore_id` - Id of the vSphere Datastore for placing disk and VM.
+* `datastore_id` - (Optional) Id of the vSphere Datastore for placing disk and VM.
 
-* `default_item` - Indicates if this storage profile is a default profile.
+* `default_item` - (Required) Indicates if this storage profile is a default profile.
 
-* `description` - A human-friendly description.
+* `description` - (Optional) A human-friendly description.
 
-* `disk_mode` -  Type of mode for the disk.
+* `disk_mode` - (Optional) Type of mode for the disk.
 
-* `disk_type` -  Indicates the performance tier for the storage type. Premium disks are SSD backed and Standard disks are HDD backed.
+* `disk_type` - (Optional) Indicates the performance tier for the storage type. Premium disks are SSD backed and Standard disks are HDD backed.
 
-* `limit_iops` - The upper bound for the I/O operations per second allocated for each virtual disk.
+* `limit_iops` - (Optional) The upper bound for the I/O operations per second allocated for each virtual disk.
 
-* `name` - A human-friendly name used as an identifier in APIs that support this option.
+* `name` - (Required) A human-friendly name used as an identifier in APIs that support this option.
 
-* `provisioning_type` - Type of provisioning policy for the disk.
+* `provisioning_type` - (Optional) Type of provisioning policy for the disk.
 
-* `region_id` - The Id of the region that is associated with the storage profile.
+* `region_id` - (Required) The Id of the region that is associated with the storage profile.
 
-* `shares` - A specific number of shares assigned to each virtual machine.
+* `shares` - (Optional) A specific number of shares assigned to each virtual machine.
 
-* `shares_level` - Indicates whether this storage profile supports encryption or not.
+* `shares_level` - (Optional) Indicates whether this storage profile supports encryption or not.
 
-* `storage_policy_id` - Id of the vSphere Storage Policy to be applied.
+* `storage_policy_id` - (Optional) Id of the vSphere Storage Policy to be applied.
 
-* `supports_encryption` - Indicates whether this storage policy should support encryption or not.
+* `supports_encryption` - (Optional) Indicates whether this storage policy should support encryption or not.
 
 ## Attributes Reference
 

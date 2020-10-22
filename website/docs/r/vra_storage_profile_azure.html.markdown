@@ -52,23 +52,23 @@ A storage profile azure resource supports the following arguments:
 
 ## Argument Reference
 
-* `data_disk_caching` - Indicates the caching mechanism for additional disk.
+* `data_disk_caching` - (Optional) Indicates the caching mechanism for additional disk.
 
-* `default_item` - Indicates if this storage profile is a default profile.
+* `default_item` - (Required) Indicates if this storage profile is a default profile.
 
-* `description` - A human-friendly description.
+* `description` - (Optional) A human-friendly description.
 
-* `disk_type` -  Indicates the performance tier for the storage type. Premium disks are SSD backed and Standard disks are HDD backed.
+* `disk_type` - (Optional) Indicates the performance tier for the storage type. Premium disks are SSD backed and Standard disks are HDD backed.
 
-* `name` - A human-friendly name used as an identifier in APIs that support this option.
+* `name` - (Required) A human-friendly name used as an identifier in APIs that support this option.
 
-* `os_disk_caching` - Indicates the caching mechanism for OS disk. Default policy for OS disks is Read/Write.
+* `os_disk_caching` - (Optional) Indicates the caching mechanism for OS disk. Default policy for OS disks is Read/Write.
 
-* `region_id` - A link to the region that is associated with the storage profile.
+* `region_id` - (Required) A link to the region that is associated with the storage profile.
 
-* `storage_account_id` - Id of a storage account where in the disk is placed.
+* `storage_account_id` - (Optional) Id of a storage account where in the disk is placed.
 
-* `supports_encryption` - Indicates whether this storage policy should support encryption or not.
+* `supports_encryption` - (Optional) Indicates whether this storage policy should support encryption or not.
 
 ## Attributes Reference
 

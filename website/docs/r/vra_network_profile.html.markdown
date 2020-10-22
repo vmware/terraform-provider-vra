@@ -35,18 +35,18 @@ A network profile resource supports the following arguments:
 
 ## Argument Reference
 
-* `custom_properties` - Additional properties that may be used to extend the Network Profile object that is produced from this specification. For isolationType security group, datastoreId identifies the Compute Resource Edge datastore. computeCluster and resourcePoolId identify the Compute Resource Edge cluster. For isolationType subnet, distributedLogicalRouterStateLink identifies the on-demand network distributed local router. onDemandNetworkIPAssignmentType identifies the on-demand network IP range assignment type static, dynamic, or mixed.
+* `custom_properties` - (Optional) Additional properties that may be used to extend the Network Profile object that is produced from this specification. For isolationType security group, datastoreId identifies the Compute Resource Edge datastore. computeCluster and resourcePoolId identify the Compute Resource Edge cluster. For isolationType subnet, distributedLogicalRouterStateLink identifies the on-demand network distributed local router. onDemandNetworkIPAssignmentType identifies the on-demand network IP range assignment type static, dynamic, or mixed.
 
-* `description` - A human-friendly description.
+* `description` - (Optional) A human-friendly description.
 
-* `fabric_network_ids` - A list of fabric network Ids which are assigned to the network profile.
+* `fabric_network_ids` - (Optional) A list of fabric network Ids which are assigned to the network profile.
                          example:[ "6543" ]
 
-* `isolated_external_fabric_network_id` - The id of the fabric network used for outbound access.
+* `isolated_external_fabric_network_id` - (Optional) The id of the fabric network used for outbound access.
 
-* `name` - A human-friendly name used as an identifier in APIs that support this option.
+* `name` - (Required) A human-friendly name used as an identifier in APIs that support this option.
 
-* `region_id` - The id of the region for which this profile is defined as in vRealize Automation(vRA).
+* `region_id` - (Required) The id of the region for which this profile is defined as in vRealize Automation(vRA).
 
 ## Attributes Reference
 

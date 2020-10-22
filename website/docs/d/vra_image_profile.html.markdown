@@ -29,13 +29,13 @@ An image profile data source supports the following arguments:
 
 ## Argument Reference
 
-* `filter` - Filter query string that is supported by vRA multi-cloud IaaS API. Example: regionId eq '<regionId>' and cloudAccountId eq '<cloudAccountId>'.
+* `filter` - (Optional) Filter query string that is supported by vRA multi-cloud IaaS API. Example: regionId eq '<regionId>' and cloudAccountId eq '<cloudAccountId>'.
 
-* `id` - The id of the image profile instance.
+* `id` - (Optional) The id of the image profile instance.
 
-* `name` - A human-friendly name used as an identifier in APIs that support this option.
+* `name` - (Optional) A human-friendly name used as an identifier in APIs that support this option.
 
-* `region_id` - The id of the region for which this profile is defined as in vRealize Automation(vRA).
+* `region_id` - (Optional) The id of the region for which this profile is defined as in vRealize Automation(vRA).
 
 ## Attributes Reference
 
