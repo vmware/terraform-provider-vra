@@ -36,7 +36,7 @@ func resourceZone() *schema.Resource {
 			},
 			"placement_policy": {
 				Type:     schema.TypeString,
-				Required: true,
+				Optional: true,
 				Default:  "DEFAULT",
 				ValidateFunc: func(v interface{}, k string) (ws []string, errors []error) {
 					value := v.(string)
