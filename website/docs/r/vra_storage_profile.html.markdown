@@ -1,7 +1,6 @@
 ---
 layout: "vra"
 page_title: "VMware vRealize Automation: vra_storage_profile"
-sidebar_current: "docs-vra-resource-vra-storage-profile"
 description: |-
   Provides a data lookup for vra_storage_profile.
 ---
@@ -39,11 +38,49 @@ resource "vra_storage_profile" "this" {
     value = "bar"
   }
 }
+
+# AWS storage profile using generic vra_storage_profile resource.
+resource "vra_storage_profile" "this" {
+  name         = "aws-with-instance-store"
+  description  = "AWS Storage Profile with instance store device type."
+  region_id    = data.vra_region.this.id
+  default_item = false
+
+  disk_properties = {
+    deviceType = "instance-store"
+  }
+
+  tags {
+    key   = "foo"
+    value = "bar"
+  }
+}
+
+# Azure storage profile using generic vra_storage_profile resource.
+resource "vra_storage_profile" "this" {
+  name                = "azure-with-managed-disks"
+  description         = "Azure Storage Profile with managed disks."
+  region_id           = data.vra_region.this.id
+  default_item        = false
+  supports_encryption = false
+
+  disk_properties = {
+    azureDataDiskCaching = "None"         // Supported Values: None, ReadOnly, ReadWrite
+    azureManagedDiskType = "Standard_LRS" // Supported Values: Standard_LRS, StandardSSD_LRS, Premium_LRS
+    azureOsDiskCaching   = "None"         // Supported Values: None, ReadOnly, ReadWrite
+  }
+
+  tags {
+    key   = "foo"
+    value = "bar"
+  }
+}
 ```
 
 A storage profile resource supports the following arguments:
 
-## Optional arguments
+## Argument Reference
+
 * `description` - A human-friendly description.
 
 * `disk_properties` -  Map of storage properties that are to be applied on disk while provisioning.
@@ -52,7 +89,8 @@ A storage profile resource supports the following arguments:
 
 * `supports_encryption` - Indicates whether this storage profile supports encryption or not.
 
-## Imported attributes
+## Attributes Reference
+
 * `cloud_account_id` - Id of the cloud account this storage profile belongs to.
 
 * `created_at` - Date when the entity was created. The date is in ISO 6801 and UTC.
@@ -63,7 +101,7 @@ A storage profile resource supports the following arguments:
 
 * `links` - HATEOAS of the entity
 
-* `name` - A human-friendly name used as an identifier in APIs that support this option.  Only one of 'filter', 'id', 'name' or 'region_id' must be specified.
+* `name` - A human-friendly name used as an identifier in APIs that support this option.
 
 * `org_id` - The id of the organization this entity belongs to.
 

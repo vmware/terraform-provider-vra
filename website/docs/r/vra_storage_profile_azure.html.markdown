@@ -1,7 +1,6 @@
 ---
 layout: "vra"
 page_title: "VMware vRealize Automation: vra_storage_profile_azure"
-sidebar_current: "docs-vra-resource-vra-storage-profile_azure"
 description: |-
   Provides a data lookup for vra_storage_profile_azure.
 ---
@@ -13,19 +12,34 @@ This is an example of how to create a storage profile azure resource.
 **Vra storage profile azure:**
 
 ```hcl
-# Azure storage profile using generic vra_storage_profile resource. Use 'vra_storage_profile_azure' resource as an alternative.
-resource "vra_storage_profile" "this" {
-  name                = "azure-with-managed-disks"
+# Azure storage profile using vra_storage_profile_azure resource with managed disk.
+resource "vra_storage_profile_azure" "this" {
+  name                = "azure-with-managed-disks-1"
   description         = "Azure Storage Profile with managed disks."
   region_id           = data.vra_region.this.id
   default_item        = false
   supports_encryption = false
 
-  disk_properties = {
-    azureDataDiskCaching = "None"         // Supported Values: None, ReadOnly, ReadWrite
-    azureManagedDiskType = "Standard_LRS" // Supported Values: Standard_LRS, StandardSSD_LRS, Premium_LRS
-    azureOsDiskCaching   = "None"         // Supported Values: None, ReadOnly, ReadWrite
+  data_disk_caching   = "None"         // Supported Values: None, ReadOnly, ReadWrite
+  disk_type           = "Standard_LRS" // Supported Values: Standard_LRS, StandardSSD_LRS, Premium_LRS
+  os_disk_caching     = "None"         // Supported Values: None, ReadOnly, ReadWrite
+
+  tags {
+    key   = "foo"
+    value = "bar"
   }
+}
+
+# Azure storage profile using vra_storage_profile_azure resource with unmanaged disk.
+resource "vra_storage_profile_azure" "this" {
+  name                = "azure-with-unmanaged-disks"
+  description         = "Azure Storage Profile with unmanaged disks."
+  region_id           = data.vra_region.this.id
+  default_item        = false
+  supports_encryption = false
+
+  data_disk_caching   = "None" // Supported Values: None, ReadOnly, ReadWrite
+  os_disk_caching     = "None" // Supported Values: None, ReadOnly, ReadWrite
 
   tags {
     key   = "foo"
@@ -36,29 +50,28 @@ resource "vra_storage_profile" "this" {
 
 A storage profile azure resource supports the following arguments:
 
-## Required arguments
-
-* `name` - A human-friendly name used as an identifier in APIs that support this option.  Only one of 'filter', 'id', 'name' or 'region_id' must be specified.
-
-* `default_item` - Indicates if this storage profile is a default profile.
-
-* `region_id` - A link to the region that is associated with the storage profile.
-
-## Optional arguments
+## Argument Reference
 
 * `data_disk_caching` - Indicates the caching mechanism for additional disk.
+
+* `default_item` - Indicates if this storage profile is a default profile.
 
 * `description` - A human-friendly description.
 
 * `disk_type` -  Indicates the performance tier for the storage type. Premium disks are SSD backed and Standard disks are HDD backed.
 
+* `name` - A human-friendly name used as an identifier in APIs that support this option.
+
 * `os_disk_caching` - Indicates the caching mechanism for OS disk. Default policy for OS disks is Read/Write.
+
+* `region_id` - A link to the region that is associated with the storage profile.
 
 * `storage_account_id` - Id of a storage account where in the disk is placed.
 
 * `supports_encryption` - Indicates whether this storage policy should support encryption or not.
 
-## Imported attributes
+## Attributes Reference
+
 * `created_at` - Date when the entity was created. The date is in ISO 6801 and UTC.
 
 * `external_region_id` - The id of the region as seen in the cloud provider for which this profile is defined.

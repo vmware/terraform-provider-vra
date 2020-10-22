@@ -1,7 +1,6 @@
 ---
 layout: "vra"
 page_title: "VMware vRealize Automation: vra_storage_profile"
-sidebar_current: "docs-vra-datasource-vra-storage-profile"
 description: |-
   Provides a data lookup for vra_storage_profile.
 ---
@@ -28,16 +27,16 @@ data "vra_storage_profile" "this" {
 
 A storage profile data source supports the following arguments:
 
-## Optional arguments
+## Argument Reference
 * `description` - A human-friendly description.
 
 * `disk_properties` -  Map of storage properties that are to be applied on disk while provisioning.
 
-* `filter` - Filter query string that is supported by vRA multi-cloud IaaS API. Example: regionId eq '<regionId>' and cloudAccountId eq '<cloudAccountId>'. Only one of 'filter', 'id', 'name' or 'region_id' must be specified.
+* `filter` - Filter query string that is supported by vRA multi-cloud IaaS API. Example: regionId eq '<regionId>' and cloudAccountId eq '<cloudAccountId>'.
 
-* `id` - The id of the image profile instance.  Only one of 'filter', 'id', 'name' or 'region_id' must be specified.
+* `id` - The id of the image profile instance.
 
-## Imported attributes
+## Attributes Reference
 * `cloud_account_id` - Id of the cloud account this storage profile belongs to.
 
 * `created_at` - Date when the entity was created. The date is in ISO 6801 and UTC.
@@ -48,7 +47,7 @@ A storage profile data source supports the following arguments:
 
 * `links` - HATEOAS of the entity
 
-* `name` - A human-friendly name used as an identifier in APIs that support this option.  Only one of 'filter', 'id', 'name' or 'region_id' must be specified.
+* `name` - A human-friendly name used as an identifier in APIs that support this option.
 
 * `org_id` - The id of the organization this entity belongs to.
 

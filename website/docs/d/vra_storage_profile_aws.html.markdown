@@ -1,7 +1,6 @@
 ---
 layout: "vra"
 page_title: "VMware vRealize Automation: vra_storage_profile_aws"
-sidebar_current: "docs-vra-datasource-vra-storage-profile_aws"
 description: |-
   Provides a data lookup for vra_storage_profile_aws.
 ---
@@ -28,11 +27,11 @@ data "vra_storage_profile_aws" "this" {
 
 A storage profile aws data source supports the following arguments:
 
-## Optional arguments
+## Argument Reference
 
-* `filter` - Filter query string that is supported by vRA multi-cloud IaaS API. Example: regionId eq '<regionId>' and cloudAccountId eq '<cloudAccountId>'. Only one of 'filter', 'id', 'name' or 'region_id' must be specified.
+* `filter` - Filter query string that is supported by vRA multi-cloud IaaS API. Example: regionId eq '<regionId>' and cloudAccountId eq '<cloudAccountId>'.
 
-* `id` - The id of the image profile instance.  Only one of 'filter', 'id', 'name' or 'region_id' must be specified.
+* `id` - The id of the image profile instance.
 
 * `description` - A human-friendly description.
 
@@ -47,7 +46,7 @@ A storage profile aws data source supports the following arguments:
 
 * `volume_type` - Indicates the type of volume associated with type of storage.
 
-## Imported attributes
+## Attributes Reference
 * `created_at` - Date when the entity was created. The date is in ISO 6801 and UTC.
 
 * `default_item` - Indicates if this storage profile is a default profile.
@@ -56,7 +55,7 @@ A storage profile aws data source supports the following arguments:
 
 * `links` - HATEOAS of the entity
 
-* `name` - A human-friendly name used as an identifier in APIs that support this option.  Only one of 'filter', 'id', 'name' or 'region_id' must be specified.
+* `name` - A human-friendly name used as an identifier in APIs that support this option.
 
 * `organization_id` - The id of the organization this entity belongs to.
 

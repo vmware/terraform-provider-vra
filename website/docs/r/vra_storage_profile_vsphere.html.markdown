@@ -1,7 +1,6 @@
 ---
 layout: "vra"
 page_title: "VMware vRealize Automation: vra_storage_profile_vsphere"
-sidebar_current: "docs-vra-resource-vra-storage-profile_vsphere"
 description: |-
   Provides a data lookup for vra_storage_profile_vsphere.
 ---
@@ -36,16 +35,12 @@ resource "vra_storage_profile_vsphere" "this" {
 ```
 
 A storage profile vsphere resource supports the following arguments:
-## Required arguments
-* `default_item` - Indicates if this storage profile is a default profile.
 
-* `name` - A human-friendly name used as an identifier in APIs that support this option.  Only one of 'filter', 'id', 'name' or 'region_id' must be specified.
-
-* `region_id` - The Id of the region that is associated with the storage profile.
-
-## Optional arguments
+## Argument Reference
 
 * `datastore_id` - Id of the vSphere Datastore for placing disk and VM.
+
+* `default_item` - Indicates if this storage profile is a default profile.
 
 * `description` - A human-friendly description.
 
@@ -55,7 +50,11 @@ A storage profile vsphere resource supports the following arguments:
 
 * `limit_iops` - The upper bound for the I/O operations per second allocated for each virtual disk.
 
+* `name` - A human-friendly name used as an identifier in APIs that support this option.
+
 * `provisioning_type` - Type of provisioning policy for the disk.
+
+* `region_id` - The Id of the region that is associated with the storage profile.
 
 * `shares` - A specific number of shares assigned to each virtual machine.
 
@@ -65,7 +64,8 @@ A storage profile vsphere resource supports the following arguments:
 
 * `supports_encryption` - Indicates whether this storage policy should support encryption or not.
 
-## Imported attributes
+## Attributes Reference
+
 * `cloud_account_id` - Id of the cloud account this storage profile belongs to.
 
 * `created_at` - Date when the entity was created. The date is in ISO 6801 and UTC.

@@ -1,7 +1,6 @@
 ---
 layout: "vra"
 page_title: "VMware vRealize Automation: vra_region"
-sidebar_current: "docs-vra-resource-vra-region"
 description: |-
   Provides a data lookup for vra_network_profile.
 ---
@@ -34,13 +33,7 @@ resource "vra_network_profile" "simple" {
 
 A network profile resource supports the following arguments:
 
-## Required arguments
-
-* `name` - A human-friendly name used as an identifier in APIs that support this option.  Only one of 'filter', 'id', 'name' or 'region_id' must be specified.
-
-* `region_id` - The id of the region for which this profile is defined as in vRealize Automation(vRA).  Only one of 'filter', 'id', 'name' or 'region_id' must be specified.
-
-## Optional arguments
+## Argument Reference
 
 * `custom_properties` - Additional properties that may be used to extend the Network Profile object that is produced from this specification. For isolationType security group, datastoreId identifies the Compute Resource Edge datastore. computeCluster and resourcePoolId identify the Compute Resource Edge cluster. For isolationType subnet, distributedLogicalRouterStateLink identifies the on-demand network distributed local router. onDemandNetworkIPAssignmentType identifies the on-demand network IP range assignment type static, dynamic, or mixed.
 
@@ -51,7 +44,11 @@ A network profile resource supports the following arguments:
 
 * `isolated_external_fabric_network_id` - The id of the fabric network used for outbound access.
 
-## Imported attributes
+* `name` - A human-friendly name used as an identifier in APIs that support this option.
+
+* `region_id` - The id of the region for which this profile is defined as in vRealize Automation(vRA).
+
+## Attributes Reference
 
 * `external_region_id` - The external regionId of the resource. 
 

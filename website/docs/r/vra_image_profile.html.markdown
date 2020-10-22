@@ -1,7 +1,6 @@
 ---
 layout: "vra"
 page_title: "VMware vRealize Automation: vra_image_profile"
-sidebar_current: "docs-vra-resource-vra-image-profile"
 description: |-
   Provides a data lookup for vra_image_profile.
 ---
@@ -44,23 +43,22 @@ resource "vra_image_profile" "this" {
 
 An image profile resource supports the following arguments:
 
-## Required arguments
+## Argument Reference
 
-* `name` - A human-friendly name used as an identifier in APIs that support this option.  Only one of 'filter', 'id', 'name' or 'region_id' must be specified.
+* `name` - A human-friendly name used as an identifier in APIs that support this option.
 
-* `image_mapping` - Image mapping defined for the corresponding region.
 
-* `region_id` - The id of the region for which this profile is defined as in vRealize Automation(vRA).  Only one of 'filter', 'id', 'name' or 'region_id' must be specified.
+* `region_id` - The id of the region for which this profile is defined as in vRealize Automation(vRA).
 
-## Optional arguments
-
-* `description` - A human-friendly description.
-
-## Imported attributes
+## Attributes Reference
 
 * `created_at` - Date when the entity was created. The date is in ISO 6801 and UTC.
 
+* `description` - A human-friendly description.
+
 * `external_region_id` - The external regionId of the resource. 
+
+* `image_mapping` - Image mapping defined for the corresponding region.
 
 * `owner` - Email of the user that owns the entity.
 

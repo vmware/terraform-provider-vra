@@ -1,7 +1,6 @@
 ---
 layout: "vra"
 page_title: "VMware vRealize Automation: vra_storage_profile_azure"
-sidebar_current: "docs-vra-datasource-vra-storage-profile_azure"
 description: |-
   Provides a data lookup for vra_storage_profile_azure.
 ---
@@ -28,13 +27,13 @@ data "vra_storage_profile_azure" "this" {
 
 A storage profile azure data source supports the following arguments:
 
-## Optional arguments
+## Argument Reference
 
-* `filter` - Filter query string that is supported by vRA multi-cloud IaaS API. Example: regionId eq '<regionId>' and cloudAccountId eq '<cloudAccountId>'. Only one of 'filter', 'id', 'name' or 'region_id' must be specified.
+* `filter` - Filter query string that is supported by vRA multi-cloud IaaS API. Example: regionId eq '<regionId>' and cloudAccountId eq '<cloudAccountId>'.
 
-* `id` - The id of the image profile instance.  Only one of 'filter', 'id', 'name' or 'region_id' must be specified.
+* `id` - The id of the image profile instance.
 
-## Imported attributes
+## Attributes Reference
 
 * `created_at` - Date when the entity was created. The date is in ISO 6801 and UTC.
 
@@ -50,7 +49,7 @@ A storage profile azure data source supports the following arguments:
 
 * `links` - HATEOAS of the entity
 
-* `name` - A human-friendly name used as an identifier in APIs that support this option.  Only one of 'filter', 'id', 'name' or 'region_id' must be specified.
+* `name` - A human-friendly name used as an identifier in APIs that support this option.
 
 * `os_disk_caching` - Indicates the caching mechanism for OS disk. Default policy for OS disks is Read/Write.
 

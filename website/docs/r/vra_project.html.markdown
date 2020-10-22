@@ -1,7 +1,6 @@
 ---
 layout: "vra"
 page_title: "VMware vRealize Automation: vra_project"
-sidebar_current: "docs-vra-resource-project"
 description: |-
   Provides a VMware vRA vra_project resource.
 ---
@@ -67,11 +66,8 @@ resource "vra_project" "this" {
 ```
 
 A project resource supports the following arguments:
-## Required arguments
 
-* `name` - A human-friendly name used as an identifier in APIs that support this option.  Only one of 'filter', 'id', 'name' or 'region_id' must be specified.
-
-## Optional arguments
+## Argument Reference
 
 * `administrators` - List of administrator users associated with the project. Only administrators can manage project's configuration.
 
@@ -82,6 +78,8 @@ A project resource supports the following arguments:
 * `machine_naming_template` - The naming template to be used for resources provisioned in this project.
 
 * `members` - List of member users associated with the project.
+
+* `name` - A human-friendly name used as an identifier in APIs that support this option.
 
 * `operation_timeout` - The timeout that should be used for Blueprint operations and Provisioning tasks. The timeout is in seconds.
 

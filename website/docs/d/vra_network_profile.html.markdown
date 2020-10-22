@@ -1,7 +1,6 @@
 ---
 layout: "vra"
 page_title: "VMware vRealize Automation: vra_network_profile"
-sidebar_current: "docs-vra-datasource-vra-network-profile"
 description: |-
   Provides a data lookup for vra_network_profile.
 ---
@@ -28,17 +27,17 @@ data "vra_network_profile" "this" {
 
 A network profile data source supports the following arguments:
 
-## Optional arguments
+## Argument Reference
 
-* `filter` - Filter query string that is supported by vRA multi-cloud IaaS API. Example: regionId eq '<regionId>' and cloudAccountId eq '<cloudAccountId>'. Only one of 'filter', 'id', 'name' or 'region_id' must be specified.
+* `filter` - Filter query string that is supported by vRA multi-cloud IaaS API. Example: regionId eq '<regionId>' and cloudAccountId eq '<cloudAccountId>'.
 
-* `id` - The id of the image profile instance.  Only one of 'filter', 'id', 'name' or 'region_id' must be specified.
+* `id` - The id of the image profile instance.
 
 * `isolated_external_fabric_network_id` - The Id of the fabric network used for outbound access.
 
 * `isolated_network_domain_id` - The Id of the network domain used for creating isolated networks.
 
-## Imported attributes
+## Attributes Reference
 
 * `custom_properties` - Additional properties that may be used to extend the Network Profile object that is produced from this specification. For isolationType security group, datastoreId identifies the Compute Resource Edge datastore. computeCluster and resourcePoolId identify the Compute Resource Edge cluster. For isolationType subnet, distributedLogicalRouterStateLink identifies the on-demand network distributed local router. onDemandNetworkIPAssignmentType identifies the on-demand network IP range assignment type static, dynamic, or mixed.
 
@@ -56,13 +55,13 @@ A network profile data source supports the following arguments:
 
 * `links` - HATEOAS of the entity
 
-* `name` - A human-friendly name used as an identifier in APIs that support this option.  Only one of 'filter', 'id', 'name' or 'region_id' must be specified.
+* `name` - A human-friendly name used as an identifier in APIs that support this option.
 
 * `organization_id` - The id of the organization this entity belongs to.
 
 * `owner` - Email of the user that owns the entity.
 
-* `region_id` - The id of the region for which this profile is defined as in vRealize Automation(vRA).  Only one of 'filter', 'id', 'name' or 'region_id' must be specified.
+* `region_id` - The id of the region for which this profile is defined as in vRealize Automation(vRA).
 
 * `security_group_ids` - A list of security group Ids which are assigned to the network profile.
                          example:[ "6545" ]

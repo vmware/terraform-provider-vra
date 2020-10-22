@@ -1,7 +1,6 @@
 ---
 layout: "vra"
 page_title: "VMware vRealize Automation: vra_zone"
-sidebar_current: "docs-vra-datasource-vra-zone"
 description: |-
   Provides a data lookup for vra_zone.
 ---
@@ -18,17 +17,22 @@ data "vra_zone" "test-zone" {
 
 A zone data source supports the following arguments:
 
-## Optional arguments
+## Argument Reference
 
 * `custom_properties` - A list of key value pair of properties that will be used.
 
-* `id` - The id of the image profile instance.  Only one of 'filter', 'id', 'name' or 'region_id' must be specified.
+* `id` - The id of the image profile instance.
 
-* `name` - A human-friendly name used as an identifier in APIs that support this option.  Only one of 'filter', 'id', 'name' or 'region_id' must be specified.
+* `name` - A human-friendly name used as an identifier in APIs that support this option.
 
 * `owner` - Email of the user that owns the entity.
 
-## Imported attributes
+* `placement_policy` - The id of the region for which this zone is defined
+
+* `region_id` - A link to the region that is associated with the storage profile.
+
+## Attributes Reference
+
 * `created_at` - Date when the entity was created. The date is in ISO 8601 and UTC.
 
 * `description` - A human-friendly description.
@@ -36,10 +40,6 @@ A zone data source supports the following arguments:
 * `folder` - The folder relative path to the datacenter where resources are deployed to. (only applicable for vSphere cloud zones)
 
 * `org_id` - The id of the organization this entity belongs to.
-
-* `placement_policy` - The id of the region for which this zone is defined
-
-* `region_id` - A link to the region that is associated with the storage profile.
 
 * `shared_resources` - The id of the organization this entity belongs to.
 
