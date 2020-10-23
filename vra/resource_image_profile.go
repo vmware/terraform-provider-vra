@@ -27,7 +27,7 @@ func resourceImageProfile() *schema.Resource {
 			},
 			"description": {
 				Type:        schema.TypeString,
-				Computed:    true,
+				Optional:    true,
 				Description: "A human-friendly description.",
 			},
 			"external_region_id": {
