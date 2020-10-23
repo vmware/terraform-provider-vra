@@ -31,7 +31,7 @@ provider "vra" {
 }
 ```
 
-See the sidebar for usage information on all of the resources, which will have
+See the sidebar for usage information on all the resources, which will have
 examples specific to their own use cases.
 
 ## Argument Reference

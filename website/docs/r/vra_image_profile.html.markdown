@@ -45,6 +45,8 @@ An image profile resource supports the following arguments:
 
 ## Argument Reference
 
+* `description` - (Optional) A human-friendly description.
+
 * `name` - (Required) A human-friendly name used as an identifier in APIs that support this option.
 
 * `region_id` - (Required) The id of the region for which this profile is defined as in vRealize Automation(vRA).
@@ -52,8 +54,6 @@ An image profile resource supports the following arguments:
 ## Attributes Reference
 
 * `created_at` - Date when the entity was created. The date is in ISO 6801 and UTC.
-
-* `description` - A human-friendly description.
 
 * `external_region_id` - The external regionId of the resource. 
 

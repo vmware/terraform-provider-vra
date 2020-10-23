@@ -36,7 +36,7 @@ func dataSourceBlueprintVersion() *schema.Resource {
 			},
 			"description": {
 				Type:     schema.TypeString,
-				Optional: true,
+				Computed: true,
 			},
 			"id": {
 				Type:     schema.TypeString,
