@@ -43,21 +43,21 @@ resource "vra_load_balancer" "my_load_balancer" {
 A block device resource supports the following arguments:
 
 ## Argument Reference
-* `custom_properties` - Additional custom properties that may be used to extend the machine.
+* `custom_properties` - (Optional) Additional custom properties that may be used to extend the machine.
 
-* `deployment_id` - The id of the deployment that is associated with this resource.
+* `deployment_id` - (Optional) The id of the deployment that is associated with this resource.
 
-* `description` - Describes machine within the scope of your organization and is not propagated to the cloud.
+* `description` - (Optional) Describes machine within the scope of your organization and is not propagated to the cloud.
 
-* `internet_facing` - An Internet-facing load balancer has a publicly resolvable DNS name, so it can route requests from clients over the Internet to the instances that are registered with the load balancer.
+* `internet_facing` - (Optional) An Internet-facing load balancer has a publicly resolvable DNS name, so it can route requests from clients over the Internet to the instances that are registered with the load balancer.
 
-* `name` - A human-friendly name used as an identifier in APIs that support this option.
+* `name` - (Required) A human-friendly name used as an identifier in APIs that support this option.
 
-* `nics` - A set of network interface specifications for this load balancer.
+* `nics` - (Required) A set of network interface specifications for this load balancer.
 
-* `project_id` - The id of the project the current user belongs to.
+* `project_id` - (Required) The id of the project the current user belongs to.
 
-* `routes` - The load balancer route configuration regarding ports and protocols.
+* `routes` - (Required) The load balancer route configuration regarding ports and protocols.
 
 ## Attribute Reference
 * `created_at` - Date when the entity was created. The date is in ISO 6801 and UTC.

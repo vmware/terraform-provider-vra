@@ -60,26 +60,34 @@ EOF
 A machine resource supports the following resource:
 
 ## Argument Reference
+* `boot_config` - (Optional)  Machine boot config that will be passed to the instance that can be used to perform common automated configuration tasks and even run scripts after the instance starts.
 
-* `block_device_id` - The id of the block device.
+* `custom_properties` - (Optional) Additional properties that may be used to extend the base resource.
 
-* `description` - A human-friendly description.
+* `deployment_id` - (Optional) Describes machine within the scope of your organization and is not propagated to the cloud.
 
-* `filter` - Filter query string that is supported by vRA multi-cloud IaaS API. Example: regionId eq '<regionId>' and cloudAccountId eq '<cloudAccountId>'. Only one of 'filter', 'id', 'name' or 'region_id' must be specified.
+* `description` - (Optional) A human-friendly description.
 
-* `id` - The id of the image profile instance.  Only one of 'filter', 'id', 'name' or 'region_id' must be specified.
+* `disks` - (Optional) Specification for attaching/detaching disks to a machine.
+
+* `flavor` - (Required) Flavor of machine instance.
+
+* `image` - (Optional) Type of image used for this machine.
+
+* `image_ref` - (Optional) Direct image reference used for this machine (name, path, location, uri, etc.). Valid if no image property is provided
+
+* `name` - (Required) A human-friendly name used as an identifier in APIs that support this option.
 
 ## Attribute Reference
 
 * `address` - Primary address allocated or in use by this machine. The actual type of the address depends on the adapter type. Typically it is either the public or the external IP address.
 
-* `cloud_account_ids` - Set of ids of the cloud accounts this resource belongs to.
+* `constraints` - Constraints that are used to drive placement policies for the virtual machine that is produced from this specification. Constraint expressions are matched against tags on existing placement targets.
+                  example:[{"mandatory" : "true", "expression": "environment":"prod"}, {"mandatory" : "false", "expression": "pci"}]
 
 * `created_at` - Date when the entity was created. The date is in ISO 6801 and UTC.
 
-* `custom_properties` - Additional properties that may be used to extend the base resource.
-
-* `deployment_id` - Deployment id that is associated with this resource.
+* `disks_list` - List of all disks attached to a machine including boot disk, and additional block devices attached using the disks attribute.
 
 * `external_id` - External entity Id on the provider side.
 
@@ -87,11 +95,14 @@ A machine resource supports the following resource:
 
 * `external_zone_id` - The external zoneId of the resource.
 
+* `image_disk_constraints` - Constraints that are used to drive placement policies for the image disk. Constraint expressions are matched against tags on existing placement targets.
+                             example:[{"mandatory" : "true", "expression": "environment:prod"}, {"mandatory" : "false", "expression": "pci"}]
+
 * `links` - HATEOAS of the entity
 
-* `name` - A human-friendly name used as an identifier in APIs that support this option.  Only one of 'filter', 'id', 'name' or 'region_id' must be specified.
+* `nics` - description:A set of network interface controller specifications for this machine. If not specified, then a default network connection will be created.
 
-* `org_id` - The id of the organization this entity belongs to.
+* `organization_id` - The id of the organization this entity belongs to.
 
 * `owner` - Email of the user that owns the entity.
 

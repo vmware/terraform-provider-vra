@@ -29,11 +29,11 @@ data "vra_block_device" "this" {
 A block device data source supports the following arguments:
 
 ## Argument Reference
-* `id` - The id of the block device.
+* `id` - (Optional) The id of the block device.
 
-* `filter` - Search criteria to filter the list of block devices.
+* `filter` - (Optional) Search criteria to filter the list of block devices.
 
-* `expand_snapshots` - Indicates whether the snapshots of the block-devices should be included in the state. Applicable only for first class block devices.
+* `expand_snapshots` - (Optional) Indicates whether the snapshots of the block-devices should be included in the state. Applicable only for first class block devices.
 
 ## Attributes Reference
 

@@ -20,9 +20,9 @@ A block device snapshot resource supports the following resource:
 
 ## Argument Reference
 
-* `block_device_id` - The id of the block device.
+* `block_device_id` - (Required) The id of the block device.
 
-* `description` - A human-friendly description.
+* `description` - (Optional) A human-friendly description.
 
 ## Attribute Reference
 * `created_at` - Date when the entity was created. The date is in ISO 6801 and UTC.
@@ -31,7 +31,7 @@ A block device snapshot resource supports the following resource:
 
 * `links` - HATEOAS of the entity
 
-* `name` - A human-friendly name used as an identifier in APIs that support this option.  Only one of 'filter', 'id', 'name' or 'region_id' must be specified.
+* `name` - A human-friendly name used as an identifier in APIs that support this option.
 
 * `org_id` - The id of the organization this entity belongs to.
 

@@ -28,21 +28,23 @@ A network resource supports the following resource:
 
 ## Argument Reference
 
-* `id` - The id of the image profile instance.  Only one of 'filter', 'id', 'name' or 'region_id' must be specified.
+* `custom_properties` - (Optional) Additional properties that may be used to extend the base resource.
 
-* `name` - A human-friendly name used as an identifier in APIs that support this option.  Only one of 'filter', 'id', 'name' or 'region_id' must be specified.
+* `deployment_id` - (Optional) Deployment id that is associated with this resource.
+
+* `description` - (Optional) A human-friendly description.
+
+* `name` - (Required) A human-friendly name used as an identifier in APIs that support this option.
+
+* `outbound_access` - (Optional) Flag to indicate if the network needs to have outbound access or not. Default is true. This field will be ignored if there is proper input for networkType customProperty.
+
+* `project_id` - (Required) The id of the project this resource belongs to.
 
 ## Attribute Reference
 
 * `cidr` - IPv4 address range of the network in CIDR format.
 
 * `constraints` - List of storage, network and extensibility constraints to be applied when provisioning through this project.
-
-* `custom_properties` - Additional properties that may be used to extend the base resource.
-
-* `deployment_id` - Deployment id that is associated with this resource.
-
-* `description` - A human-friendly description.
 
 * `external_id` - External entity Id on the provider side.
 
@@ -52,11 +54,7 @@ A network resource supports the following resource:
 
 * `organization_id` - The id of the organization this entity belongs to.
 
-* `outbound_access` - Flag to indicate if the network needs to have outbound access or not. Default is true. This field will be ignored if there is proper input for networkType customProperty
-
 * `owner` - Email of the user that owns the entity.
-
-* `project_id` - The id of the project this resource belongs to.
 
 * `self_link` - Self link of this request.
 

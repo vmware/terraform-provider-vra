@@ -19,9 +19,9 @@ data "vra_network" "test-network" {
 
 ## Argument Reference
 
-* `id` - The id of the image profile instance.  Only one of 'filter', 'id', 'name' or 'region_id' must be specified.
+* `id` - (Optional) The id of the image profile instance.
 
-* `name` - A human-friendly name used as an identifier in APIs that support this option.  Only one of 'filter', 'id', 'name' or 'region_id' must be specified.
+* `name` - (Optional) A human-friendly name used as an identifier in APIs that support this option.
 
 ## Attribute Reference
 

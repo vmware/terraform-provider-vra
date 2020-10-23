@@ -26,11 +26,11 @@ data "vra_machine" "this" {
 
 ```
 ## Argument Reference
-* `description` - A human-friendly description.
+* `description` - (Optional) A human-friendly description.
 
-* `filter` - Filter query string that is supported by vRA multi-cloud IaaS API. Example: regionId eq '<regionId>' and cloudAccountId eq '<cloudAccountId>'. Only one of 'filter', 'id', 'name' or 'region_id' must be specified.
+* `filter` - (Optional) Filter query string that is supported by vRA multi-cloud IaaS API. Example: regionId eq '<regionId>' and cloudAccountId eq '<cloudAccountId>'.
 
-* `id` - The id of the image profile instance.  Only one of 'filter', 'id', 'name' or 'region_id' must be specified.
+* `id` - (Optional) The id of the image profile instance.
 
 ## Attribute Reference
 
@@ -52,7 +52,7 @@ data "vra_machine" "this" {
 
 * `links` - HATEOAS of the entity
 
-* `name` - A human-friendly name used as an identifier in APIs that support this option.  Only one of 'filter', 'id', 'name' or 'region_id' must be specified.
+* `name` - A human-friendly name used as an identifier in APIs that support this option.
 
 * `org_id` - The id of the organization this entity belongs to.
 
