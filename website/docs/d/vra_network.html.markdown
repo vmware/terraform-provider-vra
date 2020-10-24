@@ -12,7 +12,7 @@ This is an example of how to read a network data source.
 ```hcl
 
 data "vra_network" "test-network" {
-  name = "foo1-mcm653-56201379059"
+  name = var.network_name
 }
 
 ```
