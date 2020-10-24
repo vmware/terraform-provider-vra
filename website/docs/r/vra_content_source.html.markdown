@@ -36,14 +36,6 @@ resource "vra_content_source" "this" {
 
 ## Argument Reference
 
-* `name` - (Required) A human-friendly name for content source used as an identifier in APIs that support this option.
-
-* `type_id` - (Required) Content Source type. Supported values are `com.gitlab`, `com.github`, `com.vmware.marketplace`, `org.bitbucket`.
-
-* `project_id` - (Required) The id of the project this entity belongs to.
-
-* `description` - (Optional) A human-friendly description.
-
 * `config` - (Required) Content source custom configuration.
 
     * `branch` - Content source branch name.
@@ -58,7 +50,15 @@ resource "vra_content_source" "this" {
     
     * `repository` - Content source repository.
 
+* `description` - (Optional) A human-friendly description.
+
+* `name` - (Required) A human-friendly name for content source used as an identifier in APIs that support this option.
+
+* `project_id` - (Required) The id of the project this entity belongs to.
+
 * `sync_enabled` - (Required) Flag indicating whether sync is enabled for this content source.
+
+* `type_id` - (Required) Content Source type. Supported values are `com.gitlab`, `com.github`, `com.vmware.marketplace`, `org.bitbucket`.
 
 
 ## Attribute Reference

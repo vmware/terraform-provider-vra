@@ -63,9 +63,9 @@ data "vra_blueprint" "this" {
 
 * `self_link` - HATEOAS of the entity.
 
-* `status` - Status of the cloud template. Supported values: `DRAFT`, `VERSIONED`, `RELEASED`.
-
 * `request_scope_org` - Flag to indicate whether this blueprint can be requested from any project in the organization this entity belongs to.
+
+* `status` - Status of the cloud template. Supported values: `DRAFT`, `VERSIONED`, `RELEASED`.
 
 * `total_released_versions` - Total number of released versions. 
 
