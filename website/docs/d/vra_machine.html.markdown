@@ -12,7 +12,7 @@ This is an example of how to read a machine data source.
 ```hcl
 
 data "vra_machine" "this" {
-  id = vra_machine.my_machine_id
+  id = var.my_machine_id
 }
 
 ```
