@@ -12,7 +12,7 @@ This is an example of how to create a block device snapshot resource.
 
 ```hcl
 resource "vra_block_device_snapshot" "snapshot1" {
-  block_device_id = vra_block_device.disk1.id
+  block_device_id = var.block_device_id
   description = "terraform fcd snapshot"
 }
 ```

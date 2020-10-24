@@ -68,6 +68,30 @@ A block device resource supports the following arguments:
 * `links` - HATEOAS of the entity.
 
 * `snapshots` - Represents a machine snapshot.
+    
+    * `created_at` - Date when the entity was created. The date is in ISO 6801 and UTC.
+    
+    * `description` - Describes machine within the scope of your organization and is not propagated to the cloud.
+    
+    * `id` - The id of this block-device snapshot.
+    
+    * `is_current` - Indicates whether this snapshot is the current snapshot on the block-device.
+    
+    * `links` - HATEOAS of the entity
+    
+        * `rel`
+        
+        * `href`
+        
+        * `hrefs`
+    
+    * `name` - A human-friendly name for the block-device snapshot.
+    
+    * `org_id` - The id of the organization this block-device snapshot belongs to.
+    
+    * `owner` - Email of the user user that owns the block-device snapshot.
+    
+    * `updated_at` - Date when the entity was last updated. The date is in ISO 8601 and UTC.
 
 * `status` - Status of the block device.
 

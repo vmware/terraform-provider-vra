@@ -61,7 +61,9 @@ A machine resource supports the following resource:
 
 ## Argument Reference
 * `boot_config` - (Optional)  Machine boot config that will be passed to the instance that can be used to perform common automated configuration tasks and even run scripts after the instance starts.
-
+    
+    * `content` - A valid cloud config data in json-escaped yaml syntax.
+    
 * `custom_properties` - (Optional) Additional properties that may be used to extend the base resource.
 
 * `deployment_id` - (Optional) Describes machine within the scope of your organization and is not propagated to the cloud.
@@ -69,7 +71,13 @@ A machine resource supports the following resource:
 * `description` - (Optional) A human-friendly description.
 
 * `disks` - (Optional) Specification for attaching/detaching disks to a machine.
-
+    
+    * `block_device_id` - The id of the existing block device.
+    
+    * `description` - A human-friendly description.
+    
+    * `name` - A human-friendly block-device name used as an identifier in APIs that support this option.
+    
 * `flavor` - (Required) Flavor of machine instance.
 
 * `image` - (Optional) Type of image used for this machine.
@@ -88,7 +96,13 @@ A machine resource supports the following resource:
 * `created_at` - Date when the entity was created. The date is in ISO 6801 and UTC.
 
 * `disks_list` - List of all disks attached to a machine including boot disk, and additional block devices attached using the disks attribute.
-
+    
+    * `block_device_id` - The id of the existing block device.
+    
+    * `description` - A human-friendly description.
+    
+    * `name` - A human-friendly block-device name used as an identifier in APIs that support this option.
+    
 * `external_id` - External entity Id on the provider side.
 
 * `external_region_id` - The external regionId of the resource.
@@ -101,7 +115,22 @@ A machine resource supports the following resource:
 * `links` - HATEOAS of the entity
 
 * `nics` - description:A set of network interface controller specifications for this machine. If not specified, then a default network connection will be created.
+    
+    * `addresses` - A list of IP addresses allocated or in use by this network interface.
+                    example:[ "10.1.2.190" ]
+    
+    * `custom_properties` - Additional properties that may be used to extend the base type.
+    
+    * `description` - A human-friendly description.
 
+    * `device_index` - The device index of this network interface.
+    
+    * `name` - A human-friendly name used as an identifier in APIs that support this option.
+    
+    * `network_id` - Id of the network instance that this network interface plugs into.
+
+    * `security_group_ids` - A list of security group ids which this network interface will be assigned to.
+    
 * `organization_id` - The id of the organization this entity belongs to.
 
 * `owner` - Email of the user that owns the entity.

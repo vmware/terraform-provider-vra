@@ -15,8 +15,8 @@ resource "vra_network" "my_network" {
   name = "terraform_vra_network-%d"
   outbound_access = false
   tags {
-	key = "stoyan"
-    value = "genchev"
+	key = "foo"
+    value = "bar"
   }
   constraints {
 	  mandatory = true

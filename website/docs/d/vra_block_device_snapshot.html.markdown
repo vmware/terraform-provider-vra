@@ -13,10 +13,13 @@ This is an example of how to read a block device snapshots data source.
 ```hcl
 
 data "vra_block_device_snapshot" "snapshot" {
-  block_device_id = block_device.id
+  block_device_id = var.block_device_id
 }
 
 ```
+## Argument Reference
+
+* `var.block_device_id` - (Required) The id of the existing block device.
 
 ## Attributes Reference
 
