@@ -6,19 +6,16 @@ description: |-
   Provides a VMware vRA vra_block_device resource.
 ---
 
-# vra_block_device
-## Example Usages
-
 # Resource: vra_block_device
 ## Example Usages
 
-This is an example of how to read a block device resource.
+This is an example of how to create a block device resource.
 
 ```hcl
 resource "vra_block_device" "disk1" {
   capacity_in_gb = 10
   name = "terraform_vra_block_device1"
-  project_id = data.vra_project.this.id
+  project_id = var.project_id
   persistent = true
 }
 ```
