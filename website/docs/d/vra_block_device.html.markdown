@@ -12,7 +12,7 @@ This is an example of how to read a block device data source.
 **Block device data source by its id:**
 ```hcl
 data "vra_block_device" "this" {
-  id = "var.block_device_id"
+  id = var.block_device_id
 }
 
 ```
