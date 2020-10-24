@@ -31,3 +31,9 @@ resource "vra_blueprint" "this" {
           flavor: $${input.flavor}
   EOT
 }
+
+data "vra_blueprint" "this" {
+  name = vra_blueprint.this.name
+
+  depends_on = [vra_blueprint.this]
+}
