@@ -5,11 +5,15 @@ description: |-
 ---
 
 # Data Source: vra_block_device
+
+Provides a data lookup for a vra_block_device.
+
 ## Example Usages
 
-This is an example of how to read a block device data source.
-
 **Block device data source by its id:**
+
+This is an example of how to read a block device data source using its ID.
+
 ```hcl
 data "vra_block_device" "this" {
   id = var.block_device_id
@@ -19,6 +23,8 @@ data "vra_block_device" "this" {
 
 **Block device data source filter by name:**
 
+This is an example of how to read a block device data source using its name.
+
 ```hcl
 data "vra_block_device" "this" {
   filter = "name eq '${var.block_device_name}'"
@@ -26,9 +32,10 @@ data "vra_block_device" "this" {
 
 ```
 
+## Argument Reference
+
 A block device data source supports the following arguments:
 
-## Argument Reference
 * `id` - (Optional) The id of the block device.
 
 * `filter` - (Optional) Search criteria to filter the list of block devices.
@@ -36,6 +43,8 @@ A block device data source supports the following arguments:
 * `expand_snapshots` - (Optional) Indicates whether the snapshots of the block-devices should be included in the state. Applicable only for first class block devices.
 
 ## Attributes Reference
+
+A block device data source supports the following attributes:
 
 * `capacity_in_gb` - Capacity of the block device in GB.
 
