@@ -62,7 +62,7 @@ A machine resource supports the following resource:
 ## Argument Reference
 * `boot_config` - (Optional)  Machine boot config that will be passed to the instance that can be used to perform common automated configuration tasks and even run scripts after the instance starts.
     
-    * `content` - A valid cloud config data in json-escaped yaml syntax.
+    * `content` - (Optional) A valid cloud config data in json-escaped yaml syntax.
     
 * `custom_properties` - (Optional) Additional properties that may be used to extend the base resource.
 
@@ -72,19 +72,48 @@ A machine resource supports the following resource:
 
 * `disks` - (Optional) Specification for attaching/detaching disks to a machine.
     
-    * `block_device_id` - The id of the existing block device.
+    * `block_device_id` - (Required) The id of the existing block device.
     
-    * `description` - A human-friendly description.
+    * `description` - (Optional) A human-friendly description.
     
-    * `name` - A human-friendly block-device name used as an identifier in APIs that support this option.
+    * `name` - (Optional) A human-friendly block-device name used as an identifier in APIs that support this option.
     
 * `flavor` - (Required) Flavor of machine instance.
 
 * `image` - (Optional) Type of image used for this machine.
 
+* `image_disk_constraints` - (Optional) Constraints that are used to drive placement policies for the image disk. Constraint expressions are matched against tags on existing placement targets. example:[{"mandatory" : "true", "expression": "environment:prod"}, {"mandatory" : "false", "expression": "pci"}]. It is nested argument with the following properties.
+    
+    * `expression` - (Required) A constraint that is conveyed to the policy engine. An expression of the form "[!]tag-key[:[tag-value]]", used to indicate a constraint match on keys and values of tags.
+
+    * `mandatory` - (Required) Indicates whether this constraint should be strictly enforced or not.
+
 * `image_ref` - (Optional) Direct image reference used for this machine (name, path, location, uri, etc.). Valid if no image property is provided
 
 * `name` - (Required) A human-friendly name used as an identifier in APIs that support this option.
+
+* `nics` - (Optional) A set of network interface controller specifications for this machine. If not specified, then a default network connection will be created.
+    
+    * `addresses` - (Optional) A list of IP addresses allocated or in use by this network interface.
+                    example:[ "10.1.2.190" ]
+    
+    * `custom_properties` - (Optional) Additional properties that may be used to extend the base type.
+    
+    * `description` - (Optional) A human-friendly description.
+
+    * `device_index` - (Optional) The device index of this network interface.
+    
+    * `name` - (Optional) A human-friendly name used as an identifier in APIs that support this option.
+    
+    * `network_id` - (Required) Id of the network instance that this network interface plugs into.
+
+    * `security_group_ids` - (Optional) A list of security group ids which this network interface will be assigned to.
+
+* `tags` - (Optional) A set of tag keys and optional values that should be set on any resource that is produced from this specification. example:[ { "key" : "ownedBy", "value": "Rainpole" } ]. It is nested argument with the following properties.
+    
+    * `key` - (Required) Tag’s key.
+    
+    * `value` - (Required) Tag’s value.
 
 ## Attribute Reference
 
@@ -109,27 +138,7 @@ A machine resource supports the following resource:
 
 * `external_zone_id` - The external zoneId of the resource.
 
-* `image_disk_constraints` - Constraints that are used to drive placement policies for the image disk. Constraint expressions are matched against tags on existing placement targets.
-                             example:[{"mandatory" : "true", "expression": "environment:prod"}, {"mandatory" : "false", "expression": "pci"}]
-
 * `links` - HATEOAS of the entity
-
-* `nics` - description:A set of network interface controller specifications for this machine. If not specified, then a default network connection will be created.
-    
-    * `addresses` - A list of IP addresses allocated or in use by this network interface.
-                    example:[ "10.1.2.190" ]
-    
-    * `custom_properties` - Additional properties that may be used to extend the base type.
-    
-    * `description` - A human-friendly description.
-
-    * `device_index` - The device index of this network interface.
-    
-    * `name` - A human-friendly name used as an identifier in APIs that support this option.
-    
-    * `network_id` - Id of the network instance that this network interface plugs into.
-
-    * `security_group_ids` - A list of security group ids which this network interface will be assigned to.
     
 * `organization_id` - The id of the organization this entity belongs to.
 
@@ -138,8 +147,5 @@ A machine resource supports the following resource:
 * `power_state` - Power state of machine.
 
 * `project_id` - The id of the project this resource belongs to.
-
-* `tags` - A set of tag keys and optional values that were set on this resource.
-           example:[ { "key" : "ownedBy", "value": "Rainpole" } ]
 
 * `update_at` - Date when the entity was last updated. The date is ISO 8601 and UTC.

@@ -7,11 +7,11 @@ description: |-
 
 # Data Source: vra_zone
 ## Example Usages
-This is an example of how to create a zone data source.
+This is an example of how to read a zone data source.
 
 ```hcl
 data "vra_zone" "test-zone" {
-  name = "${vra_zone.my-zone.name}"
+  name = var.zone_name
 }
 ```
 
@@ -19,27 +19,28 @@ A zone data source supports the following arguments:
 
 ## Argument Reference
 
-* `custom_properties` - (Optional) A list of key value pair of properties that will be used.
-
 * `id` - (Optional) The id of the image profile instance.
 
 * `name` - (Optional) A human-friendly name used as an identifier in APIs that support this option.
 
-* `owner` - (Optional) Email of the user that owns the entity.
-
-* `placement_policy` - (Optional) The id of the region for which this zone is defined
-
-* `region_id` - (Optional) A link to the region that is associated with the storage profile.
 
 ## Attributes Reference
 
 * `created_at` - Date when the entity was created. The date is in ISO 8601 and UTC.
+
+* `custom_properties` - A list of key value pair of properties that will be used.
 
 * `description` - A human-friendly description.
 
 * `folder` - The folder relative path to the datacenter where resources are deployed to. (only applicable for vSphere cloud zones)
 
 * `org_id` - The id of the organization this entity belongs to.
+
+* `owner` - Email of the user that owns the entity.
+
+* `placement_policy` - The id of the region for which this zone is defined
+
+* `region_id` - A link to the region that is associated with the storage profile.
 
 * `shared_resources` - The id of the organization this entity belongs to.
 
