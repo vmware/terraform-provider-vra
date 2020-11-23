@@ -1,0 +1,78 @@
+---
+layout: "vra"
+page_title: "VMware vRealize Automation: network_ip_range"
+description: |-
+  Provides a VMware vRA network_ip_range resource.
+---
+
+# Resource: network_ip_range
+
+Provides a VMware vRA network_ip_range resource.
+
+## Example Usages
+
+**Create vRA Network IP range resource:**
+
+This is an example of how to create a vRA Network IP range resource.
+
+```hcl
+
+resource "network_ip_range" "this" {
+  name              = "example-ip-range"
+  description       = "Internal Network IP Range Example"
+  start_ip_address  = var.start_ip
+  end_ip_address    = var.end_ip
+  ip_version        = var.ip_version
+  fabric_network_id = data.fabric_network.subnet.id
+
+  tags {
+    key   = "foo"
+    value = "bar"
+  }
+}
+
+```
+
+
+## Argument Reference
+
+The following arguments are supported for a vRA Network IP range resource:
+
+* `filter` - Filter query string that is supported by vRA multi-cloud IaaS API. Only one of 'filter' or 'id' must be specified.
+
+* `id` - The id of the vRA fabric network.  Only one of 'filter' or 'id' must be specified.
+
+## Attribute Reference
+
+* `created_at` - Date when the entity was created. The date is in ISO 6801 and UTC.
+
+* `description` - State object representing a network on a external cloud provider.
+
+* `end_ip_address` - End IP address of the range.
+
+* `external_id` - External entity Id on the provider side.
+
+* `fabric_network_id` - Fabric network Id.
+
+* `ip_version` - IP address version: IPv4 or IPv6. Default: IPv4.
+
+* `links` - HATEOAS of the entity
+
+* `name` - A human-friendly name used as an identifier in APIs that support this option.
+
+* `org_id` - The id of the organization this entity belongs to.
+
+* `start_ip_address` - Start IP address of the range.
+
+* `owner` - Email of the user that owns the entity.
+
+* `tags` -  A set of tag keys and optional values that were set on this resource.
+                       example:[ { "key" : "ownedBy", "value": "Rainpole" } ]
+
+* `updated_at` - Date when the entity was last updated. The date is ISO 8601 and UTC.
+
+## Import
+
+vRA Network IP range can be imported using the id, e.g.
+
+`$ terraform import network_ip_range.new_ip_range 05956583-6488-4e7d-84c9-92a7b7219a15`
