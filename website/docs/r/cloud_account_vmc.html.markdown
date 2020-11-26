@@ -2,21 +2,20 @@
 layout: "vra"
 page_title: "VMware vRealize Automation: vra_cloud_account_vmc"
 description: |-
-    Provides a VMware vRA vra_cloud_account_vmc resource.
+    Creates a vra_cloud_account_vmc resource.
 ---
 
 # Resource: vra\_cloud\_account\_vmc
 
-Provides a VMware vRA vra_cloud_account_vmc resource.
+Creates a VMware vRealize Automation VMC cloud account resource.
 
 ## Example Usages
 
 **Create VMC cloud account:**
 
-This is an example of how to create a VMC cloud account resource.
+The following example shows how to create a VMC cloud account resource.
 
 ```hcl
-
 resource "vra_cloud_account_vmc" "this" {
   name        = "tf-vra-cloud-account-vmc"
   description = "tf test vmc cloud account"
@@ -37,61 +36,56 @@ resource "vra_cloud_account_vmc" "this" {
     value = "bar"
   }
 }
-
 ```
-
-
 
 ## Argument Reference
 
-The following arguments are supported for an VMC cloud account resource:
+Create your VMC cloud account resource with the following arguments:
 
-* `accept_self_signed_cert` - (Optional) Accept self signed certificate when connecting to the cloud account.
+* `accept_self_signed_cert` - (Optional) Accept self-signed certificate when connecting to the cloud account.
 
 * `api_token` - (Required) VMC API access key.
 
-* `dc_id` - (Optional) Identifier of a data collector vm deployed in the on premise infrastructure. Refer to the data-collector API to create or list data collector.
+* `dc_id` - (Optional) Identifier of a data collector VM deployed in the on premise infrastructure. Refer to the data-collector API to create or list data collector.
 
-* `description` - (Optional) A human-friendly description.
+* `description` - (Optional) Human-friendly description.
 
-* `name` - (Optional) A human-friendly name used as an identifier in APIs that support this option.
+* `name` - (Optional) Human-friendly name used as an identifier in APIs that support this option.
 
-* `nsx_hostname` - (Required)  The IP address of the NSX Manager server in the specified SDDC / FQDN.
+* `nsx_hostname` - (Required) IP address of the NSX Manager server in the specified SDDC / FQDN.
 
-* `regions` - (Optional) A set of region names that are enabled for this account.
+* `regions` - (Optional) Set of region names enabled for the cloud account.
 
-* `sddc_name` - (Required) Identifier of the on-premise SDDC to be used by this cloud account. Note that NSX-V SDDCs are not supported.
+* `sddc_name` - (Required) Identifier of the on-premise SDDC to be used by the cloud account. Note that NSX-V SDDCs are not supported.
 
-* `tags` - (Optional) A set of tag keys and optional values that to set on this resource.
-example:[ { "key" : "vmware", "value": "provider" } ]
-  * `key` - Tag’s key.
-  * `value` - Tag’s value.
+* `tags` - (Optional) Set of tag keys and values to apply to the cloud account.  
+Example:[ { "key" : "vmware", "value": "provider" } ]
 
-* `vcenter_hostname` - (Required) The IP address or FQDN of the vCenter Server in the specified SDDC. The cloud proxy belongs on this vCenter.
+* `vcenter_hostname` - (Required) IP address or FQDN of the vCenter Server in the specified SDDC. The cloud proxy belongs on this vCenter.
   
-* `vcenter_password` - (Required) Password for the user used to authenticate with the cloud Account.
+* `vcenter_password` - (Required) Password used to authenticate to the cloud Account.
 
-* `vcenter_username` - (Required) vCenter user name for the specified SDDC. The specified user requires CloudAdmin credentials. The user does not require CloudGlobalAdmin credentials.
+* `vcenter_username` - (Required) vCenter user name for the specified SDDC. The user requires CloudAdmin credentials. The user does not require CloudGlobalAdmin credentials.
 
 ## Attribute Reference
 
-* `created_at` - Date when the entity was created. The date is in ISO 6801 and UTC.
+* `created_at` - Date when entity was created. Date and time format is ISO 6801 and UTC.
 
-* `id` - The id of this VMC cloud account.
+* `id` - ID of the VMC cloud account.
 
-* `links` - HATEOAS of the entity.
+* `links` - HATEOAS of entity.
 
-* `org_id` - The id of the organization this entity belongs to.
+* `org_id` - ID of organization that entity belongs to.
 
-* `owner` - Email of the user that owns the entity.
+* `owner` - Email of entity owner.
 
-* `region-ids` - A set of region IDs that are enabled for this account.
+* `region-ids` - Set of region IDs enabled for the cloud account.
 
-* `updated_at` - Date when the entity was last updated. The date is ISO 8601 and UTC.
+* `updated_at` - Date when the entity was last updated. Date and time format is ISO 6801 and UTC.
 
 
 ## Import
 
-VMC cloud account can be imported using the id, e.g.
+To import the VMC cloud account, use the ID as in the following example:
 
 `$ terraform import vra_cloud_account_vmc.new_vmc 05956583-6488-4e7d-84c9-92a7b7219a15`

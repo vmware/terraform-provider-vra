@@ -3,9 +3,13 @@ layout: "vra"
 page_title: "VMware vRealize Automation: vra_network"
 sidebar_current: "docs-vra-resource-network"
 description: |-
-  Provides a VMware vRA vra_network resource.
+  Creates a vra_network resource.
 ---
 
-# vra\_network
+# Resource: vra\_network
 
-Provides a VMware vRA vra_network resource.
+Creates a VMware vRealize Automation network resource.
+
+## Example Usages
+
+The following example shows how to create a network resource.
