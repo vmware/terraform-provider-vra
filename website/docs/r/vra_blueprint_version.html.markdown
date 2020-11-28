@@ -6,9 +6,11 @@ description: A resource that can be used to create a vRealize Automation cloud t
 
 # Resource: vra\_blueprint\_version
 
-This resource provides a way to create a vRealize Automation(vRA) cloud template (blueprint) version.
+Creates a VMware vRealize Automation cloud template (blueprint) version resource.
 
 ## Example Usages
+
+The following example shows how to create a cloud template (blueprint) version resource.
 
 ```hcl
 resource "vra_blueprint_version" "this" {
@@ -22,47 +24,49 @@ resource "vra_blueprint_version" "this" {
 
 ## Argument Reference
 
-* `blueprint_id` - (Required) The id of the cloud template.
+Create your cloud template (blueprint) version resource with the following arguments:
 
-* `change_log` - (Optional) Cloud template version log.
+* `blueprint_id` - (Required) ID of the cloud template  (blueprint).
 
-* `description` - (Optional) A human-friendly description for the cloud template version. 
+* `change_log` - (Optional) Cloud template  (blueprint) version log.
+
+* `description` - (Optional) Human-friendly description for the cloud template  (blueprint) version. 
  
-* `releae` - (Optional) Flag to indicate whether to release the version.
+* `release` - (Optional) Flag to indicate whether to release the version.
 
-* `version` - (Required) Cloud template version.
+* `version` - (Required) Cloud template  (blueprint) version.
 
 
 ## Attribute Reference
 
-* `blueprint_description` - Description of the cloud template.
+* `blueprint_description` - Description of cloud template (blueprint).
 
 * `content` - Blueprint YAML content.
 
-* `created_at` - Date when the entity was created. The date is in ISO 6801 and UTC.
+* `created_at` - Date when the entity was created. Date and time format is ISO 6801 and UTC.
 
-* `created_by` - The user the entity was created by.
+* `created_by` - User who created the entity.
 
-* `id` - The id of this cloud template version.
+* `id` - ID of cloud template (blueprint) version.
 
-* `name` - Name of the cloud template version.
+* `name` - Name of cloud template (blueprint) version.
 
-* `org_id` - The id of the organization this entity belongs to.
+* `org_id` - ID of organization that entity belongs to.
 
-* `project_id` - The id of the project this entity belongs to.
+* `project_id` - ID of project that entity belongs to.
 
-* `project_name` - The name of the project the entity belongs to.
+* `project_name` - Name of project that entity belongs to.
 
-* `status` - Status of the cloud template. Supported values: `DRAFT`, `VERSIONED`, `RELEASED`.
+* `status` - Status of the cloud template (blueprint). Supported values: `DRAFT`, `VERSIONED`, `RELEASED`.
 
-* `updated_at` - Date when the entity was last updated. The date is ISO 8601 and UTC.
+* `updated_at` - Date when the entity was last updated. Date and time format is ISO 6801 and UTC.
 
-* `updated_by` - The user the entity was last updated by.
+* `updated_by` - User who last updated the entity.
 
-* `valid` - Flag to indicate if the current content of the cloud template is valid.
+* `valid` - Flag to indicate if the current content of the cloud template (blueprint) is valid.
 
 ## Import
 
-Cloud template version can be imported using the id, e.g.
+To import the cloud template (blueprint) version, use the ID as in the following example:
 
 `$ terraform import vra_blueprint_version.this 05956583-6488-4e7d-84c9-92a7b7219a15`
