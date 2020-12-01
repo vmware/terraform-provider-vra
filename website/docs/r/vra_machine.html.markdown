@@ -99,7 +99,7 @@ Create your machine resource with the following arguments:
 * `constraints` - Constraints used to drive placement policies for the virtual machine produced from the specification. Constraint expressions are matched against tags on existing placement targets.  
 Example:[{"mandatory" : "true", "expression": "environment":"prod"}, {"mandatory" : "false", "expression": "pci"}]
 
-* `created_at` - Date when the entity was created. Date and time format is ISO 6801 and UTC.
+* `created_at` - Date when the entity was created. Date and time format is ISO 8601 and UTC.
 
 * `disks_list` - List of all disks attached to a machine including boot disk, and additional block devices attached using the disks attribute.
     
@@ -148,4 +148,4 @@ Example:[{"mandatory" : "true", "expression": "environment:prod"}, {"mandatory" 
 * `tags` - Set of tag keys and values set on the resource.
            Example:[ { "key" : "ownedBy", "value": "Rainpole" } ]
 
-* `update_at` - Date when the entity was last updated. Date and time format is ISO 6801 and UTC.
+* `update_at` - Date when the entity was last updated. Date and time format is ISO 8601 and UTC.

@@ -29,7 +29,7 @@ Create your block device snapshot resource with the following arguments:
 * `description` - (Optional) Human-friendly description.
 
 ## Attribute Reference
-* `created_at` - Date when entity was created. Date and time format is ISO 6801 and UTC.
+* `created_at` - Date when entity was created. Date and time format is ISO 8601 and UTC.
 
 * `is_current` - Indicates whether snapshot on block device is current.
 
@@ -41,6 +41,6 @@ Create your block device snapshot resource with the following arguments:
 
 * `owner` - Email of entity owner.
 
-* `update_at` - Date when entity was last updated. Date and time format is ISO 6801 and UTC.
+* `update_at` - Date when entity was last updated. Date and time format is ISO 8601 and UTC.
 
 

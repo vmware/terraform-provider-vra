@@ -60,7 +60,7 @@ Example:[ { "key" : "vmware", "value": "provider" } ]
 
 * `associated_cloud_account_ids` - Cloud accounts associated with the cloud account.
 
-* `created_at` - Date when  entity was created. Date and time format is ISO 6801 and UTC.
+* `created_at` - Date when  entity was created. Date and time format is ISO 8601 and UTC.
 
 * `id` - (Optional) ID of the vSphere cloud account.
 

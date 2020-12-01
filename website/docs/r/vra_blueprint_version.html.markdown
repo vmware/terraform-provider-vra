@@ -43,7 +43,7 @@ Create your cloud template (blueprint) version resource with the following argum
 
 * `content` - Blueprint YAML content.
 
-* `created_at` - Date when the entity was created. Date and time format is ISO 6801 and UTC.
+* `created_at` - Date when the entity was created. Date and time format is ISO 8601 and UTC.
 
 * `created_by` - User who created the entity.
 
@@ -59,7 +59,7 @@ Create your cloud template (blueprint) version resource with the following argum
 
 * `status` - Status of the cloud template (blueprint). Supported values: `DRAFT`, `VERSIONED`, `RELEASED`.
 
-* `updated_at` - Date when the entity was last updated. Date and time format is ISO 6801 and UTC.
+* `updated_at` - Date when the entity was last updated. Date and time format is ISO 8601 and UTC.
 
 * `updated_by` - User who last updated the entity.
 

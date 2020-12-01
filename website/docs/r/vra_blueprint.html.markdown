@@ -59,7 +59,7 @@ Create your blueprint resource with the following arguments:
 
 * `content_source_path` - Content source path.
 
-* `content_source_sync_at` - Date when content source was last synced. The date is in ISO 6801 and UTC.
+* `content_source_sync_at` - Date when content source was last synced. The date is in ISO 8601 and UTC.
 
 * `content_source_sync_messages` - Content source last sync messages.
 
@@ -67,7 +67,7 @@ Create your blueprint resource with the following arguments:
 
 * `content_source_type` - Content source type.
 
-* `created_at` - Date when entity was created. The date is in ISO 6801 and UTC.
+* `created_at` - Date when entity was created. The date is in ISO 8601 and UTC.
 
 * `created_by` - The user who created entity.
 
@@ -85,7 +85,7 @@ Create your blueprint resource with the following arguments:
 
 * `total_versions` - Total number of versions.
 
-* `updated_at` - Date when entity was last updated. Date and time format is ISO 6801 and UTC.
+* `updated_at` - Date when entity was last updated. Date and time format is ISO 8601 and UTC.
 
 * `updated_by` - The user who last updated the entity.
 
@@ -105,6 +105,6 @@ Create your blueprint resource with the following arguments:
 
 ## Import
 
-To import the Cloud template, use the ID as in the following example:
+To import the cloud template, use the ID as in the following example:
 
 `$ terraform import vra_blueprint.this 05956583-6488-4e7d-84c9-92a7b7219a15`

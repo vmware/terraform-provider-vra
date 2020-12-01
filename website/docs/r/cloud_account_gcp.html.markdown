@@ -40,6 +40,8 @@ Create your GCP cloud account resource with the following arguments:
 
 * `name` - (Required) Name of GCP cloud account.
 
+* `regions` - (Optional) Set of region names enabled for the cloud account.
+
 * `private_key` - (Required) GCP Private key.
 
 * `private_key_id` - (Required) GCP Private key ID.
@@ -51,7 +53,7 @@ Example:[ { "key" : "vmware", "value": "provider" } ]
 
 ## Attribute Reference
 
-* `created_at` - Date when entity was created. Date and time format is ISO 6801 and UTC.
+* `created_at` - Date when entity was created. Date and time format is ISO 8601 and UTC.
 
 * `id` - ID of GCP cloud account.
 
@@ -61,9 +63,7 @@ Example:[ { "key" : "vmware", "value": "provider" } ]
 
 * `owner` - Email of entity owner.
 
-* `regions` - Set of region names enabled for the cloud account.
-
-* `updated_at` - Date when entity was last updated. Date and time format is ISO 6801 and UTC.
+* `updated_at` - Date when entity was last updated. Date and time format is ISO 8601 and UTC.
 
 
 ## Import

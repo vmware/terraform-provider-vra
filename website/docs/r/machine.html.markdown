@@ -163,7 +163,7 @@ Example:[ { "key" : "foo", "value": "bar" } ]
 
 * `address` - Primary address allocated or in use by the machine. Actual type of the address depends on the adapter type. Typically either the public or external IP address.
 
-* `created_at` - Date when entity was created. Date and time format is ISO 6801 and UTC.
+* `created_at` - Date when entity was created. Date and time format is ISO 8601 and UTC.
 
 * `external_id` - External entity ID on provider side.
 
@@ -177,5 +177,5 @@ Example:[ { "key" : "foo", "value": "bar" } ]
 
 * `power_state` - Power state of machine.
 
-* `updated_at` - Date when entity was last updated. Date and time format is ISO 6801 and UTC.
+* `updated_at` - Date when entity was last updated. Date and time format is ISO 8601 and UTC.
 

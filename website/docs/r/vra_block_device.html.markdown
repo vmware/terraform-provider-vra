@@ -50,7 +50,7 @@ Create your block device resource with the following arguments:
 * `source_reference` - (Optional) URI to use for block device. Example: ami-0d4cfd66
 
 ## Attribute Reference
-* `created_at` - Date when entity was created. Date and time format is ISO 6801 and UTC.
+* `created_at` - Date when entity was created. Date and time format is ISO 8601 and UTC.
 
 * `custom_properties` - Additional custom properties that may be used to extend the machine.
 
@@ -70,7 +70,7 @@ Create your block device resource with the following arguments:
 
 * `snapshots` - Represents a machine snapshot.
     
-    * `created_at` - Date when entity was created. Date and time format is ISO 6801 and UTC.
+    * `created_at` - Date when entity was created. Date and time format is ISO 8601 and UTC.
     
     * `description` - Describes machine within the scope of your organization and is not propagated to the cloud.
     
@@ -92,11 +92,11 @@ Create your block device resource with the following arguments:
     
     * `owner` - Email of block device snapshot owner.
     
-    * `updated_at` - Date when entity was last updated. Date and time format is ISO 6801 and UTC.
+    * `updated_at` - Date when entity was last updated. Date and time format is ISO 8601 and UTC.
 
 * `status` - Status of block device.
 
 * `tags` - Set of tag keys and values to apply to the resource instance.  
 Example:[ { "key" : "vmware.enumeration.type", "value": "nebs_block" } ]
 
-* `updated_at` - Date when entity was last updated. Date and time format is ISO 6801 and UTC.
+* `updated_at` - Date when entity was last updated. Date and time format is ISO 8601 and UTC.

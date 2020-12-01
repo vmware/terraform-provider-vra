@@ -48,7 +48,7 @@ Example:[ { "key" : "vmware", "value": "provider" } ]
 
 ## Attribute Reference
 
-* `created_at` - Date when entity was created. Date and time format is ISO 6801 and UTC.
+* `created_at` - Date when entity was created. Date and time format is ISO 8601 and UTC.
 
 * `links` - HATEOAS of entity.
 
@@ -56,7 +56,7 @@ Example:[ { "key" : "vmware", "value": "provider" } ]
 
 * `owner` - Email of entity owner.
 
-* `updated_at` - Date when entity was last updated. Date and time format is ISO 6801 and UTC.
+* `updated_at` - Date when entity was last updated. Date and time format is ISO 8601 and UTC.
 
 ## Import
 
