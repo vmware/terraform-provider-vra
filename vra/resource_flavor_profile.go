@@ -1,6 +1,9 @@
 package vra
 
 import (
+	"fmt"
+	"strings"
+
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/vmware/vra-sdk-go/pkg/client/flavor_profile"
 	"github.com/vmware/vra-sdk-go/pkg/models"
@@ -96,7 +99,16 @@ func resourceFlavorProfileRead(d *schema.ResourceData, m interface{}) error {
 	flavor := *ret.Payload
 	d.Set("description", flavor.Description)
 	d.Set("name", flavor.Name)
-	d.Set("flavor_mappings", flattenFlavors(flavor.FlavorMappings.Mapping))
+
+	if regionLink, ok := flavor.Links["region"]; ok {
+		if regionLink.Href != "" {
+			d.Set("region_id", strings.TrimPrefix(regionLink.Href, "/iaas/api/regions/"))
+		}
+	}
+
+	if err := d.Set("flavor_mapping", flattenFlavors(flavor.FlavorMappings.Mapping)); err != nil {
+		return fmt.Errorf("error setting flavor mapping - error: %#v", err)
+	}
 
 	return nil
 }
@@ -154,12 +166,12 @@ func expandFlavors(configFlavors []interface{}) map[string]models.FabricFlavorDe
 
 func flattenFlavors(list map[string]models.FabricFlavor) []map[string]interface{} {
 	result := make([]map[string]interface{}, 0, len(list))
-	for _, flavor := range list {
+	for flavorName, flavor := range list {
 		l := map[string]interface{}{
 			"cpu_count":     flavor.CPUCount,
 			"instance_type": flavor.ID,
 			"memory":        flavor.MemoryInMB,
-			"name":          flavor.Name,
+			"name":          flavorName,
 		}
 
 		result = append(result, l)
