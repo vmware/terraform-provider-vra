@@ -2,21 +2,18 @@
 layout: "vra"
 page_title: "VMware vRealize Automation: vra_cloud_account_gcp"
 description: |-
-    Provides a VMware vRA vra_cloud_account_gcp resource.
+    Creates a vra_cloud_account_gcp resource.
 ---
 
 # Resource: vra\_cloud\_account\_gcp
 
-Provides a VMware vRA vra_cloud_account_gcp resource.
+Creates a VMware vRealize Automation GCP cloud account resource.
 
 ## Example Usages
 
-**Create GCP cloud account:**
-
-This is an example of how to create a GCP cloud account resource.
+The following example shows how to create a GCP cloud account resource.
 
 ```hcl
-
 resource "vra_cloud_account_gcp" "this" {
   name           = "tf-vra-cloud-account-gcp"
   description    = "terraform test cloud account gcp"
@@ -31,53 +28,46 @@ resource "vra_cloud_account_gcp" "this" {
     value = "bar"
   }
 }
-
 ```
-
-
 
 ## Argument Reference
 
-
-The following arguments are supported for an GCP cloud account resource:
+Create your GCP cloud account resource with the following arguments:
 
 * `client_email` - (Required) GCP Client email.
 
-* `description` - (Optional) A human-friendly description.
+* `description` - (Optional) Human-friendly description.
 
-* `name` - (Required) The name of this GCP cloud account.
+* `name` - (Required) Name of GCP cloud account.
+
+* `regions` - (Optional) Set of region names enabled for the cloud account.
 
 * `private_key` - (Required) GCP Private key.
 
-* `private_key_id` - (Required)  GCP Private key ID.
+* `private_key_id` - (Required) GCP Private key ID.
 
 * `project_id` - (Required) GCP Project ID.
 
-* `tags` - (Optional) A set of tag keys and optional values that to set on this resource.
-example:[ { "key" : "vmware", "value": "provider" } ]
-  * `key` - Tag’s key.
-  * `value` - Tag’s value.
-
+* `tags` - (Optional) Set of tag keys and values to apply to the cloud account.  
+Example:[ { "key" : "vmware", "value": "provider" } ]
 
 ## Attribute Reference
 
-* `created_at` - Date when the entity was created. The date is in ISO 6801 and UTC.
+* `created_at` - Date when entity was created. Date and time format is ISO 8601 and UTC.
 
-* `id` - The id of this GCP cloud account.
+* `id` - ID of GCP cloud account.
 
-* `links` - HATEOAS of the entity.
+* `links` - HATEOAS of entity.
 
-* `org_id` - The id of the organization this entity belongs to.
+* `org_id` - ID of organization that entity belongs to.
 
-* `owner` - Email of the user that owns the entity.
+* `owner` - Email of entity owner.
 
-* `regions` - A set of region names that are enabled for this account.
-
-* `updated_at` - Date when the entity was last updated. The date is ISO 8601 and UTC.
+* `updated_at` - Date when entity was last updated. Date and time format is ISO 8601 and UTC.
 
 
 ## Import
 
-GCP cloud account can be imported using the id, e.g.
+To import the GCP cloud account, use the ID as in the following example:
 
 `$ terraform import vra_cloud_account_gcp.new_gcp 05956583-6488-4e7d-84c9-92a7b7219a15`

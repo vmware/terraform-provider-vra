@@ -2,21 +2,18 @@
 layout: "vra"
 page_title: "VMware vRealize Automation: vra_cloud_account_aws"
 description: |-
-  Provides a VMware vRA vra_cloud_account_aws resource.
+  Creates a vra_cloud_account_aws resource.
 ---
 
 # Resource: vra\_cloud\_account\_aws
 
-Provides a VMware vRA vra_cloud_account_aws resource.
+Creates a VMware vRealize Automation AWS cloud account resource.
 
 ## Example Usages
 
-**Create AWS cloud account:**
-
-This is an example of how to create an AWS cloud account resource.
+The following example shows how to create an AWS cloud account resource.
 
 ```hcl
-
 resource "vra_cloud_account_aws" "this" {
   name        = "tf-vra-cloud-account-aws"
   description = "terraform test cloud account aws"
@@ -29,47 +26,44 @@ resource "vra_cloud_account_aws" "this" {
     value = "bar"
   }
 }
-
 ```
-
 
 ## Argument Reference
 
-The following arguments are supported for an AWS cloud account resource:
+Create your AWS cloud account resource with the following arguments:
 
-* `access_key` - (Required) Access key id for AWS.
+* `access_key` - (Required) Access key ID for AWS.
 
-* `description` - (Optional) A human-friendly description.
+* `description` - (Optional) Human-friendly description.
 
-* `name` - (Required) The name of this AWS cloud account.
+* `name` - (Required) Name of AWS cloud account.
 
-* `regions` - (Optional) A set of region names that are enabled for this account.
+* `regions` - (Optional) Set of region names enabled for the cloud account.
 
-* `secret_key` - (Required) Aws Secret Access Key
+* `secret_key` - (Required) AWS Secret Access Key
 
-* `tags` - (Optional) A set of tag keys and optional values that to set on this cloud account.
-example:[ { "key" : "vmware", "value": "provider" } ]
-  * `key` - Tag’s key.
-  * `value` - Tag’s value.
+* `tags` - (Optional) Set of tag keys and values to apply to the cloud account.  
+Example:[ { "key" : "vmware", "value": "provider" } ]
+
 
 
 ## Attribute Reference
 
-* `created_at` - Date when the entity was created. The date is in ISO 6801 and UTC.
+* `created_at` - Date when entity was created. Date and time format is ISO 8601 and UTC.
 
-* `id` - The id of this AWS cloud account.
+* `id` - ID of AWS cloud account.
 
-* `links` - HATEOAS of the entity.
+* `links` - HATEOAS of entity.
 
-* `org_id` - The id of the organization this entity belongs to.
+* `org_id` - ID of organization that entity belongs to.
 
-* `owner` - Email of the user that owns the entity.
+* `owner` - Email of entity owner.
   
-* `updated_at` - Date when the entity was last updated. The date is ISO 8601 and UTC.
+* `updated_at` - Date when entity was last updated. Date and time format is ISO 8601 and UTC.
 
 
 ## Import
 
-AWS cloud account can be imported using the id, e.g.
+To import the AWS cloud account, use the ID as in the following example:
 
 `$ terraform import vra_cloud_account_aws.new_aws 05956583-6488-4e7d-84c9-92a7b7219a15`
