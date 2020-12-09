@@ -2,13 +2,16 @@
 layout: "vra"
 page_title: "VMware vRealize Automation: vra_block_device"
 description: |-
-  Provides a VMware vRA vra_block_device resource.
+  Creates a VMware vRealize Automation vra_block_device_snapshot resource.
 ---
 
-# Resource: vra_block_device_snapshots
+# Resource: vra_block_device_snapshot
+
+Creates a VMware vRealize Automation block device snapshot resource.
+
 ## Example Usages
 
-This is an example of how to create a block device snapshot resource.
+The following example shows how to create a block device snapshot resource.
 
 ```hcl
 resource "vra_block_device_snapshot" "snapshot1" {
@@ -16,27 +19,28 @@ resource "vra_block_device_snapshot" "snapshot1" {
   description = "terraform fcd snapshot"
 }
 ```
-A block device snapshot resource supports the following resource:
 
 ## Argument Reference
 
-* `block_device_id` - (Required) The id of the block device.
+Create your block device snapshot resource with the following arguments:
 
-* `description` - (Optional) A human-friendly description.
+* `block_device_id` - (Required) ID of block device.
+
+* `description` - (Optional) Human-friendly description.
 
 ## Attribute Reference
-* `created_at` - Date when the entity was created. The date is in ISO 6801 and UTC.
+* `created_at` - Date when entity was created. Date and time format is ISO 8601 and UTC.
 
-* `is_current` - Indicates whether this snapshot is the current snapshot on the block-device.
+* `is_current` - Indicates whether snapshot on block device is current.
 
-* `links` - HATEOAS of the entity
+* `links` - HATEOAS of entity
 
-* `name` - A human-friendly name used as an identifier in APIs that support this option.
+* `name` - Human-friendly name used as an identifier in APIs that support this option.
 
-* `org_id` - The id of the organization this entity belongs to.
+* `org_id` - ID of organization that entity belongs to.
 
-* `owner` - Email of the user that owns the entity.
+* `owner` - Email of entity owner.
 
-* `update_at` - Date when the entity was last updated. The date is ISO 8601 and UTC.
+* `update_at` - Date when entity was last updated. Date and time format is ISO 8601 and UTC.
 
 

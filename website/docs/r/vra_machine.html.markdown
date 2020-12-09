@@ -2,13 +2,16 @@
 layout: "vra"
 page_title: "VMware vRealize Automation: vra_machine"
 description: |-
-  Provides a VMware vRA vra_machine resource.
+  Creates a vra_machine resource.
 ---
 
 # Resource: vra_machine
+
+Creates a VMware vRealize Automation machine resource.
+
 ## Example Usages
 
-This is an example on how to create a machine resource.
+The following example shows how to create a machine resource.
 
 ```hcl
 resource "vra_machine" "this" {
@@ -60,9 +63,12 @@ EOF
 A machine resource supports the following resource:
 
 ## Argument Reference
-* `boot_config` - (Optional)  Machine boot config that will be passed to the instance that can be used to perform common automated configuration tasks and even run scripts after the instance starts.
+
+Create your machine resource with the following arguments:
+
+* `boot_config` - (Optional)  Machine boot config that will be passed to the instance. Used to perform common automated configuration tasks and even run scripts after instance starts.
     
-    * `content` - (Optional) A valid cloud config data in json-escaped yaml syntax.
+    * `content` - (Optional) Calid cloud config data in json-escaped yaml syntax.
     
 * `custom_properties` - (Optional) Additional properties that may be used to extend the base resource.
 
@@ -72,11 +78,11 @@ A machine resource supports the following resource:
 
 * `disks` - (Optional) Specification for attaching/detaching disks to a machine.
     
-    * `block_device_id` - (Required) The id of the existing block device.
+    * `block_device_id` - (Required) ID of the existing block device.
     
-    * `description` - (Optional) A human-friendly description.
+    * `description` - (Optional) Human-friendly description.
     
-    * `name` - (Optional) A human-friendly block-device name used as an identifier in APIs that support this option.
+    * `name` - (Optional) Human-friendly block-device name used as an identifier in APIs that support this option.
     
 * `flavor` - (Required) Flavor of machine instance.
 
@@ -84,32 +90,32 @@ A machine resource supports the following resource:
 
 * `image_disk_constraints` - (Optional) Constraints that are used to drive placement policies for the image disk. Constraint expressions are matched against tags on existing placement targets. example:[{"mandatory" : "true", "expression": "environment:prod"}, {"mandatory" : "false", "expression": "pci"}]. It is nested argument with the following properties.
     
-    * `expression` - (Required) A constraint that is conveyed to the policy engine. An expression of the form "[!]tag-key[:[tag-value]]", used to indicate a constraint match on keys and values of tags.
+    * `expression` - (Required) Constraint that is conveyed to the policy engine. An expression of the form "[!]tag-key[:[tag-value]]", used to indicate a constraint match on keys and values of tags.
 
     * `mandatory` - (Required) Indicates whether this constraint should be strictly enforced or not.
 
 * `image_ref` - (Optional) Direct image reference used for this machine (name, path, location, uri, etc.). Valid if no image property is provided
 
-* `name` - (Required) A human-friendly name used as an identifier in APIs that support this option.
+* `name` - (Required) Human-friendly name used as an identifier in APIs that support this option.
 
-* `nics` - (Optional) A set of network interface controller specifications for this machine. If not specified, then a default network connection will be created.
+* `nics` - (Optional) Set of network interface controller specifications for this machine. If not specified, then a default network connection will be created.
     
-    * `addresses` - (Optional) A list of IP addresses allocated or in use by this network interface.
+    * `addresses` - (Optional) List of IP addresses allocated or in use by this network interface.
                     example:[ "10.1.2.190" ]
     
     * `custom_properties` - (Optional) Additional properties that may be used to extend the base type.
     
-    * `description` - (Optional) A human-friendly description.
+    * `description` - (Optional) Human-friendly description.
 
     * `device_index` - (Optional) The device index of this network interface.
     
-    * `name` - (Optional) A human-friendly name used as an identifier in APIs that support this option.
+    * `name` - (Optional) Human-friendly name used as an identifier in APIs that support this option.
     
-    * `network_id` - (Required) Id of the network instance that this network interface plugs into.
+    * `network_id` - (Required) ID of the network instance that this network interface plugs into.
 
-    * `security_group_ids` - (Optional) A list of security group ids which this network interface will be assigned to.
+    * `security_group_ids` - (Optional) List of security group ids which this network interface will be assigned to.
 
-* `tags` - (Optional) A set of tag keys and optional values that should be set on any resource that is produced from this specification. example:[ { "key" : "ownedBy", "value": "Rainpole" } ]. It is nested argument with the following properties.
+* `tags` - (Optional) Set of tag keys and optional values that should be set on any resource that is produced from this specification. example:[ { "key" : "ownedBy", "value": "Rainpole" } ]. It is nested argument with the following properties.
     
     * `key` - (Required) Tag’s key.
     
@@ -119,33 +125,33 @@ A machine resource supports the following resource:
 
 * `address` - Primary address allocated or in use by this machine. The actual type of the address depends on the adapter type. Typically it is either the public or the external IP address.
 
-* `constraints` - Constraints that are used to drive placement policies for the virtual machine that is produced from this specification. Constraint expressions are matched against tags on existing placement targets.
-                  example:[{"mandatory" : "true", "expression": "environment":"prod"}, {"mandatory" : "false", "expression": "pci"}]
+* `constraints` - Constraints used to drive placement policies for the virtual machine produced from the specification. Constraint expressions are matched against tags on existing placement targets.  
+Example:[{"mandatory" : "true", "expression": "environment":"prod"}, {"mandatory" : "false", "expression": "pci"}]
 
-* `created_at` - Date when the entity was created. The date is in ISO 6801 and UTC.
+* `created_at` - Date when the entity was created. Date and time format is ISO 8601 and UTC.
 
 * `disks_list` - List of all disks attached to a machine including boot disk, and additional block devices attached using the disks attribute.
     
-    * `block_device_id` - The id of the existing block device.
+    * `block_device_id` - ID of existing block device.
     
-    * `description` - A human-friendly description.
+    * `description` - Human-friendly description.
     
-    * `name` - A human-friendly block-device name used as an identifier in APIs that support this option.
+    * `name` - Human-friendly block-device name used as an identifier in APIs that support this option.
     
-* `external_id` - External entity Id on the provider side.
+* `external_id` - External entity ID on the provider side.
 
-* `external_region_id` - The external regionId of the resource.
+* `external_region_id` - External regionId of the resource.
 
-* `external_zone_id` - The external zoneId of the resource.
+* `external_zone_id` - External zoneId of the resource.
 
 * `links` - HATEOAS of the entity
     
-* `organization_id` - The id of the organization this entity belongs to.
+* `organization_id` - ID of the organization this entity belongs to.
 
-* `owner` - Email of the user that owns the entity.
+* `owner` - Email of entity owner.
 
 * `power_state` - Power state of machine.
 
-* `project_id` - The id of the project this resource belongs to.
+* `project_id` - ID of project that resource belongs to.
 
 * `update_at` - Date when the entity was last updated. The date is ISO 8601 and UTC.

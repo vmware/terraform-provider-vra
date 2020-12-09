@@ -2,21 +2,18 @@
 layout: "vra"
 page_title: "VMware vRealize Automation: vra_cloud_account_nsxv"
 description: |-
-    Provides a VMware vRA vra_cloud_account_nsxv resource.
+    Creates a vra_cloud_account_nsxv resource.
 ---
 
 # Resource: vra\_cloud\_account\_nsxv
 
-Provides a VMware vRA vra_cloud_account_nsxt resource.
+Creates a VMware vRealize Automation NSX-V cloud account resource.
 
 ## Example Usages
 
-**Create NSX-V cloud account:**
-
-This is an example of how to create a NSX-V cloud account resource.
+The following example shows how to create an NSX-V cloud account resource.
 
 ```hcl
-
 resource "vra_cloud_account_nsxv" "this" {
   name        = "tf-NSX-V-account"
   description = "foobar"
@@ -32,52 +29,48 @@ resource "vra_cloud_account_nsxv" "this" {
     value = "bar"
   }
 }
-
 ```
-
 
 ## Argument Reference
 
-The following arguments are supported for an NSX-V cloud account resource:
+Create your NSX-V cloud account resource with the following arguments:
 
-* `accept_self_signed_cert` - (Optional) Accept self signed certificate when connecting to the cloud account.
+* `accept_self_signed_cert` - (Optional) Accept self-signed certificate when connecting to the cloud account.
 
-* `dc_id` - (Optional) Identifier of a data collector vm deployed in the on premise infrastructure.
+* `dc_id` - (Optional) Identifier of a data collector VM deployed in the on premise infrastructure.
 
-* `description` - (Optional) A human-friendly description.
+* `description` - (Optional) Human-friendly description.
 
-* `hostname` - (Required) Host name for the NSX-V cloud account.
+* `hostname` - (Required) Host name for NSX-V cloud account.
 
-* `name` - (Optional) The name of this NSX-V cloud account.
+* `name` - (Optional) Name of NSX-V cloud account.
 
-* `password` - (Required) Password for the user used to authenticate with the cloud Account.
+* `password` - (Required) Password used to authenticate to the cloud account.
 
-* `tags` - (Optional) A set of tag keys and optional values that to set on this resource.
-example:[ { "key" : "vmware", "value": "provider" } ]
-  * `key` - Tag’s key.
-  * `value` - Tag’s value.
+* `tags` - (Optional) Set of tag keys and values to apply to the cloud account.  
+Example: [ { "key" : "vmware", "value": "provider" } ]
 
-* `username` - (Required) Username to authenticate with the cloud account.
+* `username` - (Required) Username used to authenticate with the cloud account.
 
 ## Attribute Reference
 
-* `associated_cloud_account_ids` - Cloud accounts associated with this cloud account.
+* `associated_cloud_account_ids` - Cloud accounts associated to the cloud account.
 
-* `created_at` - Date when the entity was created. The date is in ISO 6801 and UTC.
+* `created_at` - Date when entity was created. Date and time format is ISO 8601 and UTC.
 
-* `id` - The id of this NSX-V cloud account.
+* `id` - ID of NSX-V cloud account.
 
-* `links` - HATEOAS of the entity.
+* `links` - HATEOAS of entity.
 
-* `org_id` - The id of the organization this entity belongs to.
+* `org_id` - ID of organization that entity belongs to.
 
-* `owner` - Email of the user that owns the entity.
+* `owner` - Email of entity owner.
 
-* `updated_at` - Date when the entity was last updated. The date is ISO 8601 and UTC.
+* `updated_at` - Date when entity was last updated. Date and time format is ISO 8601 and UTC.
 
 
 ## Import
 
-NSX-V cloud account can be imported using the id, e.g.
+To import the NSX-V cloud account, use the ID as in the following example:
 
 `$ terraform import vra_cloud_account_nsxv.new_gcp 05956583-6488-4e7d-84c9-92a7b7219a15`

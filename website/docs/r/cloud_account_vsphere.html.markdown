@@ -2,21 +2,18 @@
 layout: "vra"
 page_title: "VMware vRealize Automation: vra_cloud_account_vsphere"
 description: |-
-    Provides a VMware vRA vra_cloud_account_vsphere resource.
+    Creates a vra_cloud_account_vsphere resource.
 ---
 
 # Resource: vra\_cloud\_account\_vsphere
 
-Provides a VMware vRA vra_cloud_account_vsphere resource.
+Creates a VMware vRealize Automation vSphere cloud account resource.
 
 ## Example Usages
 
-**Create vSphere cloud account:**
-
-This is an example of how to create a vSphere cloud account resource.
+The following example shows how to create a vSphere cloud account resource.
 
 ```hcl
-
 resource "vra_cloud_account_vsphere" "this" {
   name        = "tf-vSphere-account"
   description = "foobar"
@@ -34,57 +31,52 @@ resource "vra_cloud_account_vsphere" "this" {
     value = "bar"
   }
 }
-
 ```
-
-
 
 ## Argument Reference
 
-The following arguments are supported for an vSphere cloud account resource:
+Create your vSphere cloud account resource with the following arguments:
 
-* `accept_self_signed_cert` - (Optional) Accept self signed certificate when connecting to the cloud account.
+* `accept_self_signed_cert` - (Optional) Accept self-signed certificate when connecting to the cloud account.
 
-* `dc_id` - (Optional) Identifier of a data collector vm deployed in the on premise infrastructure.
+* `dc_id` - (Optional) Identifier of a data collector VM deployed in the on premise infrastructure.
 
-* `description` - (Optional) A human-friendly description.
+* `description` - (Optional) Human-friendly description.
 
-* `hostname` - (Required) The IP address or FQDN of the vCenter Server. The cloud proxy belongs on this vCenter.
+* `hostname` - (Required) IP address or FQDN of the vCenter Server. The cloud proxy belongs on this vCenter.
 
-* `name` - (Optional) The name of this vSphere cloud account.
+* `name` - (Optional) Name of the vSphere cloud account.
 
-* `password` - (Required) Password for the user used to authenticate with the cloud Account.
+* `password` - (Required) Password used to authenticate to the cloud account.
 
-* `regions` - (Optional) A set of region names that are enabled for this account.
+* `regions` - (Optional) A set of region names that are enabled for the cloud account.
 
-* `tags` - (Optional) A set of tag keys and optional values that to set on this resource.
-example:[ { "key" : "vmware", "value": "provider" } ]
-  * `key` - Tag’s key.
-  * `value` - Tag’s value.
+* `tags` - (Optional) A set of tag keys and optional values to apply to the cloud account.  
+Example:[ { "key" : "vmware", "value": "provider" } ]
 
-* `username` - (Required) The vSphere username to authenticate the vSphere account.
+* `username` - (Required) vSphere username used to authenticate to the cloud account.
 
 ## Attribute Reference
 
-* `associated_cloud_account_ids` - Cloud accounts associated with this cloud account.
+* `associated_cloud_account_ids` - Cloud accounts associated with the cloud account.
 
-* `created_at` - Date when the entity was created. The date is in ISO 6801 and UTC.
+* `created_at` - Date when  entity was created. Date and time format is ISO 8601 and UTC.
 
-* `id` - (Optional) The id of this vSphere cloud account.
+* `id` - (Optional) ID of the vSphere cloud account.
 
-* `links` - HATEOAS of the entity.
+* `links` - HATEOAS of entity.
 
-* `org_id` - The id of the organization this entity belongs to.
+* `org_id` - ID of organization that entity belongs to.
 
-* `owner` - Email of the user that owns the entity.
+* `owner` - Email of entity owner.
 
-* `region-ids` - A set of region IDs that are enabled for this account.
+* `region-ids` - Set of region IDs that enabled for the cloud account.
 
-* `updated_at` - Date when the entity was last updated. The date is ISO 8601 and UTC.
+* `updated_at` - Date when the entity was last updated. Date and time format is ISO 8601 and UTC.
 
 
 ## Import
 
-vSphere cloud account can be imported using the id, e.g.
+To import the vSphere cloud account, use the ID as in the following example:
 
 `$ terraform import vra_cloud_account_vsphere.new_vsphere 05956583-6488-4e7d-84c9-92a7b7219a15`
