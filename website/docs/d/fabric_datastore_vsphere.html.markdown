@@ -12,7 +12,7 @@ This is an example of how to lookup vSphere fabric datastores.
 **Fabric vSphere data source by Id:**
 
 ```hcl
-# Lookup vSphere fabric datastore using its name
+# Lookup vSphere fabric datastore using its Id
 data "vra_fabric_datastore_vsphere" "this" {
   id = var.fabric_datastore_vsphere_id
 }
@@ -30,9 +30,9 @@ data "fabric_datastore_vsphere" "this" {
 A storage profile data source supports the following arguments:
 
 ## Argument Reference
-* `filter` - Filter query string that is supported by vRA multi-cloud IaaS API.  Only one of 'filter' or 'id' must be specified.
+* `filter` - (Optional) Filter query string that is supported by vRA multi-cloud IaaS API.  Only one of 'filter' or 'id' must be specified.
 
-* `id` - The id of the vSphere data source.  Only one of 'filter' or 'id' must be specified.
+* `id` - (Optional) ID of the vSphere data source.  Only one of 'filter' or 'id' must be specified.
 
 ## Attribute Reference
 * `cloud_account_ids` - Set of ids of the cloud accounts this entity belongs to.
@@ -47,11 +47,9 @@ A storage profile data source supports the following arguments:
 
 * `links` - HATEOAS of the entity
 
-* `name` - A human-friendly name used as an identifier in APIs that support this option. 
+* `name` - Name of the datastore. 
 
-* `org_id` - The id of the organization this entity belongs to.
-
-* `owner` - Email of the user that owns the entity.
+* `org_id` - ID of organization that entity belongs to.
 
 * `type` - Type of datastore.
 

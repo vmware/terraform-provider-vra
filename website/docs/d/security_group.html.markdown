@@ -9,15 +9,6 @@ description: |-
 ## Example Usages
 This is an example of how to lookup security groups.
 
-**Security groups by Id:**
-
-```hcl
-# Lookup Security groups using its Id
-data "security_group" "this" {
-  id = var.security_group_id
-}
-```
-
 **Security groups by filter query:**
 
 ```hcl
@@ -30,9 +21,7 @@ data "security_group" "this" {
 A Security group supports the following arguments:
 
 ## Argument Reference
-* `filter` - Search criteria to narrow down the Security groups. Only one of 'filter' or 'id' must be specified.
-
-* `id` - The id of the security group. Only one of 'filter' or 'id' must be specified.
+* `filter` - (Required) Search criteria to narrow down the Security groups. 
 
 ## Attribute Reference
 
@@ -44,11 +33,13 @@ A Security group supports the following arguments:
 
 * `external_region_id` - The id of the region for which this entity is defined.
 
+* `id` - ID of the security group.
+
 * `links` - HATEOAS of the entity
 
-* `name` - A human-friendly name used as an identifier in APIs that support this option.  
+* `name` - Name of the security group.
 
-* `organization_id` - The id of the organization this entity belongs to.
+* `organization_id` - ID of organization that entity belongs to.
 
 * `rules` - List of security rules.
 
