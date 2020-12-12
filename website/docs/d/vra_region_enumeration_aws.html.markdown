@@ -21,9 +21,9 @@ data "vra_region_enumeration_aws" "this" {
 The region enumeration data source for AWS cloud account supports the following arguments:
 
 ## Argument Reference
-* `access_key` - (Optional) Aws Access key ID. Example: ACDC55DB4MFH6ADG75KK
+* `access_key` - (Optional) Aws Access key ID.
 
-* `secret_key` - (Required) Aws Secret Access Key. Example: gfsScK345sGGaVdds222dasdfDDSSasdfdsa34fS
+* `secret_key` - (Required) Aws Secret Access Key.
 
 ## Attribute Reference
 * `regions` - A set of Region names to enable provisioning on. Example: us-east-2, ap-northeast-1

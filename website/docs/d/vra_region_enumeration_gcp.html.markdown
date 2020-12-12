@@ -13,10 +13,10 @@ This is an example of how to lookup a region enumeration data source for GCP clo
 **Region enumeration data source for GCP**
 ```hcl
 data "vra_region_enumeration_gcp" "this" {
-  client_email   = var.clientEmail
-  private_key_id = var.privateKeyID
-  private_key    = var.privateKey
-  project_id     = var.projectID
+  client_email   = var.client_email
+  private_key_id = var.private_key_id
+  private_key    = var.private_key
+  project_id     = var.project_id
  }
 ```
 
