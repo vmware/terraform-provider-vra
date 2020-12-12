@@ -10,17 +10,17 @@ description: |-
 
 This is an example of how to lookup a region enumeration data source for GCP cloud account.
 
-**Region enumeration GCP data source by its id:**
+**Region enumeration data source for GCP**
 ```hcl
 data "vra_region_enumeration_gcp" "this" {
-	client_email = this.clientEmail
-	project_id = this.projectID
-	private_key_id = this.privateKeyID
-	private_key = this.privateKey
+  client_email   = var.clientEmail
+  private_key_id = var.privateKeyID
+  private_key    = var.privateKey
+  project_id     = var.projectID
  }
 ```
 
-The region enumeration data source for GCP cloud account suports the following arguments:
+The region enumeration data source for GCP cloud account supports the following arguments:
 
 ## Argument Reference
 * `client_email` - (Required) Client E-mail ID.
@@ -31,9 +31,6 @@ The region enumeration data source for GCP cloud account suports the following a
 
 * `project_id` - (Required) GCP Project ID.
 
-
 ## Attribute Reference
-* `id` - (Optional) The id of the region enumeration for GCP account.
-
 * `regions` - A set of Region names to enable provisioning on. Example: northamerica-northeast1 
 

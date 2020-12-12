@@ -10,31 +10,30 @@ description: |-
 
 This is an example of how to lookup a region enumeration data source for VMC cloud account.
 
-**Region enumeration VMC data source**
+**Region enumeration data source for VMC**
 ```hcl
-data "vra_data_collector" "dc" {
-	name = dc.dcname
-}
-
 data "vra_region_enumeration_vmc" "this" {
-	api_token = this.apiToken
-	sddc_name = this.sddcName
-	vcenter_username  = this.vCenterUserName
-	vcenter_password  = this.vCenterPassword
-	vcenter_hostname  = this.vCenterHostName
-	dc_id = data.vra_data_collector.dc.id
-	accept_self_signed_cert = true
+  accept_self_signed_cert = true
+
+  dc_id = var.vra_data_collector_id
+
+  api_token = var.api_token
+  sddc_name = var.sddc_name
+  
+  vcenter_hostname = var.vcenter_hostname
+  vcenter_password = var.vcenter_password
+  vcenter_username = var.vcenter_username
 }
 ```
 
-The region enumeration data source for VMC cloud account suports the following arguments:
+The region enumeration data source for VMC cloud account supports the following arguments:
 
 ## Argument Reference
 * `accept_self_signed_cert` - (Optional) Accept self signed certificate when connecting to vSphere. Example: false
 
-* `api_token` - (Required) Host name for the cloud account endpoint. Example: dc1-lnd.mycompany.com
+* `api_token` - (Required) API Token for the cloud account endpoint.
 
-* `dc_id` - (Required) ID of a data collector vm deployed in the on premise infrastructure. Refer to the data-collector API to create or list data collectors.
+* `dc_id` - (Optional) ID of a data collector vm deployed in the on premise infrastructure. Refer to the data-collector API to create or list data collectors.
 
 * `sddc_name` - (Required) Identifier of the on-premise SDDC to be used by this cloud account.
 
@@ -45,6 +44,4 @@ The region enumeration data source for VMC cloud account suports the following a
 * `vcenter_username` - (Required) vCenter user name for the specified SDDC.The specified user requires CloudAdmin credentials. The user does not require CloudGlobalAdmin credentials.
 
 ## Attribute Reference
-* `id` - The id of the region enumeration for VMC account.
-
 * `regions` - A set of Region names to enable provisioning on. Example: northamerica-northeast1 

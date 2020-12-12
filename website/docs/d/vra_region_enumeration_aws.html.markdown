@@ -10,23 +10,21 @@ description: |-
 
 This is an example of how to lookup a region enumeration data source for AWS cloud account.
 
-**Region enumeration AWS data source by its id:**
+**Region enumeration data source for AWS, by the AWS account access key and secret key:**
 ```hcl
 data "vra_region_enumeration_aws" "this" {
-  access_key = this.id
-  secret_key = this.secret
+  access_key = var.access_key
+  secret_key = var.secret_key
 }
 ```
 
-The region enumeration data source for AWS cloud account suports the following arguments:
+The region enumeration data source for AWS cloud account supports the following arguments:
 
 ## Argument Reference
-* `access_key` - (Required) Aws Access key ID. Example: ACDC55DB4MFH6ADG75KK
+* `access_key` - (Optional) Aws Access key ID. Example: ACDC55DB4MFH6ADG75KK
 
 * `secret_key` - (Required) Aws Secret Access Key. Example: gfsScK345sGGaVdds222dasdfDDSSasdfdsa34fS
 
 ## Attribute Reference
-* `id` - The id of the region enumeration for AWS account.
-
 * `regions` - A set of Region names to enable provisioning on. Example: us-east-2, ap-northeast-1
 

@@ -11,19 +11,21 @@ description: |-
 This is an example of how to lookup a region enumeration data source.
 
 DeprecationMessage: 'region_enumeration' is deprecated. Use 'region_enumeration_vsphere' instead.
-```hcl 
-data "vra_data_collector" "dc" {
-		name = dc.dcname
-}
+
+**Region enumeration data source for vSphere**
+```hcl
 data "vra_region_enumeration_vsphere" "this" {
-	  username    = this.username
-	  password    = this.password
-	  hostname    = this.hostname
-	  dcid        = data.vra_data_collector.dc.id
+  accept_self_signed_cert = false
+
+  dcid = var.vra_data_collector_id
+  
+  hostname = var.hostname
+  password = var.password
+  username = var.username
 }
 ```
 
-The region enumeration data source suports the following arguments:
+The region enumeration data source supports the following arguments:
 
 ## Argument Reference
 * `accept_self_signed_cert` - (Optional) Accept self signed certificate when connecting to vSphere. Example: false
