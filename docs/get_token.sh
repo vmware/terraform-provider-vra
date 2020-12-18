@@ -9,77 +9,73 @@
 #
 if  ! [ -x "$(command -v jq)" ]
 then
-	echo -e "\nthe jq utility is missing. See https://stedolan.github.io/jq/ for instructions to get it\n"
+	echo "The jq utility is missing. See https://stedolan.github.io/jq/ for instructions to get it"
 	exit 1
 fi
 
 #Check for an already existing username value
-if [[ -v username ]] 
+if [[ ! -z "$username" ]] 
 then
-	echo -e "\nusername variable found: $username\n"
+	echo "username variable found: $username"
 else 
-	echo -e "\nPlease enter username to connect to vra with"
+	echo "Please enter username to connect to vra with"
 	read username
 fi
 
 #Check for an already existing password value
-if [[ -v password ]]
+if [[ ! -z "$password" ]]
 then
-    echo -e "\npassword variable found\n"
+	echo "password variable found"
 else
-    echo -e "\nPlease enter password to connect to vra with\n"
-    read -s password
+	echo "Please enter password to connect to vra with"
+	read -s password
 fi
 
 #Check for an already existing LDAP/AD domain value
-if [[ -v domain ]]
+if [[ ! -z "$domain" ]]
 then
-    echo -e "\nExisting domain variable found: $domain\n"
+	echo "Existing domain variable found: $domain"
 else
-	echo -e "\nPlease enter domain to connect to vra with (for AD/LDAP users) or press Enter if you not want to use domain"
+	echo "Please enter domain to connect to vra with (for AD/LDAP users) or press Enter if you not want to use domain"
 	read domain
 fi
 
-if [[ -v VRA_URL || -v host ]]
+if [[ -z "$VRA_URL" ]]
 then 
-	echo -e "\nfound a value for the vra/cas server\n"
-	export VRA_URL="https://$host"
-else
- 	echo -e "\nPlease enter the hostname/fqdn of the VRA8 server/ or cloud identity server"
+	echo "Please enter the hostname/fqdn of the VRA8 server/ or cloud identity server"
 	read host
 	export VRA_URL="https://$host"
 fi
 
+echo "Using $VRA_URL"
 #use different json bodies with curl depending on whether or not a domain 
 # was specified
-echo -e "\nGetting Token"
+echo "Getting Token"
 if [[ $domain == "" ]]
 then
-	export VRA_REFRESH_TOKEN=`curl -vvvk -X POST \
-  		"$VRA_URL/csp/gateway/am/api/login?access_token" \
-  		-H 'Content-Type: application/json' \
-  		-s \
-  		-d '{
-  		"username": "'"$username"'",
-  		"password": "'"$password"'"
-		}' | jq -r .refresh_token`
+  curlArgs=(
+	-k -X POST
+	"$VRA_URL/csp/gateway/am/api/login?access_token"
+	-H 'Content-Type: application/json'
+	-s
+	-d '{ "username": "'"$username"'", "password": "'"$password"'" }'
+  )
 else
-	export VRA_REFRESH_TOKEN=`curl -k -X POST \
-  		"$VRA_URL/csp/gateway/am/api/login?access_token" \
-  		-H 'Content-Type: application/json' \
-  		-s \
-  		-d '{
-  		"username": "'"$username"'",
-  		"password": "'"$password"'",
-  		"domain": "'"$domain"'"
-		}' | jq -r .refresh_token`
+  curlArgs=(
+	-k -X POST
+	"$VRA_URL/csp/gateway/am/api/login?access_token"
+	-H 'Content-Type: application/json'
+	-s
+	-d '{ "username": "'"$username"'", "password": "'"$password"'", "domain": "'"$domain"'" }'
+  )
 fi
 
+export TF_VAR_VRA_REFRESH_TOKEN=$(curl "${curlArgs[@]}" | jq -r .refresh_token)
 
 #clean up password 
 unset password
 
-echo -e "\nRefresh Token"
+echo "Refresh Token"
 echo "----------------------------"
-echo $VRA_REFRESH_TOKEN
+echo $TF_VAR_VRA_REFRESH_TOKEN
 echo "----------------------------"
