@@ -169,7 +169,7 @@ func GetRefreshToken(url, username string, password string, domain string, insec
 	requestBody, err := json.Marshal(map[string]string{
 		"username": username,
 		"password": password,
-		"domain" : domain,
+		"domain":   domain,
 	})
 	resp, err := customClient.Post(cspEndpointUrl, "application/json", bytes.NewBuffer(requestBody))
 	if err != nil {
