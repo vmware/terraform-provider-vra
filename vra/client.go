@@ -1,6 +1,9 @@
 package vra
 
 import (
+	"bytes"
+	"crypto/tls"
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -142,7 +145,46 @@ func NewClientFromAccessToken(url, accessToken string, insecure bool) (interface
 	return &Client{url, apiClient}, nil
 }
 
-func getToken(url, refreshToken string, insecure bool) (string, error) {
+// GetRefreshToken retrieves a refresh token from a provided username and password
+func GetRefreshToken(url, username string, password string, domain string, insecure bool) (string, error) {
+	// Cloning http transport to allow for insecure connections if necessary
+	// We can't just use the go-openapi client because this particular endpoint isn't populated by the
+	// Swagger spec properly for some reason and thus can't be accessed via the vra-go-sdk.
+	customTransport := http.DefaultTransport.(*http.Transport).Clone()
+	if insecure {
+		customTransport.TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
+	}
+	customClient := &http.Client{Transport: customTransport}
+
+	var result map[string]interface{}
+	cspEndpointUrl := url + "/csp/gateway/am/api/login?access_token"
+	requestMap := map[string]string{
+		"username": username,
+		"password": password,
+	}
+	var requestBody []byte
+	if domain != "" {
+		requestMap["domain"] = domain
+	}
+	requestBody, err := json.Marshal(map[string]string{
+		"username": username,
+		"password": password,
+		"domain" : domain,
+	})
+	resp, err := customClient.Post(cspEndpointUrl, "application/json", bytes.NewBuffer(requestBody))
+	if err != nil {
+		return "", err
+	}
+	defer resp.Body.Close()
+
+	jsonErr := json.NewDecoder(resp.Body).Decode(&result)
+	if jsonErr != nil {
+		return "", jsonErr
+	}
+
+	return result["refresh_token"].(string), err
+}
+
 	parsedURL, err := neturl.Parse(url)
 	if err != nil {
 		return "", err
