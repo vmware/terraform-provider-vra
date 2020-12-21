@@ -127,6 +127,9 @@ func configureProvider(d *schema.ResourceData) (interface{}, error) {
 	url := d.Get("url").(string)
 	refreshToken := ""
 	accessToken := ""
+	username := ""
+	password := ""
+	domain := ""
 	reauth := "0"
 
 	if v, ok := d.GetOk("refresh_token"); ok {
@@ -137,10 +140,30 @@ func configureProvider(d *schema.ResourceData) (interface{}, error) {
 		accessToken = v.(string)
 	}
 
+	if v, ok := d.GetOk("username"); ok {
+		username = v.(string)
+	}
+
+	if v, ok := d.GetOk("password"); ok {
+		password = v.(string)
+	}
+
+	if v, ok := d.GetOk("domain"); ok {
+		domain = v.(string)
+	}
+
 	insecure := d.Get("insecure").(bool)
 
 	if v, ok := d.GetOk("reauthorize_timeout"); ok {
 		reauth = v.(string)
+	}
+
+	if username != "" && password != "" && refreshToken == "" && accessToken == "" {
+		newRefreshToken, err := GetRefreshToken(url, username, password, domain, insecure)
+		if err != nil {
+			return nil, errors.New("username or password provided are invalid")
+		}
+		refreshToken = newRefreshToken
 	}
 
 	if accessToken == "" && refreshToken == "" {
