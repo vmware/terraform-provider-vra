@@ -33,14 +33,14 @@ func testAccPreCheck(t *testing.T) {
 		t.Fatal("VRA_URL must be set for acceptance tests")
 	}
 
-	if os.Getenv("VRA_REFRESH_TOKEN") == "" && os.Getenv("VRA_ACCESS_TOKEN") == "" {
-		t.Fatal("VRA_REFRESH_TOKEN or VRA_ACCESS_TOKEN must be set for acceptance tests")
+	if os.Getenv("VRA_REFRESH_TOKEN") == "" && os.Getenv("VRA_ACCESS_TOKEN") == "" && os.Getenv("VRA_USERNAME") == "" && os.Getenv("VRA_PASSWORD") == "" {
+		t.Fatal("VRA_REFRESH_TOKEN or VRA_ACCESS_TOKEN or VRA_USERNAME and VRA_PASSWORD must be set for acceptance tests")
 	}
 }
 
 func testAccPreCheckMachine(t *testing.T) {
-	if os.Getenv("VRA_REFRESH_TOKEN") == "" && os.Getenv("VRA_ACCESS_TOKEN") == "" {
-		t.Fatal("VRA_REFRESH_TOKEN or VRA_ACCESS_TOKEN must be set for acceptance tests")
+	if os.Getenv("VRA_REFRESH_TOKEN") == "" && os.Getenv("VRA_ACCESS_TOKEN") == "" && os.Getenv("VRA_USERNAME") == "" && os.Getenv("VRA_PASSWORD") == "" {
+		t.Fatal("VRA_REFRESH_TOKEN or VRA_ACCESS_TOKEN or VRA_USERNAME and VRA_PASSWORD must be set for acceptance tests")
 	}
 
 	envVars := [...]string{
@@ -61,8 +61,8 @@ func testAccPreCheckMachine(t *testing.T) {
 }
 
 func testAccPreCheckLoadBalancer(t *testing.T) {
-	if os.Getenv("VRA_REFRESH_TOKEN") == "" && os.Getenv("VRA_ACCESS_TOKEN") == "" {
-		t.Fatal("VRA_REFRESH_TOKEN or VRA_ACCESS_TOKEN must be set for acceptance tests")
+	if os.Getenv("VRA_REFRESH_TOKEN") == "" && os.Getenv("VRA_ACCESS_TOKEN") == "" && os.Getenv("VRA_USERNAME") == "" && os.Getenv("VRA_PASSWORD") == "" {
+		t.Fatal("VRA_REFRESH_TOKEN or VRA_ACCESS_TOKEN or VRA_USERNAME and VRA_PASSWORD must be set for acceptance tests")
 	}
 
 	if os.Getenv("VRA_IMAGE") == "" && os.Getenv("VRA_IMAGE_REF") == "" {
@@ -85,8 +85,8 @@ func testAccPreCheckLoadBalancer(t *testing.T) {
 }
 
 func testAccPreCheckBlockDevice(t *testing.T) {
-	if os.Getenv("VRA_REFRESH_TOKEN") == "" && os.Getenv("VRA_ACCESS_TOKEN") == "" {
-		t.Fatal("VRA_REFRESH_TOKEN or VRA_ACCESS_TOKEN must be set for acceptance tests")
+	if os.Getenv("VRA_REFRESH_TOKEN") == "" && os.Getenv("VRA_ACCESS_TOKEN") == "" && os.Getenv("VRA_USERNAME") == "" && os.Getenv("VRA_PASSWORD") == "" {
+		t.Fatal("VRA_REFRESH_TOKEN or VRA_ACCESS_TOKEN or VRA_USERNAME and VRA_PASSWORD must be set for acceptance tests")
 	}
 
 	envVars := [...]string{
@@ -103,8 +103,8 @@ func testAccPreCheckBlockDevice(t *testing.T) {
 }
 
 func testAccPreCheckBlockDeviceSnapshotResource(t *testing.T) {
-	if os.Getenv("VRA_REFRESH_TOKEN") == "" && os.Getenv("VRA_ACCESS_TOKEN") == "" {
-		t.Fatal("VRA_REFRESH_TOKEN or VRA_ACCESS_TOKEN must be set for acceptance tests")
+	if os.Getenv("VRA_REFRESH_TOKEN") == "" && os.Getenv("VRA_ACCESS_TOKEN") == "" && os.Getenv("VRA_USERNAME") == "" && os.Getenv("VRA_PASSWORD") == "" {
+		t.Fatal("VRA_REFRESH_TOKEN or VRA_ACCESS_TOKEN or VRA_USERNAME and VRA_PASSWORD must be set for acceptance tests")
 	}
 
 	envVars := [...]string{
@@ -124,8 +124,8 @@ func testAccPreCheckBlockDeviceSnapshotResource(t *testing.T) {
 }
 
 func testAccPreCheckImageProfile(t *testing.T) {
-	if os.Getenv("VRA_REFRESH_TOKEN") == "" && os.Getenv("VRA_ACCESS_TOKEN") == "" {
-		t.Fatal("VRA_REFRESH_TOKEN or VRA_ACCESS_TOKEN must be set for acceptance tests")
+	if os.Getenv("VRA_REFRESH_TOKEN") == "" && os.Getenv("VRA_ACCESS_TOKEN") == "" && os.Getenv("VRA_USERNAME") == "" && os.Getenv("VRA_PASSWORD") == "" {
+		t.Fatal("VRA_REFRESH_TOKEN or VRA_ACCESS_TOKEN or VRA_USERNAME and VRA_PASSWORD must be set for acceptance tests")
 	}
 
 	if os.Getenv("VRA_IMAGE") == "" && os.Getenv("VRA_IMAGE_REF") == "" {
@@ -146,8 +146,8 @@ func testAccPreCheckImageProfile(t *testing.T) {
 }
 
 func testAccPreCheckStorageProfile(t *testing.T) {
-	if os.Getenv("VRA_REFRESH_TOKEN") == "" && os.Getenv("VRA_ACCESS_TOKEN") == "" {
-		t.Fatal("VRA_REFRESH_TOKEN or VRA_ACCESS_TOKEN must be set for acceptance tests")
+	if os.Getenv("VRA_REFRESH_TOKEN") == "" && os.Getenv("VRA_ACCESS_TOKEN") == "" && os.Getenv("VRA_USERNAME") == "" && os.Getenv("VRA_PASSWORD") == "" {
+		t.Fatal("VRA_REFRESH_TOKEN or VRA_ACCESS_TOKEN or VRA_USERNAME and VRA_PASSWORD must be set for acceptance tests")
 	}
 
 	envVars := [...]string{
@@ -173,8 +173,8 @@ func testAccPreCheckAWS(t *testing.T) {
 		t.Fatal("VRA_URL must be set for acceptance tests")
 	}
 
-	if os.Getenv("VRA_REFRESH_TOKEN") == "" && os.Getenv("VRA_ACCESS_TOKEN") == "" {
-		t.Fatal("VRA_REFRESH_TOKEN or VRA_ACCESS_TOKEN must be set for acceptance tests")
+	if os.Getenv("VRA_REFRESH_TOKEN") == "" && os.Getenv("VRA_ACCESS_TOKEN") == "" && os.Getenv("VRA_USERNAME") == "" && os.Getenv("VRA_PASSWORD") == "" {
+		t.Fatal("VRA_REFRESH_TOKEN or VRA_ACCESS_TOKEN or VRA_USERNAME and VRA_PASSWORD must be set for acceptance tests")
 	}
 	if v := os.Getenv("VRA_AWS_ACCESS_KEY_ID"); v == "" {
 		t.Fatal("VRA_AWS_ACCESS_KEY_ID must be set for acceptance tests")
@@ -185,8 +185,8 @@ func testAccPreCheckAWS(t *testing.T) {
 }
 
 func testAccPreCheckAzure(t *testing.T) {
-	if os.Getenv("VRA_REFRESH_TOKEN") == "" && os.Getenv("VRA_ACCESS_TOKEN") == "" {
-		t.Fatal("VRA_REFRESH_TOKEN or VRA_ACCESS_TOKEN must be set for acceptance tests")
+	if os.Getenv("VRA_REFRESH_TOKEN") == "" && os.Getenv("VRA_ACCESS_TOKEN") == "" && os.Getenv("VRA_USERNAME") == "" && os.Getenv("VRA_PASSWORD") == "" {
+		t.Fatal("VRA_REFRESH_TOKEN or VRA_ACCESS_TOKEN or VRA_USERNAME and VRA_PASSWORD must be set for acceptance tests")
 	}
 
 	envVars := [...]string{
@@ -205,8 +205,8 @@ func testAccPreCheckAzure(t *testing.T) {
 }
 
 func testAccPreCheckStorageProfileAws(t *testing.T) {
-	if os.Getenv("VRA_REFRESH_TOKEN") == "" && os.Getenv("VRA_ACCESS_TOKEN") == "" {
-		t.Fatal("VRA_REFRESH_TOKEN or VRA_ACCESS_TOKEN must be set for acceptance tests")
+	if os.Getenv("VRA_REFRESH_TOKEN") == "" && os.Getenv("VRA_ACCESS_TOKEN") == "" && os.Getenv("VRA_USERNAME") == "" && os.Getenv("VRA_PASSWORD") == "" {
+		t.Fatal("VRA_REFRESH_TOKEN or VRA_ACCESS_TOKEN or VRA_USERNAME and VRA_PASSWORD must be set for acceptance tests")
 	}
 
 	envVars := [...]string{
@@ -223,8 +223,8 @@ func testAccPreCheckStorageProfileAws(t *testing.T) {
 }
 
 func testAccPreCheckStorageProfileAzure(t *testing.T) {
-	if os.Getenv("VRA_REFRESH_TOKEN") == "" && os.Getenv("VRA_ACCESS_TOKEN") == "" {
-		t.Fatal("VRA_REFRESH_TOKEN or VRA_ACCESS_TOKEN must be set for acceptance tests")
+	if os.Getenv("VRA_REFRESH_TOKEN") == "" && os.Getenv("VRA_ACCESS_TOKEN") == "" && os.Getenv("VRA_USERNAME") == "" && os.Getenv("VRA_PASSWORD") == "" {
+		t.Fatal("VRA_REFRESH_TOKEN or VRA_ACCESS_TOKEN or VRA_USERNAME and VRA_PASSWORD must be set for acceptance tests")
 	}
 
 	envVars := [...]string{
@@ -244,8 +244,8 @@ func testAccPreCheckStorageProfileAzure(t *testing.T) {
 }
 
 func testAccPreCheckStorageProfileVsphere(t *testing.T) {
-	if os.Getenv("VRA_REFRESH_TOKEN") == "" && os.Getenv("VRA_ACCESS_TOKEN") == "" {
-		t.Fatal("VRA_REFRESH_TOKEN or VRA_ACCESS_TOKEN must be set for acceptance tests")
+	if os.Getenv("VRA_REFRESH_TOKEN") == "" && os.Getenv("VRA_ACCESS_TOKEN") == "" && os.Getenv("VRA_USERNAME") == "" && os.Getenv("VRA_PASSWORD") == "" {
+		t.Fatal("VRA_REFRESH_TOKEN or VRA_ACCESS_TOKEN or VRA_USERNAME and VRA_PASSWORD must be set for acceptance tests")
 	}
 
 	envVars := [...]string{
@@ -262,8 +262,8 @@ func testAccPreCheckStorageProfileVsphere(t *testing.T) {
 }
 
 func testAccPreCheckVsphere(t *testing.T) {
-	if os.Getenv("VRA_REFRESH_TOKEN") == "" && os.Getenv("VRA_ACCESS_TOKEN") == "" {
-		t.Fatal("VRA_REFRESH_TOKEN or VRA_ACCESS_TOKEN must be set for acceptance tests")
+	if os.Getenv("VRA_REFRESH_TOKEN") == "" && os.Getenv("VRA_ACCESS_TOKEN") == "" && os.Getenv("VRA_USERNAME") == "" && os.Getenv("VRA_PASSWORD") == "" {
+		t.Fatal("VRA_REFRESH_TOKEN or VRA_ACCESS_TOKEN or VRA_USERNAME and VRA_PASSWORD must be set for acceptance tests")
 	}
 
 	envVars := [...]string{
@@ -330,8 +330,8 @@ func testAccPreCheckBlockDeviceSnapshot(t *testing.T) {
 }
 
 func testAccPreCheckGCP(t *testing.T) {
-	if os.Getenv("VRA_REFRESH_TOKEN") == "" && os.Getenv("VRA_ACCESS_TOKEN") == "" {
-		t.Fatal("VRA_REFRESH_TOKEN or VRA_ACCESS_TOKEN must be set for acceptance tests")
+	if os.Getenv("VRA_REFRESH_TOKEN") == "" && os.Getenv("VRA_ACCESS_TOKEN") == "" && os.Getenv("VRA_USERNAME") == "" && os.Getenv("VRA_PASSWORD") == "" {
+		t.Fatal("VRA_REFRESH_TOKEN or VRA_ACCESS_TOKEN or VRA_USERNAME and VRA_PASSWORD must be set for acceptance tests")
 	}
 
 	envVars := [...]string{
@@ -350,8 +350,8 @@ func testAccPreCheckGCP(t *testing.T) {
 }
 
 func testAccPreCheckVMC(t *testing.T) {
-	if os.Getenv("VRA_REFRESH_TOKEN") == "" && os.Getenv("VRA_ACCESS_TOKEN") == "" {
-		t.Fatal("VRA_REFRESH_TOKEN or VRA_ACCESS_TOKEN must be set for acceptance tests")
+	if os.Getenv("VRA_REFRESH_TOKEN") == "" && os.Getenv("VRA_ACCESS_TOKEN") == "" && os.Getenv("VRA_USERNAME") == "" && os.Getenv("VRA_PASSWORD") == "" {
+		t.Fatal("VRA_REFRESH_TOKEN or VRA_ACCESS_TOKEN or VRA_USERNAME and VRA_PASSWORD must be set for acceptance tests")
 	}
 
 	envVars := [...]string{
@@ -373,8 +373,8 @@ func testAccPreCheckVMC(t *testing.T) {
 }
 
 func testAccPreCheckNSXV(t *testing.T) {
-	if os.Getenv("VRA_REFRESH_TOKEN") == "" && os.Getenv("VRA_ACCESS_TOKEN") == "" {
-		t.Fatal("VRA_REFRESH_TOKEN or VRA_ACCESS_TOKEN must be set for acceptance tests")
+	if os.Getenv("VRA_REFRESH_TOKEN") == "" && os.Getenv("VRA_ACCESS_TOKEN") == "" && os.Getenv("VRA_USERNAME") == "" && os.Getenv("VRA_PASSWORD") == "" {
+		t.Fatal("VRA_REFRESH_TOKEN or VRA_ACCESS_TOKEN or VRA_USERNAME and VRA_PASSWORD must be set for acceptance tests")
 	}
 
 	envVars := [...]string{
@@ -393,8 +393,8 @@ func testAccPreCheckNSXV(t *testing.T) {
 }
 
 func testAccPreCheckNSXT(t *testing.T) {
-	if os.Getenv("VRA_REFRESH_TOKEN") == "" && os.Getenv("VRA_ACCESS_TOKEN") == "" {
-		t.Fatal("VRA_REFRESH_TOKEN or VRA_ACCESS_TOKEN must be set for acceptance tests")
+	if os.Getenv("VRA_REFRESH_TOKEN") == "" && os.Getenv("VRA_ACCESS_TOKEN") == "" && os.Getenv("VRA_USERNAME") == "" && os.Getenv("VRA_PASSWORD") == "" {
+		t.Fatal("VRA_REFRESH_TOKEN or VRA_ACCESS_TOKEN or VRA_USERNAME and VRA_PASSWORD must be set for acceptance tests")
 	}
 
 	envVars := [...]string{
@@ -413,8 +413,8 @@ func testAccPreCheckNSXT(t *testing.T) {
 }
 
 func testAccPreCheckCatalogItem(t *testing.T) {
-	if os.Getenv("VRA_REFRESH_TOKEN") == "" && os.Getenv("VRA_ACCESS_TOKEN") == "" {
-		t.Fatal("VRA_REFRESH_TOKEN or VRA_ACCESS_TOKEN must be set for acceptance tests")
+	if os.Getenv("VRA_REFRESH_TOKEN") == "" && os.Getenv("VRA_ACCESS_TOKEN") == "" && os.Getenv("VRA_USERNAME") == "" && os.Getenv("VRA_PASSWORD") == "" {
+		t.Fatal("VRA_REFRESH_TOKEN or VRA_ACCESS_TOKEN or VRA_USERNAME and VRA_PASSWORD must be set for acceptance tests")
 	}
 
 	envVars := [...]string{
@@ -430,8 +430,8 @@ func testAccPreCheckCatalogItem(t *testing.T) {
 }
 
 func testAccPreCheckDeployment(t *testing.T) {
-	if os.Getenv("VRA_REFRESH_TOKEN") == "" && os.Getenv("VRA_ACCESS_TOKEN") == "" {
-		t.Fatal("VRA_REFRESH_TOKEN or VRA_ACCESS_TOKEN must be set for acceptance tests")
+	if os.Getenv("VRA_REFRESH_TOKEN") == "" && os.Getenv("VRA_ACCESS_TOKEN") == "" && os.Getenv("VRA_USERNAME") == "" && os.Getenv("VRA_PASSWORD") == "" {
+		t.Fatal("VRA_REFRESH_TOKEN or VRA_ACCESS_TOKEN or VRA_USERNAME and VRA_PASSWORD must be set for acceptance tests")
 	}
 
 	envVars := [...]string{
@@ -450,8 +450,8 @@ func testAccPreCheckDeployment(t *testing.T) {
 }
 
 func testAccPreCheckDeploymentDataSource(t *testing.T) {
-	if os.Getenv("VRA_REFRESH_TOKEN") == "" && os.Getenv("VRA_ACCESS_TOKEN") == "" {
-		t.Fatal("VRA_REFRESH_TOKEN or VRA_ACCESS_TOKEN must be set for acceptance tests")
+	if os.Getenv("VRA_REFRESH_TOKEN") == "" && os.Getenv("VRA_ACCESS_TOKEN") == "" && os.Getenv("VRA_USERNAME") == "" && os.Getenv("VRA_PASSWORD") == "" {
+		t.Fatal("VRA_REFRESH_TOKEN or VRA_ACCESS_TOKEN or VRA_USERNAME and VRA_PASSWORD must be set for acceptance tests")
 	}
 
 	envVars := [...]string{
@@ -466,8 +466,8 @@ func testAccPreCheckDeploymentDataSource(t *testing.T) {
 }
 
 func testAccPreCheckBlueprint(t *testing.T) {
-	if os.Getenv("VRA_REFRESH_TOKEN") == "" && os.Getenv("VRA_ACCESS_TOKEN") == "" {
-		t.Fatal("VRA_REFRESH_TOKEN or VRA_ACCESS_TOKEN must be set for acceptance tests")
+	if os.Getenv("VRA_REFRESH_TOKEN") == "" && os.Getenv("VRA_ACCESS_TOKEN") == "" && os.Getenv("VRA_USERNAME") == "" && os.Getenv("VRA_PASSWORD") == "" {
+		t.Fatal("VRA_REFRESH_TOKEN or VRA_ACCESS_TOKEN or VRA_USERNAME and VRA_PASSWORD must be set for acceptance tests")
 	}
 
 	envVars := [...]string{
@@ -486,14 +486,14 @@ func testAccPreCheckVra(t *testing.T) {
 		t.Fatal("VRA_URL must be set for acceptance tests")
 	}
 
-	if os.Getenv("VRA_REFRESH_TOKEN") == "" && os.Getenv("VRA_ACCESS_TOKEN") == "" {
-		t.Fatal("VRA_REFRESH_TOKEN or VRA_ACCESS_TOKEN must be set for acceptance tests")
+	if os.Getenv("VRA_REFRESH_TOKEN") == "" && os.Getenv("VRA_ACCESS_TOKEN") == "" && os.Getenv("VRA_USERNAME") == "" && os.Getenv("VRA_PASSWORD") == "" {
+		t.Fatal("VRA_REFRESH_TOKEN or VRA_ACCESS_TOKEN or VRA_USERNAME and VRA_PASSWORD must be set for acceptance tests")
 	}
 }
 
 func testAccPreCheckContentSource(t *testing.T) {
-	if os.Getenv("VRA_REFRESH_TOKEN") == "" && os.Getenv("VRA_ACCESS_TOKEN") == "" {
-		t.Fatal("VRA_REFRESH_TOKEN or VRA_ACCESS_TOKEN must be set for acceptance tests")
+	if os.Getenv("VRA_REFRESH_TOKEN") == "" && os.Getenv("VRA_ACCESS_TOKEN") == "" && os.Getenv("VRA_USERNAME") == "" && os.Getenv("VRA_PASSWORD") == "" {
+		t.Fatal("VRA_REFRESH_TOKEN or VRA_ACCESS_TOKEN or VRA_USERNAME and VRA_PASSWORD must be set for acceptance tests")
 	}
 
 	envVars := [...]string{
@@ -512,8 +512,8 @@ func testAccPreCheckContentSource(t *testing.T) {
 }
 
 func testAccPreCheckFabricStorageAccountAzure(t *testing.T) {
-	if os.Getenv("VRA_REFRESH_TOKEN") == "" && os.Getenv("VRA_ACCESS_TOKEN") == "" {
-		t.Fatal("VRA_REFRESH_TOKEN or VRA_ACCESS_TOKEN must be set for acceptance tests")
+	if os.Getenv("VRA_REFRESH_TOKEN") == "" && os.Getenv("VRA_ACCESS_TOKEN") == "" && os.Getenv("VRA_USERNAME") == "" && os.Getenv("VRA_PASSWORD") == "" {
+		t.Fatal("VRA_REFRESH_TOKEN or VRA_ACCESS_TOKEN or VRA_USERNAME and VRA_PASSWORD must be set for acceptance tests")
 	}
 
 	envVars := [...]string{
