@@ -162,7 +162,7 @@ func GetRefreshToken(url, username string, password string, domain string, insec
 		"password": password,
 		"domain":   domain,
 	})
-	
+
 	if err != nil {
 		return "", err
 	}
