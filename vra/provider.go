@@ -16,6 +16,24 @@ func Provider() *schema.Provider {
 				DefaultFunc: schema.EnvDefaultFunc("VRA_URL", nil),
 				Description: "The base url for API operations.",
 			},
+			"username": {
+				Type:          schema.TypeString,
+				Optional:      true,
+				DefaultFunc:   schema.EnvDefaultFunc("VRA_USERNAME", nil),
+				Description:   "The username to fetch a refresh token for API operations.",
+			},
+			"password": {
+				Type:          schema.TypeString,
+				Optional:      true,
+				DefaultFunc:   schema.EnvDefaultFunc("VRA_PASSWORD", nil),
+				Description:   "The password to fetch a refresh token for API operations.",
+			},
+			"domain": {
+				Type:          schema.TypeString,
+				Optional:      true,
+				DefaultFunc:   schema.EnvDefaultFunc("VRA_DOMAIN", nil),
+				Description:   "The domain to fetch a refresh token for API operations.",
+			},
 			"refresh_token": {
 				Type:          schema.TypeString,
 				Optional:      true,
@@ -127,6 +145,9 @@ func configureProvider(d *schema.ResourceData) (interface{}, error) {
 	url := d.Get("url").(string)
 	refreshToken := ""
 	accessToken := ""
+	username := ""
+	password := ""
+	domain := ""
 	reauth := "0"
 
 	if v, ok := d.GetOk("refresh_token"); ok {
@@ -137,10 +158,30 @@ func configureProvider(d *schema.ResourceData) (interface{}, error) {
 		accessToken = v.(string)
 	}
 
+	if v, ok := d.GetOk("username"); ok {
+		username = v.(string)
+	}
+
+	if v, ok := d.GetOk("password"); ok {
+		password = v.(string)
+	}
+
+	if v, ok := d.GetOk("domain"); ok {
+		domain = v.(string)
+	}
+
 	insecure := d.Get("insecure").(bool)
 
 	if v, ok := d.GetOk("reauthorize_timeout"); ok {
 		reauth = v.(string)
+	}
+
+	if username != "" && password != "" && refreshToken == "" && accessToken == "" {
+		newRefreshToken, err := GetRefreshToken(url, username, password, domain, insecure)
+		if err != nil {
+			return nil, errors.New("username, password, or domain is incorrect, or the endpoint is not reachable")
+		}
+		refreshToken = newRefreshToken
 	}
 
 	if accessToken == "" && refreshToken == "" {
