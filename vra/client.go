@@ -78,7 +78,7 @@ type ReauthorizeRuntime struct {
 func (r *ReauthorizeRuntime) Submit(operation *runtime.ClientOperation) (interface{}, error) {
 	if r.reauthtimer.ShouldReload() {
 		log.Printf("Reauthorize timer expired, generating a new access token")
-		token, tokenErr := getToken(r.url, r.refreshToken, r.insecure)
+		token, tokenErr := getAccessToken(r.url, r.refreshToken, r.insecure)
 		if tokenErr != nil {
 			return nil, tokenErr
 		}
@@ -99,7 +99,7 @@ func (r *ReauthorizeRuntime) Submit(operation *runtime.ClientOperation) (interfa
 
 	// We have a 401 with a refresh token, let's try refreshing once and try again
 	log.Printf("Response back was a 401, trying again with new access token")
-	token, tokenErr := getToken(r.url, r.refreshToken, r.insecure)
+	token, tokenErr := getAccessToken(r.url, r.refreshToken, r.insecure)
 	if tokenErr != nil {
 		return result, err
 	}
@@ -118,7 +118,7 @@ type Client struct {
 
 // NewClientFromRefreshToken configures and returns a VRA "Client" struct using "refresh_token" from provider config
 func NewClientFromRefreshToken(url, refreshToken string, insecure bool, reauth string) (interface{}, error) {
-	token, err := getToken(url, refreshToken, insecure)
+	token, err := getAccessToken(url, refreshToken, insecure)
 	if err != nil {
 		return "", err
 	}
@@ -147,7 +147,7 @@ func NewClientFromAccessToken(url, accessToken string, insecure bool) (interface
 	return &Client{url, apiClient}, nil
 }
 
-func getToken(url, refreshToken string, insecure bool) (string, error) {
+// GetRefreshToken retrieves a refresh token from a provided username, password, and domain
 func GetRefreshToken(url, username string, password string, domain string, insecure bool) (string, error) {
 	// Cloning http transport to allow for insecure connections if necessary
 	// We can't just use the go-openapi client with the insecure setting
@@ -188,6 +188,7 @@ func GetRefreshToken(url, username string, password string, domain string, insec
 	return result["refresh_token"].(string), err
 }
 
+func getAccessToken(url, refreshToken string, insecure bool) (string, error) {
 	parsedURL, err := neturl.Parse(url)
 	if err != nil {
 		return "", err
