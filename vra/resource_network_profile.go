@@ -3,6 +3,7 @@ package vra
 import (
 	"fmt"
 	"log"
+	"strings"
 
 	"github.com/vmware/vra-sdk-go/pkg/client/network_profile"
 	"github.com/vmware/vra-sdk-go/pkg/models"
@@ -21,6 +22,15 @@ func resourceNetworkProfile() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
+			"cloud_account_id": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "The ID of the cloud account this entity belongs to.",
+			},
+			"created_at": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 			"name": {
 				Type:     schema.TypeString,
 				Required: true,
@@ -78,6 +88,10 @@ func resourceNetworkProfile() *schema.Resource {
 				Computed: true,
 			},
 			"links": linksSchema(),
+			"org_id": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 			"organization_id": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -154,6 +168,8 @@ func resourceNetworkProfileRead(d *schema.ResourceData, m interface{}) error {
 	}
 
 	networkProfile := *resp.Payload
+	d.Set("cloud_account_id", networkProfile.CloudAccountID)
+	d.Set("created_at", networkProfile.CreatedAt)
 	d.Set("custom_properties", networkProfile.CustomProperties)
 	d.Set("description", networkProfile.Description)
 	d.Set("external_region_id", networkProfile.ExternalRegionID)
@@ -161,6 +177,7 @@ func resourceNetworkProfileRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("isolated_network_domain_cidr", networkProfile.IsolationNetworkDomainCIDR)
 	d.Set("isolated_network_cidr_prefix", networkProfile.IsolatedNetworkCIDRPrefix)
 	d.Set("name", networkProfile.Name)
+	d.Set("org_id", networkProfile.OrgID)
 	d.Set("organization_id", networkProfile.OrganizationID)
 	d.Set("owner", networkProfile.Owner)
 	d.Set("updated_at", networkProfile.UpdatedAt)
@@ -171,6 +188,12 @@ func resourceNetworkProfileRead(d *schema.ResourceData, m interface{}) error {
 
 	if err := d.Set("links", flattenLinks(networkProfile.Links)); err != nil {
 		return fmt.Errorf("error setting network profile links - error: %#v", err)
+	}
+
+	if regionLink, ok := networkProfile.Links["region"]; ok {
+		if regionLink.Href != "" {
+			d.Set("region_id", strings.TrimPrefix(regionLink.Href, "/iaas/api/regions/"))
+		}
 	}
 
 	log.Printf("Finished reading the vra_network_profile resource with name %s", d.Get("name"))

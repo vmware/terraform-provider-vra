@@ -38,3 +38,19 @@ An flavor profile resource supports the following arguments:
 * `region_id` - (Required) The id of the region for which this profile is defined as in vRealize Automation(vRA).
 
 * `flavor_mapping` - (Optional) Map between global fabric flavor keys and fabric flavor descriptions.
+
+## Attribute Reference
+
+* * `cloud_account_id` - The ID of the cloud account this flavor profile belongs to.
+
+* `created_at` - Date when  entity was created. Date and time format is ISO 8601 and UTC.
+
+* `external_region_id` - The ID of the external region that is associated with the flavor profile.
+
+* `links` - HATEOAS of entity.
+
+* `org_id` - ID of organization that entity belongs to.
+
+* `owner` - Email of entity owner.
+
+* `updated_at` - Date when the entity was last updated. Date and time format is ISO 8601 and UTC.

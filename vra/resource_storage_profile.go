@@ -138,6 +138,7 @@ func resourceStorageProfileRead(d *schema.ResourceData, m interface{}) error {
 	}
 
 	storageProfile := *resp.Payload
+	d.Set("cloud_account_id", storageProfile.CloudAccountID)
 	d.Set("created_at", storageProfile.CreatedAt)
 	d.Set("default_item", storageProfile.DefaultItem)
 	d.Set("description", storageProfile.Description)

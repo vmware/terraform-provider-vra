@@ -72,6 +72,10 @@ func resourceCloudAccountVsphere() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"custom_properties": {
+				Type:     schema.TypeMap,
+				Computed: true,
+			},
 			"links": linksSchema(),
 			"org_id": {
 				Type:     schema.TypeString,
@@ -171,8 +175,10 @@ func resourceCloudAccountVsphereRead(d *schema.ResourceData, m interface{}) erro
 
 	d.Set("associated_cloud_account_ids", flattenAssociatedCloudAccountIds(vsphereAccount.Links))
 	d.Set("created_at", vsphereAccount.CreatedAt)
+	d.Set("custom_properties", vsphereAccount.CustomProperties)
 	d.Set("dcid", vsphereAccount.Dcid)
 	d.Set("description", vsphereAccount.Description)
+	d.Set("hostname", vsphereAccount.HostName)
 	d.Set("name", vsphereAccount.Name)
 	d.Set("org_id", vsphereAccount.OrgID)
 	d.Set("owner", vsphereAccount.Owner)

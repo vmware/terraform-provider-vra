@@ -50,6 +50,10 @@ A network profile resource supports the following arguments:
 
 ## Attributes Reference
 
+* * `cloud_account_id` - The ID of the cloud account this flavor profile belongs to.
+
+* `created_at` - Date when  entity was created. Date and time format is ISO 8601 and UTC.
+
 * `external_region_id` - The external regionId of the resource. 
 
 * `isolated_network_cidr_prefix` - The CIDR prefix length to be used for the isolated networks that are created with the network profile.
@@ -62,7 +66,9 @@ A network profile resource supports the following arguments:
 
 * `links` - HATEOAS of the entity
 
-* `organization_id` - The id of the organization this entity belongs to.
+* `org_id` - ID of organization that entity belongs to.
+
+* `organization_id` - The id of the organization this entity belongs to. Deprecated, refer to org_id instead.
 
 * `owner` - Email of the user that owns the entity.
 
