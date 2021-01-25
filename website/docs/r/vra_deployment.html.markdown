@@ -98,6 +98,10 @@ resource "vra_deployment" "this" {
 
 * `name` - (Required) A human-friendly name used as an identifier in APIs that support this option.
 
+* `org_id` - (Optional) The ID of the organization this deployment belongs to.
+
+* `owner` - (Optional) The user this deployment belongs to. At create, the owner is ignored but is used to update during next apply.
+
 * `project_id` - (Required) The id of the project this entity belongs to. 
 
 

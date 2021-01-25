@@ -103,6 +103,14 @@ func dataSourceDeployment() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
+			"org_id": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"owner": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 			"project": resourceReferenceSchema(),
 			"project_id": {
 				Type:     schema.TypeString,
@@ -147,6 +155,8 @@ func dataSourceDeploymentRead(d *schema.ResourceData, m interface{}) error {
 		d.Set("last_updated_by", deployment.LastUpdatedBy)
 		d.Set("lease_expire_at", deployment.LeaseExpireAt)
 		d.Set("name", deployment.Name)
+		d.Set("org_id", deployment.OrgID)
+		d.Set("owner", deployment.OwnedBy)
 		d.Set("project_id", deployment.ProjectID)
 		d.Set("status", deployment.Status)
 

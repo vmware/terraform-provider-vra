@@ -128,6 +128,10 @@ data "vra_deployment" "this" {
 
 * `lease_expire_at` - Time at which the deployment lease expires.
 
+* `org_id` - The ID of the organization this deployment belongs to.
+
+* `owner` - The user this deployment belongs to.
+
 * `project` - The project this entity belongs to.
 
     * `description` - A human friendly description.
@@ -148,7 +152,7 @@ data "vra_deployment" "this" {
     
     * `description` - A description of the resource.
     
-    `expense` - Expense incurred for this resource. 
+    * `expense` - Expense incurred for this resource. 
     
         * `additional_expense` - Additional expense incurred for the resource.
         
