@@ -15,6 +15,8 @@ resource "vra_deployment" "this" {
   name        = var.deployment_name
   description = "Deployed from vRA provider for Terraform."
 
+  owner = var.owner
+
   blueprint_id      = data.vra_blueprint.this.id
   blueprint_version = var.blueprint_version
   project_id        = data.vra_project.this.id

@@ -22,6 +22,15 @@ import (
 	"time"
 )
 
+const (
+	ChangeOwnerDeploymentActionName = "ChangeOwner"
+	ChangeLeaseDeploymentActionName = "ChangeLease"
+	EditTagsDeploymentActionName    = "EditTags"
+	PowerOffDeploymentActionName    = "PowerOff"
+	PowerOnDeploymentActionName     = "PowerOn"
+	UpdateDeploymentActionName      = "update"
+)
+
 func resourceDeployment() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceDeploymentCreate,
@@ -113,11 +122,19 @@ func resourceDeployment() *schema.Resource {
 			},
 			"lease_expire_at": {
 				Type:     schema.TypeString,
-				Computed: true,
+				Optional: true,
 			},
 			"name": {
 				Type:     schema.TypeString,
 				Required: true,
+			},
+			"org_id": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"owner": {
+				Type:     schema.TypeString,
+				Optional: true,
 			},
 			"project": resourceReferenceSchema(),
 			"project_id": {
@@ -369,6 +386,8 @@ func resourceDeploymentRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("last_updated_by", deployment.LastUpdatedBy)
 	d.Set("lease_expire_at", deployment.LeaseExpireAt)
 	d.Set("name", deployment.Name)
+	d.Set("org_id", deployment.OrgID)
+	d.Set("owner", deployment.OwnedBy)
 
 	if err := d.Set("project", flattenResourceReference(deployment.Project)); err != nil {
 		return fmt.Errorf("error setting project in deployment - error: %#v", err)
@@ -384,46 +403,6 @@ func resourceDeploymentRead(d *schema.ResourceData, m interface{}) error {
 
 	log.Printf("Finished reading the vra_deployment resource with name '%s'. Current status: '%s'", d.Get("name"), d.Get("status"))
 	return nil
-}
-
-// Gets the inputs and their types as map[string]string
-func getInputTypesMap(d *schema.ResourceData, apiClient *client.MulticloudIaaS) map[string]string {
-	inputTypesMap := make(map[string]string)
-
-	if _, ok := d.GetOk("inputs"); !ok {
-		return inputTypesMap
-	}
-
-	// Get blueprint_id and catalog_item_id
-	blueprintID, catalogItemID := "", ""
-	if v, ok := d.GetOk("blueprint_id"); ok {
-		blueprintID = v.(string)
-	}
-
-	if v, ok := d.GetOk("catalog_item_id"); ok {
-		catalogItemID = v.(string)
-	}
-
-	if catalogItemID != "" {
-		// Get the catalog item inputs and their types
-		catalogItemVersion := ""
-		if v, ok := d.GetOk("catalog_item_version"); ok {
-			catalogItemVersion = v.(string)
-		}
-
-		inputTypesMap, _ = getCatalogItemInputTypesMap(apiClient, catalogItemID, catalogItemVersion)
-	} else if blueprintID != "" {
-		// Get the blueprint inputs and their types
-		blueprintVersion := ""
-		if v, ok := d.GetOk("blueprint_version"); ok {
-			blueprintVersion = v.(string)
-		}
-
-		inputTypesMap, _ = getBlueprintInputTypesMap(apiClient, blueprintID, blueprintVersion)
-	}
-
-	log.Printf("InputTypesMap: %v", inputTypesMap)
-	return inputTypesMap
 }
 
 func resourceDeploymentUpdate(d *schema.ResourceData, m interface{}) error {
@@ -471,6 +450,14 @@ func resourceDeploymentUpdate(d *schema.ResourceData, m interface{}) error {
 		}
 	}
 
+	if d.HasChange("owner") {
+		deploymentUUID := strfmt.UUID(d.Id())
+		err := runChangeOwnerDeploymentAction(d, apiClient, deploymentUUID)
+		if err != nil {
+			return err
+		}
+	}
+
 	log.Printf("Finished updating the vra_deployment resource with name %s", d.Get("name"))
 	return resourceDeploymentRead(d, m)
 }
@@ -506,6 +493,46 @@ func resourceDeploymentDelete(d *schema.ResourceData, m interface{}) error {
 	return nil
 }
 
+// Gets the inputs and their types as map[string]string
+func getInputTypesMap(d *schema.ResourceData, apiClient *client.MulticloudIaaS) map[string]string {
+	inputTypesMap := make(map[string]string)
+
+	if _, ok := d.GetOk("inputs"); !ok {
+		return inputTypesMap
+	}
+
+	// Get blueprint_id and catalog_item_id
+	blueprintID, catalogItemID := "", ""
+	if v, ok := d.GetOk("blueprint_id"); ok {
+		blueprintID = v.(string)
+	}
+
+	if v, ok := d.GetOk("catalog_item_id"); ok {
+		catalogItemID = v.(string)
+	}
+
+	if catalogItemID != "" {
+		// Get the catalog item inputs and their types
+		catalogItemVersion := ""
+		if v, ok := d.GetOk("catalog_item_version"); ok {
+			catalogItemVersion = v.(string)
+		}
+
+		inputTypesMap, _ = getCatalogItemInputTypesMap(apiClient, catalogItemID, catalogItemVersion)
+	} else if blueprintID != "" {
+		// Get the blueprint inputs and their types
+		blueprintVersion := ""
+		if v, ok := d.GetOk("blueprint_version"); ok {
+			blueprintVersion = v.(string)
+		}
+
+		inputTypesMap, _ = getBlueprintInputTypesMap(apiClient, blueprintID, blueprintVersion)
+	}
+
+	log.Printf("InputTypesMap: %v", inputTypesMap)
+	return inputTypesMap
+}
+
 func getCatalogItemInputsByType(apiClient *client.MulticloudIaaS, catalogItemID string, catalogItemVersion string, inputValues interface{}) (map[string]interface{}, error) {
 	inputTypesMap, err := getCatalogItemInputTypesMap(apiClient, catalogItemID, catalogItemVersion)
 	if err != nil {
@@ -529,7 +556,7 @@ func getCatalogItemInputTypesMap(apiClient *client.MulticloudIaaS, catalogItemID
 	}
 
 	log.Printf("Inputs Schema: %v", inputsSchemaMap)
-	inputTypesMap, err := getInputTypesMapFromCatalogItemSchema(inputsSchemaMap)
+	inputTypesMap, err := getInputTypesMapFromSchema(inputsSchemaMap)
 	if err != nil {
 		return nil, err
 	}
@@ -890,8 +917,9 @@ func getInputsByType(inputs map[string]interface{}, inputTypesMap map[string]str
 	return inputsByType, nil
 }
 
-// Returns a map of string, string with input variables and their types defined in the vRA catalog item
-func getInputTypesMapFromCatalogItemSchema(schema map[string]interface{}) (map[string]string, error) {
+// Returns a map of string, string with input variables and their types defined in the given schema map.
+//Used for getting map of inputs and their types for Catalog item and Deployment actions
+func getInputTypesMapFromSchema(schema map[string]interface{}) (map[string]string, error) {
 	log.Printf("Getting the map of inputs and their types")
 	inputTypesMap := make(map[string]string, len(schema))
 	for k, v := range schema {
@@ -908,6 +936,107 @@ func getInputTypesMapFromBlueprintInputsSchema(schema map[string]models.Property
 		inputTypesMap[k] = v.Type
 	}
 	return inputTypesMap, nil
+}
+
+// Returns whether the day2 action is valid currently, exact action ID for a given action string
+func getDeploymentDay2ActionID(apiClient *client.MulticloudIaaS, deploymentUUID strfmt.UUID, actionName string) (bool, string, error) {
+	// Get the deployment actions
+	deploymentActions, err := apiClient.DeploymentActions.GetDeploymentActionsUsingGET(deployment_actions.
+		NewGetDeploymentActionsUsingGETParams().WithDepID(deploymentUUID))
+	if err != nil {
+		return false, "", err
+	}
+
+	actionAvailable := false
+	actionID := ""
+
+	for _, action := range deploymentActions.Payload {
+		if strings.Contains(strings.ToLower(action.ID), strings.ToLower(actionName)) {
+			actionID = action.ID
+			if action.Valid {
+				log.Printf("[DEBUG] %s action is available on the deployment", actionName)
+				actionAvailable = true
+				return actionAvailable, actionID, nil
+			}
+
+			// Day-2 action id is not valid
+			log.Printf("[DEBUG] %s action is not valid based on current state of the deployment", actionID)
+			return actionAvailable, actionID, fmt.Errorf("%s action is not valid based on current state of the deployment", actionID)
+		}
+	}
+	return actionAvailable, actionID, fmt.Errorf("%s action is not found in the list of day2 actions allowed on the deployment", actionName)
+}
+
+// Gets the schema for a given deployment action id
+func getDeploymentActionSchema(apiClient *client.MulticloudIaaS, deploymentUUID strfmt.UUID, actionID string) (map[string]interface{}, error) {
+	// Getting the catalog item schema
+	log.Printf("Getting the schema for deploymentID: %v, actionID: %v", deploymentUUID, actionID)
+	var actionSchema interface{}
+
+	deploymentAction, err := apiClient.DeploymentActions.GetDeploymentActionUsingGET(deployment_actions.
+		NewGetDeploymentActionUsingGETParams().WithDepID(deploymentUUID).WithActionID(actionID))
+	if err != nil {
+		return nil, err
+	}
+
+	actionSchema = deploymentAction.GetPayload().Schema
+
+	if actionSchema != nil && (actionSchema.(map[string]interface{}))["properties"] != nil {
+		actionInputsSchemaMap := (actionSchema.(map[string]interface{}))["properties"].(map[string]interface{})
+		return actionInputsSchemaMap, nil
+	}
+	return make(map[string]interface{}), nil
+}
+
+func getDeploymentActionInputTypesMap(apiClient *client.MulticloudIaaS, deploymentUUID strfmt.UUID, actionID string) (map[string]string, error) {
+	inputsSchemaMap, err := getDeploymentActionSchema(apiClient, deploymentUUID, actionID)
+	if err != nil {
+		return nil, err
+	}
+
+	inputTypesMap, err := getInputTypesMapFromSchema(inputsSchemaMap)
+	if err != nil {
+		return nil, err
+	}
+	return inputTypesMap, nil
+}
+
+func runChangeOwnerDeploymentAction(d *schema.ResourceData, apiClient *client.MulticloudIaaS, deploymentUUID strfmt.UUID) error {
+	oldOwner, newOwner := d.GetChange("owner")
+	log.Printf("Noticed changes to owner. Starting to change deployment owner from %s to %s", oldOwner.(string), newOwner.(string))
+
+	// Get the deployment actionID for Change Owner
+	isActionValid, actionID, err := getDeploymentDay2ActionID(apiClient, deploymentUUID, ChangeOwnerDeploymentActionName)
+	if err != nil {
+		return fmt.Errorf("noticed changes to owner. But, %s", err.Error())
+	}
+
+	if !isActionValid {
+		return fmt.Errorf("noticed changes to owner, but 'Change Owner' action is not found or supported")
+	}
+
+	// Continue if 'Change Owner' action is available. Get action inputs for the 'ChangeOwner' action
+	actionInputs := make(map[string]interface{})
+	actionInputs["New Owner"] = newOwner
+
+	actionInputTypesMap, err := getDeploymentActionInputTypesMap(apiClient, deploymentUUID, actionID)
+	if err != nil {
+		return err
+	}
+
+	inputs, err := getInputsByType(actionInputs, actionInputTypesMap)
+	if err != nil {
+		return fmt.Errorf("unable to create action inputs for %v. %v", actionID, err.Error())
+	}
+
+	reason := "Updated deployment owner from vRA provider for Terraform."
+	err = runAction(d, apiClient, deploymentUUID, actionID, inputs, reason)
+	if err != nil {
+		return err
+	}
+
+	log.Printf("Finished changing owner for vra_deployment %s with new owner %v", d.Get("name").(string), newOwner)
+	return nil
 }
 
 func runAction(d *schema.ResourceData, apiClient *client.MulticloudIaaS, deploymentUUID strfmt.UUID, actionID string, inputs map[string]interface{}, reason string) error {
