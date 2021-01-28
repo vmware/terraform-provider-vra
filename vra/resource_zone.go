@@ -19,20 +19,46 @@ func resourceZone() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
+			"cloud_account_id": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "The ID of the cloud account this zone belongs to.",
+			},
+			"created_at": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"custom_properties": {
+				Type:     schema.TypeMap,
+				Computed: true,
+			},
 			"description": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: "A human-friendly description for the zone",
+			},
+			"external_region_id": {
+				Type:     schema.TypeMap,
+				Computed: true,
 			},
 			"folder": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: "The folder relative path to the datacenter where resources are deployed to. (only applicable for vSphere cloud zones)",
 			},
+			"links": linksSchema(),
 			"name": {
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: "A human-friendly name for the zone",
+			},
+			"org_id": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"owner": {
+				Type:     schema.TypeString,
+				Computed: true,
 			},
 			"placement_policy": {
 				Type:     schema.TypeString,
@@ -55,6 +81,10 @@ func resourceZone() *schema.Resource {
 			},
 			"tags":          tagsSchema(),
 			"tags_to_match": tagsSchema(),
+			"updated_at": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 		},
 	}
 }
@@ -108,8 +138,20 @@ func resourceZoneRead(d *schema.ResourceData, m interface{}) error {
 		return err
 	}
 	zone := *ret.Payload
+	d.Set("cloud_account_id", zone.CloudAccountID)
+	d.Set("created_at", zone.CreatedAt)
+	d.Set("custom_properties", zone.CustomProperties)
 	d.Set("description", zone.Description)
+	d.Set("external_region_id", zone.ExternalRegionID)
+	d.Set("folder", zone.Folder)
+
+	if err := d.Set("links", flattenLinks(zone.Links)); err != nil {
+		return fmt.Errorf("error setting zone links - error: %#v", err)
+	}
+
 	d.Set("name", zone.Name)
+	d.Set("org_id", zone.OrgID)
+	d.Set("owner", zone.Owner)
 	d.Set("placement_policy", zone.PlacementPolicy)
 	if err := d.Set("tags", flattenTags(zone.Tags)); err != nil {
 		return fmt.Errorf("Error setting zone tags - error: %#v", err)
@@ -117,6 +159,7 @@ func resourceZoneRead(d *schema.ResourceData, m interface{}) error {
 	if err := d.Set("tags_to_match", flattenTags(zone.TagsToMatch)); err != nil {
 		return fmt.Errorf("Error setting zone tags_to_match - error: %#v", err)
 	}
+	d.Set("updated_at", zone.UpdatedAt)
 	return nil
 }
 

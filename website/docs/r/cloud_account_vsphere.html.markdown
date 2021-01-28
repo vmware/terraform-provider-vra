@@ -62,6 +62,8 @@ Example:[ { "key" : "vmware", "value": "provider" } ]
 
 * `created_at` - Date when  entity was created. Date and time format is ISO 8601 and UTC.
 
+* `custom_properties` - A list of key value pair of properties associated with this cloud account.
+
 * `id` - (Optional) ID of the vSphere cloud account.
 
 * `links` - HATEOAS of entity.

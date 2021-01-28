@@ -20,13 +20,22 @@ func resourceFlavorProfile() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
+			"cloud_account_id": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "The ID of the cloud account this entity belongs to.",
+			},
+			"created_at": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"name": {
-				Type:     schema.TypeString,
-				Required: true,
+			"external_region_id": {
+				Type:     schema.TypeMap,
+				Computed: true,
 			},
 			"flavor_mapping": {
 				Type:     schema.TypeSet,
@@ -52,9 +61,26 @@ func resourceFlavorProfile() *schema.Resource {
 					},
 				},
 			},
+			"links": linksSchema(),
+			"name": {
+				Type:     schema.TypeString,
+				Required: true,
+			},
+			"org_id": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"owner": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 			"region_id": {
 				Type:     schema.TypeString,
 				Required: true,
+			},
+			"updated_at": {
+				Type:     schema.TypeString,
+				Computed: true,
 			},
 		},
 	}
@@ -97,8 +123,23 @@ func resourceFlavorProfileRead(d *schema.ResourceData, m interface{}) error {
 		return err
 	}
 	flavor := *ret.Payload
+
+	d.Set("cloud_account_id", flavor.CloudAccountID)
+	d.Set("created_at", flavor.CreatedAt)
 	d.Set("description", flavor.Description)
+	d.Set("external_region_id", flavor.ExternalRegionID)
+
+	if err := d.Set("flavor_mapping", flattenFlavors(flavor.FlavorMappings.Mapping)); err != nil {
+		return fmt.Errorf("error setting flavor mapping - error: %#v", err)
+	}
+
+	if err := d.Set("links", flattenLinks(flavor.Links)); err != nil {
+		return fmt.Errorf("error setting flavor_profile links - error: %#v", err)
+	}
+
 	d.Set("name", flavor.Name)
+	d.Set("org_id", flavor.OrgID)
+	d.Set("owner", flavor.Owner)
 
 	if regionLink, ok := flavor.Links["region"]; ok {
 		if regionLink.Href != "" {
@@ -106,9 +147,7 @@ func resourceFlavorProfileRead(d *schema.ResourceData, m interface{}) error {
 		}
 	}
 
-	if err := d.Set("flavor_mapping", flattenFlavors(flavor.FlavorMappings.Mapping)); err != nil {
-		return fmt.Errorf("error setting flavor mapping - error: %#v", err)
-	}
+	d.Set("updated_at", flavor.UpdatedAt)
 
 	return nil
 }
