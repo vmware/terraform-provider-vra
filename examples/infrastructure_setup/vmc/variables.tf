@@ -28,6 +28,9 @@ variable "vcenter_password" {
 variable "vcenter_username" {
 }
 
+variable "region_name" {
+}
+
 variable "external_region_id" {
 }
 

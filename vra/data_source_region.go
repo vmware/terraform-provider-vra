@@ -2,6 +2,7 @@ package vra
 
 import (
 	"fmt"
+	"log"
 	"strings"
 
 	"github.com/vmware/vra-sdk-go/pkg/client/location"
@@ -40,7 +41,7 @@ func dataSourceRegion() *schema.Resource {
 			},
 			"name": {
 				Type:     schema.TypeString,
-				Computed: true,
+				Optional: true,
 			},
 			"org_id": {
 				Type:     schema.TypeString,
@@ -102,15 +103,40 @@ func dataSourceRegionRead(d *schema.ResourceData, meta interface{}) error {
 			return err
 		}
 
+		var region *models.Region
 		regions := getResp.Payload
 		if len(regions.Content) > 1 {
-			return fmt.Errorf("vra_region must filter to a single region")
+			log.Printf("received more than one result with the filter provided")
+			name, nameOk := d.GetOk("name")
+
+			if !nameOk {
+				return fmt.Errorf("vra_region must filter to a single region. Provide the 'name' argument to filter more")
+			}
+
+			for _, reg := range regions.Content {
+				if reg.Name == name.(string) {
+					setFields(reg)
+					return nil
+				}
+			}
+
+			return fmt.Errorf("more than one region found with the filter criteria, but the name provided did not match any regions")
 		}
+
 		if len(regions.Content) == 0 {
 			return fmt.Errorf("vra_region filter did not match any regions")
 		}
 
-		region := regions.Content[0]
+		if len(regions.Content) == 1 {
+			region = regions.Content[0]
+
+			name, nameOk := d.GetOk("name")
+
+			if nameOk && region.Name != name.(string) {
+				return fmt.Errorf("one region found with the filter criteria, but the name provided did not match")
+			}
+		}
+
 		setFields(region)
 		return nil
 	}
