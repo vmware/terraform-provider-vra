@@ -50,8 +50,10 @@ resource "null_resource" "delay" {
 data "vra_region" "this" {
   // Important thing to note is the cloud_account_id in the filter criteria is ne (i.e. not equal) to VMC cloud account id
   filter = "externalRegionId eq '${var.external_region_id}' and cloudAccountId ne '${vra_cloud_account_vmc.this.id}'"
+  name = var.region_name // Use 'name' argument in case there are other vCenter regions that have same external region id
 
-  //  filter =  "name eq 'SDDC-Datacenter' and externalRegionId eq '${var.external_region_id}' and cloud_account_id ne vra_cloud_account_vmc.vmc_cloud_account.id" // Important thing to note is the cloud_account_id in the filter criteria is ne (i.e. not equal) to VMC cloud account id.
+  # filter by 'name' is not supported yet. Use the 'name' argument instead until it is supported
+  # filter =  "name eq 'SDDC-Datacenter' and externalRegionId eq '${var.external_region_id}' and cloudAccountId ne vra_cloud_account_vmc.vmc_cloud_account.id"
 }
 
 resource "vra_zone" "this" {
