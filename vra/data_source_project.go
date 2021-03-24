@@ -89,7 +89,7 @@ func dataSourceProject() *schema.Resource {
 				},
 			},
 			"zone_assignments": {
-				Type:        schema.TypeSet,
+				Type:        schema.TypeList,
 				Optional:    true,
 				Description: "List of configurations for zone assignment to a project.",
 				Elem: &schema.Resource{
