@@ -102,4 +102,3 @@ To validate the installation you can simply change to the location where your te
 To find the provider version, you can simply change to the location where your terraform configuration is located and run ```terraform -version```. You should see a message indicating the provider version.
 
 
-Signed-off-by: Daniel Terry <daniel.w.terry@gmail.com>
