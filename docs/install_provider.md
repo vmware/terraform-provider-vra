@@ -63,7 +63,7 @@ mkdir %APPDATA%\terraform.d\plugins
 Download the plugin (via a browser or command line)
 
  ```powershell
- wget https://github.com/vmware/terraform-provider-vra/releases/download/v0.1.9/terraform-provider-vra-windows_amd64-v0.1.9.tgz -outfile terraform-provider-vra-windows_amd64-v0.1.9.tgz
+ iwr https://github.com/vmware/terraform-provider-vra/releases/download/v0.1.9/terraform-provider-vra-windows_amd64-v0.1.9.tgz -outfile terraform-provider-vra-windows_amd64-v0.1.9.tgz
  ```
 
 Untar/unzip the plugin (Depending on your setup this may require two steps)
