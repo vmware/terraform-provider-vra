@@ -122,6 +122,7 @@ func resourceDeployment() *schema.Resource {
 			},
 			"lease_expire_at": {
 				Type:     schema.TypeString,
+				Computed: true,
 				Optional: true,
 			},
 			"name": {
@@ -135,6 +136,7 @@ func resourceDeployment() *schema.Resource {
 			"owner": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 			},
 			"project": resourceReferenceSchema(),
 			"project_id": {
