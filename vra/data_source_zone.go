@@ -46,13 +46,13 @@ func dataSourceZone() *schema.Resource {
 			},
 			"owner": {
 				Type:     schema.TypeString,
-				Optional: true,
+				Computed: true,
 			},
 			"placement_policy": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"region_id": {
+			"external_region_id": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -87,6 +87,7 @@ func dataSourceZoneRead(d *schema.ResourceData, m interface{}) error {
 		d.Set("name", zone.Name)
 		d.Set("created_at", zone.CreatedAt)
 		d.Set("custom_properties", zone.CustomProperties)
+		d.Set("external_region_id", zone.ExternalRegionID)
 		d.Set("folder", zone.Folder)
 		d.Set("org_id", zone.OrgID)
 		d.Set("owner", zone.Owner)
