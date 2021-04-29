@@ -109,6 +109,10 @@ func resourceFabricNetworkVsphere() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"custom_properties": {
+				Type:     schema.TypeMap,
+				Computed: true,
+			},
 		},
 	}
 }
@@ -144,6 +148,7 @@ func resourceFabricNetworkVsphereRead(d *schema.ResourceData, m interface{}) err
 	d.Set("name", VsphereFabricNetwork.Name)
 	d.Set("owner", VsphereFabricNetwork.Owner)
 	d.Set("updated_at", VsphereFabricNetwork.UpdatedAt)
+	d.Set("custom_properties", VsphereFabricNetwork.CustomProperties)
 
 	if err := d.Set("tags", flattenTags(VsphereFabricNetwork.Tags)); err != nil {
 		return fmt.Errorf("error setting network ip range tags - error: %v", err)
