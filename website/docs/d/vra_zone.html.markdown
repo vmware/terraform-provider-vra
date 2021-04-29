@@ -40,7 +40,7 @@ A zone data source supports the following arguments:
 
 * `placement_policy` - The id of the region for which this zone is defined
 
-* `region_id` - A link to the region that is associated with the storage profile.
+* `external_region_id` - The id of the region for which this zone is defined.
 
 * `shared_resources` - The id of the organization this entity belongs to.
 

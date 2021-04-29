@@ -38,7 +38,7 @@ func resourceZone() *schema.Resource {
 				Description: "A human-friendly description for the zone",
 			},
 			"external_region_id": {
-				Type:     schema.TypeMap,
+				Type:     schema.TypeString,
 				Computed: true,
 			},
 			"folder": {

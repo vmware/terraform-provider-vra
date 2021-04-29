@@ -55,7 +55,7 @@ A zone profile resource supports the following arguments:
 
 * `custom_properties` - A list of key value pair of properties related to the zone.
 
-* `external_region_id` - The ID of the external region that is associated with the zone.
+* `external_region_id` - The id of the region for which this zone is defined.
 
 * `links` - HATEOAS of entity.
 
