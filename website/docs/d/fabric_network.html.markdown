@@ -59,3 +59,5 @@ A fabric network data source supports the following arguments:
             Example:[ { "key" : "vmware", "value": "provider" } ]
 
 * `updated_at` - Date when the entity was last updated. The date is ISO 8601 and UTC.
+
+* `custom_properties` - Additional properties that may be used to extend the base resource.

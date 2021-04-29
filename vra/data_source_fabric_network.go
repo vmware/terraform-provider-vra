@@ -70,6 +70,10 @@ func dataSourceFabricNetwork() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"custom_properties": {
+				Type:     schema.TypeMap,
+				Computed: true,
+			},
 		},
 	}
 }
@@ -107,6 +111,7 @@ func resourceFabricNetworkRead(d *schema.ResourceData, meta interface{}) error {
 	d.Set("organization_id", fabricNetwork.OrganizationID)
 	d.Set("owner", fabricNetwork.Owner)
 	d.Set("updated_at", fabricNetwork.UpdatedAt)
+	d.Set("custom_properties", fabricNetwork.CustomProperties)
 
 	if err := d.Set("tags", flattenTags(fabricNetwork.Tags)); err != nil {
 		return fmt.Errorf("error getting network profile tags - error: %v", err)
