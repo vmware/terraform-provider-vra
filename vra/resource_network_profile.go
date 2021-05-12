@@ -206,6 +206,7 @@ func resourceNetworkProfileRead(d *schema.ResourceData, m interface{}) error {
 			d.Set("fabric_network_ids", networkIds)
 		}
 	}
+	log.Printf("Finished reading the vra_network_profile data source with filter %s", d.Get("filter"))
 	return nil
 }
 
