@@ -39,12 +39,13 @@ examples specific to their own use cases.
 The following arguments are used to configure the VMware vRA7 Provider:
 
 * `url` - (Required) This is the URL to the VMware Cloud Automation
-  Services endpoint. Can also  be specified with the `vRA_URL` environment variable.
+  Services endpoint. Can also  be specified with the `VRA_URL` environment variable.
 * `access_token` - (Optional) This is the access token used to create an API
-  refresh token. Can also be specified with the `vRA_ACCESS_TOKEN` environment variable.
+  refresh token. Can also be specified with the `VRA_ACCESS_TOKEN` environment variable.
 * `refresh_token` - (Optional) This is a refresh_token used for API access that
   has been pre-generated. One of `access_token` or `refresh_token` is required.
-  Can also be specified with the `vRA_REFRESH_TOKEN` environment variable.
+  Can also be specified with the `VRA_REFRESH_TOKEN` environment variable.
+* `insecure` - (Optional) This boolean allow you to not check server certificate.
 
 ### Debugging options
 
