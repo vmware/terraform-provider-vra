@@ -196,7 +196,17 @@ func resourceNetworkProfileRead(d *schema.ResourceData, m interface{}) error {
 		}
 	}
 
-	log.Printf("Finished reading the vra_network_profile resource with name %s", d.Get("name"))
+	if fabricNetworkLinks, ok := networkProfile.Links["fabric-networks"]; ok {
+		if len(fabricNetworkLinks.Hrefs) != 0 {
+			var networkIds []string
+			for i, link := range fabricNetworkLinks.Hrefs {
+				networkIds = append(networkIds, strings.TrimPrefix(link, "/iaas/api/fabric-networks/"))
+				log.Printf("Appending network profile link %s on index %d", link, i)
+			}
+			d.Set("fabric_network_ids", networkIds)
+		}
+	}
+	log.Printf("Finished reading the vra_network_profile data source with filter %s", d.Get("filter"))
 	return nil
 }
 
