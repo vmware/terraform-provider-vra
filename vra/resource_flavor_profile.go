@@ -34,7 +34,7 @@ func resourceFlavorProfile() *schema.Resource {
 				Optional: true,
 			},
 			"external_region_id": {
-				Type:     schema.TypeMap,
+				Type:     schema.TypeString,
 				Computed: true,
 			},
 			"flavor_mapping": {
