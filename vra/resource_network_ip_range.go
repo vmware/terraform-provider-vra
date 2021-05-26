@@ -94,14 +94,12 @@ func resourceNetworkIPRangeCreate(d *schema.ResourceData, m interface{}) error {
 
 	log.Printf("[DEBUG] create network ip rangee: %#v", networkIPRangeSpecification)
 
-	createNetworkIPRangeCreated, createNetworkIPRangeAccepted, err := apiClient.NetworkIPRange.CreateInternalNetworkIPRange(network_ip_range.NewCreateInternalNetworkIPRangeParams().WithBody(&networkIPRangeSpecification))
+	createNetworkIPRangeCreated, err := apiClient.NetworkIPRange.CreateInternalNetworkIPRange(network_ip_range.NewCreateInternalNetworkIPRangeParams().WithBody(&networkIPRangeSpecification))
 	if err != nil {
 		return err
 	}
 	if createNetworkIPRangeCreated != nil {
 		d.SetId(*createNetworkIPRangeCreated.Payload.ID)
-	} else {
-		d.SetId(*createNetworkIPRangeAccepted.Payload.ID)
 	}
 	log.Printf("Finished creating vra_network_ip_range resource with name %s", d.Get("name"))
 

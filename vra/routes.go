@@ -88,8 +88,8 @@ func expandRoutes(configRoutes []interface{}) []*models.RouteConfiguration {
 			healthCheckConfigMap := v
 
 			healthCheckConfiguration := models.HealthCheckConfiguration{
-				Protocol: withString(healthCheckConfigMap["protocol"].(string)),
-				Port:     withString(healthCheckConfigMap["port"].(string)),
+				Protocol: healthCheckConfigMap["protocol"].(string),
+				Port:     healthCheckConfigMap["port"].(string),
 			}
 
 			if v, ok := healthCheckConfigMap["url_path"].(string); ok && v != "" {

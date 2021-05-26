@@ -437,15 +437,10 @@ func attachAndDetachDisks(d *schema.ResourceData, apiClient *client.MulticloudIa
 	for i, diskToDetach := range disksToDetach {
 		diskID := diskToDetach["block_device_id"].(string)
 		log.Printf("Detaching the disk %v of %v (disk id: %v) from vra_machine resource %v", i+1, len(disksToDetach), diskID, d.Get("name"))
-		deleteMachineDiskAccepted, deleteMachineDiskNoContent, err := apiClient.Disk.DeleteMachineDisk(disk.NewDeleteMachineDiskParams().WithID(id).WithId1(diskID))
+		deleteMachineDiskAccepted, err := apiClient.Disk.DeleteMachineDisk(disk.NewDeleteMachineDiskParams().WithID(id).WithId1(diskID))
 
 		if err != nil {
 			return err
-		}
-
-		// ignore if the disk is already in detached state
-		if deleteMachineDiskNoContent != nil {
-			continue
 		}
 
 		stateChangeFunc := resource.StateChangeConf{
