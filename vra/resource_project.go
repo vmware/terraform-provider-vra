@@ -38,6 +38,11 @@ func resourceProject() *schema.Resource {
 					},
 				},
 			},
+			"custom_properties": {
+				Type:        schema.TypeMap,
+				Optional:    true,
+				Description: "The project custom properties which are added to all requests in this project",
+			},
 			"description": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -128,6 +133,7 @@ func resourceProjectCreate(d *schema.ResourceData, m interface{}) error {
 
 	administrators := expandUserList(d.Get("administrators").(*schema.Set).List())
 	constraints := expandProjectConstraints(d.Get("constraints").(*schema.Set).List())
+	customProperties := expandCustomProperties(d.Get("custom_properties").(map[string]interface{}))
 	description := d.Get("description").(string)
 	machineNamingTemplate := d.Get("machine_naming_template").(string)
 	members := expandUserList(d.Get("members").(*schema.Set).List())
@@ -140,6 +146,7 @@ func resourceProjectCreate(d *schema.ResourceData, m interface{}) error {
 	createResp, err := apiClient.Project.CreateProject(project.NewCreateProjectParams().WithBody(&models.ProjectSpecification{
 		Administrators:               administrators,
 		Constraints:                  constraints,
+		CustomProperties:             customProperties,
 		Description:                  description,
 		MachineNamingTemplate:        machineNamingTemplate,
 		Members:                      members,
@@ -174,6 +181,7 @@ func resourceProjectRead(d *schema.ResourceData, m interface{}) error {
 	project := *ret.Payload
 	d.Set("administrators", flattenUserList(project.Administrators))
 	d.Set("constraints", flattenProjectConstraints(project.Constraints))
+	d.Set("custom_properties", project.CustomProperties)
 	d.Set("description", project.Description)
 	d.Set("machine_naming_template", project.MachineNamingTemplate)
 	d.Set("members", flattenUserList(project.Members))
@@ -192,6 +200,7 @@ func resourceProjectUpdate(d *schema.ResourceData, m interface{}) error {
 	id := d.Id()
 	administrators := expandUserList(d.Get("administrators").(*schema.Set).List())
 	constraints := expandProjectConstraints(d.Get("constraints").(*schema.Set).List())
+	customProperties := expandCustomProperties(d.Get("custom_properties").(map[string]interface{}))
 	description := d.Get("description").(string)
 	machineNamingTemplate := d.Get("machine_naming_template").(string)
 	members := expandUserList(d.Get("members").(*schema.Set).List())
@@ -204,6 +213,7 @@ func resourceProjectUpdate(d *schema.ResourceData, m interface{}) error {
 	_, err := apiClient.Project.UpdateProject(project.NewUpdateProjectParams().WithID(id).WithBody(&models.ProjectSpecification{
 		Administrators:               administrators,
 		Constraints:                  constraints,
+		CustomProperties:             customProperties,
 		Description:                  description,
 		MachineNamingTemplate:        machineNamingTemplate,
 		Members:                      members,

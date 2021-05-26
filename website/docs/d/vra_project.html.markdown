@@ -33,6 +33,8 @@ A project data source supports the following arguments:
 
 * `constraints` - (Optional) List of storage, network and extensibility constraints to be applied when provisioning through this project.
 
+* `custom_properties` - (Optional) The project custom properties which are added to all requests in this project.
+
 * `description` - (Optional) A human-friendly description.
 
 * `id` - (Optional) The id of the image profile instance.

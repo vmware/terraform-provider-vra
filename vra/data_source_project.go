@@ -36,6 +36,11 @@ func dataSourceProject() *schema.Resource {
 					},
 				},
 			},
+			"custom_properties": {
+				Type:        schema.TypeMap,
+				Optional:    true,
+				Description: "The project custom properties which are added to all requests in this project",
+			},
 			"description": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -150,6 +155,7 @@ func dataSourceProjectRead(d *schema.ResourceData, meta interface{}) error {
 		d.SetId(*project.ID)
 		d.Set("administrators", flattenUserList(project.Administrators))
 		d.Set("constraints", flattenProjectConstraints(project.Constraints))
+		d.Set("custom_properties", project.CustomProperties)
 		d.Set("description", project.Description)
 		d.Set("machine_naming_template", project.MachineNamingTemplate)
 		d.Set("members", flattenUserList(project.Members))
