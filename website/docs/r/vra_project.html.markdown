@@ -22,6 +22,11 @@ resource "vra_project" "this" {
     storage_limit_gb = 65536
   }
 
+  custom_properties = {
+    "foo": "bar",
+    "foo2": "bar2"
+  }
+  
   shared_resources = false
 
   administrators = ["jason@vra.local"]
@@ -72,6 +77,8 @@ A project resource supports the following arguments:
 * `administrators` - (Optional) List of administrator users associated with the project. Only administrators can manage project's configuration.
 
 * `constraints` - (Optional) List of storage, network and extensibility constraints to be applied when provisioning through this project.
+
+* `custom_properties` - (Optional) The project custom properties which are added to all requests in this project.
 
 * `description` - (Optional) A human-friendly description.
 
