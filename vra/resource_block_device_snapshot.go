@@ -80,7 +80,7 @@ func resourceBlockDeviceSnapshotCreate(d *schema.ResourceData, m interface{}) er
 	}
 
 	log.Printf("[DEBUG] create vra_block_device_snapshot: %#v", DiskSnapshotSpecification)
-	createDiskSnapshotCreated, _, err := apiClient.Disk.CreateFirstClassDiskSnapshot(disk.NewCreateFirstClassDiskSnapshotParams().WithID(blockDeviceID).WithBody(&DiskSnapshotSpecification))
+	createDiskSnapshotCreated, _, err := apiClient.Disk.CreateBlockDeviceSnapshot(disk.NewCreateBlockDeviceSnapshotParams().WithID(blockDeviceID).WithBody(&DiskSnapshotSpecification))
 	if err != nil {
 		return err
 	}
@@ -204,8 +204,8 @@ func resourceBlockDeviceSnapshotDelete(d *schema.ResourceData, m interface{}) er
 	apiClient := m.(*Client).apiClient
 
 	deleteDiskSnapshotAccepted, deleteDiskSnapshotCompleted, err := apiClient.Disk.
-		DeleteFirstClassDiskSnapshot(
-			disk.NewDeleteFirstClassDiskSnapshotParams().WithID(blockDeviceID).WithId1(snapshotID))
+		DeleteBlockDeviceSnapshot(
+			disk.NewDeleteBlockDeviceSnapshotParams().WithID(blockDeviceID).WithId1(snapshotID))
 	if err != nil {
 		return err
 	}
