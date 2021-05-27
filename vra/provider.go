@@ -52,6 +52,8 @@ func Provider() *schema.Provider {
 			"vra_catalog_item":                  dataSourceCatalogItem(),
 			"vra_catalog_source_blueprint":      dataSourceCatalogSourceBlueprint(),
 			"vra_catalog_source_entitlement":    dataSourceCatalogSourceEntitlement(),
+			"vra_catalog_item_entitlement":      resourceCatalogItemEntitlement(),
+			"vra_catalog_item_entitlement":      dataSourceCatalogItemEntitlement(),
 			"vra_cloud_account_aws":             dataSourceCloudAccountAWS(),
 			"vra_cloud_account_azure":           dataSourceCloudAccountAzure(),
 			"vra_cloud_account_gcp":             dataSourceCloudAccountGCP(),
