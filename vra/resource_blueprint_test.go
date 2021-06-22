@@ -70,7 +70,7 @@ func testAccCheckVRABlueprintDestroy(s *terraform.State) error {
 			continue
 		}
 
-		_, err := apiClient.Deployments.GetDeploymentByIDUsingGET(deployments.NewGetDeploymentByIDUsingGETParams().WithDepID(strfmt.UUID(rs.Primary.ID)))
+		_, err := apiClient.Deployments.GetDeploymentByIDUsingGET(deployments.NewGetDeploymentByIDUsingGETParams().WithDeploymentID(strfmt.UUID(rs.Primary.ID)))
 		if err == nil {
 			return fmt.Errorf("resource 'vra_blueprint' still exists with id %s", rs.Primary.ID)
 		}
