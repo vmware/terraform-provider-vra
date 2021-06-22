@@ -336,8 +336,8 @@ github.com/vektah/gqlparser v1.1.2/go.mod h1:1ycwN7Ij5njmMkPPAOaRFY4rET2Enx7IkVv
 github.com/vmihailenco/msgpack v3.3.3+incompatible/go.mod h1:fy3FlTQTDXWkZ7Bh6AcGMlsjHatGryHQYUTf1ShIgkk=
 github.com/vmihailenco/msgpack v4.0.1+incompatible h1:RMF1enSPeKTlXrXdOcqjFUElywVZjjC6pqse21bKbEU=
 github.com/vmihailenco/msgpack v4.0.1+incompatible/go.mod h1:fy3FlTQTDXWkZ7Bh6AcGMlsjHatGryHQYUTf1ShIgkk=
-github.com/vmware/vra-sdk-go v0.2.20 h1:9HqOVR7VTvNRVKTzHXkvqtg0/t0CfP/th3VQ68xNT74=
-github.com/vmware/vra-sdk-go v0.2.20/go.mod h1:Ver/bWTAky1InVMlijshohgs9+N4Y+5gAJAALJWqgMw=
+github.com/vmware/vra-sdk-go v0.2.21 h1:nHioDIRebknGAa3UgcgAKFAnVk3r7EKV6QrWZZQbYkg=
+github.com/vmware/vra-sdk-go v0.2.21/go.mod h1:Ver/bWTAky1InVMlijshohgs9+N4Y+5gAJAALJWqgMw=
 github.com/xdg/scram v0.0.0-20180814205039-7eeb5667e42c/go.mod h1:lB8K/P019DLNhemzwFU4jHLhdvlE6uDZjXFejJXr49I=
 github.com/xdg/stringprep v0.0.0-20180714160509-73f8eece6fdc/go.mod h1:Jhud4/sHMO4oL310DaZAKk9ZaJ08SJfe+sJh0HrGL1Y=
 github.com/zclconf/go-cty v1.0.0/go.mod h1:xnAOWiHeOqg2nWS62VtQ7pbOu17FtxJNW8RLEih+O3s=

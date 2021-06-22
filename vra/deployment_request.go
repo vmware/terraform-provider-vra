@@ -99,10 +99,13 @@ func deploymentRequestSchema() *schema.Schema {
 					Optional: true,
 					Computed: true,
 				},
-				"resource_name": {
-					Type:     schema.TypeString,
+				"resource_ids": {
+					Type:     schema.TypeList,
 					Optional: true,
 					Computed: true,
+					Elem: &schema.Schema{
+						Type: schema.TypeString,
+					},
 				},
 				"status": {
 					Type:     schema.TypeString,
@@ -147,7 +150,7 @@ func flattenDeploymentRequest(deploymentRequest *models.Request) interface{} {
 	helper["name"] = deploymentRequest.Name
 	helper["outputs"] = expandInputsToString(deploymentRequest.Outputs)
 	helper["requested_by"] = deploymentRequest.RequestedBy
-	helper["resource_name"] = deploymentRequest.ResourceName
+	helper["resource_ids"] = deploymentRequest.ResourceIds
 	helper["status"] = deploymentRequest.Status
 	helper["total_tasks"] = deploymentRequest.TotalTasks
 	helper["updated_at"] = deploymentRequest.UpdatedAt.String()

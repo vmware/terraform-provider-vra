@@ -201,7 +201,7 @@ func dataSourceDeploymentRead(d *schema.ResourceData, m interface{}) error {
 	// Get the deployment details with all the user provided flags
 	getResp, err := apiClient.Deployments.GetDeploymentByIDUsingGET(
 		deployments.NewGetDeploymentByIDUsingGETParams().
-			WithDepID(strfmt.UUID(id.(string))).
+			WithDeploymentID(strfmt.UUID(id.(string))).
 			WithExpandProject(withBool(expandProject)).
 			WithExpandResources(withBool(expandResources)).
 			WithExpandLastRequest(withBool(expandLastRequest)).
