@@ -213,8 +213,5 @@ func dataSourceDeploymentRead(d *schema.ResourceData, m interface{}) error {
 	}
 
 	deployment := getResp.Payload
-	if err = setFields(deployment); err != nil {
-		return err
-	}
-	return nil
+	return setFields(deployment)
 }
