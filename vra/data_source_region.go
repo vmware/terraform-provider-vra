@@ -21,6 +21,7 @@ func dataSourceRegion() *schema.Resource {
 			"cloud_account_id": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 			},
 			"created_at": {
 				Type:     schema.TypeString,
@@ -41,11 +42,11 @@ func dataSourceRegion() *schema.Resource {
 			},
 			"name": {
 				Type:     schema.TypeString,
-				Optional: true,
+				Computed: true,
 			},
 			"org_id": {
 				Type:     schema.TypeString,
-				Optional: true,
+				Computed: true,
 			},
 			"owner": {
 				Type:     schema.TypeString,
@@ -81,8 +82,9 @@ func dataSourceRegionRead(d *schema.ResourceData, meta interface{}) error {
 		d.Set("created_at", region.CreatedAt)
 		d.Set("external_region_id", region.ExternalRegionID)
 		d.Set("name", region.Name)
-		d.Set("orgId", region.OrgID)
+		d.Set("org_id", region.OrgID)
 		d.Set("owner", region.Owner)
+		d.Set("updated_at", region.UpdatedAt)
 	}
 
 	if idOk {
