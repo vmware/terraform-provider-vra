@@ -29,11 +29,44 @@ resource "vra_project" "this" {
   
   shared_resources = false
 
+  # Deprecated, please use administrator_roles instead.
   administrators = ["jason@vra.local"]
+  
+  administrator_roles {
+    email = "jason@vra.local"
+    type = "user"
+  }
 
+  administrator_roles {
+    email = "jason-group@vra.local"
+    type = "group"
+  }
+
+  # Deprecated, please use member_roles instead.
   members = ["tony@vra.local"]
 
+  member_roles {
+    email = "tony@vra.local"
+    type = "user"
+  }
+
+  member_roles {
+    email = "tony-group@vra.local"
+    type = "group"
+  }
+
+  # Deprecated, please use viewer_roles instead
   viewers = ["shauna@vra.local"]
+
+  viewer_roles {
+    email = "shauna@vra.local"
+    type = "user"
+  }
+
+  viewer_roles {
+    email = "shauna-group@vra.local"
+    type = "group"
+  }
 
   operation_timeout = 6000
 
@@ -74,7 +107,10 @@ A project resource supports the following arguments:
 
 ## Argument Reference
 
-* `administrators` - (Optional) List of administrator users associated with the project. Only administrators can manage project's configuration.
+* `administrators` - (Optional) List of administrator users associated with the project. Only administrators can manage project's configuration. 
+Deprecated, specify the type of principal, please refer `administrator_roles`.
+
+* `administrator_roles` - (Optional) Administrator users or groups associated with the project. Only administrators can manage project's configuration. 
 
 * `constraints` - (Optional) List of storage, network and extensibility constraints to be applied when provisioning through this project.
 
@@ -84,7 +120,9 @@ A project resource supports the following arguments:
 
 * `machine_naming_template` - (Optional) The naming template to be used for resources provisioned in this project.
 
-* `members` - (Optional) List of member users associated with the project.
+* `members` - (Optional) List of member users associated with the project. Deprecated, specify the type of principal, please refer `member_roles`.
+
+* `member_roles` - (Optional) Member users or groups associated with the project. 
 
 * `name` - (Required) A human-friendly name used as an identifier in APIs that support this option.
 
@@ -92,6 +130,8 @@ A project resource supports the following arguments:
 
 * `shared_resources` - (Optional) Specifies whether the resources in this projects are shared or not. If not set default will be used.
 
-* `viewer` - (Optional) List of viewer users associated with the project.
+* `viewers` - (Optional) List of viewer users associated with the project. Deprecated, specify the type of principal, please refer `viewer_roles`.
+
+* `viewer_roles` - (Optional) Viewer users or groups associated with the project. 
 
 * `zone_assignments` - (Optional) List of configurations for zone assignment to a project.

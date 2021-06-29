@@ -23,6 +23,7 @@ func dataSourceProject() *schema.Resource {
 					Type: schema.TypeString,
 				},
 			},
+			"administrator_roles": userSchema("List of administrator roles associated with the project. Only administrators can manage project's configuration."),
 			"constraints": {
 				Type:        schema.TypeSet,
 				Optional:    true,
@@ -61,6 +62,7 @@ func dataSourceProject() *schema.Resource {
 					Type: schema.TypeString,
 				},
 			},
+			"member_roles": userSchema("List of member roles associated with the project."),
 			"name": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -93,6 +95,7 @@ func dataSourceProject() *schema.Resource {
 					Type: schema.TypeString,
 				},
 			},
+			"viewer_roles": userSchema("List of viewer roles associated with the project."),
 			"zone_assignments": {
 				Type:        schema.TypeList,
 				Optional:    true,
@@ -153,16 +156,19 @@ func dataSourceProjectRead(d *schema.ResourceData, meta interface{}) error {
 
 	setFields := func(project *models.Project) {
 		d.SetId(*project.ID)
-		d.Set("administrators", flattenUserList(project.Administrators))
+		d.Set("administrators", flattenUsers(project.Administrators))
+		d.Set("administrator_roles", flattenUsers(project.Administrators))
 		d.Set("constraints", flattenProjectConstraints(project.Constraints))
 		d.Set("custom_properties", project.CustomProperties)
 		d.Set("description", project.Description)
 		d.Set("machine_naming_template", project.MachineNamingTemplate)
-		d.Set("members", flattenUserList(project.Members))
+		d.Set("members", flattenUsers(project.Members))
+		d.Set("member_roles", flattenUsers(project.Members))
 		d.Set("name", project.Name)
 		d.Set("operation_timeout", project.OperationTimeout)
 		d.Set("shared_resources", project.SharedResources)
-		d.Set("viewers", flattenUserList(project.Viewers))
+		d.Set("viewers", flattenUsers(project.Viewers))
+		d.Set("viewer_roles", flattenUsers(project.Viewers))
 		d.Set("zone_assignments", flattenZoneAssignment(project.Zones))
 	}
 
