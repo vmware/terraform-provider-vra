@@ -5,11 +5,12 @@ import (
 	"github.com/vmware/vra-sdk-go/pkg/models"
 )
 
-// userSchema returns the schema to use for the administrator / member property in Project
-func userSchema() *schema.Schema {
+// userSchema returns the schema to use for the administrator / member / viewer property in Project
+func userSchema(description string) *schema.Schema {
 	return &schema.Schema{
-		Type:     schema.TypeSet,
-		Optional: true,
+		Type:        schema.TypeSet,
+		Description: description,
+		Optional:    true,
 		Elem: &schema.Resource{
 			Schema: map[string]*schema.Schema{
 				"type": {
@@ -20,7 +21,6 @@ func userSchema() *schema.Schema {
 				},
 				"email": {
 					Type:        schema.TypeString,
-					Computed:    true,
 					Description: "The email of the user or name of the group.",
 					Required:    true,
 				},
