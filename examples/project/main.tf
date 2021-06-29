@@ -23,11 +23,44 @@ resource "vra_project" "this" {
 
   shared_resources = false
 
+  # Deprecated, please use administrator_roles instead.
   administrators = ["jason@vra.local"]
 
+  administrator_roles {
+    email = "jason@vra.local"
+    type = "user"
+  }
+
+  administrator_roles {
+    email = "jason-group@vra.local"
+    type = "group"
+  }
+
+  # Deprecated, please use member_roles instead.
   members = ["tony@vra.local"]
 
+  member_roles {
+    email = "tony@vra.local"
+    type = "user"
+  }
+
+  member_roles {
+    email = "tony-group@vra.local"
+    type = "group"
+  }
+
+  # Deprecated, please use viewer_roles instead
   viewers = ["shauna@vra.local"]
+
+  viewer_roles {
+    email = "shauna@vra.local"
+    type = "user"
+  }
+
+  viewer_roles {
+    email = "shauna-group@vra.local"
+    type = "group"
+  }
 
   operation_timeout = 6000
 

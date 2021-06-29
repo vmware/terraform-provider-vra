@@ -20,11 +20,13 @@ func resourceProject() *schema.Resource {
 			"administrators": {
 				Type:        schema.TypeSet,
 				Optional:    true,
+				Deprecated:  "To specify the type of principal, please refer administrator_roles.",
 				Description: "List of administrator users associated with the project. Only administrators can manage project's configuration.",
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
 			},
+			"administrator_roles": userSchema("List of administrator roles associated with the project. Only administrators can manage project's configuration."),
 			"constraints": {
 				Type:        schema.TypeSet,
 				Optional:    true,
@@ -56,11 +58,13 @@ func resourceProject() *schema.Resource {
 			"members": {
 				Type:        schema.TypeSet,
 				Optional:    true,
+				Deprecated:  "To specify the type of principal, please refer member_roles.",
 				Description: "List of member users associated with the project.",
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
 			},
+			"member_roles": userSchema("List of member roles associated with the project."),
 			"name": {
 				Type:        schema.TypeString,
 				Required:    true,
@@ -80,11 +84,13 @@ func resourceProject() *schema.Resource {
 			"viewers": {
 				Type:        schema.TypeSet,
 				Optional:    true,
+				Deprecated:  "To specify the type of principal, please refer viewer_roles.",
 				Description: "List of viewer users associated with the project.",
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
 			},
+			"viewer_roles": userSchema("List of viewer roles associated with the project."),
 			"zone_assignments": {
 				Type:        schema.TypeSet,
 				Optional:    true,
@@ -131,16 +137,17 @@ func resourceProject() *schema.Resource {
 func resourceProjectCreate(d *schema.ResourceData, m interface{}) error {
 	apiClient := m.(*Client).apiClient
 
-	administrators := expandUserList(d.Get("administrators").(*schema.Set).List())
+	administrators := expandUserListAndNewUserList(d.Get("administrators").(*schema.Set).List(),
+		d.Get("administrator_roles").(*schema.Set).List())
 	constraints := expandProjectConstraints(d.Get("constraints").(*schema.Set).List())
 	customProperties := expandCustomProperties(d.Get("custom_properties").(map[string]interface{}))
 	description := d.Get("description").(string)
 	machineNamingTemplate := d.Get("machine_naming_template").(string)
-	members := expandUserList(d.Get("members").(*schema.Set).List())
+	members := expandUserListAndNewUserList(d.Get("members").(*schema.Set).List(), d.Get("member_roles").(*schema.Set).List())
 	name := d.Get("name").(string)
 	operationTimeout := d.Get("operation_timeout").(int)
 	sharedResources := d.Get("shared_resources").(bool)
-	viewers := expandUserList(d.Get("viewers").(*schema.Set).List())
+	viewers := expandUserListAndNewUserList(d.Get("viewers").(*schema.Set).List(), d.Get("viewer_roles").(*schema.Set).List())
 	zoneAssignment := expandZoneAssignment(d.Get("zone_assignments").(*schema.Set).List())
 
 	createResp, err := apiClient.Project.CreateProject(project.NewCreateProjectParams().WithBody(&models.ProjectSpecification{
@@ -179,16 +186,19 @@ func resourceProjectRead(d *schema.ResourceData, m interface{}) error {
 		return err
 	}
 	project := *ret.Payload
-	d.Set("administrators", flattenUserList(project.Administrators))
+	d.Set("administrators", flattenUsers(project.Administrators))
+	d.Set("administrator_roles", flattenUsers(project.Administrators))
 	d.Set("constraints", flattenProjectConstraints(project.Constraints))
 	d.Set("custom_properties", project.CustomProperties)
 	d.Set("description", project.Description)
 	d.Set("machine_naming_template", project.MachineNamingTemplate)
-	d.Set("members", flattenUserList(project.Members))
+	d.Set("members", flattenUsers(project.Members))
+	d.Set("member_roles", flattenUsers(project.Members))
 	d.Set("name", project.Name)
 	d.Set("operation_timeout", project.OperationTimeout)
 	d.Set("shared_resources", project.SharedResources)
-	d.Set("viewers", flattenUserList(project.Viewers))
+	d.Set("viewers", flattenUsers(project.Viewers))
+	d.Set("viewer_roles", flattenUsers(project.Viewers))
 	d.Set("zone_assignments", flattenZoneAssignment(project.Zones))
 
 	return nil
@@ -198,13 +208,14 @@ func resourceProjectUpdate(d *schema.ResourceData, m interface{}) error {
 	apiClient := m.(*Client).apiClient
 
 	id := d.Id()
-	administrators := expandUserList(d.Get("administrators").(*schema.Set).List())
+	administrators := expandUserListAndNewUserList(d.Get("administrators").(*schema.Set).List(),
+		d.Get("administrator_roles").(*schema.Set).List())
 	constraints := expandProjectConstraints(d.Get("constraints").(*schema.Set).List())
 	customProperties := expandCustomProperties(d.Get("custom_properties").(map[string]interface{}))
 	description := d.Get("description").(string)
 	machineNamingTemplate := d.Get("machine_naming_template").(string)
-	members := expandUserList(d.Get("members").(*schema.Set).List())
-	viewers := expandUserList(d.Get("viewers").(*schema.Set).List())
+	members := expandUserListAndNewUserList(d.Get("members").(*schema.Set).List(), d.Get("member_roles").(*schema.Set).List())
+	viewers := expandUserListAndNewUserList(d.Get("viewers").(*schema.Set).List(), d.Get("viewer_roles").(*schema.Set).List())
 	name := d.Get("name").(string)
 	operationTimeout := d.Get("operation_timeout").(int)
 	sharedResources := d.Get("shared_resources").(bool)
@@ -253,8 +264,8 @@ func resourceProjectDelete(d *schema.ResourceData, m interface{}) error {
 	return nil
 }
 
-func expandUserList(userList []interface{}) []*models.User {
-	users := make([]*models.User, 0, len(userList))
+func expandUserListAndNewUserList(userList []interface{}, configUsers []interface{}) []*models.User {
+	users := make([]*models.User, 0, len(userList)+len(configUsers))
 
 	for _, email := range userList {
 		user := models.User{
@@ -263,17 +274,9 @@ func expandUserList(userList []interface{}) []*models.User {
 		users = append(users, &user)
 	}
 
+	users = append(users, expandUsers(configUsers)...)
+
 	return users
-}
-
-func flattenUserList(userList []*models.User) []*string {
-	result := make([]*string, 0, len(userList))
-
-	for _, user := range userList {
-		result = append(result, user.Email)
-	}
-
-	return result
 }
 
 func expandZoneAssignment(configZoneAssignments []interface{}) []*models.ZoneAssignmentConfig {
