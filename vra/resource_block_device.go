@@ -211,7 +211,7 @@ func resourceBlockDeviceCreate(ctx context.Context, d *schema.ResourceData, m in
 		MinTimeout: 5 * time.Second,
 	}
 
-	resourceIDs, err := stateChangeFunc.WaitForState()
+	resourceIDs, err := stateChangeFunc.WaitForStateContext(ctx)
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -314,7 +314,7 @@ func resourceBlockDeviceUpdate(ctx context.Context, d *schema.ResourceData, m in
 
 	id := d.Id()
 	if d.HasChange("capacity_in_gb") {
-		err := resizeDisk(d, apiClient, id)
+		err := resizeDisk(ctx, d, apiClient, id)
 		if err != nil {
 			return diag.FromErr(err)
 		}
@@ -324,7 +324,7 @@ func resourceBlockDeviceUpdate(ctx context.Context, d *schema.ResourceData, m in
 	return resourceBlockDeviceRead(ctx, d, m)
 }
 
-func resizeDisk(d *schema.ResourceData, apiClient *client.MulticloudIaaS, id string) error {
+func resizeDisk(ctx context.Context, d *schema.ResourceData, apiClient *client.MulticloudIaaS, id string) error {
 
 	log.Printf("Starting resize of vra_block_device resource with name %s", d.Get("name"))
 
@@ -346,8 +346,7 @@ func resizeDisk(d *schema.ResourceData, apiClient *client.MulticloudIaaS, id str
 		MinTimeout: 5 * time.Second,
 	}
 
-	_, err = stateChangeFunc.WaitForState()
-	if err != nil {
+	if _, err = stateChangeFunc.WaitForStateContext(ctx); err != nil {
 		return err
 	}
 
@@ -396,8 +395,7 @@ func resourceBlockDeviceDelete(ctx context.Context, d *schema.ResourceData, m in
 		MinTimeout: 5 * time.Second,
 	}
 
-	_, err = stateChangeFunc.WaitForState()
-	if err != nil {
+	if _, err = stateChangeFunc.WaitForStateContext(ctx); err != nil {
 		return diag.FromErr(err)
 	}
 

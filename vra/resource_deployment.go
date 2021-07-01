@@ -316,7 +316,7 @@ func resourceDeploymentCreate(ctx context.Context, d *schema.ResourceData, m int
 		MinTimeout: 5 * time.Second,
 	}
 
-	deploymentID, err := stateChangeFunc.WaitForState()
+	deploymentID, err := stateChangeFunc.WaitForStateContext(ctx)
 	if err != nil {
 		readErrors := resourceDeploymentRead(ctx, d, m)
 		if readErrors.HasError() {
@@ -430,7 +430,7 @@ func resourceDeploymentUpdate(ctx context.Context, d *schema.ResourceData, m int
 		}
 
 		if d.HasChange("inputs") {
-			err := runDeploymentUpdateAction(d, apiClient, deploymentUUID)
+			err := runDeploymentUpdateAction(ctx, d, apiClient, deploymentUUID)
 			if err != nil {
 				return diag.FromErr(err)
 			}
@@ -445,8 +445,7 @@ func resourceDeploymentUpdate(ctx context.Context, d *schema.ResourceData, m int
 			MinTimeout: 5 * time.Second,
 		}
 
-		_, err := stateChangeFunc.WaitForState()
-		if err != nil {
+		if _, err := stateChangeFunc.WaitForStateContext(ctx); err != nil {
 			readErrors := resourceDeploymentRead(ctx, d, m)
 			if readErrors.HasError() {
 				return append(readErrors, diag.Errorf("failed to create deployment: %v", err.Error())...)
@@ -457,7 +456,7 @@ func resourceDeploymentUpdate(ctx context.Context, d *schema.ResourceData, m int
 
 	if d.HasChange("owner") {
 		deploymentUUID := strfmt.UUID(d.Id())
-		err := runChangeOwnerDeploymentAction(d, apiClient, deploymentUUID)
+		err := runChangeOwnerDeploymentAction(ctx, d, apiClient, deploymentUUID)
 		if err != nil {
 			return diag.FromErr(err)
 		}
@@ -488,8 +487,7 @@ func resourceDeploymentDelete(ctx context.Context, d *schema.ResourceData, m int
 		MinTimeout: 5 * time.Second,
 	}
 
-	_, err = stateChangeFunc.WaitForState()
-	if err != nil {
+	if _, err = stateChangeFunc.WaitForStateContext(ctx); err != nil {
 		return diag.FromErr(err)
 	}
 
@@ -765,8 +763,7 @@ func updateDeploymentWithNewBlueprint(ctx context.Context, d *schema.ResourceDat
 		MinTimeout: 5 * time.Second,
 	}
 
-	_, err = stateChangeFunc.WaitForState()
-	if err != nil {
+	if _, err = stateChangeFunc.WaitForStateContext(ctx); err != nil {
 		readErrors := resourceDeploymentRead(ctx, d, m)
 		if readErrors.HasError() {
 			return append(readErrors, diag.Errorf("failed to update deployment: %v", err.Error())...)
@@ -799,7 +796,7 @@ func updateDeploymentMetadata(d *schema.ResourceData, apiClient *client.Multiclo
 	return nil
 }
 
-func runDeploymentUpdateAction(d *schema.ResourceData, apiClient *client.MulticloudIaaS, deploymentUUID strfmt.UUID) error {
+func runDeploymentUpdateAction(ctx context.Context, d *schema.ResourceData, apiClient *client.MulticloudIaaS, deploymentUUID strfmt.UUID) error {
 	log.Printf("Noticed changes to inputs. Starting to update deployment with inputs")
 	// Get the deployment actions
 	deploymentActions, err := apiClient.DeploymentActions.GetDeploymentActionsUsingGET(deployment_actions.
@@ -871,7 +868,7 @@ func runDeploymentUpdateAction(d *schema.ResourceData, apiClient *client.Multicl
 	}
 
 	reason := "Updated deployment inputs from vRA provider for Terraform."
-	err = runAction(d, apiClient, deploymentUUID, actionID, inputs, reason)
+	err = runAction(ctx, d, apiClient, deploymentUUID, actionID, inputs, reason)
 	if err != nil {
 		return err
 	}
@@ -1006,7 +1003,7 @@ func getDeploymentActionInputTypesMap(apiClient *client.MulticloudIaaS, deployme
 	return inputTypesMap, nil
 }
 
-func runChangeOwnerDeploymentAction(d *schema.ResourceData, apiClient *client.MulticloudIaaS, deploymentUUID strfmt.UUID) error {
+func runChangeOwnerDeploymentAction(ctx context.Context, d *schema.ResourceData, apiClient *client.MulticloudIaaS, deploymentUUID strfmt.UUID) error {
 	oldOwner, newOwner := d.GetChange("owner")
 	log.Printf("Noticed changes to owner. Starting to change deployment owner from %s to %s", oldOwner.(string), newOwner.(string))
 
@@ -1035,7 +1032,7 @@ func runChangeOwnerDeploymentAction(d *schema.ResourceData, apiClient *client.Mu
 	}
 
 	reason := "Updated deployment owner from vRA provider for Terraform."
-	err = runAction(d, apiClient, deploymentUUID, actionID, inputs, reason)
+	err = runAction(ctx, d, apiClient, deploymentUUID, actionID, inputs, reason)
 	if err != nil {
 		return err
 	}
@@ -1044,7 +1041,7 @@ func runChangeOwnerDeploymentAction(d *schema.ResourceData, apiClient *client.Mu
 	return nil
 }
 
-func runAction(d *schema.ResourceData, apiClient *client.MulticloudIaaS, deploymentUUID strfmt.UUID, actionID string, inputs map[string]interface{}, reason string) error {
+func runAction(ctx context.Context, d *schema.ResourceData, apiClient *client.MulticloudIaaS, deploymentUUID strfmt.UUID, actionID string, inputs map[string]interface{}, reason string) error {
 	resourceActionRequest := models.ResourceActionRequest{
 		ActionID: actionID,
 		Reason:   reason,
@@ -1070,8 +1067,7 @@ func runAction(d *schema.ResourceData, apiClient *client.MulticloudIaaS, deploym
 		Timeout:    d.Timeout(schema.TimeoutUpdate),
 		MinTimeout: 5 * time.Second,
 	}
-	_, err = stateChangeFunc.WaitForState()
-	if err != nil {
+	if _, err = stateChangeFunc.WaitForStateContext(ctx); err != nil {
 		return err
 	}
 	return nil

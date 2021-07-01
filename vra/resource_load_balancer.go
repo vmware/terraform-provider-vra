@@ -150,7 +150,7 @@ func resourceLoadBalancerCreate(ctx context.Context, d *schema.ResourceData, m i
 		MinTimeout: 5 * time.Second,
 	}
 
-	resourceIDs, err := stateChangeFunc.WaitForState()
+	resourceIDs, err := stateChangeFunc.WaitForStateContext(ctx)
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -256,8 +256,7 @@ func resourceLoadBalancerDelete(ctx context.Context, d *schema.ResourceData, m i
 		MinTimeout: 5 * time.Second,
 	}
 
-	_, err = stateChangeFunc.WaitForState()
-	if err != nil {
+	if _, err = stateChangeFunc.WaitForStateContext(ctx); err != nil {
 		return diag.FromErr(err)
 	}
 

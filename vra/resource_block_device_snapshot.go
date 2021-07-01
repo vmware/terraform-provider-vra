@@ -96,8 +96,7 @@ func resourceBlockDeviceSnapshotCreate(ctx context.Context, d *schema.ResourceDa
 		MinTimeout: 5 * time.Second,
 	}
 
-	_, err = stateChangeFunc.WaitForState()
-	if err != nil {
+	if _, err = stateChangeFunc.WaitForStateContext(ctx); err != nil {
 		return diag.FromErr(err)
 	}
 
@@ -227,8 +226,7 @@ func resourceBlockDeviceSnapshotDelete(ctx context.Context, d *schema.ResourceDa
 		MinTimeout: 5 * time.Second,
 	}
 
-	_, err = stateChangeFunc.WaitForState()
-	if err != nil {
+	if _, err = stateChangeFunc.WaitForStateContext(ctx); err != nil {
 		return diag.FromErr(err)
 	}
 
