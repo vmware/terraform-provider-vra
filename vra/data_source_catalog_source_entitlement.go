@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/vmware/vra-sdk-go/pkg/client/catalog_entitlements"
 	"github.com/vmware/vra-sdk-go/pkg/models"
 )
@@ -13,7 +13,7 @@ func dataSourceCatalogSourceEntitlement() *schema.Resource {
 	return &schema.Resource{
 		Read: dataSourceCatalogSourceEntitlementRead,
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -23,7 +23,6 @@ func dataSourceCatalogSourceEntitlement() *schema.Resource {
 			},
 			"definition": {
 				Type:     schema.TypeSet,
-				MaxItems: 1,
 				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
