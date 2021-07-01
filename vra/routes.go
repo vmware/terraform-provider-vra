@@ -15,7 +15,7 @@ func routesSchema(isRequired bool) *schema.Schema {
 		Elem: &schema.Resource{
 			Schema: map[string]*schema.Schema{
 				"health_check_configuration": {
-					Type:     schema.TypeMap,
+					Type:     schema.TypeList,
 					Optional: true,
 					Elem: &schema.Resource{
 						Schema: map[string]*schema.Schema{
