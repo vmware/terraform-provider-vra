@@ -1,11 +1,14 @@
 package vra
 
 import (
+	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"strconv"
 
 	"github.com/go-openapi/strfmt"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/vmware/vra-sdk-go/pkg/client"
@@ -33,10 +36,10 @@ const (
 
 func resourceDeployment() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceDeploymentCreate,
-		Read:   resourceDeploymentRead,
-		Update: resourceDeploymentUpdate,
-		Delete: resourceDeploymentDelete,
+		CreateContext: resourceDeploymentCreate,
+		ReadContext:   resourceDeploymentRead,
+		UpdateContext: resourceDeploymentUpdate,
+		DeleteContext: resourceDeploymentDelete,
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
@@ -159,7 +162,7 @@ func resourceDeployment() *schema.Resource {
 	}
 }
 
-func resourceDeploymentCreate(d *schema.ResourceData, m interface{}) error {
+func resourceDeploymentCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	log.Printf("Starting to create vra_deployment resource")
 	apiClient := m.(*Client).apiClient
 
@@ -177,7 +180,7 @@ func resourceDeploymentCreate(d *schema.ResourceData, m interface{}) error {
 	}
 
 	if blueprintID != "" && catalogItemID != "" {
-		return fmt.Errorf("only one of (blueprint_id, catalog_item_id) required")
+		return diag.FromErr(errors.New("only one of (blueprint_id, catalog_item_id) required"))
 	}
 
 	deploymentName := d.Get("name").(string)
@@ -192,7 +195,7 @@ func resourceDeploymentCreate(d *schema.ResourceData, m interface{}) error {
 			log.Printf("Deployment '%v' doesn't exist already and hence can be created", deploymentName)
 		}
 	} else {
-		return fmt.Errorf("a deployment with name '%v' exists already. Try with a differnet name", deploymentName)
+		return diag.Errorf("a deployment with name '%v' exists already. Try with a differnet name", deploymentName)
 	}
 
 	inputs := make(map[string]interface{})
@@ -214,7 +217,7 @@ func resourceDeploymentCreate(d *schema.ResourceData, m interface{}) error {
 		if v, ok := d.GetOk("inputs"); ok {
 			inputs, err = getCatalogItemInputsByType(apiClient, catalogItemID, catalogItemVersion, v)
 			if err != nil {
-				return err
+				return diag.FromErr(err)
 			}
 		}
 		catalogItemRequest.Inputs = inputs
@@ -229,7 +232,7 @@ func resourceDeploymentCreate(d *schema.ResourceData, m interface{}) error {
 				WithAPIVersion(withString(CatalogAPIVersion)).WithRequest(&catalogItemRequest))
 
 		if err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 
 		d.SetId(postOk.GetPayload().DeploymentID)
@@ -266,7 +269,7 @@ func resourceDeploymentCreate(d *schema.ResourceData, m interface{}) error {
 			// to the type defined in the schema.
 			inputs, err = getBlueprintInputsByType(apiClient, blueprintID, blueprintVersion, v)
 			if err != nil {
-				return err
+				return diag.FromErr(err)
 			}
 		}
 		blueprintRequest.Inputs = inputs
@@ -276,7 +279,7 @@ func resourceDeploymentCreate(d *schema.ResourceData, m interface{}) error {
 
 		if err != nil {
 			log.Printf("Received error. err=%s, bpRequestCreated=%v, bpRequestAccepted=%v", err, bpRequestCreated, bpRequestAccepted)
-			return err
+			return diag.FromErr(err)
 		}
 
 		// blueprint_requests service may return either 201 or 202 depending on whether the request is in terminal state vs or in-progress
@@ -298,7 +301,7 @@ func resourceDeploymentCreate(d *schema.ResourceData, m interface{}) error {
 		if deploymentID != "" {
 			d.SetId(deploymentID)
 		} else {
-			return fmt.Errorf("failed to request for a deployment. status: %v, message: %v", status, failureMessage)
+			return diag.Errorf("failed to request for a deployment. status: %v, message: %v", status, failureMessage)
 		}
 
 		log.Printf("Finished requesting vra_deployment '%s' from blueprint %s", d.Get("name"), blueprintID)
@@ -315,20 +318,20 @@ func resourceDeploymentCreate(d *schema.ResourceData, m interface{}) error {
 
 	deploymentID, err := stateChangeFunc.WaitForState()
 	if err != nil {
-		readError := resourceDeploymentRead(d, m)
-		if readError != nil {
-			return fmt.Errorf("failed to create deployment: %v \nfailed to read deployment state: %v", err.Error(), readError.Error())
+		readErrors := resourceDeploymentRead(ctx, d, m)
+		if readErrors.HasError() {
+			return append(readErrors, diag.Errorf("failed to create deployment: %v", err.Error())...)
 		}
-		return err
+		return diag.FromErr(err)
 	}
 
 	d.SetId(deploymentID.(string))
 	log.Printf("Finished to create vra_deployment resource with name %s", d.Get("name"))
 
-	return resourceDeploymentRead(d, m)
+	return resourceDeploymentRead(ctx, d, m)
 }
 
-func resourceDeploymentRead(d *schema.ResourceData, m interface{}) error {
+func resourceDeploymentRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	log.Printf("Reading the vra_deployment resource with name %s", d.Get("name"))
 	apiClient := m.(*Client).apiClient
 
@@ -352,7 +355,7 @@ func resourceDeploymentRead(d *schema.ResourceData, m interface{}) error {
 			d.SetId("")
 			return nil
 		}
-		return err
+		return diag.FromErr(err)
 	}
 
 	deployment := *resp.Payload
@@ -365,23 +368,23 @@ func resourceDeploymentRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("description", deployment.Description)
 
 	if err := d.Set("expense", flattenExpense(deployment.Expense)); err != nil {
-		return fmt.Errorf("error setting deployment expense - error: %#v", err)
+		return diag.Errorf("error setting deployment expense - error: %#v", err)
 	}
 
 	if err := d.Set("inputs_including_defaults", expandInputsToString(deployment.Inputs)); err != nil {
-		return fmt.Errorf("error setting deployment inputs_including_defaults - error: %#v", err)
+		return diag.Errorf("error setting deployment inputs_including_defaults - error: %#v", err)
 	}
 
 	allInputs := expandInputs(deployment.Inputs)
 	if v, ok := d.GetOk("inputs"); ok {
 		userInputs := v.(map[string]interface{})
 		if err := d.Set("inputs", updateUserInputs(allInputs, userInputs, inputTypesMap)); err != nil {
-			return fmt.Errorf("error setting deployment inputs - error: %#v", err)
+			return diag.Errorf("error setting deployment inputs - error: %#v", err)
 		}
 	}
 
 	if err := d.Set("last_request", flattenDeploymentRequest(deployment.LastRequest)); err != nil {
-		return fmt.Errorf("error setting deployment last_request - error: %#v", err)
+		return diag.Errorf("error setting deployment last_request - error: %#v", err)
 	}
 
 	d.Set("last_updated_at", deployment.LastUpdatedAt)
@@ -392,13 +395,13 @@ func resourceDeploymentRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("owner", deployment.OwnedBy)
 
 	if err := d.Set("project", flattenResourceReference(deployment.Project)); err != nil {
-		return fmt.Errorf("error setting project in deployment - error: %#v", err)
+		return diag.Errorf("error setting project in deployment - error: %#v", err)
 	}
 
 	d.Set("project_id", deployment.ProjectID)
 
 	if err := d.Set("resources", flattenResources(deployment.Resources)); err != nil {
-		return fmt.Errorf("error setting resources in deployment - error: %#v", err)
+		return diag.Errorf("error setting resources in deployment - error: %#v", err)
 	}
 
 	d.Set("status", deployment.Status)
@@ -407,13 +410,13 @@ func resourceDeploymentRead(d *schema.ResourceData, m interface{}) error {
 	return nil
 }
 
-func resourceDeploymentUpdate(d *schema.ResourceData, m interface{}) error {
+func resourceDeploymentUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	log.Printf("Starting to update the vra_deployment resource with name %s", d.Get("name"))
 	apiClient := m.(*Client).apiClient
 
 	if d.HasChange("blueprint_id") || d.HasChange("blueprint_version") || d.HasChange("blueprint_content") {
-		err := updateDeploymentWithNewBlueprint(d, m, apiClient)
-		if err != nil {
+		err := updateDeploymentWithNewBlueprint(ctx, d, m, apiClient)
+		if err.HasError() {
 			return err
 		}
 	} else {
@@ -422,14 +425,14 @@ func resourceDeploymentUpdate(d *schema.ResourceData, m interface{}) error {
 		if d.HasChange("name") || d.HasChange("description") {
 			err := updateDeploymentMetadata(d, apiClient, deploymentUUID)
 			if err != nil {
-				return err
+				return diag.FromErr(err)
 			}
 		}
 
 		if d.HasChange("inputs") {
 			err := runDeploymentUpdateAction(d, apiClient, deploymentUUID)
 			if err != nil {
-				return err
+				return diag.FromErr(err)
 			}
 		}
 
@@ -444,11 +447,11 @@ func resourceDeploymentUpdate(d *schema.ResourceData, m interface{}) error {
 
 		_, err := stateChangeFunc.WaitForState()
 		if err != nil {
-			readError := resourceDeploymentRead(d, m)
-			if readError != nil {
-				return fmt.Errorf("failed to update deployment: %v \nfailed to read deployment state: %v", err.Error(), readError.Error())
+			readErrors := resourceDeploymentRead(ctx, d, m)
+			if readErrors.HasError() {
+				return append(readErrors, diag.Errorf("failed to create deployment: %v", err.Error())...)
 			}
-			return err
+			return diag.FromErr(err)
 		}
 	}
 
@@ -456,22 +459,22 @@ func resourceDeploymentUpdate(d *schema.ResourceData, m interface{}) error {
 		deploymentUUID := strfmt.UUID(d.Id())
 		err := runChangeOwnerDeploymentAction(d, apiClient, deploymentUUID)
 		if err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 	}
 
 	log.Printf("Finished updating the vra_deployment resource with name %s", d.Get("name"))
-	return resourceDeploymentRead(d, m)
+	return resourceDeploymentRead(ctx, d, m)
 }
 
-func resourceDeploymentDelete(d *schema.ResourceData, m interface{}) error {
+func resourceDeploymentDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	log.Printf("Starting to delete the vra_deployment resource with name %s", d.Get("name"))
 	apiClient := m.(*Client).apiClient
 
 	id := d.Id()
 	_, err := apiClient.Deployments.DeleteDeploymentUsingDELETE(deployments.NewDeleteDeploymentUsingDELETEParams().WithDeploymentID(strfmt.UUID(id)))
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	log.Printf("Requested for deleting the vra_deployment resource with name %s", d.Get("name"))
@@ -487,7 +490,7 @@ func resourceDeploymentDelete(d *schema.ResourceData, m interface{}) error {
 
 	_, err = stateChangeFunc.WaitForState()
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	d.SetId("")
@@ -668,7 +671,7 @@ func deploymentStatusRefreshFunc(apiClient client.MulticloudIaaS, id string) res
 	}
 }
 
-func updateDeploymentWithNewBlueprint(d *schema.ResourceData, m interface{}, apiClient *client.MulticloudIaaS) error {
+func updateDeploymentWithNewBlueprint(ctx context.Context, d *schema.ResourceData, m interface{}, apiClient *client.MulticloudIaaS) diag.Diagnostics {
 	log.Printf("Noticed changes to blueprint_id/blueprint_version/blueprint_content. Starting to update existing deployment...")
 
 	blueprintID, blueprintVersion, blueprintContent := "", "", ""
@@ -681,7 +684,7 @@ func updateDeploymentWithNewBlueprint(d *schema.ResourceData, m interface{}, api
 	}
 
 	if blueprintID != "" && blueprintContent != "" {
-		return fmt.Errorf("only one of (blueprint_id, blueprintContent) required")
+		return diag.FromErr(errors.New("only one of (blueprint_id, blueprintContent) required"))
 	}
 
 	deploymentName := d.Get("name").(string)
@@ -716,7 +719,7 @@ func updateDeploymentWithNewBlueprint(d *schema.ResourceData, m interface{}, api
 		// to the type defined in the schema.
 		inputs, err := getBlueprintInputsByType(apiClient, blueprintID, blueprintVersion, v)
 		if err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 		blueprintRequest.Inputs = inputs
 	} else {
@@ -728,7 +731,7 @@ func updateDeploymentWithNewBlueprint(d *schema.ResourceData, m interface{}, api
 
 	if err != nil {
 		log.Printf("Received error. err=%s, bpRequestCreated=%v, bpRequestAccepted=%v", err, bpRequestCreated, bpRequestAccepted)
-		return err
+		return diag.FromErr(err)
 	}
 
 	// blueprint_requests service may return either 201 or 202 depending on whether the request is in terminal state vs or in-progress
@@ -750,7 +753,7 @@ func updateDeploymentWithNewBlueprint(d *schema.ResourceData, m interface{}, api
 	if deploymentID != "" {
 		d.SetId(deploymentID)
 	} else {
-		return fmt.Errorf("failed to request update to existing deployment. status: %v, message: %v", status, failureMessage)
+		return diag.Errorf("failed to request update to existing deployment. status: %v, message: %v", status, failureMessage)
 	}
 
 	stateChangeFunc := resource.StateChangeConf{
@@ -764,11 +767,11 @@ func updateDeploymentWithNewBlueprint(d *schema.ResourceData, m interface{}, api
 
 	_, err = stateChangeFunc.WaitForState()
 	if err != nil {
-		readError := resourceDeploymentRead(d, m)
-		if readError != nil {
-			return fmt.Errorf("failed to update deployment: %v \nfailed to read deployment state: %v", err.Error(), readError.Error())
+		readErrors := resourceDeploymentRead(ctx, d, m)
+		if readErrors.HasError() {
+			return append(readErrors, diag.Errorf("failed to update deployment: %v", err.Error())...)
 		}
-		return err
+		return diag.FromErr(err)
 	}
 
 	log.Printf("Finished to update vra_deployment '%s' with blueprint '%s'", deploymentName, blueprintID)

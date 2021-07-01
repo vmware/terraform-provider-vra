@@ -1,22 +1,24 @@
 package vra
 
 import (
-	"fmt"
+	"context"
+	"errors"
 	"log"
 	"strings"
 
 	"github.com/vmware/vra-sdk-go/pkg/client/network_profile"
 	"github.com/vmware/vra-sdk-go/pkg/models"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func resourceNetworkProfile() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceNetworkProfileCreate,
-		Read:   resourceNetworkProfileRead,
-		Update: resourceNetworkProfileUpdate,
-		Delete: resourceNetworkProfileDelete,
+		CreateContext: resourceNetworkProfileCreate,
+		ReadContext:   resourceNetworkProfileRead,
+		UpdateContext: resourceNetworkProfileUpdate,
+		DeleteContext: resourceNetworkProfileDelete,
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
@@ -108,7 +110,7 @@ func resourceNetworkProfile() *schema.Resource {
 	}
 }
 
-func resourceNetworkProfileCreate(d *schema.ResourceData, m interface{}) error {
+func resourceNetworkProfileCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	log.Printf("Starting to create vra_network_profile resource")
 	apiClient := m.(*Client).apiClient
 
@@ -133,14 +135,14 @@ func resourceNetworkProfileCreate(d *schema.ResourceData, m interface{}) error {
 
 	if v, ok := d.GetOk("fabric_network_ids"); ok {
 		if !compareUnique(v.([]interface{})) {
-			return fmt.Errorf("Specified fabric network ids are not unique")
+			return diag.FromErr(errors.New("Specified fabric network ids are not unique"))
 		}
 		networkProfileSpecification.FabricNetworkIds = expandStringList(v.([]interface{}))
 	}
 
 	if v, ok := d.GetOk("security_group_ids"); ok {
 		if !compareUnique(v.([]interface{})) {
-			return fmt.Errorf("Specified security group ids are not unique")
+			return diag.FromErr(errors.New("Specified security group ids are not unique"))
 		}
 		networkProfileSpecification.SecurityGroupIds = expandStringList(v.([]interface{}))
 	}
@@ -148,23 +150,23 @@ func resourceNetworkProfileCreate(d *schema.ResourceData, m interface{}) error {
 	log.Printf("[DEBUG] create network profile: %#v", networkProfileSpecification)
 	createNetworkProfileCreated, err := apiClient.NetworkProfile.CreateNetworkProfile(network_profile.NewCreateNetworkProfileParams().WithBody(&networkProfileSpecification))
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	d.SetId(*createNetworkProfileCreated.Payload.ID)
 	log.Printf("Finished to create vra_network_profile resource with name %s", d.Get("name"))
 
-	return resourceNetworkProfileRead(d, m)
+	return resourceNetworkProfileRead(ctx, d, m)
 }
 
-func resourceNetworkProfileRead(d *schema.ResourceData, m interface{}) error {
+func resourceNetworkProfileRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	log.Printf("Reading the vra_network_profile resource with name %s", d.Get("name"))
 	apiClient := m.(*Client).apiClient
 
 	id := d.Id()
 	resp, err := apiClient.NetworkProfile.GetNetworkProfile(network_profile.NewGetNetworkProfileParams().WithID(id))
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	networkProfile := *resp.Payload
@@ -183,11 +185,11 @@ func resourceNetworkProfileRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("updated_at", networkProfile.UpdatedAt)
 
 	if err := d.Set("tags", flattenTags(networkProfile.Tags)); err != nil {
-		return fmt.Errorf("error setting network profile tags - error: %v", err)
+		return diag.Errorf("error setting network profile tags - error: %v", err)
 	}
 
 	if err := d.Set("links", flattenLinks(networkProfile.Links)); err != nil {
-		return fmt.Errorf("error setting network profile links - error: %#v", err)
+		return diag.Errorf("error setting network profile links - error: %#v", err)
 	}
 
 	if regionLink, ok := networkProfile.Links["region"]; ok {
@@ -210,7 +212,7 @@ func resourceNetworkProfileRead(d *schema.ResourceData, m interface{}) error {
 	return nil
 }
 
-func resourceNetworkProfileUpdate(d *schema.ResourceData, m interface{}) error {
+func resourceNetworkProfileUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	apiClient := m.(*Client).apiClient
 
 	id := d.Id()
@@ -235,34 +237,34 @@ func resourceNetworkProfileUpdate(d *schema.ResourceData, m interface{}) error {
 
 	if v, ok := d.GetOk("fabric_network_ids"); ok {
 		if !compareUnique(v.([]interface{})) {
-			return fmt.Errorf("Specified fabric network ids are not unique")
+			return diag.FromErr(errors.New("Specified fabric network ids are not unique"))
 		}
 		networkProfileSpecification.FabricNetworkIds = expandStringList(v.([]interface{}))
 	}
 
 	if v, ok := d.GetOk("security_group_ids"); ok {
 		if !compareUnique(v.([]interface{})) {
-			return fmt.Errorf("Specified security group ids are not unique")
+			return diag.FromErr(errors.New("Specified security group ids are not unique"))
 		}
 		networkProfileSpecification.SecurityGroupIds = expandStringList(v.([]interface{}))
 	}
 
 	_, err := apiClient.NetworkProfile.UpdateNetworkProfile(network_profile.NewUpdateNetworkProfileParams().WithID(id).WithBody(&networkProfileSpecification))
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
-	return resourceNetworkProfileRead(d, m)
+	return resourceNetworkProfileRead(ctx, d, m)
 }
 
-func resourceNetworkProfileDelete(d *schema.ResourceData, m interface{}) error {
+func resourceNetworkProfileDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	log.Printf("Starting to delete the vra_network_profile resource with name %s", d.Get("name"))
 	apiClient := m.(*Client).apiClient
 
 	id := d.Id()
 	_, err := apiClient.NetworkProfile.DeleteNetworkProfile(network_profile.NewDeleteNetworkProfileParams().WithID(id))
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	d.SetId("")

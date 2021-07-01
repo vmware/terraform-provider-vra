@@ -1,9 +1,12 @@
 package vra
 
 import (
+	"context"
+
 	"github.com/vmware/vra-sdk-go/pkg/client/catalog_sources"
 
 	"github.com/go-openapi/strfmt"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/vmware/vra-sdk-go/pkg/models"
 
@@ -12,10 +15,10 @@ import (
 
 func resourceCatalogSourceBlueprint() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceCatalogSourceBlueprintCreate,
-		Delete: resourceCatalogSourceBlueprintDelete,
-		Read:   resourceCatalogSourceBlueprintRead,
-		Update: resourceCatalogSourceBlueprintUpdate,
+		CreateContext: resourceCatalogSourceBlueprintCreate,
+		DeleteContext: resourceCatalogSourceBlueprintDelete,
+		ReadContext:   resourceCatalogSourceBlueprintRead,
+		UpdateContext: resourceCatalogSourceBlueprintUpdate,
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
@@ -88,7 +91,7 @@ func resourceCatalogSourceBlueprint() *schema.Resource {
 	}
 }
 
-func resourceCatalogSourceBlueprintCreate(d *schema.ResourceData, m interface{}) error {
+func resourceCatalogSourceBlueprintCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	log.Printf("starting to create vra_catalog_source_blueprint resource")
 
 	apiClient := m.(*Client).apiClient
@@ -112,16 +115,16 @@ func resourceCatalogSourceBlueprintCreate(d *schema.ResourceData, m interface{})
 		catalog_sources.NewPostUsingPOSTParams().WithSource(&catalogSource))
 
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	d.SetId(createResp.GetPayload().ID.String())
 	log.Printf("Finished creating vra_catalog_source_blueprint resource with name %s", d.Get("name"))
 
-	return resourceCatalogSourceBlueprintRead(d, m)
+	return resourceCatalogSourceBlueprintRead(ctx, d, m)
 }
 
-func resourceCatalogSourceBlueprintRead(d *schema.ResourceData, m interface{}) error {
+func resourceCatalogSourceBlueprintRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	log.Printf("Reading the vra_catalog_source_blueprint resource with name %s", d.Get("name"))
 	apiClient := m.(*Client).apiClient
 
@@ -134,7 +137,7 @@ func resourceCatalogSourceBlueprintRead(d *schema.ResourceData, m interface{}) e
 			d.SetId("")
 			return nil
 		}
-		return err
+		return diag.FromErr(err)
 	}
 
 	catalogSource := *resp.Payload
@@ -158,7 +161,7 @@ func resourceCatalogSourceBlueprintRead(d *schema.ResourceData, m interface{}) e
 	return nil
 }
 
-func resourceCatalogSourceBlueprintUpdate(d *schema.ResourceData, m interface{}) error {
+func resourceCatalogSourceBlueprintUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	log.Printf("starting to update vra_catalog_source_blueprint resource")
 
 	apiClient := m.(*Client).apiClient
@@ -185,16 +188,16 @@ func resourceCatalogSourceBlueprintUpdate(d *schema.ResourceData, m interface{})
 		catalog_sources.NewPostUsingPOSTParams().WithSource(&catalogSource))
 
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	d.SetId(createResp.GetPayload().ID.String())
 	log.Printf("Finished updating vra_catalog_source_blueprint resource with name %s", d.Get("name"))
 
-	return resourceCatalogSourceBlueprintRead(d, m)
+	return resourceCatalogSourceBlueprintRead(ctx, d, m)
 }
 
-func resourceCatalogSourceBlueprintDelete(d *schema.ResourceData, m interface{}) error {
+func resourceCatalogSourceBlueprintDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	log.Printf("Starting to delete the vra_catalog_source_blueprint resource with name %s", d.Get("name"))
 	apiClient := m.(*Client).apiClient
 
@@ -202,7 +205,7 @@ func resourceCatalogSourceBlueprintDelete(d *schema.ResourceData, m interface{})
 		catalog_sources.NewDeleteUsingDELETEParams().WithSourceID(strfmt.UUID(d.Id())))
 
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	d.SetId("")

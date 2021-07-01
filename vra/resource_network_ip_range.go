@@ -1,22 +1,23 @@
 package vra
 
 import (
-	"fmt"
+	"context"
 	"log"
 
 	"github.com/vmware/vra-sdk-go/pkg/client/network_ip_range"
 	"github.com/vmware/vra-sdk-go/pkg/models"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func resourceNetworkIPRange() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceNetworkIPRangeCreate,
-		Read:   resourceNetworkIPRangeRead,
-		Update: resourceNetworkIPRangeUpdate,
-		Delete: resourceNetworkIPRangeDelete,
+		CreateContext: resourceNetworkIPRangeCreate,
+		ReadContext:   resourceNetworkIPRangeRead,
+		UpdateContext: resourceNetworkIPRangeUpdate,
+		DeleteContext: resourceNetworkIPRangeDelete,
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
@@ -71,7 +72,7 @@ func resourceNetworkIPRange() *schema.Resource {
 	}
 }
 
-func resourceNetworkIPRangeCreate(d *schema.ResourceData, m interface{}) error {
+func resourceNetworkIPRangeCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	log.Printf("Starting to create vra_network_profile resource")
 	apiClient := m.(*Client).apiClient
 
@@ -96,24 +97,24 @@ func resourceNetworkIPRangeCreate(d *schema.ResourceData, m interface{}) error {
 
 	createNetworkIPRangeCreated, err := apiClient.NetworkIPRange.CreateInternalNetworkIPRange(network_ip_range.NewCreateInternalNetworkIPRangeParams().WithBody(&networkIPRangeSpecification))
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 	if createNetworkIPRangeCreated != nil {
 		d.SetId(*createNetworkIPRangeCreated.Payload.ID)
 	}
 	log.Printf("Finished creating vra_network_ip_range resource with name %s", d.Get("name"))
 
-	return resourceNetworkIPRangeRead(d, m)
+	return resourceNetworkIPRangeRead(ctx, d, m)
 }
 
-func resourceNetworkIPRangeRead(d *schema.ResourceData, m interface{}) error {
+func resourceNetworkIPRangeRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	log.Printf("Reading the vra_network_profile resource with name %s", d.Get("name"))
 	apiClient := m.(*Client).apiClient
 
 	id := d.Id()
 	resp, err := apiClient.NetworkIPRange.GetInternalNetworkIPRange(network_ip_range.NewGetInternalNetworkIPRangeParams().WithID(id))
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	networkIPRange := *resp.Payload
@@ -130,11 +131,11 @@ func resourceNetworkIPRangeRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("updated_at", networkIPRange.UpdatedAt)
 
 	if err := d.Set("tags", flattenTags(networkIPRange.Tags)); err != nil {
-		return fmt.Errorf("error setting network ip range tags - error: %v", err)
+		return diag.Errorf("error setting network ip range tags - error: %v", err)
 	}
 
 	if err := d.Set("links", flattenLinks(networkIPRange.Links)); err != nil {
-		return fmt.Errorf("error setting network ip range links - error: %#v", err)
+		return diag.Errorf("error setting network ip range links - error: %#v", err)
 	}
 
 	log.Printf("Finished reading the vra_network_ip_range resource with name %s", d.Get("name"))
@@ -142,7 +143,7 @@ func resourceNetworkIPRangeRead(d *schema.ResourceData, m interface{}) error {
 	return nil
 }
 
-func resourceNetworkIPRangeUpdate(d *schema.ResourceData, m interface{}) error {
+func resourceNetworkIPRangeUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	log.Printf("Starting to Update vra_network_profile resource")
 	apiClient := m.(*Client).apiClient
 
@@ -167,21 +168,21 @@ func resourceNetworkIPRangeUpdate(d *schema.ResourceData, m interface{}) error {
 
 	_, err := apiClient.NetworkIPRange.UpdateInternalNetworkIPRange(network_ip_range.NewUpdateInternalNetworkIPRangeParams().WithID(id).WithBody(&networkIPRangeSpecification))
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 	log.Printf("finished Updating vra_network_profile resource")
-	return resourceNetworkIPRangeRead(d, m)
+	return resourceNetworkIPRangeRead(ctx, d, m)
 
 }
 
-func resourceNetworkIPRangeDelete(d *schema.ResourceData, m interface{}) error {
+func resourceNetworkIPRangeDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	log.Printf("Starting to delete the vra_network_ip_range resource with name %s", d.Get("name"))
 	apiClient := m.(*Client).apiClient
 
 	id := d.Id()
 	_, err := apiClient.NetworkIPRange.DeleteInternalNetworkIPRange(network_ip_range.NewDeleteInternalNetworkIPRangeParams().WithID(id))
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	d.SetId("")

@@ -1,20 +1,23 @@
 package vra
 
 import (
+	"context"
+	"errors"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/vmware/vra-sdk-go/pkg/client/image_profile"
 	"github.com/vmware/vra-sdk-go/pkg/models"
 
-	"fmt"
 	"strings"
 )
 
 func resourceImageProfile() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceImageProfileCreate,
-		Read:   resourceImageProfileRead,
-		Update: resourceImageProfileUpdate,
-		Delete: resourceImageProfileDelete,
+		CreateContext: resourceImageProfileCreate,
+		ReadContext:   resourceImageProfileRead,
+		UpdateContext: resourceImageProfileUpdate,
+		DeleteContext: resourceImageProfileDelete,
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
@@ -60,7 +63,7 @@ func resourceImageProfile() *schema.Resource {
 	}
 }
 
-func resourceImageProfileCreate(d *schema.ResourceData, m interface{}) error {
+func resourceImageProfileCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	apiClient := m.(*Client).apiClient
 
 	imageMapping := expandImageMapping(d.Get("image_mapping").(*schema.Set).List())
@@ -72,15 +75,15 @@ func resourceImageProfileCreate(d *schema.ResourceData, m interface{}) error {
 		ImageMapping: imageMapping,
 	}))
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	d.SetId(*createResp.Payload.ID)
 
-	return resourceImageProfileRead(d, m)
+	return resourceImageProfileRead(ctx, d, m)
 }
 
-func resourceImageProfileRead(d *schema.ResourceData, m interface{}) error {
+func resourceImageProfileRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	apiClient := m.(*Client).apiClient
 
 	id := d.Id()
@@ -91,7 +94,7 @@ func resourceImageProfileRead(d *schema.ResourceData, m interface{}) error {
 			d.SetId("")
 			return nil
 		}
-		return err
+		return diag.FromErr(err)
 	}
 	imageProfile := *ret.Payload
 	d.Set("created_at", imageProfile.CreatedAt)
@@ -108,17 +111,17 @@ func resourceImageProfileRead(d *schema.ResourceData, m interface{}) error {
 	}
 
 	if err := d.Set("image_mapping", flattenImageMappings(imageProfile.ImageMappings.Mapping)); err != nil {
-		return fmt.Errorf("error setting image mappings - error: %#v", err)
+		return diag.Errorf("error setting image mappings - error: %#v", err)
 	}
 
 	return nil
 }
 
-func resourceImageProfileUpdate(d *schema.ResourceData, m interface{}) error {
+func resourceImageProfileUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	apiClient := m.(*Client).apiClient
 
 	if d.HasChange("region_id") {
-		return fmt.Errorf("change detected in region_id, but not supported on an image profile")
+		return diag.FromErr(errors.New("change detected in region_id, but not supported on an image profile"))
 	}
 
 	id := d.Id()
@@ -130,19 +133,19 @@ func resourceImageProfileUpdate(d *schema.ResourceData, m interface{}) error {
 		ImageMapping: imageMapping,
 	}))
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
-	return resourceImageProfileRead(d, m)
+	return resourceImageProfileRead(ctx, d, m)
 }
 
-func resourceImageProfileDelete(d *schema.ResourceData, m interface{}) error {
+func resourceImageProfileDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	apiClient := m.(*Client).apiClient
 
 	id := d.Id()
 	_, err := apiClient.ImageProfile.DeleteImageProfile(image_profile.NewDeleteImageProfileParams().WithID(id))
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	d.SetId("")

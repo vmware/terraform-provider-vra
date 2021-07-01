@@ -1,6 +1,8 @@
 package vra
 
 import (
+	"context"
+	"errors"
 	"fmt"
 	"log"
 	"strings"
@@ -11,16 +13,17 @@ import (
 	"github.com/vmware/vra-sdk-go/pkg/client/request"
 	"github.com/vmware/vra-sdk-go/pkg/models"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func resourceLoadBalancer() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceLoadBalancerCreate,
-		Read:   resourceLoadBalancerRead,
-		Update: resourceLoadBalancerUpdate,
-		Delete: resourceLoadBalancerDelete,
+		CreateContext: resourceLoadBalancerCreate,
+		ReadContext:   resourceLoadBalancerRead,
+		UpdateContext: resourceLoadBalancerUpdate,
+		DeleteContext: resourceLoadBalancerDelete,
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
@@ -96,7 +99,7 @@ func resourceLoadBalancer() *schema.Resource {
 	}
 }
 
-func resourceLoadBalancerCreate(d *schema.ResourceData, m interface{}) error {
+func resourceLoadBalancerCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	log.Printf("Starting to create vra_load_balancer resource")
 	apiClient := m.(*Client).apiClient
 
@@ -135,7 +138,7 @@ func resourceLoadBalancerCreate(d *schema.ResourceData, m interface{}) error {
 	log.Printf("[DEBUG] create load lalancer: %#v", loadBalancerSpecification)
 	createLoadBalancerCreated, err := apiClient.LoadBalancer.CreateLoadBalancer(load_balancer.NewCreateLoadBalancerParams().WithBody(&loadBalancerSpecification))
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	stateChangeFunc := resource.StateChangeConf{
@@ -149,7 +152,7 @@ func resourceLoadBalancerCreate(d *schema.ResourceData, m interface{}) error {
 
 	resourceIDs, err := stateChangeFunc.WaitForState()
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	loadBalancerIDs := resourceIDs.([]string)
@@ -158,7 +161,7 @@ func resourceLoadBalancerCreate(d *schema.ResourceData, m interface{}) error {
 	d.SetId(loadBalancerID)
 	log.Printf("Finished to create vra_load_balancer resource with name %s", d.Get("name"))
 
-	return resourceLoadBalancerRead(d, m)
+	return resourceLoadBalancerRead(ctx, d, m)
 }
 
 func loadBalancerStateRefreshFunc(apiClient client.MulticloudIaaS, id string) resource.StateRefreshFunc {
@@ -186,7 +189,7 @@ func loadBalancerStateRefreshFunc(apiClient client.MulticloudIaaS, id string) re
 	}
 }
 
-func resourceLoadBalancerRead(d *schema.ResourceData, m interface{}) error {
+func resourceLoadBalancerRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	log.Printf("Reading the vra_load_balancer resource with name %s", d.Get("name"))
 	apiClient := m.(*Client).apiClient
 
@@ -198,7 +201,7 @@ func resourceLoadBalancerRead(d *schema.ResourceData, m interface{}) error {
 			d.SetId("")
 			return nil
 		}
-		return err
+		return diag.FromErr(err)
 	}
 
 	loadBalancer := *resp.Payload
@@ -217,32 +220,32 @@ func resourceLoadBalancerRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("updated_at", loadBalancer.UpdatedAt)
 
 	if err := d.Set("tags", flattenTags(loadBalancer.Tags)); err != nil {
-		return fmt.Errorf("error setting load balancer tags - error: %v", err)
+		return diag.Errorf("error setting load balancer tags - error: %v", err)
 	}
 	if err := d.Set("routes", flattenRoutes(loadBalancer.Routes)); err != nil {
-		return fmt.Errorf("error setting load balancer routes - error: %v", err)
+		return diag.Errorf("error setting load balancer routes - error: %v", err)
 	}
 
 	if err := d.Set("links", flattenLinks(loadBalancer.Links)); err != nil {
-		return fmt.Errorf("error setting load balancer links - error: %#v", err)
+		return diag.Errorf("error setting load balancer links - error: %#v", err)
 	}
 
 	log.Printf("Finished reading the vra_load_balancer resource with name %s", d.Get("name"))
 	return nil
 }
 
-func resourceLoadBalancerUpdate(d *schema.ResourceData, m interface{}) error {
-	return fmt.Errorf("Updating a load balancer resource is not allowed")
+func resourceLoadBalancerUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+	return diag.FromErr(errors.New("Updating a load balancer resource is not allowed"))
 }
 
-func resourceLoadBalancerDelete(d *schema.ResourceData, m interface{}) error {
+func resourceLoadBalancerDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	log.Printf("Starting to delete the vra_load_balancer resource with name %s", d.Get("name"))
 	apiClient := m.(*Client).apiClient
 
 	id := d.Id()
 	deleteLoadBalancer, err := apiClient.LoadBalancer.DeleteLoadBalancer(load_balancer.NewDeleteLoadBalancerParams().WithID(id))
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 	stateChangeFunc := resource.StateChangeConf{
 		Delay:      5 * time.Second,
@@ -255,7 +258,7 @@ func resourceLoadBalancerDelete(d *schema.ResourceData, m interface{}) error {
 
 	_, err = stateChangeFunc.WaitForState()
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	d.SetId("")

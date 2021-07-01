@@ -1,9 +1,12 @@
 package vra
 
 import (
+	"context"
+
 	"github.com/vmware/vra-sdk-go/pkg/client/blueprint"
 
 	"github.com/go-openapi/strfmt"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/vmware/vra-sdk-go/pkg/models"
 
@@ -12,10 +15,10 @@ import (
 
 func resourceBlueprintVersion() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceBlueprintVersionCreate,
-		Read:   resourceBlueprintVersionRead,
-		Update: resourceBlueprintVersionUpdate,
-		Delete: resourceBlueprintVersionDelete,
+		CreateContext: resourceBlueprintVersionCreate,
+		ReadContext:   resourceBlueprintVersionRead,
+		UpdateContext: resourceBlueprintVersionUpdate,
+		DeleteContext: resourceBlueprintVersionDelete,
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
@@ -94,7 +97,7 @@ func resourceBlueprintVersion() *schema.Resource {
 	}
 }
 
-func resourceBlueprintVersionCreate(d *schema.ResourceData, m interface{}) error {
+func resourceBlueprintVersionCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	log.Printf("Starting to create vra_blueprint_version resource")
 	apiClient := m.(*Client).apiClient
 
@@ -114,16 +117,16 @@ func resourceBlueprintVersionCreate(d *schema.ResourceData, m interface{}) error
 			WithVersionRequest(&blueprintVersionRequestSpecification))
 
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	d.SetId(resp.GetPayload().ID)
 	log.Printf("Finished to create vra_blueprint_version resource with blueprint_id %s version %s", d.Get("blueprint_id"), d.Get("version"))
 
-	return resourceBlueprintVersionRead(d, m)
+	return resourceBlueprintVersionRead(ctx, d, m)
 }
 
-func resourceBlueprintVersionRead(d *schema.ResourceData, m interface{}) error {
+func resourceBlueprintVersionRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	log.Printf("Reading the vra_blueprint_version resource with blueprint_id %s and version %s", d.Get("blueprint_id"), d.Get("version"))
 	apiClient := m.(*Client).apiClient
 
@@ -142,7 +145,7 @@ func resourceBlueprintVersionRead(d *schema.ResourceData, m interface{}) error {
 			d.SetId("")
 			return nil
 		}
-		return err
+		return diag.FromErr(err)
 	}
 
 	blueprintVersion := *resp.Payload
@@ -168,7 +171,7 @@ func resourceBlueprintVersionRead(d *schema.ResourceData, m interface{}) error {
 	return nil
 }
 
-func resourceBlueprintVersionUpdate(d *schema.ResourceData, m interface{}) error {
+func resourceBlueprintVersionUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	log.Printf("Starting to update the vra_blueprint_version resource with blueprint_id %s and version %s", d.Get("blueprint_id"), d.Get("version"))
 	apiClient := m.(*Client).apiClient
 
@@ -181,7 +184,7 @@ func resourceBlueprintVersionUpdate(d *schema.ResourceData, m interface{}) error
 					WithBlueprintID(bpUUID).
 					WithVersion(version))
 			if err != nil {
-				return err
+				return diag.FromErr(err)
 			}
 		} else {
 			_, err := apiClient.Blueprint.UnReleaseBlueprintVersionUsingPOST1(
@@ -189,7 +192,7 @@ func resourceBlueprintVersionUpdate(d *schema.ResourceData, m interface{}) error
 					WithBlueprintID(bpUUID).
 					WithVersion(version))
 			if err != nil {
-				return err
+				return diag.FromErr(err)
 			}
 		}
 		log.Printf("Finished updating the vra_blueprint resource with name %s", d.Get("name"))
@@ -197,10 +200,10 @@ func resourceBlueprintVersionUpdate(d *schema.ResourceData, m interface{}) error
 		log.Printf("only changes supported on vra_blueprint_version resource are to release flag")
 	}
 
-	return resourceBlueprintVersionRead(d, m)
+	return resourceBlueprintVersionRead(ctx, d, m)
 }
 
-func resourceBlueprintVersionDelete(d *schema.ResourceData, m interface{}) error {
+func resourceBlueprintVersionDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	log.Printf("Starting to delete the vra_blueprint_version resource with blueprint_id %s and version %s", d.Get("blueprint_id"), d.Get("version"))
 	log.Printf("vra_blueprint_version cannot be deleted in vRA. It can only  be unreleased. Removing local state")
 	d.SetId("")

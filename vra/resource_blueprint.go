@@ -1,11 +1,12 @@
 package vra
 
 import (
-	"fmt"
+	"context"
 
 	"github.com/vmware/vra-sdk-go/pkg/client/blueprint"
 
 	"github.com/go-openapi/strfmt"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/vmware/vra-sdk-go/pkg/models"
 
@@ -14,10 +15,10 @@ import (
 
 func resourceBlueprint() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceBlueprintCreate,
-		Read:   resourceBlueprintRead,
-		Update: resourceBlueprintUpdate,
-		Delete: resourceBlueprintDelete,
+		CreateContext: resourceBlueprintCreate,
+		ReadContext:   resourceBlueprintRead,
+		UpdateContext: resourceBlueprintUpdate,
+		DeleteContext: resourceBlueprintDelete,
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
@@ -152,7 +153,7 @@ func resourceBlueprint() *schema.Resource {
 	}
 }
 
-func resourceBlueprintCreate(d *schema.ResourceData, m interface{}) error {
+func resourceBlueprintCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	log.Printf("Starting to create vra_blueprint resource")
 	apiClient := m.(*Client).apiClient
 
@@ -170,16 +171,16 @@ func resourceBlueprintCreate(d *schema.ResourceData, m interface{}) error {
 	resp, err := apiClient.Blueprint.CreateBlueprintUsingPOST1(blueprint.NewCreateBlueprintUsingPOST1Params().WithBlueprint(&blueprintSpecification))
 
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	d.SetId(resp.GetPayload().ID)
 	log.Printf("Finished to create vra_blueprint resource with name %s", d.Get("name"))
 
-	return resourceBlueprintRead(d, m)
+	return resourceBlueprintRead(ctx, d, m)
 }
 
-func resourceBlueprintRead(d *schema.ResourceData, m interface{}) error {
+func resourceBlueprintRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	log.Printf("Reading the vra_blueprint resource with name %s", d.Get("name"))
 	apiClient := m.(*Client).apiClient
 
@@ -194,7 +195,7 @@ func resourceBlueprintRead(d *schema.ResourceData, m interface{}) error {
 			d.SetId("")
 			return nil
 		}
-		return err
+		return diag.FromErr(err)
 	}
 
 	blueprint := *resp.Payload
@@ -222,14 +223,14 @@ func resourceBlueprintRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("valid", blueprint.Valid)
 
 	if err := d.Set("validation_messages", flattenValidationMessages(blueprint.ValidationMessages)); err != nil {
-		return fmt.Errorf("error setting validation_messages in blueprint - error: %#v", err)
+		return diag.Errorf("error setting validation_messages in blueprint - error: %#v", err)
 	}
 
 	log.Printf("Finished reading the vra_blueprint resource with name %s", d.Get("name"))
 	return nil
 }
 
-func resourceBlueprintUpdate(d *schema.ResourceData, m interface{}) error {
+func resourceBlueprintUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	log.Printf("Starting to update the vra_blueprint resource with name %s", d.Get("name"))
 	apiClient := m.(*Client).apiClient
 
@@ -247,14 +248,14 @@ func resourceBlueprintUpdate(d *schema.ResourceData, m interface{}) error {
 		blueprint.NewUpdateBlueprintUsingPUT1Params().WithBlueprintID(bpUUID).WithBlueprint(&blueprintSpecification))
 
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	log.Printf("Finished updating the vra_blueprint resource with name %s", d.Get("name"))
-	return resourceBlueprintRead(d, m)
+	return resourceBlueprintRead(ctx, d, m)
 }
 
-func resourceBlueprintDelete(d *schema.ResourceData, m interface{}) error {
+func resourceBlueprintDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	log.Printf("Starting to delete the vra_blueprint resource with name %s", d.Get("name"))
 	apiClient := m.(*Client).apiClient
 
@@ -263,7 +264,7 @@ func resourceBlueprintDelete(d *schema.ResourceData, m interface{}) error {
 	_, err := apiClient.Blueprint.DeleteBlueprintUsingDELETE1(
 		blueprint.NewDeleteBlueprintUsingDELETE1Params().WithBlueprintID(bpUUID))
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	d.SetId("")

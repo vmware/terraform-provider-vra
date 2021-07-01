@@ -1,20 +1,22 @@
 package vra
 
 import (
-	"fmt"
+	"context"
+	"errors"
 
 	"github.com/vmware/vra-sdk-go/pkg/client/cloud_account"
 	"github.com/vmware/vra-sdk-go/pkg/models"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func resourceCloudAccountGCP() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceCloudAccountGCPCreate,
-		Read:   resourceCloudAccountGCPRead,
-		Update: resourceCloudAccountGCPUpdate,
-		Delete: resourceCloudAccountGCPDelete,
+		CreateContext: resourceCloudAccountGCPCreate,
+		ReadContext:   resourceCloudAccountGCPRead,
+		UpdateContext: resourceCloudAccountGCPUpdate,
+		DeleteContext: resourceCloudAccountGCPDelete,
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
@@ -84,14 +86,14 @@ func resourceCloudAccountGCP() *schema.Resource {
 	}
 }
 
-func resourceCloudAccountGCPCreate(d *schema.ResourceData, m interface{}) error {
+func resourceCloudAccountGCPCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	var regions []string
 
 	apiClient := m.(*Client).apiClient
 
 	if v, ok := d.GetOk("regions"); ok {
 		if !compareUnique(v.([]interface{})) {
-			return fmt.Errorf("specified regions are not unique")
+			return diag.FromErr(errors.New("specified regions are not unique"))
 		}
 		regions = expandStringList(v.([]interface{}))
 	}
@@ -109,15 +111,15 @@ func resourceCloudAccountGCPCreate(d *schema.ResourceData, m interface{}) error 
 	}))
 
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	d.SetId(*createResp.Payload.ID)
 
-	return resourceCloudAccountGCPRead(d, m)
+	return resourceCloudAccountGCPRead(ctx, d, m)
 }
 
-func resourceCloudAccountGCPRead(d *schema.ResourceData, m interface{}) error {
+func resourceCloudAccountGCPRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	apiClient := m.(*Client).apiClient
 
 	id := d.Id()
@@ -128,7 +130,7 @@ func resourceCloudAccountGCPRead(d *schema.ResourceData, m interface{}) error {
 			d.SetId("")
 			return nil
 		}
-		return err
+		return diag.FromErr(err)
 	}
 	gcpAccount := *ret.Payload
 	regions := gcpAccount.EnabledRegionIds
@@ -145,25 +147,25 @@ func resourceCloudAccountGCPRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("updated_at", gcpAccount.UpdatedAt)
 
 	if err := d.Set("links", flattenLinks(gcpAccount.Links)); err != nil {
-		return fmt.Errorf("error setting cloud_account_gcp links - error: %#v", err)
+		return diag.Errorf("error setting cloud_account_gcp links - error: %#v", err)
 	}
 
 	// The returned EnabledRegionIds and Hrefs containing the region ids can be in a different order than the request order.
 	// Call a routine to normalize the order to correspond with the users region order.
 	regionsIds, err := flattenAndNormalizeCLoudAccountGcpRegionIds(regions, &gcpAccount)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 	d.Set("region_ids", regionsIds)
 
 	if err := d.Set("tags", flattenTags(gcpAccount.Tags)); err != nil {
-		return fmt.Errorf("error setting cloud account tags - error: %#v", err)
+		return diag.Errorf("error setting cloud account tags - error: %#v", err)
 	}
 
 	return nil
 }
 
-func resourceCloudAccountGCPUpdate(d *schema.ResourceData, m interface{}) error {
+func resourceCloudAccountGCPUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	var regions []string
 
 	apiClient := m.(*Client).apiClient
@@ -172,7 +174,7 @@ func resourceCloudAccountGCPUpdate(d *schema.ResourceData, m interface{}) error 
 
 	if v, ok := d.GetOk("regions"); ok {
 		if !compareUnique(v.([]interface{})) {
-			return fmt.Errorf("specified regions are not unique")
+			return diag.FromErr(errors.New("specified regions are not unique"))
 		}
 		regions = expandStringList(v.([]interface{}))
 	}
@@ -185,19 +187,19 @@ func resourceCloudAccountGCPUpdate(d *schema.ResourceData, m interface{}) error 
 		Tags:               tags,
 	}))
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
-	return resourceCloudAccountGCPRead(d, m)
+	return resourceCloudAccountGCPRead(ctx, d, m)
 }
 
-func resourceCloudAccountGCPDelete(d *schema.ResourceData, m interface{}) error {
+func resourceCloudAccountGCPDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	apiClient := m.(*Client).apiClient
 
 	id := d.Id()
 	_, err := apiClient.CloudAccount.DeleteGcpCloudAccount(cloud_account.NewDeleteGcpCloudAccountParams().WithID(id))
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	d.SetId("")

@@ -1,20 +1,22 @@
 package vra
 
 import (
-	"fmt"
+	"context"
+	"errors"
 
 	"github.com/vmware/vra-sdk-go/pkg/client/cloud_account"
 	"github.com/vmware/vra-sdk-go/pkg/models"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func resourceCloudAccountVsphere() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceCloudAccountVsphereCreate,
-		Read:   resourceCloudAccountVsphereRead,
-		Update: resourceCloudAccountVsphereUpdate,
-		Delete: resourceCloudAccountVsphereDelete,
+		CreateContext: resourceCloudAccountVsphereCreate,
+		ReadContext:   resourceCloudAccountVsphereRead,
+		UpdateContext: resourceCloudAccountVsphereUpdate,
+		DeleteContext: resourceCloudAccountVsphereDelete,
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
@@ -100,7 +102,7 @@ func resourceCloudAccountVsphere() *schema.Resource {
 	}
 }
 
-func resourceCloudAccountVsphereCreate(d *schema.ResourceData, m interface{}) error {
+func resourceCloudAccountVsphereCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	var regions, associatedCloudAccountIds []string
 
 	apiClient := m.(*Client).apiClient
@@ -108,14 +110,14 @@ func resourceCloudAccountVsphereCreate(d *schema.ResourceData, m interface{}) er
 	tags := expandTags(d.Get("tags").(*schema.Set).List())
 	if v, ok := d.GetOk("regions"); ok {
 		if !compareUnique(v.([]interface{})) {
-			return fmt.Errorf("Specified regions are not unique")
+			return diag.FromErr(errors.New("Specified regions are not unique"))
 		}
 		regions = expandStringList(v.([]interface{}))
 	}
 
 	if v, ok := d.GetOk("associated_cloud_account_ids"); ok {
 		if !compareUnique(v.([]interface{})) {
-			return fmt.Errorf("specified associated cloud account ids are not unique")
+			return diag.FromErr(errors.New("specified associated cloud account ids are not unique"))
 		}
 		associatedCloudAccountIds = expandStringList(v.([]interface{}))
 	}
@@ -138,26 +140,26 @@ func resourceCloudAccountVsphereCreate(d *schema.ResourceData, m interface{}) er
 			}))
 
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	// The returned EnabledRegionIds and Hrefs containing the region ids can be in a different order than the request order.
 	// Call a routine to normalize the order to correspond with the users region order.
 	regionsIds, err := flattenAndNormalizeCloudAccountVsphereRegionIds(regions, createResp.Payload)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 	d.Set("region_ids", regionsIds)
 
 	if err := d.Set("tags", flattenTags(tags)); err != nil {
-		return fmt.Errorf("Error setting cloud account tags - error: %#v", err)
+		return diag.Errorf("Error setting cloud account tags - error: %#v", err)
 	}
 	d.SetId(*createResp.Payload.ID)
 
-	return resourceCloudAccountVsphereRead(d, m)
+	return resourceCloudAccountVsphereRead(ctx, d, m)
 }
 
-func resourceCloudAccountVsphereRead(d *schema.ResourceData, m interface{}) error {
+func resourceCloudAccountVsphereRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	apiClient := m.(*Client).apiClient
 
 	id := d.Id()
@@ -168,7 +170,7 @@ func resourceCloudAccountVsphereRead(d *schema.ResourceData, m interface{}) erro
 			d.SetId("")
 			return nil
 		}
-		return err
+		return diag.FromErr(err)
 	}
 	vsphereAccount := *ret.Payload
 	regions := vsphereAccount.EnabledRegionIds
@@ -187,25 +189,25 @@ func resourceCloudAccountVsphereRead(d *schema.ResourceData, m interface{}) erro
 	d.Set("username", vsphereAccount.Username)
 
 	if err := d.Set("links", flattenLinks(vsphereAccount.Links)); err != nil {
-		return fmt.Errorf("error setting cloud_account_vsphere links - error: %#v", err)
+		return diag.Errorf("error setting cloud_account_vsphere links - error: %#v", err)
 	}
 
 	// The returned EnabledRegionIds and Hrefs containing the region ids can be in a different order than the request order.
 	// Call a routine to normalize the order to correspond with the users region order.
 	regionsIds, err := flattenAndNormalizeCloudAccountVsphereRegionIds(regions, &vsphereAccount)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 	d.Set("region_ids", regionsIds)
 
 	if err := d.Set("tags", flattenTags(vsphereAccount.Tags)); err != nil {
-		return fmt.Errorf("Error setting cloud account tags - error: %#v", err)
+		return diag.Errorf("Error setting cloud account tags - error: %#v", err)
 	}
 
 	return nil
 }
 
-func resourceCloudAccountVsphereUpdate(d *schema.ResourceData, m interface{}) error {
+func resourceCloudAccountVsphereUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	var regions []string
 
 	apiClient := m.(*Client).apiClient
@@ -214,7 +216,7 @@ func resourceCloudAccountVsphereUpdate(d *schema.ResourceData, m interface{}) er
 
 	if v, ok := d.GetOk("regions"); ok {
 		if !compareUnique(v.([]interface{})) {
-			return fmt.Errorf("Specified regions are not unique")
+			return diag.FromErr(errors.New("Specified regions are not unique"))
 		}
 		regions = expandStringList(v.([]interface{}))
 	}
@@ -225,19 +227,19 @@ func resourceCloudAccountVsphereUpdate(d *schema.ResourceData, m interface{}) er
 		Tags:               expandTags(d.Get("tags").(*schema.Set).List()),
 	}))
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
-	return resourceCloudAccountVsphereRead(d, m)
+	return resourceCloudAccountVsphereRead(ctx, d, m)
 }
 
-func resourceCloudAccountVsphereDelete(d *schema.ResourceData, m interface{}) error {
+func resourceCloudAccountVsphereDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	apiClient := m.(*Client).apiClient
 
 	id := d.Id()
 	_, err := apiClient.CloudAccount.DeleteVSphereCloudAccount(cloud_account.NewDeleteVSphereCloudAccountParams().WithID(id))
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	d.SetId("")

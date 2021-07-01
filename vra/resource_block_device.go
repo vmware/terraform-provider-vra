@@ -1,6 +1,7 @@
 package vra
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"strings"
@@ -11,16 +12,17 @@ import (
 	"github.com/vmware/vra-sdk-go/pkg/client/request"
 	"github.com/vmware/vra-sdk-go/pkg/models"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func resourceBlockDevice() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceBlockDeviceCreate,
-		Read:   resourceBlockDeviceRead,
-		Update: resourceBlockDeviceUpdate,
-		Delete: resourceBlockDeviceDelete,
+		CreateContext: resourceBlockDeviceCreate,
+		ReadContext:   resourceBlockDeviceRead,
+		UpdateContext: resourceBlockDeviceUpdate,
+		DeleteContext: resourceBlockDeviceDelete,
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
@@ -150,7 +152,7 @@ func resourceBlockDevice() *schema.Resource {
 	}
 }
 
-func resourceBlockDeviceCreate(d *schema.ResourceData, m interface{}) error {
+func resourceBlockDeviceCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	log.Printf("Starting to create vra_block_device resource")
 	apiClient := m.(*Client).apiClient
 
@@ -197,7 +199,7 @@ func resourceBlockDeviceCreate(d *schema.ResourceData, m interface{}) error {
 	log.Printf("[DEBUG] create block device: %#v", blockDeviceSpecification)
 	createBlockDeviceCreated, err := apiClient.Disk.CreateBlockDevice(disk.NewCreateBlockDeviceParams().WithBody(&blockDeviceSpecification))
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	stateChangeFunc := resource.StateChangeConf{
@@ -211,7 +213,7 @@ func resourceBlockDeviceCreate(d *schema.ResourceData, m interface{}) error {
 
 	resourceIDs, err := stateChangeFunc.WaitForState()
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	blockDeviceIDs := resourceIDs.([]string)
@@ -220,7 +222,7 @@ func resourceBlockDeviceCreate(d *schema.ResourceData, m interface{}) error {
 	d.SetId(blockDeviceID)
 	log.Printf("Finished to create vra_block_device resource with name %s", d.Get("name"))
 
-	return resourceBlockDeviceRead(d, m)
+	return resourceBlockDeviceRead(ctx, d, m)
 }
 
 func blockDeviceStateRefreshFunc(apiClient client.MulticloudIaaS, id string) resource.StateRefreshFunc {
@@ -248,7 +250,7 @@ func blockDeviceStateRefreshFunc(apiClient client.MulticloudIaaS, id string) res
 	}
 }
 
-func resourceBlockDeviceRead(d *schema.ResourceData, m interface{}) error {
+func resourceBlockDeviceRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	log.Printf("Reading the vra_block_device resource with name %s", d.Get("name"))
 	apiClient := m.(*Client).apiClient
 
@@ -260,7 +262,7 @@ func resourceBlockDeviceRead(d *schema.ResourceData, m interface{}) error {
 			d.SetId("")
 			return nil
 		}
-		return err
+		return diag.FromErr(err)
 	}
 
 	blockDevice := *resp.Payload
@@ -280,22 +282,22 @@ func resourceBlockDeviceRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("updated_at", blockDevice.UpdatedAt)
 
 	if err := d.Set("tags", flattenTags(blockDevice.Tags)); err != nil {
-		return fmt.Errorf("error setting block device tags - error: %v", err)
+		return diag.Errorf("error setting block device tags - error: %v", err)
 	}
 
 	if err := d.Set("links", flattenLinks(blockDevice.Links)); err != nil {
-		return fmt.Errorf("error setting block device links - error: %#v", err)
+		return diag.Errorf("error setting block device links - error: %#v", err)
 	}
 
 	expandSnapshots := d.Get("expand_snapshots").(bool)
 	if expandSnapshots {
 		snapshots, err := apiClient.Disk.GetDiskSnapshots(disk.NewGetDiskSnapshotsParams().WithID(d.Id()))
 		if err != nil {
-			return fmt.Errorf("error getting block device snapshots - error: %#v", err)
+			return diag.Errorf("error getting block device snapshots - error: %#v", err)
 		}
 
 		if err := d.Set("snapshots", flattenSnapshots(snapshots.Payload)); err != nil {
-			return fmt.Errorf("error setting block device snapshots - error: %#v", err)
+			return diag.Errorf("error setting block device snapshots - error: %#v", err)
 		}
 	} else {
 		d.Set("snapshots", make([]map[string]interface{}, 0))
@@ -305,7 +307,7 @@ func resourceBlockDeviceRead(d *schema.ResourceData, m interface{}) error {
 	return nil
 }
 
-func resourceBlockDeviceUpdate(d *schema.ResourceData, m interface{}) error {
+func resourceBlockDeviceUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 
 	log.Printf("Starting to update the vra_block_device resource with name %s", d.Get("name"))
 	apiClient := m.(*Client).apiClient
@@ -314,12 +316,12 @@ func resourceBlockDeviceUpdate(d *schema.ResourceData, m interface{}) error {
 	if d.HasChange("capacity_in_gb") {
 		err := resizeDisk(d, apiClient, id)
 		if err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 	}
 
 	log.Printf("Finished updating vra_block_device resource with name %s", d.Get("name"))
-	return resourceBlockDeviceRead(d, m)
+	return resourceBlockDeviceRead(ctx, d, m)
 }
 
 func resizeDisk(d *schema.ResourceData, apiClient *client.MulticloudIaaS, id string) error {
@@ -352,7 +354,7 @@ func resizeDisk(d *schema.ResourceData, apiClient *client.MulticloudIaaS, id str
 	return nil
 }
 
-func resourceBlockDeviceDelete(d *schema.ResourceData, m interface{}) error {
+func resourceBlockDeviceDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	log.Printf("Starting to delete the vra_block_device resource with name %s", d.Get("name"))
 	apiClient := m.(*Client).apiClient
 
@@ -377,7 +379,7 @@ func resourceBlockDeviceDelete(d *schema.ResourceData, m interface{}) error {
 
 	deleteBlockDeviceAccepted, deleteBlockDeviceCompleted, err := apiClient.Disk.DeleteBlockDevice(deleteBlockDeviceParams)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	// Handle non-request tracker case
@@ -396,7 +398,7 @@ func resourceBlockDeviceDelete(d *schema.ResourceData, m interface{}) error {
 
 	_, err = stateChangeFunc.WaitForState()
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	d.SetId("")

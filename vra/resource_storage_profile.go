@@ -1,21 +1,22 @@
 package vra
 
 import (
-	"fmt"
+	"context"
 	"log"
 
 	"github.com/vmware/vra-sdk-go/pkg/client/storage_profile"
 	"github.com/vmware/vra-sdk-go/pkg/models"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func resourceStorageProfile() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceStorageProfileCreate,
-		Read:   resourceStorageProfileRead,
-		Update: resourceStorageProfileUpdate,
-		Delete: resourceStorageProfileDelete,
+		CreateContext: resourceStorageProfileCreate,
+		ReadContext:   resourceStorageProfileRead,
+		UpdateContext: resourceStorageProfileUpdate,
+		DeleteContext: resourceStorageProfileDelete,
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
@@ -93,7 +94,7 @@ func resourceStorageProfile() *schema.Resource {
 	}
 }
 
-func resourceStorageProfileCreate(d *schema.ResourceData, m interface{}) error {
+func resourceStorageProfileCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	log.Printf("Starting to create vra_storage_profile resource")
 	apiClient := m.(*Client).apiClient
 
@@ -118,23 +119,23 @@ func resourceStorageProfileCreate(d *schema.ResourceData, m interface{}) error {
 	log.Printf("[DEBUG] create storage profile: %#v", storageProfileSpecification)
 	createStorageProfileCreated, err := apiClient.StorageProfile.CreateStorageProfile(storage_profile.NewCreateStorageProfileParams().WithBody(&storageProfileSpecification))
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	d.SetId(*createStorageProfileCreated.Payload.ID)
 	log.Printf("Finished to create vra_storage_profile resource with name %s", d.Get("name"))
 
-	return resourceStorageProfileRead(d, m)
+	return resourceStorageProfileRead(ctx, d, m)
 }
 
-func resourceStorageProfileRead(d *schema.ResourceData, m interface{}) error {
+func resourceStorageProfileRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	log.Printf("Reading the vra_storage_profile resource with name %s", d.Get("name"))
 	apiClient := m.(*Client).apiClient
 
 	id := d.Id()
 	resp, err := apiClient.StorageProfile.GetStorageProfile(storage_profile.NewGetStorageProfileParams().WithID(id))
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	storageProfile := *resp.Payload
@@ -151,18 +152,18 @@ func resourceStorageProfileRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("updated_at", storageProfile.UpdatedAt)
 
 	if err := d.Set("tags", flattenTags(storageProfile.Tags)); err != nil {
-		return fmt.Errorf("error setting storage profile tags - error: %v", err)
+		return diag.Errorf("error setting storage profile tags - error: %v", err)
 	}
 
 	if err := d.Set("links", flattenLinks(storageProfile.Links)); err != nil {
-		return fmt.Errorf("error setting storage profile links - error: %#v", err)
+		return diag.Errorf("error setting storage profile links - error: %#v", err)
 	}
 
 	log.Printf("Finished reading the vra_storage_profile resource with name %s", d.Get("name"))
 	return nil
 }
 
-func resourceStorageProfileUpdate(d *schema.ResourceData, m interface{}) error {
+func resourceStorageProfileUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	log.Printf("Starting to update the vra_storage_profile resource with name %s", d.Get("name"))
 	apiClient := m.(*Client).apiClient
 
@@ -186,14 +187,14 @@ func resourceStorageProfileUpdate(d *schema.ResourceData, m interface{}) error {
 	}
 	_, err := apiClient.StorageProfile.ReplaceStorageProfile(storage_profile.NewReplaceStorageProfileParams().WithID(id).WithBody(&storageProfileSpecification))
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	log.Printf("Finished updating the vra_storage_profile resource with name %s", d.Get("name"))
-	return resourceStorageProfileRead(d, m)
+	return resourceStorageProfileRead(ctx, d, m)
 }
 
-func resourceStorageProfileDelete(d *schema.ResourceData, m interface{}) error {
+func resourceStorageProfileDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	log.Printf("Starting to delete the vra_storage_profile resource with name %s", d.Get("name"))
 	apiClient := m.(*Client).apiClient
 
@@ -204,7 +205,7 @@ func resourceStorageProfileDelete(d *schema.ResourceData, m interface{}) error {
 		case *storage_profile.GetStorageProfileNotFound:
 			log.Printf("vra_storage_profile resource with id '%s' is not found", d.Get("name"))
 		default:
-			return err
+			return diag.FromErr(err)
 		}
 	}
 
