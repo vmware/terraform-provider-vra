@@ -141,7 +141,7 @@ func resourceNetworkCreate(ctx context.Context, d *schema.ResourceData, m interf
 		Timeout:    d.Timeout(schema.TimeoutCreate),
 		MinTimeout: 5 * time.Second,
 	}
-	resourceIds, err := stateChangeFunc.WaitForState()
+	resourceIds, err := stateChangeFunc.WaitForStateContext(ctx)
 	log.Printf("Waitforstate returned: %T %+v %+v\n", resourceIds, resourceIds, err)
 
 	if err != nil {
@@ -242,8 +242,7 @@ func resourceNetworkDelete(ctx context.Context, d *schema.ResourceData, m interf
 		MinTimeout: 5 * time.Second,
 	}
 
-	_, err = stateChangeFunc.WaitForState()
-	if err != nil {
+	if _, err = stateChangeFunc.WaitForStateContext(ctx); err != nil {
 		return diag.FromErr(err)
 	}
 

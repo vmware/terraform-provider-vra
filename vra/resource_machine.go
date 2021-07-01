@@ -260,7 +260,7 @@ func resourceMachineCreate(ctx context.Context, d *schema.ResourceData, m interf
 		MinTimeout: 5 * time.Second,
 	}
 
-	resourceIds, err := stateChangeFunc.WaitForState()
+	resourceIds, err := stateChangeFunc.WaitForStateContext(ctx)
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -289,9 +289,8 @@ func resourceMachineCreate(ctx context.Context, d *schema.ResourceData, m interf
 			MinTimeout: 5 * time.Second,
 		}
 
-		_, e := stateChangeFunc.WaitForState()
-		if e != nil {
-			return diag.FromErr(e)
+		if _, err := stateChangeFunc.WaitForStateContext(ctx); err != nil {
+			return diag.FromErr(err)
 		}
 	}
 
@@ -403,7 +402,7 @@ func resourceMachineUpdate(ctx context.Context, d *schema.ResourceData, m interf
 
 	// machine resize operation
 	if d.HasChange("flavor") {
-		err := resizeMachine(d, apiClient, id)
+		err := resizeMachine(ctx, d, apiClient, id)
 		if err != nil {
 			return diag.FromErr(err)
 		}
@@ -411,7 +410,7 @@ func resourceMachineUpdate(ctx context.Context, d *schema.ResourceData, m interf
 
 	// attach and/or detach disks if disks configuration is changed
 	if d.HasChange("disks") {
-		err := attachAndDetachDisks(d, apiClient, id)
+		err := attachAndDetachDisks(ctx, d, apiClient, id)
 		if err != nil {
 			return diag.FromErr(err)
 		}
@@ -422,7 +421,7 @@ func resourceMachineUpdate(ctx context.Context, d *schema.ResourceData, m interf
 }
 
 // attaches and detaches disks
-func attachAndDetachDisks(d *schema.ResourceData, apiClient *client.MulticloudIaaS, id string) error {
+func attachAndDetachDisks(ctx context.Context, d *schema.ResourceData, apiClient *client.MulticloudIaaS, id string) error {
 	log.Printf("identified change in the disks configuration for the machine %s", d.Get("name"))
 
 	oldValue, newValue := d.GetChange("disks")
@@ -454,9 +453,8 @@ func attachAndDetachDisks(d *schema.ResourceData, apiClient *client.MulticloudIa
 			MinTimeout: 5 * time.Second,
 		}
 
-		_, e := stateChangeFunc.WaitForState()
-		if e != nil {
-			return e
+		if _, err := stateChangeFunc.WaitForStateContext(ctx); err != nil {
+			return err
 		}
 	}
 
@@ -502,9 +500,8 @@ func attachAndDetachDisks(d *schema.ResourceData, apiClient *client.MulticloudIa
 				MinTimeout: 5 * time.Second,
 			}
 
-			_, e := stateChangeFunc.WaitForState()
-			if e != nil {
-				return e
+			if _, err := stateChangeFunc.WaitForStateContext(ctx); err != nil {
+				return err
 			}
 		} else {
 			log.Printf("disk %v is already attached to machine %v, moving on to the next disk to attach", diskID, id)
@@ -558,7 +555,7 @@ func disksDifference(a, b []interface{}) (diff []map[string]interface{}) {
 }
 
 // resize machine when there is a change in the flavor
-func resizeMachine(d *schema.ResourceData, apiClient *client.MulticloudIaaS, id string) error {
+func resizeMachine(ctx context.Context, d *schema.ResourceData, apiClient *client.MulticloudIaaS, id string) error {
 	log.Printf("identified change in the flavor, machine resize will be performed")
 	flavor := d.Get("flavor").(string)
 	resizeMachine, err := apiClient.Compute.ResizeMachine(compute.NewResizeMachineParams().WithID(id).WithName(&flavor))
@@ -573,7 +570,7 @@ func resizeMachine(d *schema.ResourceData, apiClient *client.MulticloudIaaS, id 
 		Timeout:    d.Timeout(schema.TimeoutUpdate),
 		MinTimeout: 5 * time.Second,
 	}
-	resourceIds, err := stateChangeFunc.WaitForState()
+	resourceIds, err := stateChangeFunc.WaitForStateContext(ctx)
 	if err != nil {
 		return err
 	}
@@ -602,8 +599,7 @@ func resourceMachineDelete(ctx context.Context, d *schema.ResourceData, m interf
 		MinTimeout: 5 * time.Second,
 	}
 
-	_, err = stateChangeFunc.WaitForState()
-	if err != nil {
+	if _, err = stateChangeFunc.WaitForStateContext(ctx); err != nil {
 		return diag.FromErr(err)
 	}
 
