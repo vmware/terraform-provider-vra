@@ -38,7 +38,7 @@ A zone data source supports the following arguments:
 
 * `owner` - Email of the user that owns the entity.
 
-* `placement_policy` - The id of the region for which this zone is defined
+* `placement_policy` - The placement policy for the cloud zone.
 
 * `external_region_id` - The id of the region for which this zone is defined.
 
