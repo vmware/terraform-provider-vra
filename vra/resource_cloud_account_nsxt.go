@@ -1,20 +1,21 @@
 package vra
 
 import (
-	"fmt"
+	"context"
 
 	"github.com/vmware/vra-sdk-go/pkg/client/cloud_account"
 	"github.com/vmware/vra-sdk-go/pkg/models"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func resourceCloudAccountNSXT() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceCloudAccountNSXTCreate,
-		Read:   resourceCloudAccountNSXTRead,
-		Update: resourceCloudAccountNSXTUpdate,
-		Delete: resourceCloudAccountNSXTDelete,
+		CreateContext: resourceCloudAccountNSXTCreate,
+		ReadContext:   resourceCloudAccountNSXTRead,
+		UpdateContext: resourceCloudAccountNSXTUpdate,
+		DeleteContext: resourceCloudAccountNSXTDelete,
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
@@ -98,7 +99,7 @@ func resourceCloudAccountNSXT() *schema.Resource {
 	}
 }
 
-func resourceCloudAccountNSXTCreate(d *schema.ResourceData, m interface{}) error {
+func resourceCloudAccountNSXTCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	apiClient := m.(*Client).apiClient
 
 	tags := expandTags(d.Get("tags").(*schema.Set).List())
@@ -119,18 +120,18 @@ func resourceCloudAccountNSXTCreate(d *schema.ResourceData, m interface{}) error
 			}))
 
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	if err := d.Set("tags", flattenTags(tags)); err != nil {
-		return fmt.Errorf("error setting cloud account tags - error: %#v", err)
+		return diag.Errorf("error setting cloud account tags - error: %#v", err)
 	}
 	d.SetId(*createResp.Payload.ID)
 
-	return resourceCloudAccountNSXTRead(d, m)
+	return resourceCloudAccountNSXTRead(ctx, d, m)
 }
 
-func resourceCloudAccountNSXTRead(d *schema.ResourceData, m interface{}) error {
+func resourceCloudAccountNSXTRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	apiClient := m.(*Client).apiClient
 
 	id := d.Id()
@@ -141,7 +142,7 @@ func resourceCloudAccountNSXTRead(d *schema.ResourceData, m interface{}) error {
 			d.SetId("")
 			return nil
 		}
-		return err
+		return diag.FromErr(err)
 	}
 	nsxtAccount := *ret.Payload
 	d.Set("associated_cloud_account_ids", flattenAssociatedCloudAccountIds(nsxtAccount.Links))
@@ -156,17 +157,17 @@ func resourceCloudAccountNSXTRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("username", nsxtAccount.Username)
 
 	if err := d.Set("links", flattenLinks(nsxtAccount.Links)); err != nil {
-		return fmt.Errorf("error setting cloud_account_nsxt links - error: %#v", err)
+		return diag.Errorf("error setting cloud_account_nsxt links - error: %#v", err)
 	}
 
 	if err := d.Set("tags", flattenTags(nsxtAccount.Tags)); err != nil {
-		return fmt.Errorf("error setting cloud account tags - error: %#v", err)
+		return diag.Errorf("error setting cloud account tags - error: %#v", err)
 	}
 
 	return nil
 }
 
-func resourceCloudAccountNSXTUpdate(d *schema.ResourceData, m interface{}) error {
+func resourceCloudAccountNSXTUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	apiClient := m.(*Client).apiClient
 
 	id := d.Id()
@@ -176,19 +177,19 @@ func resourceCloudAccountNSXTUpdate(d *schema.ResourceData, m interface{}) error
 		Tags:        expandTags(d.Get("tags").(*schema.Set).List()),
 	}))
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
-	return resourceCloudAccountNSXTRead(d, m)
+	return resourceCloudAccountNSXTRead(ctx, d, m)
 }
 
-func resourceCloudAccountNSXTDelete(d *schema.ResourceData, m interface{}) error {
+func resourceCloudAccountNSXTDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	apiClient := m.(*Client).apiClient
 
 	id := d.Id()
 	_, err := apiClient.CloudAccount.DeleteCloudAccountNsxT(cloud_account.NewDeleteCloudAccountNsxTParams().WithID(id))
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	d.SetId("")

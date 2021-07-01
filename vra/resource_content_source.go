@@ -1,7 +1,10 @@
 package vra
 
 import (
+	"context"
+
 	"github.com/go-openapi/strfmt"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/vmware/vra-sdk-go/pkg/client/content_source"
@@ -12,9 +15,9 @@ import (
 
 func resourceContentSource() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceContentSourceCreate,
-		Read:   resourceContentSourceRead,
-		Delete: resourceContentSourceDelete,
+		CreateContext: resourceContentSourceCreate,
+		ReadContext:   resourceContentSourceRead,
+		DeleteContext: resourceContentSourceDelete,
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
@@ -106,7 +109,7 @@ func resourceContentSource() *schema.Resource {
 	}
 }
 
-func resourceContentSourceCreate(d *schema.ResourceData, m interface{}) error {
+func resourceContentSourceCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	log.Printf("Starting to create vra_ContentSource resource3")
 
 	apiClient := m.(*Client).apiClient
@@ -132,7 +135,7 @@ func resourceContentSourceCreate(d *schema.ResourceData, m interface{}) error {
 	resp, err := apiClient.ContentSource.CreateContentSourceUsingPOST(content_source.NewCreateContentSourceUsingPOSTParams().WithSource(&contentSourceSpecification))
 
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	id := *resp.GetPayload().ID
@@ -140,10 +143,10 @@ func resourceContentSourceCreate(d *schema.ResourceData, m interface{}) error {
 
 	log.Printf("Finished creating vra_ContentSource resource with name %s", d.Get("name"))
 
-	return resourceContentSourceRead(d, m)
+	return resourceContentSourceRead(ctx, d, m)
 }
 
-func resourceContentSourceRead(d *schema.ResourceData, m interface{}) error {
+func resourceContentSourceRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	log.Printf("Reading the vra_ContentSource resource with name %s", d.Get("name"))
 	apiClient := m.(*Client).apiClient
 
@@ -158,7 +161,7 @@ func resourceContentSourceRead(d *schema.ResourceData, m interface{}) error {
 			d.SetId("")
 			return nil
 		}
-		return err
+		return diag.FromErr(err)
 	}
 
 	ContentSource := *resp.Payload
@@ -180,7 +183,7 @@ func resourceContentSourceRead(d *schema.ResourceData, m interface{}) error {
 	return nil
 }
 
-func resourceContentSourceDelete(d *schema.ResourceData, m interface{}) error {
+func resourceContentSourceDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	log.Printf("Starting to delete the vra_ContentSource resource with name %s", d.Get("name"))
 	apiClient := m.(*Client).apiClient
 
@@ -189,7 +192,7 @@ func resourceContentSourceDelete(d *schema.ResourceData, m interface{}) error {
 	_, err := apiClient.ContentSource.DeleteContentSourceUsingDELETE(content_source.NewDeleteContentSourceUsingDELETEParams().WithID(csUUID))
 
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	d.SetId("")

@@ -1,8 +1,10 @@
 package vra
 
 import (
+	"context"
 	"fmt"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/vmware/vra-sdk-go/pkg/client/location"
 	"github.com/vmware/vra-sdk-go/pkg/models"
@@ -10,10 +12,10 @@ import (
 
 func resourceZone() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceZoneCreate,
-		Read:   resourceZoneRead,
-		Update: resourceZoneUpdate,
-		Delete: resourceZoneDelete,
+		CreateContext: resourceZoneCreate,
+		ReadContext:   resourceZoneRead,
+		UpdateContext: resourceZoneUpdate,
+		DeleteContext: resourceZoneDelete,
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
@@ -89,7 +91,7 @@ func resourceZone() *schema.Resource {
 	}
 }
 
-func resourceZoneCreate(d *schema.ResourceData, m interface{}) error {
+func resourceZoneCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	apiClient := m.(*Client).apiClient
 
 	description := d.Get("description").(string)
@@ -110,21 +112,21 @@ func resourceZoneCreate(d *schema.ResourceData, m interface{}) error {
 		TagsToMatch:     tagsToMatch,
 	}))
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	if err := d.Set("tags", flattenTags(tags)); err != nil {
-		return fmt.Errorf("Error setting zone tags - error: %#v", err)
+		return diag.Errorf("Error setting zone tags - error: %#v", err)
 	}
 	if err := d.Set("tags_to_match", flattenTags(tagsToMatch)); err != nil {
-		return fmt.Errorf("Error setting zone tags_to_match - error: %#v", err)
+		return diag.Errorf("Error setting zone tags_to_match - error: %#v", err)
 	}
 	d.SetId(*createResp.Payload.ID)
 
-	return resourceZoneRead(d, m)
+	return resourceZoneRead(ctx, d, m)
 }
 
-func resourceZoneRead(d *schema.ResourceData, m interface{}) error {
+func resourceZoneRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	apiClient := m.(*Client).apiClient
 
 	id := d.Id()
@@ -135,7 +137,7 @@ func resourceZoneRead(d *schema.ResourceData, m interface{}) error {
 			d.SetId("")
 			return nil
 		}
-		return err
+		return diag.FromErr(err)
 	}
 	zone := *ret.Payload
 	d.Set("cloud_account_id", zone.CloudAccountID)
@@ -146,7 +148,7 @@ func resourceZoneRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("folder", zone.Folder)
 
 	if err := d.Set("links", flattenLinks(zone.Links)); err != nil {
-		return fmt.Errorf("error setting zone links - error: %#v", err)
+		return diag.Errorf("error setting zone links - error: %#v", err)
 	}
 
 	d.Set("name", zone.Name)
@@ -154,16 +156,16 @@ func resourceZoneRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("owner", zone.Owner)
 	d.Set("placement_policy", zone.PlacementPolicy)
 	if err := d.Set("tags", flattenTags(zone.Tags)); err != nil {
-		return fmt.Errorf("Error setting zone tags - error: %#v", err)
+		return diag.Errorf("Error setting zone tags - error: %#v", err)
 	}
 	if err := d.Set("tags_to_match", flattenTags(zone.TagsToMatch)); err != nil {
-		return fmt.Errorf("Error setting zone tags_to_match - error: %#v", err)
+		return diag.Errorf("Error setting zone tags_to_match - error: %#v", err)
 	}
 	d.Set("updated_at", zone.UpdatedAt)
 	return nil
 }
 
-func resourceZoneUpdate(d *schema.ResourceData, m interface{}) error {
+func resourceZoneUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	apiClient := m.(*Client).apiClient
 
 	id := d.Id()
@@ -185,19 +187,19 @@ func resourceZoneUpdate(d *schema.ResourceData, m interface{}) error {
 		TagsToMatch:     tagsToMatch,
 	}))
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
-	return resourceZoneRead(d, m)
+	return resourceZoneRead(ctx, d, m)
 }
 
-func resourceZoneDelete(d *schema.ResourceData, m interface{}) error {
+func resourceZoneDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	apiClient := m.(*Client).apiClient
 
 	id := d.Id()
 	_, err := apiClient.Location.DeleteZone(location.NewDeleteZoneParams().WithID(id))
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	d.SetId("")

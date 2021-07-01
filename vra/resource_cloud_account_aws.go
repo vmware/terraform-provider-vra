@@ -1,20 +1,22 @@
 package vra
 
 import (
-	"fmt"
+	"context"
+	"errors"
 
 	"github.com/vmware/vra-sdk-go/pkg/client/cloud_account"
 	"github.com/vmware/vra-sdk-go/pkg/models"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func resourceCloudAccountAWS() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceCloudAccountAWSCreate,
-		Read:   resourceCloudAccountAWSRead,
-		Update: resourceCloudAccountAWSUpdate,
-		Delete: resourceCloudAccountAWSDelete,
+		CreateContext: resourceCloudAccountAWSCreate,
+		ReadContext:   resourceCloudAccountAWSRead,
+		UpdateContext: resourceCloudAccountAWSUpdate,
+		DeleteContext: resourceCloudAccountAWSDelete,
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
@@ -76,7 +78,7 @@ func resourceCloudAccountAWS() *schema.Resource {
 	}
 }
 
-func resourceCloudAccountAWSCreate(d *schema.ResourceData, m interface{}) error {
+func resourceCloudAccountAWSCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	var regions []string
 
 	apiClient := m.(*Client).apiClient
@@ -89,7 +91,7 @@ func resourceCloudAccountAWSCreate(d *schema.ResourceData, m interface{}) error 
 
 	if v, ok := d.GetOk("regions"); ok {
 		if !compareUnique(v.([]interface{})) {
-			return fmt.Errorf("Specified regions are not unique")
+			return diag.FromErr(errors.New("Specified regions are not unique"))
 		}
 		regions = expandStringList(v.([]interface{}))
 	}
@@ -105,26 +107,26 @@ func resourceCloudAccountAWSCreate(d *schema.ResourceData, m interface{}) error 
 	}))
 
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	// The returned EnabledRegionIds and Hrefs containing the region ids can be in a different order than the request order.
 	// Call a routine to normalize the order to correspond with the users region order.
 	regionsIds, err := flattenAndNormalizeCLoudAccountAWSRegionIds(regions, createResp.Payload)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 	d.Set("region_ids", regionsIds)
 
 	if err := d.Set("tags", flattenTags(tags)); err != nil {
-		return fmt.Errorf("Error setting cloud account tags - error: %#v", err)
+		return diag.Errorf("Error setting cloud account tags - error: %#v", err)
 	}
 	d.SetId(*createResp.Payload.ID)
 
-	return resourceCloudAccountAWSRead(d, m)
+	return resourceCloudAccountAWSRead(ctx, d, m)
 }
 
-func resourceCloudAccountAWSRead(d *schema.ResourceData, m interface{}) error {
+func resourceCloudAccountAWSRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	apiClient := m.(*Client).apiClient
 
 	id := d.Id()
@@ -135,7 +137,7 @@ func resourceCloudAccountAWSRead(d *schema.ResourceData, m interface{}) error {
 			d.SetId("")
 			return nil
 		}
-		return err
+		return diag.FromErr(err)
 	}
 	awsAccount := *ret.Payload
 	regions := awsAccount.EnabledRegionIds
@@ -150,25 +152,25 @@ func resourceCloudAccountAWSRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("updated_at", awsAccount.UpdatedAt)
 
 	if err := d.Set("links", flattenLinks(awsAccount.Links)); err != nil {
-		return fmt.Errorf("error setting cloud_account_aws links - error: %#v", err)
+		return diag.Errorf("error setting cloud_account_aws links - error: %#v", err)
 	}
 
 	// The returned EnabledRegionIds and Hrefs containing the region ids can be in a different order than the request order.
 	// Call a routine to normalize the order to correspond with the users region order.
 	regionsIds, err := flattenAndNormalizeCLoudAccountAWSRegionIds(regions, &awsAccount)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 	d.Set("region_ids", regionsIds)
 
 	if err := d.Set("tags", flattenTags(awsAccount.Tags)); err != nil {
-		return fmt.Errorf("Error setting cloud account tags - error: %#v", err)
+		return diag.Errorf("Error setting cloud account tags - error: %#v", err)
 	}
 
 	return nil
 }
 
-func resourceCloudAccountAWSUpdate(d *schema.ResourceData, m interface{}) error {
+func resourceCloudAccountAWSUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	var regions []string
 
 	apiClient := m.(*Client).apiClient
@@ -179,7 +181,7 @@ func resourceCloudAccountAWSUpdate(d *schema.ResourceData, m interface{}) error 
 
 	if v, ok := d.GetOk("regions"); ok {
 		if !compareUnique(v.([]interface{})) {
-			return fmt.Errorf("Specified regions are not unique")
+			return diag.FromErr(errors.New("Specified regions are not unique"))
 		}
 		regions = expandStringList(v.([]interface{}))
 	}
@@ -190,19 +192,19 @@ func resourceCloudAccountAWSUpdate(d *schema.ResourceData, m interface{}) error 
 		Tags:               tags,
 	}))
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
-	return resourceCloudAccountAWSRead(d, m)
+	return resourceCloudAccountAWSRead(ctx, d, m)
 }
 
-func resourceCloudAccountAWSDelete(d *schema.ResourceData, m interface{}) error {
+func resourceCloudAccountAWSDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	apiClient := m.(*Client).apiClient
 
 	id := d.Id()
 	_, err := apiClient.CloudAccount.DeleteAwsCloudAccount(cloud_account.NewDeleteAwsCloudAccountParams().WithID(id))
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	d.SetId("")

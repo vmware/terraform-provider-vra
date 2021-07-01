@@ -1,6 +1,9 @@
 package vra
 
 import (
+	"context"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/vmware/vra-sdk-go/pkg/client/project"
 	"github.com/vmware/vra-sdk-go/pkg/models"
@@ -8,10 +11,10 @@ import (
 
 func resourceProject() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceProjectCreate,
-		Read:   resourceProjectRead,
-		Update: resourceProjectUpdate,
-		Delete: resourceProjectDelete,
+		CreateContext: resourceProjectCreate,
+		ReadContext:   resourceProjectRead,
+		UpdateContext: resourceProjectUpdate,
+		DeleteContext: resourceProjectDelete,
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
@@ -134,7 +137,7 @@ func resourceProject() *schema.Resource {
 	}
 }
 
-func resourceProjectCreate(d *schema.ResourceData, m interface{}) error {
+func resourceProjectCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	apiClient := m.(*Client).apiClient
 
 	administrators := expandUserListAndNewUserList(d.Get("administrators").(*schema.Set).List(),
@@ -164,15 +167,15 @@ func resourceProjectCreate(d *schema.ResourceData, m interface{}) error {
 		ZoneAssignmentConfigurations: zoneAssignment,
 	}))
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	d.SetId(*createResp.Payload.ID)
 
-	return resourceProjectRead(d, m)
+	return resourceProjectRead(ctx, d, m)
 }
 
-func resourceProjectRead(d *schema.ResourceData, m interface{}) error {
+func resourceProjectRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	apiClient := m.(*Client).apiClient
 
 	id := d.Id()
@@ -183,7 +186,7 @@ func resourceProjectRead(d *schema.ResourceData, m interface{}) error {
 			d.SetId("")
 			return nil
 		}
-		return err
+		return diag.FromErr(err)
 	}
 	project := *ret.Payload
 	d.Set("administrators", flattenUsers(project.Administrators))
@@ -204,7 +207,7 @@ func resourceProjectRead(d *schema.ResourceData, m interface{}) error {
 	return nil
 }
 
-func resourceProjectUpdate(d *schema.ResourceData, m interface{}) error {
+func resourceProjectUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	apiClient := m.(*Client).apiClient
 
 	id := d.Id()
@@ -235,13 +238,13 @@ func resourceProjectUpdate(d *schema.ResourceData, m interface{}) error {
 		ZoneAssignmentConfigurations: zoneAssignment,
 	}))
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
-	return resourceProjectRead(d, m)
+	return resourceProjectRead(ctx, d, m)
 }
 
-func resourceProjectDelete(d *schema.ResourceData, m interface{}) error {
+func resourceProjectDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	apiClient := m.(*Client).apiClient
 
 	id := d.Id()
@@ -251,12 +254,12 @@ func resourceProjectDelete(d *schema.ResourceData, m interface{}) error {
 		ZoneAssignmentConfigurations: []*models.ZoneAssignmentSpecification{},
 	}))
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	_, err = apiClient.Project.DeleteProject(project.NewDeleteProjectParams().WithID(id))
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	d.SetId("")

@@ -1,21 +1,22 @@
 package vra
 
 import (
-	"fmt"
+	"context"
 	"log"
 
 	"github.com/vmware/vra-sdk-go/pkg/client/storage_profile"
 	"github.com/vmware/vra-sdk-go/pkg/models"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func resourceStorageProfileAzure() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceStorageProfileAzureCreate,
-		Read:   resourceStorageProfileAzureRead,
-		Update: resourceStorageProfileAzureUpdate,
-		Delete: resourceStorageProfileAzureDelete,
+		CreateContext: resourceStorageProfileAzureCreate,
+		ReadContext:   resourceStorageProfileAzureRead,
+		UpdateContext: resourceStorageProfileAzureUpdate,
+		DeleteContext: resourceStorageProfileAzureDelete,
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
@@ -89,7 +90,7 @@ func resourceStorageProfileAzure() *schema.Resource {
 	}
 }
 
-func resourceStorageProfileAzureCreate(d *schema.ResourceData, m interface{}) error {
+func resourceStorageProfileAzureCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	log.Printf("Starting to create vra_azure_storage_profile resource")
 	apiClient := m.(*Client).apiClient
 
@@ -115,23 +116,23 @@ func resourceStorageProfileAzureCreate(d *schema.ResourceData, m interface{}) er
 	log.Printf("[DEBUG] create azure storage profile: %#v", StorageProfileAzureSpecification)
 	createAzureStorageProfileCreated, err := apiClient.StorageProfile.CreateAzureStorageProfile(storage_profile.NewCreateAzureStorageProfileParams().WithBody(&StorageProfileAzureSpecification))
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	d.SetId(*createAzureStorageProfileCreated.Payload.ID)
 	log.Printf("Finished to create vra_azure_storage_profile resource with name %s", d.Get("name"))
 
-	return resourceStorageProfileAzureRead(d, m)
+	return resourceStorageProfileAzureRead(ctx, d, m)
 }
 
-func resourceStorageProfileAzureRead(d *schema.ResourceData, m interface{}) error {
+func resourceStorageProfileAzureRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	log.Printf("Reading the vra_azure_storage_profile resource with name %s", d.Get("name"))
 	apiClient := m.(*Client).apiClient
 
 	id := d.Id()
 	resp, err := apiClient.StorageProfile.GetAzureStorageProfile(storage_profile.NewGetAzureStorageProfileParams().WithID(id))
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	AzureStorageProfile := *resp.Payload
@@ -149,18 +150,18 @@ func resourceStorageProfileAzureRead(d *schema.ResourceData, m interface{}) erro
 	d.Set("updated_at", AzureStorageProfile.UpdatedAt)
 
 	if err := d.Set("tags", flattenTags(AzureStorageProfile.Tags)); err != nil {
-		return fmt.Errorf("error setting azure storage profile tags - error: %v", err)
+		return diag.Errorf("error setting azure storage profile tags - error: %v", err)
 	}
 
 	if err := d.Set("links", flattenLinks(AzureStorageProfile.Links)); err != nil {
-		return fmt.Errorf("error setting azure storage profile links - error: %#v", err)
+		return diag.Errorf("error setting azure storage profile links - error: %#v", err)
 	}
 
 	log.Printf("Finished reading the vra_azure_storage_profile resource with name %s", d.Get("name"))
 	return nil
 }
 
-func resourceStorageProfileAzureUpdate(d *schema.ResourceData, m interface{}) error {
+func resourceStorageProfileAzureUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	apiClient := m.(*Client).apiClient
 
 	id := d.Id()
@@ -184,20 +185,20 @@ func resourceStorageProfileAzureUpdate(d *schema.ResourceData, m interface{}) er
 	}
 	_, err := apiClient.StorageProfile.UpdateAzureStorageProfile(storage_profile.NewUpdateAzureStorageProfileParams().WithID(id).WithBody(&StorageProfileAzureSpecification))
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
-	return resourceStorageProfileAzureRead(d, m)
+	return resourceStorageProfileAzureRead(ctx, d, m)
 }
 
-func resourceStorageProfileAzureDelete(d *schema.ResourceData, m interface{}) error {
+func resourceStorageProfileAzureDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	log.Printf("Starting to delete the vra_azure_storage_profile resource with name %s", d.Get("name"))
 	apiClient := m.(*Client).apiClient
 
 	id := d.Id()
 	_, err := apiClient.StorageProfile.DeleteAzureStorageProfile(storage_profile.NewDeleteAzureStorageProfileParams().WithID(id))
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	d.SetId("")

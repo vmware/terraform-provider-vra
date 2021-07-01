@@ -1,21 +1,23 @@
 package vra
 
 import (
-	"fmt"
+	"context"
+	"errors"
 	"strconv"
 
 	"github.com/vmware/vra-sdk-go/pkg/client/cloud_account"
 	"github.com/vmware/vra-sdk-go/pkg/models"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func resourceCloudAccountVMC() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceCloudAccountVMCCreate,
-		Read:   resourceCloudAccountVMCRead,
-		Update: resourceCloudAccountVMCUpdate,
-		Delete: resourceCloudAccountVMCDelete,
+		CreateContext: resourceCloudAccountVMCCreate,
+		ReadContext:   resourceCloudAccountVMCRead,
+		UpdateContext: resourceCloudAccountVMCUpdate,
+		DeleteContext: resourceCloudAccountVMCDelete,
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
@@ -102,7 +104,7 @@ func resourceCloudAccountVMC() *schema.Resource {
 	}
 }
 
-func resourceCloudAccountVMCCreate(d *schema.ResourceData, m interface{}) error {
+func resourceCloudAccountVMCCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	var regions []string
 
 	apiClient := m.(*Client).apiClient
@@ -110,7 +112,7 @@ func resourceCloudAccountVMCCreate(d *schema.ResourceData, m interface{}) error 
 	tags := expandTags(d.Get("tags").(*schema.Set).List())
 	if v, ok := d.GetOk("regions"); ok {
 		if !compareUnique(v.([]interface{})) {
-			return fmt.Errorf("specified regions are not unique")
+			return diag.FromErr(errors.New("specified regions are not unique"))
 		}
 		regions = expandStringList(v.([]interface{}))
 	}
@@ -140,26 +142,26 @@ func resourceCloudAccountVMCCreate(d *schema.ResourceData, m interface{}) error 
 			}))
 
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	// The returned EnabledRegionIds and Hrefs containing the region ids can be in a different order than the request order.
 	// Call a routine to normalize the order to correspond with the users region order.
 	regionsIds, err := flattenAndNormalizeCloudAccountRegionIds(regions, createResp.Payload)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 	d.Set("region_ids", regionsIds)
 
 	if err := d.Set("tags", flattenTags(tags)); err != nil {
-		return fmt.Errorf("error setting cloud account tags - error: %#v", err)
+		return diag.Errorf("error setting cloud account tags - error: %#v", err)
 	}
 	d.SetId(*createResp.Payload.ID)
 
-	return resourceCloudAccountVMCRead(d, m)
+	return resourceCloudAccountVMCRead(ctx, d, m)
 }
 
-func resourceCloudAccountVMCRead(d *schema.ResourceData, m interface{}) error {
+func resourceCloudAccountVMCRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	apiClient := m.(*Client).apiClient
 
 	id := d.Id()
@@ -170,7 +172,7 @@ func resourceCloudAccountVMCRead(d *schema.ResourceData, m interface{}) error {
 			d.SetId("")
 			return nil
 		}
-		return err
+		return diag.FromErr(err)
 	}
 	vmcAccount := *ret.Payload
 	regions := vmcAccount.EnabledRegionIds
@@ -189,25 +191,25 @@ func resourceCloudAccountVMCRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("vcenter_username", vmcAccount.CloudAccountProperties["privateKeyId"])
 
 	if err := d.Set("links", flattenLinks(vmcAccount.Links)); err != nil {
-		return fmt.Errorf("error setting cloud_account_vmc links - error: %#v", err)
+		return diag.Errorf("error setting cloud_account_vmc links - error: %#v", err)
 	}
 
 	// The returned EnabledRegionIds and Hrefs containing the region ids can be in a different order than the request order.
 	// Call a routine to normalize the order to correspond with the users region order.
 	regionsIds, err := flattenAndNormalizeCloudAccountRegionIds(regions, &vmcAccount)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 	d.Set("region_ids", regionsIds)
 
 	if err := d.Set("tags", flattenTags(vmcAccount.Tags)); err != nil {
-		return fmt.Errorf("error setting cloud account tags - error: %#v", err)
+		return diag.Errorf("error setting cloud account tags - error: %#v", err)
 	}
 
 	return nil
 }
 
-func resourceCloudAccountVMCUpdate(d *schema.ResourceData, m interface{}) error {
+func resourceCloudAccountVMCUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	var regions []string
 
 	apiClient := m.(*Client).apiClient
@@ -216,7 +218,7 @@ func resourceCloudAccountVMCUpdate(d *schema.ResourceData, m interface{}) error 
 
 	if v, ok := d.GetOk("regions"); ok {
 		if !compareUnique(v.([]interface{})) {
-			return fmt.Errorf("specified regions are not unique")
+			return diag.FromErr(errors.New("specified regions are not unique"))
 		}
 		regions = expandStringList(v.([]interface{}))
 	}
@@ -228,19 +230,19 @@ func resourceCloudAccountVMCUpdate(d *schema.ResourceData, m interface{}) error 
 		Tags:               expandTags(d.Get("tags").(*schema.Set).List()),
 	}))
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
-	return resourceCloudAccountVMCRead(d, m)
+	return resourceCloudAccountVMCRead(ctx, d, m)
 }
 
-func resourceCloudAccountVMCDelete(d *schema.ResourceData, m interface{}) error {
+func resourceCloudAccountVMCDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	apiClient := m.(*Client).apiClient
 
 	id := d.Id()
 	_, err := apiClient.CloudAccount.DeleteCloudAccount(cloud_account.NewDeleteCloudAccountParams().WithID(id))
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	d.SetId("")

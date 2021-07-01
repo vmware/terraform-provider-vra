@@ -1,9 +1,10 @@
 package vra
 
 import (
-	"fmt"
+	"context"
 	"strings"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/vmware/vra-sdk-go/pkg/client/flavor_profile"
 	"github.com/vmware/vra-sdk-go/pkg/models"
@@ -11,10 +12,10 @@ import (
 
 func resourceFlavorProfile() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceFlavorProfileCreate,
-		Read:   resourceFlavorProfileRead,
-		Update: resourceFlavorProfileUpdate,
-		Delete: resourceFlavorProfileDelete,
+		CreateContext: resourceFlavorProfileCreate,
+		ReadContext:   resourceFlavorProfileRead,
+		UpdateContext: resourceFlavorProfileUpdate,
+		DeleteContext: resourceFlavorProfileDelete,
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
@@ -86,7 +87,7 @@ func resourceFlavorProfile() *schema.Resource {
 	}
 }
 
-func resourceFlavorProfileCreate(d *schema.ResourceData, m interface{}) error {
+func resourceFlavorProfileCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	apiClient := m.(*Client).apiClient
 
 	description := d.Get("description").(string)
@@ -101,15 +102,15 @@ func resourceFlavorProfileCreate(d *schema.ResourceData, m interface{}) error {
 		FlavorMapping: flavorMapping,
 	}))
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	d.SetId(*createResp.Payload.ID)
 
-	return resourceFlavorProfileRead(d, m)
+	return resourceFlavorProfileRead(ctx, d, m)
 }
 
-func resourceFlavorProfileRead(d *schema.ResourceData, m interface{}) error {
+func resourceFlavorProfileRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	apiClient := m.(*Client).apiClient
 
 	id := d.Id()
@@ -120,7 +121,7 @@ func resourceFlavorProfileRead(d *schema.ResourceData, m interface{}) error {
 			d.SetId("")
 			return nil
 		}
-		return err
+		return diag.FromErr(err)
 	}
 	flavor := *ret.Payload
 
@@ -130,11 +131,11 @@ func resourceFlavorProfileRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("external_region_id", flavor.ExternalRegionID)
 
 	if err := d.Set("flavor_mapping", flattenFlavors(flavor.FlavorMappings.Mapping)); err != nil {
-		return fmt.Errorf("error setting flavor mapping - error: %#v", err)
+		return diag.Errorf("error setting flavor mapping - error: %#v", err)
 	}
 
 	if err := d.Set("links", flattenLinks(flavor.Links)); err != nil {
-		return fmt.Errorf("error setting flavor_profile links - error: %#v", err)
+		return diag.Errorf("error setting flavor_profile links - error: %#v", err)
 	}
 
 	d.Set("name", flavor.Name)
@@ -152,7 +153,7 @@ func resourceFlavorProfileRead(d *schema.ResourceData, m interface{}) error {
 	return nil
 }
 
-func resourceFlavorProfileUpdate(d *schema.ResourceData, m interface{}) error {
+func resourceFlavorProfileUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	apiClient := m.(*Client).apiClient
 
 	id := d.Id()
@@ -166,19 +167,19 @@ func resourceFlavorProfileUpdate(d *schema.ResourceData, m interface{}) error {
 		FlavorMapping: flavorMapping,
 	}))
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
-	return resourceFlavorProfileRead(d, m)
+	return resourceFlavorProfileRead(ctx, d, m)
 }
 
-func resourceFlavorProfileDelete(d *schema.ResourceData, m interface{}) error {
+func resourceFlavorProfileDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	apiClient := m.(*Client).apiClient
 
 	id := d.Id()
 	_, err := apiClient.FlavorProfile.DeleteFlavorProfile(flavor_profile.NewDeleteFlavorProfileParams().WithID(id))
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	d.SetId("")

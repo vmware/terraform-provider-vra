@@ -1,20 +1,22 @@
 package vra
 
 import (
-	"fmt"
+	"context"
+	"errors"
 
 	"github.com/vmware/vra-sdk-go/pkg/client/cloud_account"
 	"github.com/vmware/vra-sdk-go/pkg/models"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func resourceCloudAccountAzure() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceCloudAccountAzureCreate,
-		Read:   resourceCloudAccountAzureRead,
-		Update: resourceCloudAccountAzureUpdate,
-		Delete: resourceCloudAccountAzureDelete,
+		CreateContext: resourceCloudAccountAzureCreate,
+		ReadContext:   resourceCloudAccountAzureRead,
+		UpdateContext: resourceCloudAccountAzureUpdate,
+		DeleteContext: resourceCloudAccountAzureDelete,
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
@@ -83,14 +85,14 @@ func resourceCloudAccountAzure() *schema.Resource {
 	}
 }
 
-func resourceCloudAccountAzureCreate(d *schema.ResourceData, m interface{}) error {
+func resourceCloudAccountAzureCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	var regions []string
 
 	apiClient := m.(*Client).apiClient
 
 	if v, ok := d.GetOk("regions"); ok {
 		if !compareUnique(v.([]interface{})) {
-			return fmt.Errorf("Specified regions are not unique")
+			return diag.FromErr(errors.New("Specified regions are not unique"))
 		}
 		regions = expandStringList(v.([]interface{}))
 	}
@@ -110,16 +112,16 @@ func resourceCloudAccountAzureCreate(d *schema.ResourceData, m interface{}) erro
 	}))
 
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	d.Set("application_key", applicationKey)
 	d.SetId(*createResp.Payload.ID)
 
-	return resourceCloudAccountAzureRead(d, m)
+	return resourceCloudAccountAzureRead(ctx, d, m)
 }
 
-func resourceCloudAccountAzureRead(d *schema.ResourceData, m interface{}) error {
+func resourceCloudAccountAzureRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	apiClient := m.(*Client).apiClient
 
 	id := d.Id()
@@ -130,7 +132,7 @@ func resourceCloudAccountAzureRead(d *schema.ResourceData, m interface{}) error 
 			d.SetId("")
 			return nil
 		}
-		return err
+		return diag.FromErr(err)
 	}
 	azureAccount := *ret.Payload
 	regions := azureAccount.EnabledRegionIds
@@ -147,25 +149,25 @@ func resourceCloudAccountAzureRead(d *schema.ResourceData, m interface{}) error 
 	d.Set("updated_at", azureAccount.UpdatedAt)
 
 	if err := d.Set("links", flattenLinks(azureAccount.Links)); err != nil {
-		return fmt.Errorf("error setting cloud_account_azure links - error: %#v", err)
+		return diag.Errorf("error setting cloud_account_azure links - error: %#v", err)
 	}
 
 	// The returned EnabledRegionIds and Hrefs containing the region ids can be in a different order than the request order.
 	// Call a routine to normalize the order to correspond with the users region order.
 	regionsIds, err := flattenAndNormalizeCLoudAccountAzureRegionIds(regions, &azureAccount)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 	d.Set("region_ids", regionsIds)
 
 	if err := d.Set("tags", flattenTags(azureAccount.Tags)); err != nil {
-		return fmt.Errorf("Error setting cloud account tags - error: %#v", err)
+		return diag.Errorf("Error setting cloud account tags - error: %#v", err)
 	}
 
 	return nil
 }
 
-func resourceCloudAccountAzureUpdate(d *schema.ResourceData, m interface{}) error {
+func resourceCloudAccountAzureUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	var regions []string
 
 	apiClient := m.(*Client).apiClient
@@ -174,7 +176,7 @@ func resourceCloudAccountAzureUpdate(d *schema.ResourceData, m interface{}) erro
 
 	if v, ok := d.GetOk("regions"); ok {
 		if !compareUnique(v.([]interface{})) {
-			return fmt.Errorf("Specified regions are not unique")
+			return diag.FromErr(errors.New("Specified regions are not unique"))
 		}
 		regions = expandStringList(v.([]interface{}))
 	}
@@ -187,19 +189,19 @@ func resourceCloudAccountAzureUpdate(d *schema.ResourceData, m interface{}) erro
 		Tags:               tags,
 	}))
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
-	return resourceCloudAccountAzureRead(d, m)
+	return resourceCloudAccountAzureRead(ctx, d, m)
 }
 
-func resourceCloudAccountAzureDelete(d *schema.ResourceData, m interface{}) error {
+func resourceCloudAccountAzureDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	apiClient := m.(*Client).apiClient
 
 	id := d.Id()
 	_, err := apiClient.CloudAccount.DeleteAzureCloudAccount(cloud_account.NewDeleteAzureCloudAccountParams().WithID(id))
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	d.SetId("")
