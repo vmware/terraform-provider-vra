@@ -8,7 +8,7 @@ import (
 	"github.com/vmware/vra-sdk-go/pkg/client/fabric_network"
 	"github.com/vmware/vra-sdk-go/pkg/models"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func resourceFabricNetworkVsphere() *schema.Resource {

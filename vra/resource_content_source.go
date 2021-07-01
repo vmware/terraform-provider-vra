@@ -2,8 +2,8 @@ package vra
 
 import (
 	"github.com/go-openapi/strfmt"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/vmware/vra-sdk-go/pkg/client/content_source"
 	"github.com/vmware/vra-sdk-go/pkg/models"
 

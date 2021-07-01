@@ -7,8 +7,8 @@ import (
 	"github.com/vmware/vra-sdk-go/pkg/client/network_ip_range"
 	"github.com/vmware/vra-sdk-go/pkg/models"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func resourceNetworkIPRange() *schema.Resource {
