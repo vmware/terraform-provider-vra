@@ -21,7 +21,7 @@ func resourceBlockDeviceSnapshot() *schema.Resource {
 		Update: resourceBlockDeviceSnapshotUpdate,
 		Delete: resourceBlockDeviceSnapshotDelete,
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 
 		Schema: map[string]*schema.Schema{

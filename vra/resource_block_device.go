@@ -22,7 +22,7 @@ func resourceBlockDevice() *schema.Resource {
 		Update: resourceBlockDeviceUpdate,
 		Delete: resourceBlockDeviceDelete,
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 
 		Schema: map[string]*schema.Schema{

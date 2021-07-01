@@ -17,7 +17,7 @@ func resourceStorageProfile() *schema.Resource {
 		Update: resourceStorageProfileUpdate,
 		Delete: resourceStorageProfileDelete,
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 
 		Schema: map[string]*schema.Schema{

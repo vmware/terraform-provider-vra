@@ -18,7 +18,7 @@ func resourceFabricNetworkVsphere() *schema.Resource {
 		Update: resourceFabricNetworkVsphereUpdate,
 		Delete: resourceFabricNetworkVsphereDelete,
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 		SchemaVersion: 1,
 

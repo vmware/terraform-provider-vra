@@ -38,7 +38,7 @@ func resourceDeployment() *schema.Resource {
 		Update: resourceDeploymentUpdate,
 		Delete: resourceDeploymentDelete,
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 
 		Schema: map[string]*schema.Schema{

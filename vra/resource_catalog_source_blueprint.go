@@ -17,7 +17,7 @@ func resourceCatalogSourceBlueprint() *schema.Resource {
 		Read:   resourceCatalogSourceBlueprintRead,
 		Update: resourceCatalogSourceBlueprintUpdate,
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 
 		Schema: map[string]*schema.Schema{

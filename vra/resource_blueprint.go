@@ -19,7 +19,7 @@ func resourceBlueprint() *schema.Resource {
 		Update: resourceBlueprintUpdate,
 		Delete: resourceBlueprintDelete,
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 
 		Schema: map[string]*schema.Schema{
