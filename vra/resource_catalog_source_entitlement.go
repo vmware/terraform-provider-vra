@@ -15,7 +15,7 @@ func resourceCatalogSourceEntitlement() *schema.Resource {
 		Delete: resourceCatalogSourceEntitlementDelete,
 		Read:   resourceCatalogSourceEntitlementRead,
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 
 		Schema: map[string]*schema.Schema{

@@ -18,7 +18,7 @@ func resourceNetworkProfile() *schema.Resource {
 		Update: resourceNetworkProfileUpdate,
 		Delete: resourceNetworkProfileDelete,
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 
 		Schema: map[string]*schema.Schema{

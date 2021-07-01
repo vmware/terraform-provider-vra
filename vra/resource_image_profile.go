@@ -16,7 +16,7 @@ func resourceImageProfile() *schema.Resource {
 		Update: resourceImageProfileUpdate,
 		Delete: resourceImageProfileDelete,
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 
 		Schema: map[string]*schema.Schema{

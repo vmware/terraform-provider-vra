@@ -16,7 +16,7 @@ func resourceFlavorProfile() *schema.Resource {
 		Update: resourceFlavorProfileUpdate,
 		Delete: resourceFlavorProfileDelete,
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 
 		Schema: map[string]*schema.Schema{

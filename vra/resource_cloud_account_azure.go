@@ -16,7 +16,7 @@ func resourceCloudAccountAzure() *schema.Resource {
 		Update: resourceCloudAccountAzureUpdate,
 		Delete: resourceCloudAccountAzureDelete,
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 
 		Schema: map[string]*schema.Schema{

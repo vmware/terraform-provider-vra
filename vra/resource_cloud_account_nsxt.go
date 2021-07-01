@@ -16,7 +16,7 @@ func resourceCloudAccountNSXT() *schema.Resource {
 		Update: resourceCloudAccountNSXTUpdate,
 		Delete: resourceCloudAccountNSXTDelete,
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 
 		Schema: map[string]*schema.Schema{

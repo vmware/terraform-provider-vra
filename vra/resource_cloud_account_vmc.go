@@ -17,7 +17,7 @@ func resourceCloudAccountVMC() *schema.Resource {
 		Update: resourceCloudAccountVMCUpdate,
 		Delete: resourceCloudAccountVMCDelete,
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 
 		Schema: map[string]*schema.Schema{

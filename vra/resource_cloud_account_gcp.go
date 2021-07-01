@@ -16,7 +16,7 @@ func resourceCloudAccountGCP() *schema.Resource {
 		Update: resourceCloudAccountGCPUpdate,
 		Delete: resourceCloudAccountGCPDelete,
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 
 		Schema: map[string]*schema.Schema{

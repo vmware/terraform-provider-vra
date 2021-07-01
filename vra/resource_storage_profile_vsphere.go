@@ -17,7 +17,7 @@ func resourceStorageProfileVsphere() *schema.Resource {
 		Update: resourceStorageProfileVsphereUpdate,
 		Delete: resourceStorageProfileVsphereDelete,
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 
 		Schema: map[string]*schema.Schema{
