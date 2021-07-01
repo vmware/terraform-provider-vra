@@ -10,7 +10,6 @@ import (
 func linksSchema() *schema.Schema {
 	return &schema.Schema{
 		Type:     schema.TypeSet,
-		MinItems: 1,
 		Computed: true,
 		Elem: &schema.Resource{
 			Schema: map[string]*schema.Schema{

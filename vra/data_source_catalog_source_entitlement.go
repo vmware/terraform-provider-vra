@@ -23,7 +23,6 @@ func dataSourceCatalogSourceEntitlement() *schema.Resource {
 			},
 			"definition": {
 				Type:     schema.TypeSet,
-				MaxItems: 1,
 				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
