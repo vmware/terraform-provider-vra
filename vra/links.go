@@ -3,7 +3,7 @@ package vra
 import (
 	"github.com/vmware/vra-sdk-go/pkg/models"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 // linksSchema returns the schema to use for the links property
