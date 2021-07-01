@@ -49,7 +49,7 @@ Create your vSphere cloud account resource with the following arguments:
 
 * `password` - (Required) Password used to authenticate to the cloud account.
 
-* `regions` - (Optional) A set of region names that are enabled for the cloud account.
+* `regions` - (Required) A set of region names that are enabled for the cloud account.
 
 * `tags` - (Optional) A set of tag keys and optional values to apply to the cloud account.  
 Example:[ { "key" : "vmware", "value": "provider" } ]
