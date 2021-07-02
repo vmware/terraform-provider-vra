@@ -38,7 +38,7 @@ A zone profile resource supports the following arguments:
 
 * `name` - (Required) A human-friendly name used as an identifier in APIs that support this option.
 
-* `placement_policy` - (Optional) The id of the region for which this zone is defined. Valid values are: `DEFAULT`, `SPREAD`, `BINPACK`. Default is `DEFAULT`.
+* `placement_policy` - (Optional) The placement policy for the cloud zone. Valid values are: `DEFAULT`, `SPREAD`, `BINPACK`. Default is `DEFAULT`.
 
 * `region_id` - (Required) A link to the region that is associated with the zone.                      example:[ { "key" : "ownedBy", "value": "Rainpole" } ]
 
