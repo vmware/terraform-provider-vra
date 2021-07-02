@@ -63,7 +63,7 @@ mkdir %APPDATA%\terraform.d\plugins
 Download the plugin (via a browser or command line)
 
  ```powershell
- wget https://github.com/vmware/terraform-provider-vra/releases/download/v0.1.9/terraform-provider-vra-windows_amd64-v0.1.9.tgz -outfile terraform-provider-vra-windows_amd64-v0.1.9.tgz
+ iwr https://github.com/vmware/terraform-provider-vra/releases/download/v0.1.9/terraform-provider-vra-windows_amd64-v0.1.9.tgz -outfile terraform-provider-vra-windows_amd64-v0.1.9.tgz
  ```
 
 Untar/unzip the plugin (Depending on your setup this may require two steps)
@@ -100,3 +100,5 @@ To validate the installation you can simply change to the location where your te
 
 ## Get Provider version
 To find the provider version, you can simply change to the location where your terraform configuration is located and run ```terraform -version```. You should see a message indicating the provider version.
+
+
