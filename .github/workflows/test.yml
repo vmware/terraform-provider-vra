@@ -1,0 +1,22 @@
+name: golang-test
+
+on:
+  pull_request:
+
+jobs:
+  gotest:
+    name: gotest
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set up Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.16
+
+      - name: Go Build
+        run: go build -v ./.
+
+      - name: Go Test
+        run: go test ./... -timeout=30s -parallel=4

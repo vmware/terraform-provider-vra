@@ -1,6 +1,4 @@
 # Terraform provider for VMware vRealize Automation
-[![Build Status](https://travis-ci.org/vmware/terraform-provider-vra.svg?branch=master)](https://travis-ci.org/vmware/terraform-provider-vra)
-
 
 Introduction
 ------------

@@ -1,6 +1,6 @@
 module github.com/vmware/terraform-provider-vra
 
-go 1.14
+go 1.16
 
 require (
 	github.com/go-openapi/runtime v0.19.16
