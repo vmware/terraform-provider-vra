@@ -340,7 +340,7 @@ func resourceDeploymentRead(d *schema.ResourceData, m interface{}) error {
 
 	resp, err := apiClient.Deployments.GetDeploymentByIDUsingGET(
 		deployments.NewGetDeploymentByIDUsingGETParams().
-			WithDepID(strfmt.UUID(id)).
+			WithDeploymentID(strfmt.UUID(id)).
 			WithExpandResources(withBool(true)).
 			WithExpandLastRequest(withBool(true)).
 			WithExpandProject(withBool(expandProject)).
@@ -469,7 +469,7 @@ func resourceDeploymentDelete(d *schema.ResourceData, m interface{}) error {
 	apiClient := m.(*Client).apiClient
 
 	id := d.Id()
-	_, err := apiClient.Deployments.DeleteDeploymentUsingDELETE(deployments.NewDeleteDeploymentUsingDELETEParams().WithDepID(strfmt.UUID(id)))
+	_, err := apiClient.Deployments.DeleteDeploymentUsingDELETE(deployments.NewDeleteDeploymentUsingDELETEParams().WithDeploymentID(strfmt.UUID(id)))
 	if err != nil {
 		return err
 	}
@@ -646,7 +646,7 @@ func deploymentStatusRefreshFunc(apiClient client.MulticloudIaaS, id string) res
 	return func() (interface{}, string, error) {
 		ret, err := apiClient.Deployments.GetDeploymentByIDUsingGET(
 			deployments.NewGetDeploymentByIDUsingGETParams().
-				WithDepID(strfmt.UUID(id)).
+				WithDeploymentID(strfmt.UUID(id)).
 				WithExpandLastRequest(withBool(true)).
 				WithAPIVersion(withString(DeploymentsAPIVersion)))
 		if err != nil {
@@ -787,7 +787,7 @@ func updateDeploymentMetadata(d *schema.ResourceData, apiClient *client.Multiclo
 
 	log.Printf("[DEBUG] update deployment: %#v", updateDeploymentSpecification)
 	_, err := apiClient.Deployments.PatchDeploymentUsingPATCH(
-		deployments.NewPatchDeploymentUsingPATCHParams().WithDepID(deploymentUUID).WithUpdate(&updateDeploymentSpecification))
+		deployments.NewPatchDeploymentUsingPATCHParams().WithDeploymentID(deploymentUUID).WithUpdate(&updateDeploymentSpecification))
 	if err != nil {
 		return err
 	}
@@ -800,7 +800,7 @@ func runDeploymentUpdateAction(d *schema.ResourceData, apiClient *client.Multicl
 	log.Printf("Noticed changes to inputs. Starting to update deployment with inputs")
 	// Get the deployment actions
 	deploymentActions, err := apiClient.DeploymentActions.GetDeploymentActionsUsingGET(deployment_actions.
-		NewGetDeploymentActionsUsingGETParams().WithDepID(deploymentUUID))
+		NewGetDeploymentActionsUsingGETParams().WithDeploymentID(deploymentUUID))
 	if err != nil {
 		return err
 	}
@@ -944,7 +944,7 @@ func getInputTypesMapFromBlueprintInputsSchema(schema map[string]models.Property
 func getDeploymentDay2ActionID(apiClient *client.MulticloudIaaS, deploymentUUID strfmt.UUID, actionName string) (bool, string, error) {
 	// Get the deployment actions
 	deploymentActions, err := apiClient.DeploymentActions.GetDeploymentActionsUsingGET(deployment_actions.
-		NewGetDeploymentActionsUsingGETParams().WithDepID(deploymentUUID))
+		NewGetDeploymentActionsUsingGETParams().WithDeploymentID(deploymentUUID))
 	if err != nil {
 		return false, "", err
 	}
@@ -976,7 +976,7 @@ func getDeploymentActionSchema(apiClient *client.MulticloudIaaS, deploymentUUID 
 	var actionSchema interface{}
 
 	deploymentAction, err := apiClient.DeploymentActions.GetDeploymentActionUsingGET(deployment_actions.
-		NewGetDeploymentActionUsingGETParams().WithDepID(deploymentUUID).WithActionID(actionID))
+		NewGetDeploymentActionUsingGETParams().WithDeploymentID(deploymentUUID).WithActionID(actionID))
 	if err != nil {
 		return nil, err
 	}
@@ -1051,7 +1051,7 @@ func runAction(d *schema.ResourceData, apiClient *client.MulticloudIaaS, deploym
 	resp, err := apiClient.DeploymentActions.SubmitDeploymentActionRequestUsingPOST(
 		deployment_actions.NewSubmitDeploymentActionRequestUsingPOSTParams().
 			WithAPIVersion(withString(DeploymentsAPIVersion)).
-			WithDepID(deploymentUUID).
+			WithDeploymentID(deploymentUUID).
 			WithActionRequest(&resourceActionRequest))
 	if err != nil {
 		return err
@@ -1078,7 +1078,7 @@ func deploymentActionStatusRefreshFunc(apiClient client.MulticloudIaaS, deployme
 	return func() (interface{}, string, error) {
 		ret, err := apiClient.Deployments.GetDeploymentByIDUsingGET(
 			deployments.NewGetDeploymentByIDUsingGETParams().
-				WithDepID(deploymentUUID).
+				WithDeploymentID(deploymentUUID).
 				WithExpandLastRequest(withBool(true)).
 				WithAPIVersion(withString(DeploymentsAPIVersion)).
 				WithTimeout(IncreasedTimeOut))
@@ -1104,7 +1104,7 @@ func deploymentActionStatusRefreshFunc(apiClient client.MulticloudIaaS, deployme
 func deploymentDeleteStatusRefreshFunc(apiClient client.MulticloudIaaS, id string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		ret, err := apiClient.Deployments.GetDeploymentByIDUsingGET(
-			deployments.NewGetDeploymentByIDUsingGETParams().WithDepID(strfmt.UUID(id)))
+			deployments.NewGetDeploymentByIDUsingGETParams().WithDeploymentID(strfmt.UUID(id)))
 		if err != nil {
 			switch err.(type) {
 			case *deployments.GetDeploymentByIDUsingGETNotFound:

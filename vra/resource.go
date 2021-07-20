@@ -60,7 +60,7 @@ func resourcesSchema() *schema.Schema {
 	}
 }
 
-func flattenResources(resources []*models.Resource) []map[string]interface{} {
+func flattenResources(resources []*models.DeploymentResource) []map[string]interface{} {
 	if len(resources) == 0 {
 		return make([]map[string]interface{}, 0)
 	}
