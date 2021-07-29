@@ -135,3 +135,37 @@ Deprecated, specify the type of principal, please refer `administrator_roles`.
 * `viewer_roles` - (Optional) Viewer users or groups associated with the project. 
 
 * `zone_assignments` - (Optional) List of configurations for zone assignment to a project.
+
+**Due to the design of IAAS API to update a project, it's not able to add and remove user or group at the same time. Please execute `terraform apply` twice.**
+
+Example:
+
+Initially, we have `jason` and `tony` configured as administrator in the config file
+```hcl
+  administrator_roles {
+    email = "jason@vra.local"
+    type = "user"
+  }
+
+  administrator_roles {
+    email = "tony@vra.local"
+    type = "user"
+  }
+```
+
+Now we want to add `bob` as a new administrator and remove `jason`, the modified config file will be 
+
+```hcl
+  administrator_roles {
+    email = "bob@vra.local"
+    type = "user"
+  }
+
+  administrator_roles {
+    email = "tony@vra.local"
+    type = "user"
+  }
+```
+
+To complete the whole operation, it requires executing `terraform apply` twice.
+
