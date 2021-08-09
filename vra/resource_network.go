@@ -1,6 +1,8 @@
 package vra
 
 import (
+	"context"
+	"errors"
 	"fmt"
 	"log"
 	"strings"
@@ -8,8 +10,9 @@ import (
 
 	"github.com/vmware/vra-sdk-go/pkg/client/network"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/vmware/vra-sdk-go/pkg/client"
 	"github.com/vmware/vra-sdk-go/pkg/client/request"
 	"github.com/vmware/vra-sdk-go/pkg/models"
@@ -17,12 +20,12 @@ import (
 
 func resourceNetwork() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceNetworkCreate,
-		Read:   resourceNetworkRead,
-		Update: resourceNetworkUpdate,
-		Delete: resourceNetworkDelete,
+		CreateContext: resourceNetworkCreate,
+		ReadContext:   resourceNetworkRead,
+		UpdateContext: resourceNetworkUpdate,
+		DeleteContext: resourceNetworkDelete,
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -96,7 +99,7 @@ func resourceNetwork() *schema.Resource {
 	}
 }
 
-func resourceNetworkCreate(d *schema.ResourceData, m interface{}) error {
+func resourceNetworkCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	log.Printf("Starting to create vra_network resource")
 	apiClient := m.(*Client).apiClient
 
@@ -128,7 +131,7 @@ func resourceNetworkCreate(d *schema.ResourceData, m interface{}) error {
 	log.Printf("[DEBUG] create network: %#v", networkSpecification)
 	createNetworkCreated, err := apiClient.Network.CreateNetwork(network.NewCreateNetworkParams().WithBody(&networkSpecification))
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 	stateChangeFunc := resource.StateChangeConf{
 		Delay:      5 * time.Second,
@@ -138,18 +141,18 @@ func resourceNetworkCreate(d *schema.ResourceData, m interface{}) error {
 		Timeout:    d.Timeout(schema.TimeoutCreate),
 		MinTimeout: 5 * time.Second,
 	}
-	resourceIds, err := stateChangeFunc.WaitForState()
+	resourceIds, err := stateChangeFunc.WaitForStateContext(ctx)
 	log.Printf("Waitforstate returned: %T %+v %+v\n", resourceIds, resourceIds, err)
 
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	networkIDs := resourceIds.([]string)
 	d.SetId(networkIDs[0])
 	log.Printf("Finished to create vra_network resource with name %s", d.Get("name"))
 
-	return resourceNetworkRead(d, m)
+	return resourceNetworkRead(ctx, d, m)
 }
 
 func networkStateRefreshFunc(apiClient client.MulticloudIaaS, id string) resource.StateRefreshFunc {
@@ -177,7 +180,7 @@ func networkStateRefreshFunc(apiClient client.MulticloudIaaS, id string) resourc
 	}
 }
 
-func resourceNetworkRead(d *schema.ResourceData, m interface{}) error {
+func resourceNetworkRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	log.Printf("Reading the vra_network resource with name %s", d.Get("name"))
 	apiClient := m.(*Client).apiClient
 
@@ -189,7 +192,7 @@ func resourceNetworkRead(d *schema.ResourceData, m interface{}) error {
 			d.SetId("")
 			return nil
 		}
-		return err
+		return diag.FromErr(err)
 	}
 
 	network := *resp.Payload
@@ -206,29 +209,29 @@ func resourceNetworkRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("updated_at", network.UpdatedAt)
 
 	if err := d.Set("tags", flattenTags(network.Tags)); err != nil {
-		return fmt.Errorf("error setting network tags - error: %v", err)
+		return diag.Errorf("error setting network tags - error: %v", err)
 	}
 
 	if err := d.Set("links", flattenLinks(network.Links)); err != nil {
-		return fmt.Errorf("error setting network links - error: %#v", err)
+		return diag.Errorf("error setting network links - error: %#v", err)
 	}
 
 	log.Printf("Finished reading the vra_network resource with name %s", d.Get("name"))
 	return nil
 }
 
-func resourceNetworkUpdate(d *schema.ResourceData, m interface{}) error {
-	return fmt.Errorf("Updating a network resource is not allowed")
+func resourceNetworkUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+	return diag.FromErr(errors.New("Updating a network resource is not allowed"))
 }
 
-func resourceNetworkDelete(d *schema.ResourceData, m interface{}) error {
+func resourceNetworkDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	log.Printf("Starting to delete the vra_network resource with name %s", d.Get("name"))
 	apiClient := m.(*Client).apiClient
 
 	id := d.Id()
 	deleteNetworkAccepted, err := apiClient.Network.DeleteNetwork(network.NewDeleteNetworkParams().WithID(id))
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 	stateChangeFunc := resource.StateChangeConf{
 		Delay:      5 * time.Second,
@@ -239,9 +242,8 @@ func resourceNetworkDelete(d *schema.ResourceData, m interface{}) error {
 		MinTimeout: 5 * time.Second,
 	}
 
-	_, err = stateChangeFunc.WaitForState()
-	if err != nil {
-		return err
+	if _, err = stateChangeFunc.WaitForStateContext(ctx); err != nil {
+		return diag.FromErr(err)
 	}
 
 	d.SetId("")

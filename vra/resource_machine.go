@@ -1,30 +1,32 @@
 package vra
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"log"
 	"strings"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/vmware/vra-sdk-go/pkg/client"
 	"github.com/vmware/vra-sdk-go/pkg/client/compute"
 	"github.com/vmware/vra-sdk-go/pkg/client/disk"
 	"github.com/vmware/vra-sdk-go/pkg/client/request"
 	"github.com/vmware/vra-sdk-go/pkg/models"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func resourceMachine() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceMachineCreate,
-		Read:   resourceMachineRead,
-		Update: resourceMachineUpdate,
-		Delete: resourceMachineDelete,
+		CreateContext: resourceMachineCreate,
+		ReadContext:   resourceMachineRead,
+		UpdateContext: resourceMachineUpdate,
+		DeleteContext: resourceMachineDelete,
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -185,7 +187,7 @@ func resourceMachine() *schema.Resource {
 	}
 }
 
-func resourceMachineCreate(d *schema.ResourceData, m interface{}) error {
+func resourceMachineCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	log.Printf("Starting to create vra_machine resource")
 	apiClient := m.(*Client).apiClient
 
@@ -222,7 +224,7 @@ func resourceMachineCreate(d *schema.ResourceData, m interface{}) error {
 	}
 
 	if image == "" && imageRef == "" {
-		return errors.New("image or image_ref required")
+		return diag.FromErr(errors.New("image or image_ref required"))
 	}
 
 	if v, ok := d.GetOk("description"); ok {
@@ -246,7 +248,7 @@ func resourceMachineCreate(d *schema.ResourceData, m interface{}) error {
 	log.Printf("[DEBUG] create machine: %#v", machineSpecification)
 	createMachineCreated, err := apiClient.Compute.CreateMachine(compute.NewCreateMachineParams().WithBody(&machineSpecification))
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	stateChangeFunc := resource.StateChangeConf{
@@ -258,9 +260,9 @@ func resourceMachineCreate(d *schema.ResourceData, m interface{}) error {
 		MinTimeout: 5 * time.Second,
 	}
 
-	resourceIds, err := stateChangeFunc.WaitForState()
+	resourceIds, err := stateChangeFunc.WaitForStateContext(ctx)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	machineID := (resourceIds.([]string))[0]
@@ -275,7 +277,7 @@ func resourceMachineCreate(d *schema.ResourceData, m interface{}) error {
 		attachMachineDiskOk, err := apiClient.Disk.AttachMachineDisk(disk.NewAttachMachineDiskParams().WithID(machineID).WithBody(diskAttachmentSpecification))
 
 		if err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 
 		stateChangeFunc := resource.StateChangeConf{
@@ -287,13 +289,12 @@ func resourceMachineCreate(d *schema.ResourceData, m interface{}) error {
 			MinTimeout: 5 * time.Second,
 		}
 
-		_, e := stateChangeFunc.WaitForState()
-		if e != nil {
-			return e
+		if _, err := stateChangeFunc.WaitForStateContext(ctx); err != nil {
+			return diag.FromErr(err)
 		}
 	}
 
-	return resourceMachineRead(d, m)
+	return resourceMachineRead(ctx, d, m)
 }
 
 func machineStateRefreshFunc(apiClient client.MulticloudIaaS, id string) resource.StateRefreshFunc {
@@ -321,7 +322,7 @@ func machineStateRefreshFunc(apiClient client.MulticloudIaaS, id string) resourc
 	}
 }
 
-func resourceMachineRead(d *schema.ResourceData, m interface{}) error {
+func resourceMachineRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	log.Printf("Reading the vra_machine resource with name %s", d.Get("name"))
 	apiClient := m.(*Client).apiClient
 
@@ -333,7 +334,7 @@ func resourceMachineRead(d *schema.ResourceData, m interface{}) error {
 			d.SetId("")
 			return nil
 		}
-		return err
+		return diag.FromErr(err)
 	}
 
 	machine := *resp.Payload
@@ -361,33 +362,33 @@ func resourceMachineRead(d *schema.ResourceData, m interface{}) error {
 	}
 
 	if err := d.Set("tags", flattenTags(machine.Tags)); err != nil {
-		return fmt.Errorf("error setting machine tags - error: %v", err)
+		return diag.Errorf("error setting machine tags - error: %v", err)
 	}
 
 	if err := d.Set("links", flattenLinks(machine.Links)); err != nil {
-		return fmt.Errorf("error setting machine links - error: %#v", err)
+		return diag.Errorf("error setting machine links - error: %#v", err)
 	}
 
 	// get all the disks currently attached to the machine
 	getMachineDisksOk, err := apiClient.Disk.GetMachineDisks(disk.NewGetMachineDisksParams().WithID(id))
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	if err := d.Set("disks_list", flattenDisks(getMachineDisksOk.Payload.Content)); err != nil {
-		return fmt.Errorf("error setting machine disks list - error: %#v", err)
+		return diag.Errorf("error setting machine disks list - error: %#v", err)
 	}
 
 	disksConfig := d.Get("disks").(*schema.Set).List()
 	if err := d.Set("disks", filterDisks(disksConfig, getMachineDisksOk.Payload.Content)); err != nil {
-		return fmt.Errorf("error setting machine disks - error: %#v", err)
+		return diag.Errorf("error setting machine disks - error: %#v", err)
 	}
 
 	log.Printf("Finished reading the vra_machine resource with name %s", d.Get("name"))
 	return nil
 }
 
-func resourceMachineUpdate(d *schema.ResourceData, m interface{}) error {
+func resourceMachineUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	log.Printf("Starting to update the vra_machine resource with name %s", d.Get("name"))
 	apiClient := m.(*Client).apiClient
 
@@ -395,32 +396,32 @@ func resourceMachineUpdate(d *schema.ResourceData, m interface{}) error {
 	if d.HasChange("description") || d.HasChange("tags") {
 		err := updateMachine(d, apiClient, id)
 		if err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 	}
 
 	// machine resize operation
 	if d.HasChange("flavor") {
-		err := resizeMachine(d, apiClient, id)
+		err := resizeMachine(ctx, d, apiClient, id)
 		if err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 	}
 
 	// attach and/or detach disks if disks configuration is changed
 	if d.HasChange("disks") {
-		err := attachAndDetachDisks(d, apiClient, id)
+		err := attachAndDetachDisks(ctx, d, apiClient, id)
 		if err != nil {
-			return err
+			return diag.FromErr(err)
 		}
 	}
 
 	log.Printf("finished updating the vra_machine resource with name %s", d.Get("name"))
-	return resourceMachineRead(d, m)
+	return resourceMachineRead(ctx, d, m)
 }
 
 // attaches and detaches disks
-func attachAndDetachDisks(d *schema.ResourceData, apiClient *client.MulticloudIaaS, id string) error {
+func attachAndDetachDisks(ctx context.Context, d *schema.ResourceData, apiClient *client.MulticloudIaaS, id string) error {
 	log.Printf("identified change in the disks configuration for the machine %s", d.Get("name"))
 
 	oldValue, newValue := d.GetChange("disks")
@@ -452,9 +453,8 @@ func attachAndDetachDisks(d *schema.ResourceData, apiClient *client.MulticloudIa
 			MinTimeout: 5 * time.Second,
 		}
 
-		_, e := stateChangeFunc.WaitForState()
-		if e != nil {
-			return e
+		if _, err := stateChangeFunc.WaitForStateContext(ctx); err != nil {
+			return err
 		}
 	}
 
@@ -500,9 +500,8 @@ func attachAndDetachDisks(d *schema.ResourceData, apiClient *client.MulticloudIa
 				MinTimeout: 5 * time.Second,
 			}
 
-			_, e := stateChangeFunc.WaitForState()
-			if e != nil {
-				return e
+			if _, err := stateChangeFunc.WaitForStateContext(ctx); err != nil {
+				return err
 			}
 		} else {
 			log.Printf("disk %v is already attached to machine %v, moving on to the next disk to attach", diskID, id)
@@ -556,7 +555,7 @@ func disksDifference(a, b []interface{}) (diff []map[string]interface{}) {
 }
 
 // resize machine when there is a change in the flavor
-func resizeMachine(d *schema.ResourceData, apiClient *client.MulticloudIaaS, id string) error {
+func resizeMachine(ctx context.Context, d *schema.ResourceData, apiClient *client.MulticloudIaaS, id string) error {
 	log.Printf("identified change in the flavor, machine resize will be performed")
 	flavor := d.Get("flavor").(string)
 	resizeMachine, err := apiClient.Compute.ResizeMachine(compute.NewResizeMachineParams().WithID(id).WithName(&flavor))
@@ -571,7 +570,7 @@ func resizeMachine(d *schema.ResourceData, apiClient *client.MulticloudIaaS, id 
 		Timeout:    d.Timeout(schema.TimeoutUpdate),
 		MinTimeout: 5 * time.Second,
 	}
-	resourceIds, err := stateChangeFunc.WaitForState()
+	resourceIds, err := stateChangeFunc.WaitForStateContext(ctx)
 	if err != nil {
 		return err
 	}
@@ -581,14 +580,14 @@ func resizeMachine(d *schema.ResourceData, apiClient *client.MulticloudIaaS, id 
 	return nil
 }
 
-func resourceMachineDelete(d *schema.ResourceData, m interface{}) error {
+func resourceMachineDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	log.Printf("Starting to delete the vra_machine resource with name %s", d.Get("name"))
 	apiClient := m.(*Client).apiClient
 
 	id := d.Id()
 	deleteMachine, err := apiClient.Compute.DeleteMachine(compute.NewDeleteMachineParams().WithID(id))
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	stateChangeFunc := resource.StateChangeConf{
@@ -600,9 +599,8 @@ func resourceMachineDelete(d *schema.ResourceData, m interface{}) error {
 		MinTimeout: 5 * time.Second,
 	}
 
-	_, err = stateChangeFunc.WaitForState()
-	if err != nil {
-		return err
+	if _, err = stateChangeFunc.WaitForStateContext(ctx); err != nil {
+		return diag.FromErr(err)
 	}
 
 	d.SetId("")

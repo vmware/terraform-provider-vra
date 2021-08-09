@@ -10,7 +10,7 @@ import (
 
 	"github.com/vmware/vra-sdk-go/pkg/client/cloud_account"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func dataSourceRegion() *schema.Resource {

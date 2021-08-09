@@ -1,6 +1,7 @@
 package vra
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"time"
@@ -10,18 +11,19 @@ import (
 	"github.com/vmware/vra-sdk-go/pkg/client/request"
 	"github.com/vmware/vra-sdk-go/pkg/models"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func resourceBlockDeviceSnapshot() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceBlockDeviceSnapshotCreate,
-		Read:   resourceBlockDeviceSnapshotRead,
-		Update: resourceBlockDeviceSnapshotUpdate,
-		Delete: resourceBlockDeviceSnapshotDelete,
+		CreateContext: resourceBlockDeviceSnapshotCreate,
+		ReadContext:   resourceBlockDeviceSnapshotRead,
+		UpdateContext: resourceBlockDeviceSnapshotUpdate,
+		DeleteContext: resourceBlockDeviceSnapshotDelete,
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -68,7 +70,7 @@ func resourceBlockDeviceSnapshot() *schema.Resource {
 	}
 }
 
-func resourceBlockDeviceSnapshotCreate(d *schema.ResourceData, m interface{}) error {
+func resourceBlockDeviceSnapshotCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	log.Printf("Starting to create vra_block_device_snapshot resource")
 	apiClient := m.(*Client).apiClient
 
@@ -82,7 +84,7 @@ func resourceBlockDeviceSnapshotCreate(d *schema.ResourceData, m interface{}) er
 	log.Printf("[DEBUG] create vra_block_device_snapshot: %#v", DiskSnapshotSpecification)
 	createDiskSnapshotCreated, _, err := apiClient.Disk.CreateBlockDeviceSnapshot(disk.NewCreateBlockDeviceSnapshotParams().WithID(blockDeviceID).WithBody(&DiskSnapshotSpecification))
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	stateChangeFunc := resource.StateChangeConf{
@@ -94,9 +96,8 @@ func resourceBlockDeviceSnapshotCreate(d *schema.ResourceData, m interface{}) er
 		MinTimeout: 5 * time.Second,
 	}
 
-	_, err = stateChangeFunc.WaitForState()
-	if err != nil {
-		return err
+	if _, err = stateChangeFunc.WaitForStateContext(ctx); err != nil {
+		return diag.FromErr(err)
 	}
 
 	log.Printf("Finished to create vra_block_device_snapshot resource with for vra_block_device: %s", blockDeviceID)
@@ -108,7 +109,7 @@ func resourceBlockDeviceSnapshotCreate(d *schema.ResourceData, m interface{}) er
 		return nil
 	}
 
-	return resourceBlockDeviceSnapshotRead(d, m)
+	return resourceBlockDeviceSnapshotRead(ctx, d, m)
 }
 
 func BlockDeviceSnapshotStateRefreshFunc(apiClient client.MulticloudIaaS, id string) resource.StateRefreshFunc {
@@ -159,7 +160,7 @@ func findCreatedBlockDeviceSnapshot(blockDeviceID string, m interface{}) (string
 	return "", fmt.Errorf(errMsg, blockDeviceID)
 }
 
-func resourceBlockDeviceSnapshotRead(d *schema.ResourceData, m interface{}) error {
+func resourceBlockDeviceSnapshotRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	blockDeviceID := d.Get("block_device_id").(string)
 	log.Printf("Reading the vra_block_device_snapshot resource for vra_block_device %s ", blockDeviceID)
 	apiClient := m.(*Client).apiClient
@@ -171,7 +172,7 @@ func resourceBlockDeviceSnapshotRead(d *schema.ResourceData, m interface{}) erro
 			d.SetId("")
 			return nil
 		}
-		return err
+		return diag.FromErr(err)
 	}
 
 	diskSnapshot := resp.Payload
@@ -186,18 +187,18 @@ func resourceBlockDeviceSnapshotRead(d *schema.ResourceData, m interface{}) erro
 	d.Set("updated_at", diskSnapshot.UpdatedAt)
 
 	if err := d.Set("links", flattenLinks(diskSnapshot.Links)); err != nil {
-		return fmt.Errorf("error setting vra_block_device_snapshot links - error: %#v", err)
+		return diag.Errorf("error setting vra_block_device_snapshot links - error: %#v", err)
 	}
 
 	log.Printf("Finished reading the vra_block_device_snapshot resource with id %s", *diskSnapshot.ID)
 	return nil
 }
 
-func resourceBlockDeviceSnapshotUpdate(d *schema.ResourceData, m interface{}) error {
-	return fmt.Errorf("update vra_block_device_snapshot is not supported")
+func resourceBlockDeviceSnapshotUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+	return diag.Errorf("update vra_block_device_snapshot is not supported")
 }
 
-func resourceBlockDeviceSnapshotDelete(d *schema.ResourceData, m interface{}) error {
+func resourceBlockDeviceSnapshotDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	blockDeviceID := d.Get("block_device_id").(string)
 	snapshotID := d.Id()
 	log.Printf("Starting to delete the vra_block_device_snapshot of vra_block_device %s with ID: %s", blockDeviceID, snapshotID)
@@ -207,7 +208,7 @@ func resourceBlockDeviceSnapshotDelete(d *schema.ResourceData, m interface{}) er
 		DeleteBlockDeviceSnapshot(
 			disk.NewDeleteBlockDeviceSnapshotParams().WithID(blockDeviceID).WithId1(snapshotID))
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	// Handle non-request tracker case
@@ -225,9 +226,8 @@ func resourceBlockDeviceSnapshotDelete(d *schema.ResourceData, m interface{}) er
 		MinTimeout: 5 * time.Second,
 	}
 
-	_, err = stateChangeFunc.WaitForState()
-	if err != nil {
-		return err
+	if _, err = stateChangeFunc.WaitForStateContext(ctx); err != nil {
+		return diag.FromErr(err)
 	}
 
 	d.SetId("")
