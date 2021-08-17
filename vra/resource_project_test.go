@@ -24,8 +24,14 @@ func TestExpandProjectConstraints(t *testing.T) {
 	projectConstraints := make([]interface{}, 0)
 	expandedConstraints := expandProjectConstraints(projectConstraints)
 
-	if len(expandedConstraints) != 0 {
-		t.Errorf("error while expanding when there are no project constraints")
+	if len(expandedConstraints["extensibility"]) != 0 {
+		t.Errorf("error while expanding when there are no project extensibility constraints")
+	}
+	if len(expandedConstraints["network"]) != 0 {
+		t.Errorf("error while expanding when there are no project network constraints")
+	}
+	if len(expandedConstraints["storage"]) != 0 {
+		t.Errorf("error while expanding when there are no project storage constraints")
 	}
 
 	constraints := make([]interface{}, 0)
