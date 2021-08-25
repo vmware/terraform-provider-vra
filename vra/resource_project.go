@@ -321,7 +321,11 @@ func flattenZoneAssignment(list []*models.ZoneAssignment) []map[string]interface
 }
 
 func expandProjectConstraints(configProjectConstraints []interface{}) map[string][]models.Constraint {
-	projectConstraints := make(map[string][]models.Constraint)
+	projectConstraints := map[string][]models.Constraint{
+		"extensibility": {},
+		"network":       {},
+		"storage":       {},
+	}
 
 	for _, configProjectConstraint := range configProjectConstraints {
 		configConstraints := configProjectConstraint.(map[string]interface{})
