@@ -148,12 +148,12 @@ func resourceProjectCreate(ctx context.Context, d *schema.ResourceData, m interf
 	machineNamingTemplate := d.Get("machine_naming_template").(string)
 	members := expandUserListAndNewUserList(d.Get("members").(*schema.Set).List(), d.Get("member_roles").(*schema.Set).List())
 	name := d.Get("name").(string)
-	operationTimeout := d.Get("operation_timeout").(int)
+	operationTimeout := int64(d.Get("operation_timeout").(int))
 	sharedResources := d.Get("shared_resources").(bool)
 	viewers := expandUserListAndNewUserList(d.Get("viewers").(*schema.Set).List(), d.Get("viewer_roles").(*schema.Set).List())
 	zoneAssignment := expandZoneAssignment(d.Get("zone_assignments").(*schema.Set).List())
 
-	createResp, err := apiClient.Project.CreateProject(project.NewCreateProjectParams().WithBody(&models.ProjectSpecification{
+	createResp, err := apiClient.Project.CreateProject(project.NewCreateProjectParams().WithBody(&models.IaaSProjectSpecification{
 		Administrators:               administrators,
 		Constraints:                  constraints,
 		CustomProperties:             customProperties,
@@ -161,8 +161,8 @@ func resourceProjectCreate(ctx context.Context, d *schema.ResourceData, m interf
 		MachineNamingTemplate:        machineNamingTemplate,
 		Members:                      members,
 		Name:                         &name,
-		OperationTimeout:             int64(operationTimeout),
-		SharedResources:              withBool(sharedResources),
+		OperationTimeout:             &operationTimeout,
+		SharedResources:              *withBool(sharedResources),
 		Viewers:                      viewers,
 		ZoneAssignmentConfigurations: zoneAssignment,
 	}))
@@ -220,11 +220,11 @@ func resourceProjectUpdate(ctx context.Context, d *schema.ResourceData, m interf
 	members := expandUserListAndNewUserList(d.Get("members").(*schema.Set).List(), d.Get("member_roles").(*schema.Set).List())
 	viewers := expandUserListAndNewUserList(d.Get("viewers").(*schema.Set).List(), d.Get("viewer_roles").(*schema.Set).List())
 	name := d.Get("name").(string)
-	operationTimeout := d.Get("operation_timeout").(int)
+	operationTimeout := int64(d.Get("operation_timeout").(int))
 	sharedResources := d.Get("shared_resources").(bool)
 	zoneAssignment := expandZoneAssignment(d.Get("zone_assignments").(*schema.Set).List())
 
-	_, err := apiClient.Project.UpdateProject(project.NewUpdateProjectParams().WithID(id).WithBody(&models.ProjectSpecification{
+	_, err := apiClient.Project.UpdateProject(project.NewUpdateProjectParams().WithID(id).WithBody(&models.IaaSProjectSpecification{
 		Administrators:               administrators,
 		Constraints:                  constraints,
 		CustomProperties:             customProperties,
@@ -232,8 +232,8 @@ func resourceProjectUpdate(ctx context.Context, d *schema.ResourceData, m interf
 		MachineNamingTemplate:        machineNamingTemplate,
 		Members:                      members,
 		Name:                         &name,
-		OperationTimeout:             int64(operationTimeout),
-		SharedResources:              withBool(sharedResources),
+		OperationTimeout:             &operationTimeout,
+		SharedResources:              *withBool(sharedResources),
 		Viewers:                      viewers,
 		ZoneAssignmentConfigurations: zoneAssignment,
 	}))
@@ -250,7 +250,7 @@ func resourceProjectDelete(ctx context.Context, d *schema.ResourceData, m interf
 	id := d.Id()
 
 	// Workaround an issue where the cloud regions need to be removed before the project can be deleted.
-	_, err := apiClient.Project.UpdateProject(project.NewUpdateProjectParams().WithID(id).WithBody(&models.ProjectSpecification{
+	_, err := apiClient.Project.UpdateProject(project.NewUpdateProjectParams().WithID(id).WithBody(&models.IaaSProjectSpecification{
 		ZoneAssignmentConfigurations: []*models.ZoneAssignmentSpecification{},
 	}))
 	if err != nil {
