@@ -154,7 +154,7 @@ func dataSourceProjectRead(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("one of id or name must be provided")
 	}
 
-	setFields := func(project *models.IaaSProject) {
+	setFields := func(project *models.Project) {
 		d.SetId(*project.ID)
 		d.Set("administrators", flattenUsers(project.Administrators))
 		d.Set("administrator_roles", flattenUsers(project.Administrators))
