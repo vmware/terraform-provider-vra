@@ -1089,8 +1089,10 @@ func deploymentActionStatusRefreshFunc(apiClient client.MulticloudIaaS, deployme
 		switch status {
 		case models.RequestStatusPENDING, models.RequestStatusINITIALIZATION, models.RequestStatusCHECKINGAPPROVAL, models.RequestStatusAPPROVALPENDING, models.RequestStatusINPROGRESS, models.RequestStatusCOMPLETION:
 			return [...]string{deploymentUUID.String()}, status, nil
-		case models.RequestStatusAPPROVALREJECTED, models.RequestStatusABORTED, models.RequestStatusFAILED:
+		case models.RequestStatusAPPROVALREJECTED, models.RequestStatusABORTED:
 			return []string{""}, status, fmt.Errorf(ret.Error())
+		case models.RequestStatusFAILED:
+			return [...]string{deploymentUUID.String()}, status, fmt.Errorf(ret.Payload.LastRequest.Details)
 		case models.RequestStatusSUCCESSFUL:
 			deploymentID := ret.Payload.ID
 			return deploymentID.String(), status, nil
@@ -1103,7 +1105,10 @@ func deploymentActionStatusRefreshFunc(apiClient client.MulticloudIaaS, deployme
 func deploymentDeleteStatusRefreshFunc(apiClient client.MulticloudIaaS, id string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		ret, err := apiClient.Deployments.GetDeploymentByIDUsingGET(
-			deployments.NewGetDeploymentByIDUsingGETParams().WithDeploymentID(strfmt.UUID(id)))
+			deployments.NewGetDeploymentByIDUsingGETParams().
+				WithDeploymentID(strfmt.UUID(id)).
+				WithExpandLastRequest(withBool(true)).
+				WithAPIVersion(withString(DeploymentsAPIVersion)))
 		if err != nil {
 			switch err.(type) {
 			case *deployments.GetDeploymentByIDUsingGETNotFound:
@@ -1113,7 +1118,17 @@ func deploymentDeleteStatusRefreshFunc(apiClient client.MulticloudIaaS, id strin
 			}
 		}
 
-		return [...]string{id}, reflect.TypeOf(ret).String(), nil
+		status := ret.Payload.Status
+		switch status {
+		case models.DeploymentStatusDELETEINPROGRESS:
+			return [...]string{id}, reflect.TypeOf(ret).String(), nil
+		case models.DeploymentStatusDELETESUCCESSFUL:
+			return [...]string{id}, reflect.TypeOf(ret).String(), nil
+		case models.DeploymentStatusDELETEFAILED:
+			return [...]string{id}, reflect.TypeOf(ret).String(), fmt.Errorf(ret.Payload.LastRequest.Details)
+		default:
+			return [...]string{id}, reflect.TypeOf(ret).String(), fmt.Errorf("deploymentStatusRefreshFunc: unknown status %v", status)
+		}
 	}
 }
 
