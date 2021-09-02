@@ -1089,8 +1089,10 @@ func deploymentActionStatusRefreshFunc(apiClient client.MulticloudIaaS, deployme
 		switch status {
 		case models.RequestStatusPENDING, models.RequestStatusINITIALIZATION, models.RequestStatusCHECKINGAPPROVAL, models.RequestStatusAPPROVALPENDING, models.RequestStatusINPROGRESS, models.RequestStatusCOMPLETION:
 			return [...]string{deploymentUUID.String()}, status, nil
-		case models.RequestStatusAPPROVALREJECTED, models.RequestStatusABORTED, models.RequestStatusFAILED:
+		case models.RequestStatusAPPROVALREJECTED, models.RequestStatusABORTED:
 			return []string{""}, status, fmt.Errorf(ret.Error())
+		case models.RequestStatusFAILED:
+			return [...]string{deploymentUUID.String()}, status, fmt.Errorf(ret.Payload.LastRequest.Details)
 		case models.RequestStatusSUCCESSFUL:
 			deploymentID := ret.Payload.ID
 			return deploymentID.String(), status, nil
