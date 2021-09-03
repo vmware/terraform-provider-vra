@@ -37,25 +37,25 @@ data "vra_region" "this" {
 The region data source supports the following arguments:
 
 ## Argument Reference
-* `cloud_account_id` - (Optional) The Cloud Account ID.
+* `cloud_account_id` - (Optional) The id of the cloud account the region belongs to.
 
-* `filter` - (Optional) Search criteria to narrow down Images.
+* `filter` - (Optional) Search criteria to narrow down Regions.
 
-* `id` - (Optional) The ID of the region to find.
+* `id` - (Optional) The id of the region instance,
 
 * `region` - (Optional) The specific region associated with the cloud account.
 
-* `name` - (Optional) Name of the region from the associated vCenter.
+* `name` - (Optional) Name of region on the provider side. In vSphere, the name of the region is different from its id.
 
 ## Attribute Reference
-* `created_at` - Date when entity was created. Date and time format is ISO 8601 and UTC.
+* `created_at` - Date when the entity was created. The date is in ISO 8601 and UTC.
 
-* `org_id` - ID of organization that entity belongs to.
+* `org_id` - The id of the organization this entity belongs to.
 
-* `owner` - Email of entity owner.
+* `owner` - Email of the user that owns the entity.
 
-* `external_region_id` - External regionId of region.
+* `external_region_id` - Unique identifier of region on the provider side.
 
-* `id` - The ID of the given region within the cloud account.
+* `id` - The id of this resource instance.
 
-* `updated_at` - Date when entity was updated. Date and time format is ISO 8601 and UTC.
+* `updated_at` - Date when the entity was last updated. The date is ISO 8601 and UTC.
