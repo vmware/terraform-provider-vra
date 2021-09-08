@@ -62,7 +62,7 @@ func dataSourceRegion() *schema.Resource {
 			"region": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: "The specific region associated with the cloud account.",
+				Description: "The specific region associated with the cloud account. On vSphere, this is the external ID.",
 			},
 			"updated_at": {
 				Type:        schema.TypeString,
@@ -171,7 +171,8 @@ func dataSourceRegionRead(d *schema.ResourceData, meta interface{}) error {
 		var id string
 		cloudAccount := getResp.Payload
 		for _, enabledRegion := range cloudAccount.EnabledRegions {
-			if enabledRegion.Name == region {
+			// Look for the external region ID instead of the region name to be backwards compatible.
+			if *enabledRegion.ExternalRegionID == region {
 				id = *enabledRegion.ID
 				break
 			}
