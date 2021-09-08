@@ -43,7 +43,7 @@ The region data source supports the following arguments:
 
 * `id` - (Optional) The id of the region instance,
 
-* `region` - (Optional) The specific region associated with the cloud account.
+* `region` - (Optional) The specific region associated with the cloud account. On vSphere, this is the external ID.
 
 * `name` - (Optional) Name of region on the provider side. In vSphere, the name of the region is different from its id.
 
