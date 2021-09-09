@@ -25,7 +25,7 @@ func TestAccDataSourceVRAZoneBasic(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config:      testAccDataSourceVRAZoneNoneConfig(rInt),
-				ExpectError: regexp.MustCompile("zone invalid-name not found"),
+				ExpectError: regexp.MustCompile("zone with id `` or name `invalid-name` not found"),
 			},
 			{
 				Config: testAccDataSourceVRAZoneOneConfig(rInt),
@@ -55,7 +55,7 @@ func testAccDataSourceVRAZone(rInt int) string {
 	 resource "vra_zone" "my-zone" {
 		name = "my-vra-zone-%d"
 		description = "description my-vra-zone"
-		region_id = "${element(vra_cloud_account_aws.my-cloud-account.0.region_ids, 0)}"
+		region_id = "${element(vra_cloud_account_aws.my-cloud-account.region_ids, 0)}"
 		tags {
 			key = "mykey"
 			value = "myvalue"
