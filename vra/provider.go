@@ -61,6 +61,7 @@ func Provider() *schema.Provider {
 			"vra_cloud_account_vsphere":         dataSourceCloudAccountVsphere(),
 			"vra_data_collector":                dataSourceDataCollector(),
 			"vra_deployment":                    dataSourceDeployment(),
+			"vra_fabric_compute":                dataSourceFabricCompute(),
 			"vra_fabric_datastore_vsphere":      dataSourceFabricDatastoreVsphere(),
 			"vra_fabric_network":                dataSourceFabricNetwork(),
 			"vra_fabric_storage_account_azure":  dataSourceFabricStorageAccountAzure(),
