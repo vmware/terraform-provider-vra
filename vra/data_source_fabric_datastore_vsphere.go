@@ -13,66 +13,85 @@ func dataSourceFabricDatastoreVsphere() *schema.Resource {
 	return &schema.Resource{
 		Read: dataSourceVsphereDatastoreRead,
 		Schema: map[string]*schema.Schema{
+			"id": {
+				Type:          schema.TypeString,
+				ConflictsWith: []string{"filter"},
+				Description:   "The id of the vSphere fabric datastore resource instance.",
+				Optional:      true,
+			},
+			"filter": {
+				Type:          schema.TypeString,
+				ConflictsWith: []string{"id"},
+				Description:   "Search criteria to narrow down the vSphere fabric datastore resource instance.",
+				Optional:      true,
+			},
 			"cloud_account_ids": {
-				Type:     schema.TypeList,
-				Computed: true,
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: "Set of ids of the cloud accounts this entity belongs to.",
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
 			},
 			"created_at": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "Date when the entity was created. The date is in ISO 8601 and UTC.",
+			},
+			"description": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "A human-friendly description.",
 			},
 			"external_id": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "External entity Id on the provider side.",
 			},
 			"external_region_id": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"filter": {
-				Type:          schema.TypeString,
-				Optional:      true,
-				ConflictsWith: []string{"id"},
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "Id of datacenter in which the datastore is present.",
 			},
 			"free_size_gb": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"id": {
-				Type:          schema.TypeString,
-				Optional:      true,
-				Computed:      true,
-				ConflictsWith: []string{"filter"},
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "Indicates free size available in datastore.",
 			},
 			"links": linksSchema(),
 			"name": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "A human-friendly name used as an identifier for the vSphere fabric datastore resource instance.",
 			},
 			"org_id": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "The id of the organization this entity belongs to.",
 			},
+			"owner": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "Email of the user that owns the entity.",
+			},
+			"tags": tagsSchema(),
 			"type": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "Type of datastore.",
 			},
 			"updated_at": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "Date when the entity was last updated. The date is ISO 8601 and UTC.",
 			},
 		},
 	}
 }
 
 func dataSourceVsphereDatastoreRead(d *schema.ResourceData, meta interface{}) error {
-	log.Printf("Reading the vra vsphere datastore data source with filter %s", d.Get("filter"))
+	log.Printf("Reading the vSphere fabric datastore data source with id %s or filter %s", d.Get("id"), d.Get("filter"))
 	apiClient := meta.(*Client).apiClient
-
-	var datastore *models.FabricVsphereDatastore
 
 	id := d.Get("id").(string)
 	filter := d.Get("filter").(string)
@@ -81,17 +100,24 @@ func dataSourceVsphereDatastoreRead(d *schema.ResourceData, meta interface{}) er
 		return fmt.Errorf("one of id or filter is required")
 	}
 
+	var fabricVsphereDatastore *models.FabricVsphereDatastore
 	if id != "" {
-		log.Printf("Reading fabric vSphere datastore data source with id: %s", id)
+		log.Printf("Reading vSphere fabric datastore data source with id: %s", id)
 		getResp, err := apiClient.FabricvSphereDatastore.GetFabricVSphereDatastore(
 			fabric_vsphere_datastore.NewGetFabricVSphereDatastoreParams().WithID(id))
-
 		if err != nil {
+			switch err.(type) {
+			case *fabric_vsphere_datastore.GetFabricVSphereDatastoreNotFound:
+				return fmt.Errorf("vSphere fabric datastore '%s' not found", id)
+			default:
+				// nop
+			}
 			return err
 		}
-		datastore = getResp.GetPayload()
+
+		fabricVsphereDatastore = getResp.GetPayload()
 	} else {
-		log.Printf("Reading fabric vSphere datastore data source with filter: %s", filter)
+		log.Printf("Reading vSphere fabric datastore data source with filter: %s", filter)
 		getResp, err := apiClient.FabricvSphereDatastore.GetFabricVSphereDatastores(
 			fabric_vsphere_datastore.NewGetFabricVSphereDatastoresParams().WithDollarFilter(withString(filter)))
 		if err != nil {
@@ -100,30 +126,36 @@ func dataSourceVsphereDatastoreRead(d *schema.ResourceData, meta interface{}) er
 
 		datastores := *getResp.Payload
 		if len(datastores.Content) > 1 {
-			return fmt.Errorf("fabric vSphere datastore must filter to one datastore")
+			return fmt.Errorf("must filter to one vSphere fabric datastore")
 		}
 		if len(datastores.Content) == 0 {
-			return fmt.Errorf("fabric vSphere datastore filter doesn't match to any datastore")
+			return fmt.Errorf("filter doesn't match to any vSphere fabric datastore")
 		}
 
-		datastore = datastores.Content[0]
+		fabricVsphereDatastore = datastores.Content[0]
 	}
 
-	d.SetId(*datastore.ID)
-	d.Set("cloud_account_ids", datastore.CloudAccountIds)
-	d.Set("created_at", datastore.CreatedAt)
-	d.Set("external_id", datastore.ExternalID)
-	d.Set("external_region_id", datastore.ExternalRegionID)
-	d.Set("free_size_gb", datastore.FreeSizeGB)
-	d.Set("name", datastore.Name)
-	d.Set("org_id", datastore.OrgID)
-	d.Set("type", datastore.Type)
-	d.Set("updated_at", datastore.UpdatedAt)
+	d.SetId(*fabricVsphereDatastore.ID)
+	d.Set("cloud_account_ids", fabricVsphereDatastore.CloudAccountIds)
+	d.Set("created_at", fabricVsphereDatastore.CreatedAt)
+	d.Set("description", fabricVsphereDatastore.Description)
+	d.Set("external_id", fabricVsphereDatastore.ExternalID)
+	d.Set("external_region_id", fabricVsphereDatastore.ExternalRegionID)
+	d.Set("free_size_gb", fabricVsphereDatastore.FreeSizeGB)
+	d.Set("name", fabricVsphereDatastore.Name)
+	d.Set("org_id", fabricVsphereDatastore.OrgID)
+	d.Set("owner", fabricVsphereDatastore.Owner)
+	d.Set("type", fabricVsphereDatastore.Type)
+	d.Set("updated_at", fabricVsphereDatastore.UpdatedAt)
 
-	if err := d.Set("links", flattenLinks(datastore.Links)); err != nil {
-		return fmt.Errorf("error setting datastore links - error: %#v", err)
+	if err := d.Set("links", flattenLinks(fabricVsphereDatastore.Links)); err != nil {
+		return fmt.Errorf("error setting vSphere fabric datastore links - error: %#v", err)
 	}
 
-	log.Println("Finished reading the datastore data source")
+	if err := d.Set("tags", flattenTags(fabricVsphereDatastore.Tags)); err != nil {
+		return fmt.Errorf("error setting vSphere fabric datastore tags - error: %v", err)
+	}
+
+	log.Println("Finished reading the vSphere fabric datastore data source")
 	return nil
 }
