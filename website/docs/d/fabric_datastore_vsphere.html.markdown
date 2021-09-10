@@ -6,19 +6,20 @@ description: |-
 ---
 
 # Data Source: fabric_datastore_vsphere
+
 ## Example Usages
 This is an example of how to lookup vSphere fabric datastores.
 
-**Fabric vSphere data source by Id:**
+**vSphere fabric datastore data source by Id:**
 
 ```hcl
-# Lookup vSphere fabric datastore using its Id
+# Lookup vSphere fabric datastore using its id
 data "vra_fabric_datastore_vsphere" "this" {
   id = var.fabric_datastore_vsphere_id
 }
 ```
 
-**Fabric vSphere data store by filter query:**
+**vSphere fabric datastore data source by filter query:**
 
 ```hcl
 # Lookup vSphere fabric datastore using its name
@@ -27,17 +28,21 @@ data "fabric_datastore_vsphere" "this" {
 }
 ```
 
-A storage profile data source supports the following arguments:
+A vSphere fabric datastore data source supports the following arguments:
 
 ## Argument Reference
-* `filter` - (Optional) Filter query string that is supported by vRA multi-cloud IaaS API.  Only one of 'filter' or 'id' must be specified.
 
-* `id` - (Optional) ID of the vSphere data source.  Only one of 'filter' or 'id' must be specified.
+* `id` - (Optional) The id of the vSphere fabric datastore resource instance. Only one of 'id' or 'filter' must be specified.
+
+* `filter` - (Optional) Search criteria to narrow down the vSphere fabric datastore resource instance. Only one of 'id' or 'filter' must be specified.
 
 ## Attribute Reference
+
 * `cloud_account_ids` - Set of ids of the cloud accounts this entity belongs to.
 
-* `created_at` - Date when the entity was created. The date is in ISO 6801 and UTC.
+* `created_at` - Date when the entity was created. The date is in ISO 8601 and UTC.
+
+* `description` - A human-friendly description.
 
 * `external_id` - External entity Id on the provider side.
 
@@ -47,9 +52,15 @@ A storage profile data source supports the following arguments:
 
 * `links` - HATEOAS of the entity
 
-* `name` - Name of the datastore. 
+* `name` - A human-friendly name used as an identifier for the vSphere fabric datastore resource instance.
 
-* `org_id` - ID of organization that entity belongs to.
+* `org_id` - The id of the organization this entity belongs to.
+
+* `owner` - Email of the user that owns the entity.
+
+* `tags` -  A set of tag keys and optional values that were set on this resource:
+  * `key` - Tag’s key.
+  * `value` - Tag’s value.
 
 * `type` - Type of datastore.
 

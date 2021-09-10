@@ -18,8 +18,12 @@ func TestAccFabricDatastoreVsphere_Basic(t *testing.T) {
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
+				Config:      testAccCheckFabricDatastoreVsphereNoConfig(),
+				ExpectError: regexp.MustCompile("one of id or filter is required"),
+			},
+			{
 				Config:      testAccCheckFabricDatastoreVsphereConfig(dsName + "foo"),
-				ExpectError: regexp.MustCompile("fabric vSphere datastore filter doesn't match to any datastore"),
+				ExpectError: regexp.MustCompile("filter doesn't match to any vSphere fabric datastore"),
 			},
 			{
 				Config: testAccCheckFabricDatastoreVsphereConfig(dsName),
@@ -30,6 +34,12 @@ func TestAccFabricDatastoreVsphere_Basic(t *testing.T) {
 			},
 		},
 	})
+}
+
+func testAccCheckFabricDatastoreVsphereNoConfig() string {
+	return `
+		data "vra_fabric_datastore_vsphere" "datastore_vsphere" {
+		}`
 }
 
 func testAccCheckFabricDatastoreVsphereConfig(dsName string) string {
