@@ -3,16 +3,10 @@
 Steps to release a new version
 ------------------------------
 
-- Make sure repo is up to date: `git pull`
+- Make sure you local copy of the repository is up to date: `git pull --rebase`
 - Verify CI tests: `make fmtcheck errcheck lint`
 - Verify build and tests: `make build test`
-- Update CHANGELOG.md (TBD)
-- Tag with annotation: `git tag -a -m "Release v0.0.0" v0.0.0`
-- Verify tag: `git tag -n`
-- Push tag: `git push --tags`
-- Build and release binaries: `./scripts/release.sh`
-
-Helper to create CHANGELOG entries
-----------------------------------
-
-`git log --reverse --pretty=format:"%s" | tail -100 | sed 's/^/* /'`
+- Tag with annotation: `git tag -a v0.0.0 -m "Release v0.0.0"`
+- Verify the tag: `git tag -l -n`
+- Push the tag: `git push --tags`
+- A [Release Github Action](https://github.com/vmware/terraform-provider-vra/actions/workflows/release.yml) will automatically be trigerred, and a [draft release](https://github.com/vmware/terraform-provider-vra/releases) will be created
