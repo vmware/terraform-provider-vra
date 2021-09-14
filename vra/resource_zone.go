@@ -2,6 +2,7 @@ package vra
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -21,51 +22,49 @@ func resourceZone() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
-			"cloud_account_id": {
+			// Required arguments
+			"name": {
 				Type:        schema.TypeString,
-				Computed:    true,
-				Description: "The ID of the cloud account this zone belongs to.",
+				Description: "A human-friendly name used as an identifier for the zone resource instance.",
+				Required:    true,
 			},
-			"created_at": {
-				Type:     schema.TypeString,
-				Computed: true,
+			"region_id": {
+				Type:        schema.TypeString,
+				Description: "The id of the region for which this zone is created.",
+				Required:    true,
+			},
+
+			// Optional arguments
+			"compute_ids": {
+				Type:        schema.TypeList,
+				Computed:    true, // it needs to be computed because vRA will add compute ids besides the ones specified in the terraform plan
+				Description: "The ids of the compute resources that will be explicitly assigned to this zone.",
+				Optional:    true,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
 			},
 			"custom_properties": {
-				Type:     schema.TypeMap,
-				Computed: true,
+				Type:        schema.TypeMap,
+				Computed:    true, // it needs to be computed because vRA will add its own custom properties besides the ones specified in the terraform plan
+				Description: "A list of key value pair of properties that will be used.",
+				Optional:    true,
 			},
 			"description": {
 				Type:        schema.TypeString,
+				Description: "A human-friendly description.",
 				Optional:    true,
-				Description: "A human-friendly description for the zone",
-			},
-			"external_region_id": {
-				Type:     schema.TypeString,
-				Computed: true,
 			},
 			"folder": {
 				Type:        schema.TypeString,
+				Description: "The folder relative path to the datacenter where resources are deployed to (only applicable for vSphere cloud zones).",
 				Optional:    true,
-				Description: "The folder relative path to the datacenter where resources are deployed to. (only applicable for vSphere cloud zones)",
-			},
-			"links": linksSchema(),
-			"name": {
-				Type:        schema.TypeString,
-				Required:    true,
-				Description: "A human-friendly name for the zone",
-			},
-			"org_id": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"owner": {
-				Type:     schema.TypeString,
-				Computed: true,
 			},
 			"placement_policy": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Default:  "DEFAULT",
+				Type:        schema.TypeString,
+				Default:     "DEFAULT",
+				Description: "The placement policy for the zone. One of DEFAULT, SPREAD or BINPACK.",
+				Optional:    true,
 				ValidateFunc: func(v interface{}, k string) (ws []string, errors []error) {
 					value := v.(string)
 					if value != "DEFAULT" && value != "SPREAD" && value != "BINPACK" {
@@ -74,18 +73,41 @@ func resourceZone() *schema.Resource {
 					}
 					return
 				},
-				Description: "Placement policy for the zone. One of DEFAULT, SPREAD or BINPACK.",
-			},
-			"region_id": {
-				Type:        schema.TypeString,
-				Required:    true,
-				Description: "The id of the region for which this profile is created",
 			},
 			"tags":          tagsSchema(),
 			"tags_to_match": tagsSchema(),
+
+			// Computed attributes
+			"cloud_account_id": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "The ID of the cloud account this zone belongs to.",
+			},
+			"created_at": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "Date when the entity was created. The date is in ISO 8601 and UTC.",
+			},
+			"external_region_id": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "The id of the region for which this zone is defined.",
+			},
+			"links": linksSchema(),
+			"org_id": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "The id of the organization this entity belongs to.",
+			},
+			"owner": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "Email of the user that owns the entity.",
+			},
 			"updated_at": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "Date when the entity was last updated. The date is ISO 8601 and UTC.",
 			},
 		},
 	}
@@ -94,33 +116,32 @@ func resourceZone() *schema.Resource {
 func resourceZoneCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	apiClient := m.(*Client).apiClient
 
-	description := d.Get("description").(string)
-	folder := d.Get("folder").(string)
 	name := d.Get("name").(string)
-	placementPolicy := d.Get("placement_policy").(string)
 	regionID := d.Get("region_id").(string)
-	tags := expandTags(d.Get("tags").(*schema.Set).List())
-	tagsToMatch := expandTags(d.Get("tags_to_match").(*schema.Set).List())
+
+	var computeIds []string
+	if v, ok := d.GetOk("compute_ids"); ok {
+		if !compareUnique(v.([]interface{})) {
+			return diag.FromErr(errors.New("specified compute_ids are not unique"))
+		}
+		computeIds = expandStringList(v.([]interface{}))
+	}
 
 	createResp, err := apiClient.Location.CreateZone(location.NewCreateZoneParams().WithBody(&models.ZoneSpecification{
-		Description:     description,
-		Folder:          folder,
-		Name:            &name,
-		PlacementPolicy: placementPolicy,
-		RegionID:        &regionID,
-		Tags:            tags,
-		TagsToMatch:     tagsToMatch,
+		ComputeIds:       computeIds,
+		CustomProperties: expandCustomProperties(d.Get("custom_properties").(map[string]interface{})),
+		Description:      d.Get("description").(string),
+		Folder:           d.Get("folder").(string),
+		Name:             &name,
+		PlacementPolicy:  d.Get("placement_policy").(string),
+		RegionID:         &regionID,
+		Tags:             expandTags(d.Get("tags").(*schema.Set).List()),
+		TagsToMatch:      expandTags(d.Get("tags_to_match").(*schema.Set).List()),
 	}))
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
-	if err := d.Set("tags", flattenTags(tags)); err != nil {
-		return diag.Errorf("Error setting zone tags - error: %#v", err)
-	}
-	if err := d.Set("tags_to_match", flattenTags(tagsToMatch)); err != nil {
-		return diag.Errorf("Error setting zone tags_to_match - error: %#v", err)
-	}
 	d.SetId(*createResp.Payload.ID)
 
 	return resourceZoneRead(ctx, d, m)
@@ -130,7 +151,8 @@ func resourceZoneRead(ctx context.Context, d *schema.ResourceData, m interface{}
 	apiClient := m.(*Client).apiClient
 
 	id := d.Id()
-	ret, err := apiClient.Location.GetZone(location.NewGetZoneParams().WithID(id))
+
+	getResp, err := apiClient.Location.GetZone(location.NewGetZoneParams().WithID(id))
 	if err != nil {
 		switch err.(type) {
 		case *location.GetZoneNotFound:
@@ -139,29 +161,43 @@ func resourceZoneRead(ctx context.Context, d *schema.ResourceData, m interface{}
 		}
 		return diag.FromErr(err)
 	}
-	zone := *ret.Payload
+
+	zone := *getResp.Payload
 	d.Set("cloud_account_id", zone.CloudAccountID)
 	d.Set("created_at", zone.CreatedAt)
 	d.Set("custom_properties", zone.CustomProperties)
 	d.Set("description", zone.Description)
 	d.Set("external_region_id", zone.ExternalRegionID)
 	d.Set("folder", zone.Folder)
+	d.Set("name", zone.Name)
+	d.Set("org_id", zone.OrgID)
+	d.Set("owner", zone.Owner)
+	d.Set("placement_policy", zone.PlacementPolicy)
+	d.Set("updated_at", zone.UpdatedAt)
 
 	if err := d.Set("links", flattenLinks(zone.Links)); err != nil {
 		return diag.Errorf("error setting zone links - error: %#v", err)
 	}
 
-	d.Set("name", zone.Name)
-	d.Set("org_id", zone.OrgID)
-	d.Set("owner", zone.Owner)
-	d.Set("placement_policy", zone.PlacementPolicy)
 	if err := d.Set("tags", flattenTags(zone.Tags)); err != nil {
-		return diag.Errorf("Error setting zone tags - error: %#v", err)
+		return diag.Errorf("error setting zone tags - error: %v", err)
 	}
+
 	if err := d.Set("tags_to_match", flattenTags(zone.TagsToMatch)); err != nil {
-		return diag.Errorf("Error setting zone tags_to_match - error: %#v", err)
+		return diag.Errorf("error setting zone tags to match - error: %v", err)
 	}
-	d.Set("updated_at", zone.UpdatedAt)
+
+	getComputesResp, err := apiClient.Location.GetComputes(location.NewGetComputesParams().WithID(id))
+	if err != nil {
+		return diag.Errorf("error getting zone computes - error: %v", err)
+	}
+
+	var computeIds []string
+	for _, compute := range getComputesResp.Payload.Content {
+		computeIds = append(computeIds, compute.Name)
+	}
+	d.Set("compute_ids", computeIds)
+
 	return nil
 }
 
@@ -169,24 +205,28 @@ func resourceZoneUpdate(ctx context.Context, d *schema.ResourceData, m interface
 	apiClient := m.(*Client).apiClient
 
 	id := d.Id()
-	description := d.Get("description").(string)
-	folder := d.Get("folder").(string)
 	name := d.Get("name").(string)
-	placementPolicy := d.Get("placement_policy").(string)
 	regionID := d.Get("region_id").(string)
-	tags := expandTags(d.Get("tags").(*schema.Set).List())
-	tagsToMatch := expandTags(d.Get("tags_to_match").(*schema.Set).List())
 
-	_, err := apiClient.Location.UpdateZone(location.NewUpdateZoneParams().WithID(id).WithBody(&models.ZoneSpecification{
-		Description:     description,
-		Folder:          folder,
-		Name:            &name,
-		PlacementPolicy: placementPolicy,
-		RegionID:        &regionID,
-		Tags:            tags,
-		TagsToMatch:     tagsToMatch,
-	}))
-	if err != nil {
+	var computeIds []string
+	if v, ok := d.GetOk("compute_ids"); ok {
+		if !compareUnique(v.([]interface{})) {
+			return diag.FromErr(errors.New("specified compute_ids are not unique"))
+		}
+		computeIds = expandStringList(v.([]interface{}))
+	}
+
+	if _, err := apiClient.Location.UpdateZone(location.NewUpdateZoneParams().WithID(id).WithBody(&models.ZoneSpecification{
+		ComputeIds:       computeIds,
+		CustomProperties: expandCustomProperties(d.Get("custom_properties").(map[string]interface{})),
+		Description:      d.Get("description").(string),
+		Folder:           d.Get("folder").(string),
+		Name:             &name,
+		PlacementPolicy:  d.Get("placement_policy").(string),
+		RegionID:         &regionID,
+		Tags:             expandTags(d.Get("tags").(*schema.Set).List()),
+		TagsToMatch:      expandTags(d.Get("tags_to_match").(*schema.Set).List()),
+	})); err != nil {
 		return diag.FromErr(err)
 	}
 
@@ -197,8 +237,8 @@ func resourceZoneDelete(ctx context.Context, d *schema.ResourceData, m interface
 	apiClient := m.(*Client).apiClient
 
 	id := d.Id()
-	_, err := apiClient.Location.DeleteZone(location.NewDeleteZoneParams().WithID(id))
-	if err != nil {
+
+	if _, err := apiClient.Location.DeleteZone(location.NewDeleteZoneParams().WithID(id)); err != nil {
 		return diag.FromErr(err)
 	}
 
