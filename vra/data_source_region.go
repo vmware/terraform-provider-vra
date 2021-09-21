@@ -18,10 +18,12 @@ func dataSourceRegion() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"cloud_account_id": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Computed:    true,
-				Description: "The id of the cloud account the region belongs to.",
+				Type:          schema.TypeString,
+				Optional:      true,
+				Computed:      true,
+				ConflictsWith: []string{"id", "filter"},
+				Description:   "The id of the cloud account the region belongs to.",
+				RequiredWith:  []string{"region"},
 			},
 			"created_at": {
 				Type:        schema.TypeString,
@@ -34,15 +36,17 @@ func dataSourceRegion() *schema.Resource {
 				Description: "Unique identifier of region on the provider side.",
 			},
 			"filter": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Description: "Search criteria to narrow down Regions.",
+				Type:          schema.TypeString,
+				ConflictsWith: []string{"cloud_account_id", "id", "region"},
+				Optional:      true,
+				Description:   "Search criteria to narrow down Regions.",
 			},
 			"id": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Computed:    true,
-				Description: "The id of the region instance.",
+				Type:          schema.TypeString,
+				Optional:      true,
+				Computed:      true,
+				ConflictsWith: []string{"cloud_account_id", "filter", "region"},
+				Description:   "The id of the region instance.",
 			},
 			"name": {
 				Type:        schema.TypeString,
@@ -60,9 +64,11 @@ func dataSourceRegion() *schema.Resource {
 				Description: "Email of the user that owns the entity.",
 			},
 			"region": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Description: "The specific region associated with the cloud account. On vSphere, this is the external ID.",
+				Type:          schema.TypeString,
+				Optional:      true,
+				ConflictsWith: []string{"id", "filter"},
+				Description:   "The specific region associated with the cloud account. On vSphere, this is the external ID.",
+				RequiredWith:  []string{"cloud_account_id"},
 			},
 			"updated_at": {
 				Type:        schema.TypeString,
@@ -82,7 +88,7 @@ func dataSourceRegionRead(d *schema.ResourceData, meta interface{}) error {
 	id, idOk := d.GetOk("id")
 
 	if !idOk && !cloudAccountIDOk && !regionOk && !filterOk {
-		return fmt.Errorf("one of the following are required: (id, filter, region and cloudAccountId)")
+		return fmt.Errorf("one of the following are required: (`id`, `filter`, or `region` and `cloud_account_id`)")
 	}
 
 	setFields := func(region *models.Region) {
