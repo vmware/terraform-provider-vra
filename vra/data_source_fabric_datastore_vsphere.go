@@ -15,6 +15,7 @@ func dataSourceFabricDatastoreVsphere() *schema.Resource {
 		Schema: map[string]*schema.Schema{
 			"id": {
 				Type:          schema.TypeString,
+				Computed:      true,
 				ConflictsWith: []string{"filter"},
 				Description:   "The id of the vSphere fabric datastore resource instance.",
 				Optional:      true,
