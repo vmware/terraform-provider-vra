@@ -16,6 +16,7 @@ func dataSourceFabricCompute() *schema.Resource {
 		Schema: map[string]*schema.Schema{
 			"id": {
 				Type:          schema.TypeString,
+				Computed:      true,
 				ConflictsWith: []string{"filter"},
 				Description:   "The id of the fabric compute resource instance.",
 				Optional:      true,
