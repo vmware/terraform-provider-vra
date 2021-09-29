@@ -8,45 +8,59 @@ description: |-
 
 # Data Source: vra\_region
 
-This is an example of how to lookup a region data source.
+This is an example of how to lookup a region data source:
 
-**Region data source**
+**Region data source by id:**
+
 ```hcl
-data "vra_region" "region_1" {
-  cloud_account_id = "cloud_account_id"
-  region           = "us-east-1"
+data "vra_region" "this" {
+  id = var.vra_region_id
 }
 ```
 
+**Region data source by filter:**
+
 ```hcl
-data "vra_region" "eastus" {
-  cloud_account_id = "cloud_account_id"
-  region           = "eastus"
+data "vra_region" "this" {
+  filter = "name eq '${var.vra_region_name}'"
 }
 ```
 
-The region data source supports the following arguments:
+**Region data source by cloud account id and region:**
+
+```hcl
+data "vra_region" "this" {
+  cloud_account_id = var.vra_cloud_account_id
+  region           = var.vra_region_external_id
+}
+```
 
 ## Argument Reference
-* `cloud_account_id` - (Optional) The id of the cloud account this region belongs to. Example: 9e49
 
-* `filter` - (Optional) The id of this resource instance.
+The following arguments are supported:
 
-* `id` - (Optional) The id of this resource instance. Example: 9e49
+* `cloud_account_id` - (Optional) The id of the cloud account the region belongs to.
 
-* `region` - (Optional) Name of region on the provider side. In vSphere, the name of the region is different from its id. Example: us-west
+* `filter` - (Optional) Search criteria to narrow down Regions.
 
+* `id` - (Optional) The id of the region instance.
+
+* `region` - (Optional) The specific region associated with the cloud account. On vSphere, this is the external ID.
+
+-> **Note:** One of `id`, `filter` or` cloud_account_id` and `region` must be specified.
 
 ## Attribute Reference
-* `created_at` - Date when the entity was created. The date is in ISO 8601 and UTC. Example: 2012-09-27
 
-* `external_region_id` - Unique identifier of region on the provider side. Example: us-west
+In addition to all arguments above, the following attributes are exported:
 
-* `name` - Name of region on the provider side. In vSphere, the name of the region is different from its id. Example: us-west
+* `created_at` - Date when the entity was created. The date is in ISO 8601 and UTC.
 
-* `org_id` - The id of the organization this entity belongs to. Example: 9e49
+* `external_region_id` - Unique identifier of region on the provider side.
 
-* `owner` - Email of the user that owns the entity. Example: csp@vmware.com
+* `name` - Name of region on the provider side. In vSphere, the name of the region is different from its id.
 
-* `updated_at` - Date when the entity was last updated. The date is ISO 8601 and UTC. Example: 2012-09-27
+* `org_id` - The id of the organization this entity belongs to.
 
+* `owner` - Email of the user that owns the entity.
+
+* `updated_at` - Date when the entity was last updated. The date is ISO 8601 and UTC.
