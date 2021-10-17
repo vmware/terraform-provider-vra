@@ -27,7 +27,7 @@ The region enumeration data source for Azure cloud account supports the followin
 
 * `application_key` - (Required) Azure Client Application Secret Key
 
-* `subscription_id` - (Required) Azure Subscribtion ID
+* `subscription_id` - (Required) Azure Subscription ID
 
 * `tenant_id` - (Required) Azure Tenant ID
 

@@ -1,33 +1,41 @@
 ---
 layout: "vra"
-page_title: "VMware vRealize Automation: fabric_compute"
+page_title: "VMware vRealize Automation: vra_fabric_compute"
 description: |-
-  Updates a fabric_compute resource.
+  Provides a data lookup for vRA fabric computes.
 ---
 
-# Resource: fabric_compute
-
-Updates a VMware vRealize Automation fabric_compute resource.
+# Data Source: vra_fabric_compute
 
 ## Example Usages
 
-You cannot create a fabric compute resource, however you can import it using the command specified in the import section below.
+This is an example of how to lookup fabric computes.
 
-Once a resource is imported, you can update it as shown below:
+**Fabric compute data source by Id:**
 
 ```hcl
-resource "fabric_compute" "this" {
-  tags {
-    key   = "foo"
-    value = "bar"
-  }
+# Lookup fabric compute using its id
+data "vra_fabric_compute" "this" {
+  id = var.fabric_compute_id
 }
 ```
+
+**Fabric compute data source by filter query:**
+
+```hcl
+# Lookup fabric compute using its name
+data "vra_fabric_compute" "this" {
+  filter = "name eq '${var.fabric_compute_name}'"
+}
+```
+
+A fabric compute data source supports the following arguments:
+
 ## Argument Reference
 
-* `tags` -  A set of tag keys and optional values that were set on this resource:
-  * `key` - Tag’s key.
-  * `value` - Tag’s value.
+* `id` - (Optional) The id of the fabric compute resource instance. Only one of 'id' or 'filter' must be specified.
+
+* `filter` - (Optional) Search criteria to narrow down the fabric compute resource instance. Only one of 'id' or 'filter' must be specified.
 
 ## Attribute Reference
 
@@ -55,12 +63,10 @@ resource "fabric_compute" "this" {
 
 * `power_state` - Power state of fabric compute instance.
 
+* `tags` -  A set of tag keys and optional values that were set on this resource:
+  * `key` - Tag’s key.
+  * `value` - Tag’s value.
+
 * `type` - Type of the fabric compute instance.
 
 * `updated_at` - Date when the entity was last updated. The date is ISO 8601 and UTC.
-
-## Import
-
-To import the fabric compute resource, use the ID as in the following example:
-
-`$ terraform import vra_fabric_compute.this 88fdea8b-92ed-4aa9-b6ee-4670412961b0

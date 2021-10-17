@@ -1,11 +1,11 @@
 ---
 layout: "vra"
-page_title: "VMware vRealize Automation: security_group"
+page_title: "VMware vRealize Automation: vra_security_group"
 description: |-
   Provides a data lookup for security groups.
 ---
 
-# Data Source: security_group
+# Data Source: vra_security_group
 ## Example Usages
 This is an example of how to lookup security groups.
 
@@ -13,7 +13,7 @@ This is an example of how to lookup security groups.
 
 ```hcl
 # Lookup Security groups using its name
-data "security_group" "this" {
+data "vra_security_group" "this" {
   filter = "name eq '${var.name}'"
 }
 ```

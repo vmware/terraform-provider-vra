@@ -1,6 +1,6 @@
 ---
 layout: "vra"
-page_title: "VMware vRealize Automation: vra_region"
+page_title: "VMware vRealize Automation: vra_network_profile"
 description: |-
   Provides a data lookup for vra_network_profile.
 ---

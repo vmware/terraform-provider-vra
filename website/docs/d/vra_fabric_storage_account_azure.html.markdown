@@ -1,11 +1,11 @@
 ---
 layout: "vra"
-page_title: "VMware vRealize Automation: fabric_storage_account_azure"
+page_title: "VMware vRealize Automation: vra_fabric_storage_account_azure"
 description: |-
   Provides a data lookup for fabric Azure storage account.
 ---
 
-# Data Source: fabric_storage_account_azure
+# Data Source: vra_fabric_storage_account_azure
 ## Example Usages
 This is an example of how to lookup fabric Azure storage account.
 
@@ -13,7 +13,7 @@ This is an example of how to lookup fabric Azure storage account.
 
 ```hcl
 # Lookup fabric Azure storage account using its Id
-data "fabric_storage_account_azure" "this" {
+data "vra_fabric_storage_account_azure" "this" {
   id = var.fabric_storage_account_azure_id
 }
 ```
@@ -22,7 +22,7 @@ data "fabric_storage_account_azure" "this" {
 
 ```hcl
 # Lookup fabric Azure storage account using its name
-data "fabric_storage_account_azure" "this" {
+data "vra_fabric_storage_account_azure" "this" {
   filter = "name eq '${var.name}'"
 }
 ```
