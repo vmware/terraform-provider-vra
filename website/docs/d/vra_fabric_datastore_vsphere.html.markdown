@@ -1,11 +1,11 @@
 ---
 layout: "vra"
-page_title: "VMware vRealize Automation: fabric_datastore_vsphere"
+page_title: "VMware vRealize Automation: vra_fabric_datastore_vsphere"
 description: |-
   Provides a data lookup for vSphere fabric datastores.
 ---
 
-# Data Source: fabric_datastore_vsphere
+# Data Source: vra_fabric_datastore_vsphere
 
 ## Example Usages
 This is an example of how to lookup vSphere fabric datastores.
@@ -23,7 +23,7 @@ data "vra_fabric_datastore_vsphere" "this" {
 
 ```hcl
 # Lookup vSphere fabric datastore using its name
-data "fabric_datastore_vsphere" "this" {
+data "vra_fabric_datastore_vsphere" "this" {
   filter = "name eq '${var.datastore_name}'"
 }
 ```

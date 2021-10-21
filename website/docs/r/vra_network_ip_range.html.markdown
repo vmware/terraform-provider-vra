@@ -1,11 +1,11 @@
 ---
 layout: "vra"
-page_title: "VMware vRealize Automation: network_ip_range"
+page_title: "VMware vRealize Automation: vra_network_ip_range"
 description: |-
   Creates a network_ip_range resource.
 ---
 
-# Resource: network_ip_range
+# Resource: vra_network_ip_range
 
 Creates a VMware vRealize Automation network_ip_range resource.
 

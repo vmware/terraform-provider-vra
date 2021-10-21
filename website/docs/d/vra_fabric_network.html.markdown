@@ -1,11 +1,11 @@
 ---
 layout: "vra"
-page_title: "VMware vRealize Automation: fabric_network"
+page_title: "VMware vRealize Automation: vra_fabric_network"
 description: |-
   Provides a data lookup for vRA fabric networks.
 ---
 
-# Data Source: fabric_network
+# Data Source: vra_fabric_network
 ## Example Usages
 This is an example of how to lookup fabric networks.
 
@@ -13,12 +13,12 @@ This is an example of how to lookup fabric networks.
 
 ```hcl
 # Lookup vRA fabric network using its name
-data "fabric_network" "this" {
+data "vra_fabric_network" "this" {
   filter = "name eq '${var.name}'"
 }
 
 # Lookup vRA fabric network using its name and regionId
-data "fabric_network" "this" {
+data "vra_fabric_network" "this" {
   filter = "name eq '${var.name}' and externalRegionId eq '${var.external_region_id}'"
 }
 ```

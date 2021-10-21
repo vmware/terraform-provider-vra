@@ -67,7 +67,7 @@ resource "vra_deployment" "this" {
 }
 ```
 
-This is an example of how to create a deployment without any resources so that it may be attached to other IaaS resoruces like `vra_machine`, `vra_network`, etc.
+This is an example of how to create a deployment without any resources so that it may be attached to other IaaS resources like `vra_machine`, `vra_network`, etc.
 
 ```hcl
 resource "vra_deployment" "this" {

@@ -5,7 +5,7 @@ description: |-
   Provides a VMware vRA vra_network resource.
 ---
 
-# Resource: vra_machine
+# Resource: vra_network
 ## Example Usages
 
 This is an example of how to create a network resource.

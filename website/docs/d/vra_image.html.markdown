@@ -1,11 +1,11 @@
 ---
 layout: "vra"
-page_title: "VMware vRealize Automation: image"
+page_title: "VMware vRealize Automation: vra_image"
 description: |-
   Provides a data lookup for vRA Images.
 ---
 
-# Data Source: image
+# Data Source: vra_image
 ## Example Usages
 This is an example of how to lookup Images.
 
@@ -13,7 +13,7 @@ This is an example of how to lookup Images.
 
 ```hcl
 # Lookup Images using its Id
-data "image" "this" {
+data "vra_image" "this" {
   id = var.image_id
 }
 ```
@@ -22,7 +22,7 @@ data "image" "this" {
 
 ```hcl
 # Lookup Images using its name
-data "image" "this" {
+data "vra_image" "this" {
   filter = "name eq '${var.name}'"
 }
 ```

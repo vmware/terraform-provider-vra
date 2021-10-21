@@ -1,11 +1,11 @@
 ---
 layout: "vra"
-page_title: "VMware vRealize Automation: fabric_storage_policy_vsphere"
+page_title: "VMware vRealize Automation: vra_fabric_storage_policy_vsphere"
 description: |-
   Provides a data lookup for fabric vSphere storage policy.
 ---
 
-# Data Source: fabric_storage_account_vSphere
+# Data Source: vra_fabric_storage_policy_vsphere
 ## Example Usages
 This is an example of how to lookup fabric vSphere storage policies.
 
@@ -13,7 +13,7 @@ This is an example of how to lookup fabric vSphere storage policies.
 
 ```hcl
 # Lookup fabric vSphere storage account using its Id
-data "fabric_storage_policy_vsphere" "this" {
+data "vra_fabric_storage_policy_vsphere" "this" {
   id = var.fabric_storage_policy_vsphere_id
 }
 ```
@@ -22,7 +22,7 @@ data "fabric_storage_policy_vsphere" "this" {
 
 ```hcl
 # Lookup fabric vSphere storage policy using its name
-data "fabric_storage_policy_vsphere" "this" {
+data "vra_fabric_storage_policy_vsphere" "this" {
   filter = "name eq '${var.name}'"
 }
 ```

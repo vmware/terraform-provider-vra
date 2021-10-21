@@ -1,6 +1,6 @@
 ---
 layout: "vra"
-page_title: "VMware vRealize Automation: vra_block_device"
+page_title: "VMware vRealize Automation: vra_block_device_snapshot"
 description: |-
   Creates a VMware vRealize Automation vra_block_device_snapshot resource.
 ---

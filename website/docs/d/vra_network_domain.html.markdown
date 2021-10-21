@@ -1,11 +1,11 @@
 ---
 layout: "vra"
-page_title: "VMware vRealize Automation: network_domain"
+page_title: "VMware vRealize Automation: vra_network_domain"
 description: |-
   Provides a data lookup for Network domain objects.
 ---
 
-# Data Source: network_domain
+# Data Source: vra_network_domain
 ## Example Usages
 This is an example of how to lookup Network domain objects.
 
@@ -13,7 +13,7 @@ This is an example of how to lookup Network domain objects.
 
 ```hcl
 # Lookup network domain using its name
-data "network_domain" "this" {
+data "vra_network_domain" "this" {
   filter = "name eq '${var.name}'"
 }
 ```

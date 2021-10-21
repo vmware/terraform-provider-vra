@@ -1,11 +1,11 @@
 ---
 layout: "vra"
-page_title: "VMware vRealize Automation: fabric_network_vsphere"
+page_title: "VMware vRealize Automation: vra_fabric_network_vsphere"
 description: |-
   Updates a fabric_network_vsphere resource.
 ---
 
-# Resource: fabric_network_vsphere
+# Resource: vra_fabric_network_vsphere
 
 Updates a VMware vRealize Automation fabric_network_vsphere resource.
 
@@ -16,7 +16,7 @@ Once a resource is imported, you can update it as shown below:
 
 ```hcl
 
-resource "fabric_network_vsphere" "simple" {
+resource "vra_fabric_network_vsphere" "simple" {
   cidr            = var.cidr
   default_gateway = var.gateway
   domain          = var.domain
