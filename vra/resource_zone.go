@@ -194,7 +194,7 @@ func resourceZoneRead(ctx context.Context, d *schema.ResourceData, m interface{}
 
 	var computeIds []string
 	for _, compute := range getComputesResp.Payload.Content {
-		computeIds = append(computeIds, compute.Name)
+		computeIds = append(computeIds, *compute.ID)
 	}
 	d.Set("compute_ids", computeIds)
 
