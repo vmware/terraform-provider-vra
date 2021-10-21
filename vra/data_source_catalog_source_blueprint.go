@@ -57,7 +57,7 @@ func dataSourceCatalogSourceBlueprint() *schema.Resource {
 				Computed: true,
 			},
 			"last_import_errors": {
-				Type:     schema.TypeList,
+				Type:     schema.TypeSet,
 				Computed: true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,

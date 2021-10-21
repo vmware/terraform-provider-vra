@@ -36,7 +36,7 @@ func resourceZone() *schema.Resource {
 
 			// Optional arguments
 			"compute_ids": {
-				Type:        schema.TypeList,
+				Type:        schema.TypeSet,
 				Computed:    true, // it needs to be computed because vRA will add compute ids besides the ones specified in the terraform plan
 				Description: "The ids of the compute resources that will be explicitly assigned to this zone.",
 				Optional:    true,
@@ -121,10 +121,10 @@ func resourceZoneCreate(ctx context.Context, d *schema.ResourceData, m interface
 
 	var computeIds []string
 	if v, ok := d.GetOk("compute_ids"); ok {
-		if !compareUnique(v.([]interface{})) {
+		if !compareUnique(v.(*schema.Set).List()) {
 			return diag.FromErr(errors.New("specified compute_ids are not unique"))
 		}
-		computeIds = expandStringList(v.([]interface{}))
+		computeIds = expandStringList(v.(*schema.Set).List())
 	}
 
 	createResp, err := apiClient.Location.CreateZone(location.NewCreateZoneParams().WithBody(&models.ZoneSpecification{
@@ -210,10 +210,10 @@ func resourceZoneUpdate(ctx context.Context, d *schema.ResourceData, m interface
 
 	var computeIds []string
 	if v, ok := d.GetOk("compute_ids"); ok {
-		if !compareUnique(v.([]interface{})) {
+		if !compareUnique(v.(*schema.Set).List()) {
 			return diag.FromErr(errors.New("specified compute_ids are not unique"))
 		}
-		computeIds = expandStringList(v.([]interface{}))
+		computeIds = expandStringList(v.(*schema.Set).List())
 	}
 
 	if _, err := apiClient.Location.UpdateZone(location.NewUpdateZoneParams().WithID(id).WithBody(&models.ZoneSpecification{

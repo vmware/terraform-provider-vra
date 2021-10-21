@@ -22,7 +22,7 @@ func linksSchema() *schema.Schema {
 					Optional: true,
 				},
 				"hrefs": {
-					Type:     schema.TypeList,
+					Type:     schema.TypeSet,
 					Optional: true,
 					Elem: &schema.Schema{
 						Type: schema.TypeString,

@@ -50,7 +50,7 @@ func dataSourceCloudAccountAWS() *schema.Resource {
 				Computed: true,
 			},
 			"regions": {
-				Type:     schema.TypeList,
+				Type:     schema.TypeSet,
 				Computed: true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,

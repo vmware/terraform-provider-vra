@@ -34,7 +34,7 @@ func dataSourceZone() *schema.Resource {
 				Description: "The ID of the cloud account this zone belongs to.",
 			},
 			"compute_ids": {
-				Type:        schema.TypeList,
+				Type:        schema.TypeSet,
 				Computed:    true,
 				Description: "The ids of the compute resources that has been explicitly assigned to this zone.",
 				Elem: &schema.Schema{

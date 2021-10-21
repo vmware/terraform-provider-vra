@@ -42,7 +42,7 @@ func resourceCloudAccountAWS() *schema.Resource {
 				Optional: true,
 			},
 			"regions": {
-				Type:     schema.TypeList,
+				Type:     schema.TypeSet,
 				Optional: true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
@@ -64,7 +64,7 @@ func resourceCloudAccountAWS() *schema.Resource {
 				Computed: true,
 			},
 			"region_ids": {
-				Type:     schema.TypeList,
+				Type:     schema.TypeSet,
 				Computed: true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
@@ -90,10 +90,10 @@ func resourceCloudAccountAWSCreate(ctx context.Context, d *schema.ResourceData, 
 	tags := expandTags(d.Get("tags").(*schema.Set).List())
 
 	if v, ok := d.GetOk("regions"); ok {
-		if !compareUnique(v.([]interface{})) {
-			return diag.FromErr(errors.New("Specified regions are not unique"))
+		if !compareUnique(v.(*schema.Set).List()) {
+			return diag.FromErr(errors.New("specified regions are not unique"))
 		}
-		regions = expandStringList(v.([]interface{}))
+		regions = expandStringList(v.(*schema.Set).List())
 	}
 
 	createResp, err := apiClient.CloudAccount.CreateAwsCloudAccount(cloud_account.NewCreateAwsCloudAccountParams().WithBody(&models.CloudAccountAwsSpecification{
@@ -180,10 +180,10 @@ func resourceCloudAccountAWSUpdate(ctx context.Context, d *schema.ResourceData, 
 	tags := expandTags(d.Get("tags").(*schema.Set).List())
 
 	if v, ok := d.GetOk("regions"); ok {
-		if !compareUnique(v.([]interface{})) {
-			return diag.FromErr(errors.New("Specified regions are not unique"))
+		if !compareUnique(v.(*schema.Set).List()) {
+			return diag.FromErr(errors.New("specified regions are not unique"))
 		}
-		regions = expandStringList(v.([]interface{}))
+		regions = expandStringList(v.(*schema.Set).List())
 	}
 	_, err := apiClient.CloudAccount.UpdateAwsCloudAccount(cloud_account.NewUpdateAwsCloudAccountParams().WithID(id).WithBody(&models.UpdateCloudAccountAwsSpecification{
 		CreateDefaultZones: false,

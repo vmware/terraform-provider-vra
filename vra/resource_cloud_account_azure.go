@@ -49,7 +49,7 @@ func resourceCloudAccountAzure() *schema.Resource {
 				Optional: true,
 			},
 			"regions": {
-				Type:     schema.TypeList,
+				Type:     schema.TypeSet,
 				Optional: true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
@@ -71,7 +71,7 @@ func resourceCloudAccountAzure() *schema.Resource {
 				Computed: true,
 			},
 			"region_ids": {
-				Type:     schema.TypeList,
+				Type:     schema.TypeSet,
 				Computed: true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
@@ -91,10 +91,10 @@ func resourceCloudAccountAzureCreate(ctx context.Context, d *schema.ResourceData
 	apiClient := m.(*Client).apiClient
 
 	if v, ok := d.GetOk("regions"); ok {
-		if !compareUnique(v.([]interface{})) {
-			return diag.FromErr(errors.New("Specified regions are not unique"))
+		if !compareUnique(v.(*schema.Set).List()) {
+			return diag.FromErr(errors.New("specified regions are not unique"))
 		}
-		regions = expandStringList(v.([]interface{}))
+		regions = expandStringList(v.(*schema.Set).List())
 	}
 
 	applicationKey := d.Get("application_key").(string)
@@ -175,10 +175,10 @@ func resourceCloudAccountAzureUpdate(ctx context.Context, d *schema.ResourceData
 	id := d.Id()
 
 	if v, ok := d.GetOk("regions"); ok {
-		if !compareUnique(v.([]interface{})) {
-			return diag.FromErr(errors.New("Specified regions are not unique"))
+		if !compareUnique(v.(*schema.Set).List()) {
+			return diag.FromErr(errors.New("specified regions are not unique"))
 		}
-		regions = expandStringList(v.([]interface{}))
+		regions = expandStringList(v.(*schema.Set).List())
 	}
 	tags := expandTags(d.Get("tags").(*schema.Set).List())
 

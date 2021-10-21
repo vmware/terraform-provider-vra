@@ -37,7 +37,7 @@ func resourceCloudAccountVMC() *schema.Resource {
 				Required: true,
 			},
 			"regions": {
-				Type:     schema.TypeList,
+				Type:     schema.TypeSet,
 				Required: true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
@@ -90,7 +90,7 @@ func resourceCloudAccountVMC() *schema.Resource {
 				Computed: true,
 			},
 			"region_ids": {
-				Type:     schema.TypeList,
+				Type:     schema.TypeSet,
 				Computed: true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
@@ -111,10 +111,10 @@ func resourceCloudAccountVMCCreate(ctx context.Context, d *schema.ResourceData, 
 
 	tags := expandTags(d.Get("tags").(*schema.Set).List())
 	if v, ok := d.GetOk("regions"); ok {
-		if !compareUnique(v.([]interface{})) {
+		if !compareUnique(v.(*schema.Set).List()) {
 			return diag.FromErr(errors.New("specified regions are not unique"))
 		}
-		regions = expandStringList(v.([]interface{}))
+		regions = expandStringList(v.(*schema.Set).List())
 	}
 
 	cloudAccountProperties := make(map[string]string)
@@ -217,10 +217,10 @@ func resourceCloudAccountVMCUpdate(ctx context.Context, d *schema.ResourceData, 
 	id := d.Id()
 
 	if v, ok := d.GetOk("regions"); ok {
-		if !compareUnique(v.([]interface{})) {
+		if !compareUnique(v.(*schema.Set).List()) {
 			return diag.FromErr(errors.New("specified regions are not unique"))
 		}
-		regions = expandStringList(v.([]interface{}))
+		regions = expandStringList(v.(*schema.Set).List())
 	}
 
 	_, err := apiClient.CloudAccount.UpdateCloudAccount(cloud_account.NewUpdateCloudAccountParams().WithID(id).WithBody(&models.UpdateCloudAccountSpecification{

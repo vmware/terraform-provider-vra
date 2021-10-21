@@ -51,7 +51,7 @@ func resourceNetworkProfile() *schema.Resource {
 				Optional: true,
 			},
 			"fabric_network_ids": {
-				Type:     schema.TypeList,
+				Type:     schema.TypeSet,
 				Optional: true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
@@ -78,7 +78,7 @@ func resourceNetworkProfile() *schema.Resource {
 				Optional: true,
 			},
 			"security_group_ids": {
-				Type:     schema.TypeList,
+				Type:     schema.TypeSet,
 				Optional: true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
@@ -134,17 +134,17 @@ func resourceNetworkProfileCreate(ctx context.Context, d *schema.ResourceData, m
 	}
 
 	if v, ok := d.GetOk("fabric_network_ids"); ok {
-		if !compareUnique(v.([]interface{})) {
-			return diag.FromErr(errors.New("Specified fabric network ids are not unique"))
+		if !compareUnique(v.(*schema.Set).List()) {
+			return diag.FromErr(errors.New("specified fabric network ids are not unique"))
 		}
-		networkProfileSpecification.FabricNetworkIds = expandStringList(v.([]interface{}))
+		networkProfileSpecification.FabricNetworkIds = expandStringList(v.(*schema.Set).List())
 	}
 
 	if v, ok := d.GetOk("security_group_ids"); ok {
-		if !compareUnique(v.([]interface{})) {
-			return diag.FromErr(errors.New("Specified security group ids are not unique"))
+		if !compareUnique(v.(*schema.Set).List()) {
+			return diag.FromErr(errors.New("specified security group ids are not unique"))
 		}
-		networkProfileSpecification.SecurityGroupIds = expandStringList(v.([]interface{}))
+		networkProfileSpecification.SecurityGroupIds = expandStringList(v.(*schema.Set).List())
 	}
 
 	log.Printf("[DEBUG] create network profile: %#v", networkProfileSpecification)
@@ -236,17 +236,17 @@ func resourceNetworkProfileUpdate(ctx context.Context, d *schema.ResourceData, m
 	}
 
 	if v, ok := d.GetOk("fabric_network_ids"); ok {
-		if !compareUnique(v.([]interface{})) {
-			return diag.FromErr(errors.New("Specified fabric network ids are not unique"))
+		if !compareUnique(v.(*schema.Set).List()) {
+			return diag.FromErr(errors.New("specified fabric network ids are not unique"))
 		}
-		networkProfileSpecification.FabricNetworkIds = expandStringList(v.([]interface{}))
+		networkProfileSpecification.FabricNetworkIds = expandStringList(v.(*schema.Set).List())
 	}
 
 	if v, ok := d.GetOk("security_group_ids"); ok {
-		if !compareUnique(v.([]interface{})) {
-			return diag.FromErr(errors.New("Specified security group ids are not unique"))
+		if !compareUnique(v.(*schema.Set).List()) {
+			return diag.FromErr(errors.New("specified security group ids are not unique"))
 		}
-		networkProfileSpecification.SecurityGroupIds = expandStringList(v.([]interface{}))
+		networkProfileSpecification.SecurityGroupIds = expandStringList(v.(*schema.Set).List())
 	}
 
 	_, err := apiClient.NetworkProfile.UpdateNetworkProfile(network_profile.NewUpdateNetworkProfileParams().WithID(id).WithBody(&networkProfileSpecification))

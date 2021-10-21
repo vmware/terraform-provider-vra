@@ -19,7 +19,7 @@ func dataSourceCloudAccountVsphere() *schema.Resource {
 				Computed: true,
 			},
 			"associated_cloud_account_ids": {
-				Type:     schema.TypeList,
+				Type:     schema.TypeSet,
 				Computed: true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
@@ -42,7 +42,7 @@ func dataSourceCloudAccountVsphere() *schema.Resource {
 				Computed: true,
 			},
 			"enabled_region_ids": {
-				Type:     schema.TypeList,
+				Type:     schema.TypeSet,
 				Computed: true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,

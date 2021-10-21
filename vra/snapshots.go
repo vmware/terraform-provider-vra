@@ -9,7 +9,7 @@ import (
 // snapshotsSchema returns the schema to use for the snapshots property
 func snapshotsSchema() *schema.Schema {
 	return &schema.Schema{
-		Type:     schema.TypeList,
+		Type:     schema.TypeSet,
 		Computed: true,
 		Elem: &schema.Resource{
 			Schema: map[string]*schema.Schema{
