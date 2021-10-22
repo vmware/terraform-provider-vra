@@ -1,104 +1,220 @@
-# Installing the vRA Terraform provider
+# Installing the Terraform Provider for VMware vRealize Automation
 
-The provider is currently considered to be a third-party provider and thus won't be automatically downloaded by ```terraform```, which means you have to either install or build it yourself. The provider is made available in a pre-built binary version via the GitHub repository in the form of releases. This document will walk you through installing a released version of the provider. (The following snippets will use v0.3.5, but you will need to update the version as necessary)
+![Terraform](https://img.shields.io/badge/Terraform-0.13%2B-blue?style=for-the-badge&logo=terraform)
 
-## Downloading the provider
+This document assumes the use of Terraform 0.13 or later.
 
- The most recent version of the provider can be found at https://github.com/vmware/terraform-provider-vra/releases/latest
+## Automated Installation (Recommended)
 
-![example release](images/provider_release_example.png)
+The Terraform Provider for VMware vRealize Automation is a verified provider. Verified providers are owned and maintained by members of the HashiCorp Technology Partner Program. HashiCorp verifies the authenticity of the publisher and the providers are listed on the [Terraform Registry](https://registry.terraform.io) with a verified tier label. 
 
-You can download the appropriate version of the provider for your OS via either your browser or the commandline using a tool like curl or wget.
+### Configure the Terraform Configuration Files
+
+Providers listed on the Terraform Registry can be automatically downloaded when initializing a working directory with `terraform init`. The Terraform configuration block is used to configure some behaviors of Terraform itself, such as the Terraform version and the required providers and versions.
+
+**Example**: A Terraform configuration block.
+
+```hcl
+terraform {
+  required_providers {
+    vra = {
+      source  = "vmware/vra"
+      version = ">= 0.4.0"
+    }
+  }
+  required_version = ">= 0.13"
+}
+```
+### Verify Terraform Initialization Using the Terraform Registry
+
+To verify the initialization, navigate to the working directory for your Terraform configuration and run `terraform init`. You should see a message indicating that Terraform has been successfully initialized and downloaded the Terraform Provider for vRealize Automation from the Terraform Registry is installed.
+
+**Example**: Initialize and Download the Provider.
+
+```
+$ ./terraform init
+
+Initializing the backend...
+
+Initializing provider plugins...
+- Finding vmware/vra versions matching ">= 0.4.0"...
+- Installing vmware/vra v0.4.0...
+- Installed vmware/vra v0.4.0 (signed by a HashiCorp partner, key ID *************)
+
+...
+
+Terraform has been successfully initialized!
+```
+
+## Manual Installation
+
+The [latest](https://github.com/vmware/terraform-provider-vra/releases/latest) release of the provider can be found on [the GitHub repository releases](https://github.com/vmware/terraform-provider-vra/releases). You can download the appropriate version of the provider for your operating system using a command line shell or a browser. 
+
+This can be useful in environments that do not allow direct access to the Internet.
 
 ### Linux
 
-Create a terraform plugins directory with your hardware platform subdirectory. Typically for 64bit Linux this will be in ```~/.terraform.d/plugins/linux_amd64``` on non-Windows platforms.
+The following examples use Bash on Linux (x64).
 
-```bash
-mkdir -p ~/.terraform.d/plugins/linux_amd64 
-```
+1. On an a Linux operating system with Internet access, download the plugin from GitHub using the shell. 
 
-Download the plugin (via a browser or command line)
+    ```bash
+    RELEASE=0.4.0
+    wget -q https://github.com/vmware/terraform-provider-vra/releases/download/v${RELEASE}/terraform-provider-vra_${RELEASE}_linux_amd64.zip
+    ```
 
- ```bash
- RELEASE=0.3.5
- wget -q https://github.com/vmware/terraform-provider-vra/releases/download/v${RELEASE}/terraform-provider-vra-linux_amd64-v${RELEASE}.tgz
- ```
+2. Extract the plugin.
 
-Untar/unzip the plugin
+    ```bash
+    tar xvf terraform-provider-vra_${RELEASE}_linux_amd64.zip
+    ```
 
-```shell
-tar xvf terraform-provider-vra-linux_amd64-v${RELEASE}.tgz
-```
+3. Copy the extracted plugin to a target system and move to the Terraform plugins directory.
 
-If you already have an existing version of provider, either remove the existing provider file from the terraform plugins directory or update all configuration files to include latest version
+    >**Note**: The directory directory hierarchy that Terraform use to precisely determine the source of each provider it finds locally.<br/>
+    > `$PLUGIN_DIRECTORY/$SOURCEHOSTNAME/$SOURCENAMESPACE/$NAME/$VERSION/$OS_$ARCH/`
 
-```shell
-rm ~/.terraform.d/plugins/terraform-provider-vra*
-```
+    ```bash
+    mv terraform-provider-vra_v${RELEASE} ~/.terraform.d/plugins/local/vmware/vra/${RELEASE}/linux_amd64
+    ```
 
-Move the extracted plugin to the terraform plugins directory
+4. Verify the presence of the plugin in the Terraform plugins directory.
 
-```shell
-mv terraform-provider-vra_v${RELEASE} ~/.terraform.d/plugins/
-```
+    ```bash
+    cd ~/.terraform.d/plugins/local/vmware/vra/${RELEASE}/linux_amd64
+    ls
+    ```
 
-#### Linux Example
+### macOS
 
-![downloading with wget - Linux ](images/wget_release_linux.png)
+The following example uses Bash (default) on macOS (Intel).
+
+1. On a macOS operating system with Internet access, install wget with [Homebrew](https://brew.sh).
+
+    ```bash
+    brew install wget
+    ```
+
+2. Download the plugin from GitHub using the shell. 
+
+    ```bash
+    RELEASE=0.4.0
+    wget -q https://github.com/vmware/terraform-provider-vra/releases/download/v${RELEASE}/terraform-provider-vra_${RELEASE}_darwin_amd64.zip
+    ```
+
+3. Extract the plugin.
+
+    ```bash
+    tar xvf terraform-provider-vra_${RELEASE}_darwin_amd64.zip
+    ```
+
+5. Copy the extracted plugin to a target system and move to the Terraform plugins directory.
+
+    >**Note**: The directory directory hierarchy that Terraform use to precisely determine the source of each provider it finds locally.<br/>
+    > `$PLUGIN_DIRECTORY/$SOURCEHOSTNAME/$SOURCENAMESPACE/$NAME/$VERSION/$OS_$ARCH/`
+
+    ```bash
+    mv terraform-provider-vra_v${RELEASE} ~/.terraform.d/plugins/local/vmware/vra/${RELEASE}/darwin_amd64
+    ```
+
+6. Verify the presence of the plugin in the Terraform plugins directory.
+
+    ```bash
+    cd ~/.terraform.d/plugins/local/vmware/vra/${RELEASE}/darwin_amd64
+    ls
+    ```
 
 ### Windows
 
-Create a terraform plugins directory typically this will be in ```%APPDATA%\terraform.d\plugins```.
+The following examples use PowerShell on Windows (x64).
 
-```powershell
- #powershell
- mkdir $ENV:APPDATA\terraform.d\plugins
+1. On a Windows operating system with Internet access, download the plugin using the PowerShell. 
+
+    ```powershell
+    $RELEASE="0.4.0"
+    Invoke-WebRequest https://github.com/vmware/terraform-provider-vra/releases/download/v${RELEASE}/terraform-provider-vra_${RELEASE}_windows_amd64.zip -outfile terraform-provider-vra_${RELEASE}_windows_amd64.zip
+    ```
+
+2. Extract the plugin.
+
+    ```powershell
+    Expand-Archive terraform-provider-vra_${RELEASE}_windows_amd64.zip
+
+    cd terraform-provider-vra_${RELEASE}_windows_amd64
+    ```
+
+4. Copy the extracted plugin to a target system and move to the Terraform plugins directory.
+
+    >**Note**: The directory directory hierarchy that Terraform use to precisely determine the source of each provider it finds locally.<br/>
+    > `$PLUGIN_DIRECTORY/$SOURCEHOSTNAME/$SOURCENAMESPACE/$NAME/$VERSION/$OS_$ARCH/`
+
+    ```powershell
+    New-Item $ENV:APPDATA\terraform.d\plugins\local\vmware\vra\${RELEASE}\ -Name "windows_amd64" -ItemType "directory"
+
+    Move-Item terraform-provider-vra_v${RELEASE}.exe $ENV:APPDATA\terraform.d\plugins\local\vmware\vra\${RELEASE}\windows_amd64\terraform-provider-vra_v${RELEASE}.exe
+    ```
+
+5. Verify the presence of the plugin in the Terraform plugins directory.
+
+    ```powershell
+    cd $ENV:APPDATA\terraform.d\plugins\local\vmware\vra\${RELEASE}\windows_amd64
+    dir
+    ```
+
+### Configure the Terraform Configuration Files
+
+ A working directory can be initialized with providers that are installed locally on a system by using `terraform init`. The Terraform configuration block is used to configure some behaviors of Terraform itself, such as the Terraform version and the required providers source and version.
+
+**Example**: A Terraform configuration block.
+
+```hcl
+terraform {
+  required_providers {
+    vra = {
+      source  = "local/vmware/vra"
+      version = ">= 0.4.0"
+    }
+  }
+  required_version = ">= 1.0.0"
+}
 ```
 
-```cmd
-#CMD
-mkdir %APPDATA%\terraform.d\plugins
+### Verify the Terraform Initialization of a Manually Installed Provider
+
+To verify the initialization, navigate to the working directory for your Terraform configuration and run `terraform init`. You should see a message indicating that Terraform has been successfully initialized and the installed version of the Terraform Provider for vRealize Automation.
+
+**Example**: Initialize and Use a Manually Installed Provider
+
+```
+$ ./terraform init
+
+Initializing the backend...
+
+Initializing provider plugins...
+- Finding local/vmware/vra versions matching ">= 0.4.0"...
+- Installing local/vmware/vra v0.4.0...
+- Installed local/vmware/vra v0.4.0 (unauthenticated)
+...
+
+Terraform has been successfully initialized!
 ```
 
-Download the plugin (via a browser or command line)
+## Get the Provider Version
+To find the provider version, navigate to the working directory of your Terraform configuration and run `terraform version`. You should see a message indicating the provider version.
 
- ```powershell
- $RELEASE="0.3.5"
- wget https://github.com/vmware/terraform-provider-vra/releases/download/v${RELEASE}/terraform-provider-vra-windows_amd64-v${RELEASE}.tgz -outfile terraform-provider-vra-windows_amd64-v${RELEASE}.tgz
- ```
+**Example**: Terraform Provider Version from the Terraform Registry 
 
-Untar/unzip the plugin (Depending on your setup this may require two steps)
-
-```powershell
-#using 7zip to unzip
-7z x .\terraform-provider-vra-windows_amd64-v${RELEASE}.tgz
-
-# then untar resulting file
-tar xvf terraform-provider-vra-windows_amd64-v${RELEASE}.tar
 ```
-
-Move the extracted plugin to the terraform plugins directory
-
-```powershell
-#Powershell
-move terraform-provider-vra_v${RELEASE}.exe $ENV:APPDATA\terraform.d\plugins
+$ ./terraform version
+Terraform v1.0.0
+on linux_amd64
++ provider registry.terraform.io/vmware/vra v0.4.0
 ```
+**Example**: Terraform Provider Version for a Manually Installed Provider
 
-```cmd
-#CMD
-move terraform-provider-vra_v%RELEASE%.exe %APPDATA%\terraform.d\plugins
 ```
-
-#### Windows Example
-
-![downloading with wget - Powershell ](images/wget_release_pshell.png)
-
-## Validating the install
-
-To validate the installation you can simply change to the location where your terraform configuration is located and run ```terraform init```. You should see a message indicating that terraform has been successfully initialized.
-
-![init success](images/install_success.png)
-
-## Get Provider version
-To find the provider version, you can simply change to the location where your terraform configuration is located and run ```terraform -version```. You should see a message indicating the provider version.
+$ ./terraform version
+Terraform v1.0.0
+on linux_amd64
++ provider local/vmware/vra v0.4.0
+```
