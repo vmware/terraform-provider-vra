@@ -17,7 +17,9 @@ Please use the navigation to the left to read about available data sources and r
 
 ## Basic Configuration of the Provider
 
-With Terraform 0.13 and later, the `terraform` configuration block should be used in your configurations:
+With Terraform 0.13 and later, the `terraform` configuration block should be used in your configurations.
+
+**Example**: Terraform Configuration
 
 ```hcl
 terraform {
