@@ -40,13 +40,27 @@ terraform {
   required_providers {
     vra = {
       source  = "vmware/vra"
-      version = ">= 0.4.0"
     }
   }
   required_version = ">= 0.13"
 }
 ```
-Version locking uses a pessimistic operator, so in the example above the version lock would allow any version including 0.4.0 or later. [Read more](https://www.terraform.io/docs/configuration/providers.html#provider-versions) on Terraform provider configuration.
+
+You can use `version` locking and operators to require specific versions of the provider. 
+
+```hcl
+terraform {
+  required_providers {
+    vra = {
+      source  = "vmware/vra"
+      version = ">= x.y.z"
+    }
+  }
+  required_version = ">= 0.13"
+}
+```
+
+[Read more](https://www.terraform.io/docs/configuration/providers.html#provider-versions) on Terraform provider configuration.
 
 ![Terraform](https://img.shields.io/badge/Terraform-0.12-blue?style=for-the-badge&logo=terraform)
 
@@ -54,7 +68,7 @@ The version meta-argument specifies a version constraint for a provider, and wor
 
 ```hcl
 provider "vra" {
-  version = ">= 0.4.0"
+  version = ">= x.y.z"
   ...
 }
 ```
