@@ -1,7 +1,5 @@
 # Installing the Terraform Provider for VMware vRealize Automation
 
-![Terraform](https://img.shields.io/badge/Terraform-0.13%2B-blue?style=for-the-badge&logo=terraform)
-
 This document assumes the use of Terraform 0.13 or later.
 
 ## Automated Installation (Recommended)
@@ -19,27 +17,45 @@ terraform {
   required_providers {
     vra = {
       source  = "vmware/vra"
-      version = ">= 0.4.0"
     }
   }
   required_version = ">= 0.13"
 }
 ```
+
+You can use `version` locking and operators to require specific versions of the provider. 
+
+**Example**: A Terraform configuration block with the provider versions.
+
+```hcl
+terraform {
+  required_providers {
+    vra = {
+      source  = "vmware/vra"
+      version = ">= x.y.z"
+    }
+  }
+  required_version = ">= 0.13"
+}
+```
+
+To specify a particular provider version when installing released providers, see the Terrraform documentation [on provider versioning](https://www.terraform.io/docs/configuration/providers.html#version-provider-versions).
+
 ### Verify Terraform Initialization Using the Terraform Registry
 
-To verify the initialization, navigate to the working directory for your Terraform configuration and run `terraform init`. You should see a message indicating that Terraform has been successfully initialized and downloaded the Terraform Provider for vRealize Automation from the Terraform Registry is installed.
+To verify the initialization, navigate to the working directory for your Terraform configuration and run `terraform init`. You should see a message indicating that Terraform has been successfully initialized and has installed the provider from the Terraform Registry.
 
 **Example**: Initialize and Download the Provider.
 
 ```
-$ ./terraform init
+$ terraform init
 
 Initializing the backend...
 
 Initializing provider plugins...
-- Finding vmware/vra versions matching ">= 0.4.0"...
-- Installing vmware/vra v0.4.0...
-- Installed vmware/vra v0.4.0 (signed by a HashiCorp partner, key ID *************)
+- Finding vmware/vra versions matching ">= x.y.z" ...
+- Installing vmware/vra x.y.z ...
+- Installed vmware/vra x.y.z (signed by a HashiCorp partner, key ID *************)
 
 ...
 
@@ -59,7 +75,7 @@ The following examples use Bash on Linux (x64).
 1. On an a Linux operating system with Internet access, download the plugin from GitHub using the shell. 
 
     ```bash
-    RELEASE=0.4.0
+    RELEASE=x.y.z
     wget -q https://github.com/vmware/terraform-provider-vra/releases/download/v${RELEASE}/terraform-provider-vra_${RELEASE}_linux_amd64.zip
     ```
 
@@ -68,17 +84,22 @@ The following examples use Bash on Linux (x64).
     ```bash
     tar xvf terraform-provider-vra_${RELEASE}_linux_amd64.zip
     ```
+3. Create a directory for the provider.
 
-3. Copy the extracted plugin to a target system and move to the Terraform plugins directory.
-
-    >**Note**: The directory directory hierarchy that Terraform use to precisely determine the source of each provider it finds locally.<br/>
+    >**Note**: The directory hierarchy that Terraform use to precisely determine the source of each provider it finds locally.<br/>
     > `$PLUGIN_DIRECTORY/$SOURCEHOSTNAME/$SOURCENAMESPACE/$NAME/$VERSION/$OS_$ARCH/`
+
+    ```bash
+    mkdir -p ~/.terraform.d/plugins/local/vmware/vra/${RELEASE}/linux_amd64
+    ```
+
+4. Copy the extracted plugin to a target system and move to the Terraform plugins directory.
 
     ```bash
     mv terraform-provider-vra_v${RELEASE} ~/.terraform.d/plugins/local/vmware/vra/${RELEASE}/linux_amd64
     ```
 
-4. Verify the presence of the plugin in the Terraform plugins directory.
+5. Verify the presence of the plugin in the Terraform plugins directory.
 
     ```bash
     cd ~/.terraform.d/plugins/local/vmware/vra/${RELEASE}/linux_amd64
@@ -98,7 +119,7 @@ The following example uses Bash (default) on macOS (Intel).
 2. Download the plugin from GitHub using the shell. 
 
     ```bash
-    RELEASE=0.4.0
+    RELEASE=x.y.x
     wget -q https://github.com/vmware/terraform-provider-vra/releases/download/v${RELEASE}/terraform-provider-vra_${RELEASE}_darwin_amd64.zip
     ```
 
@@ -107,11 +128,16 @@ The following example uses Bash (default) on macOS (Intel).
     ```bash
     tar xvf terraform-provider-vra_${RELEASE}_darwin_amd64.zip
     ```
+4. Create a directory for the provider.
+
+    >**Note**: The directory hierarchy that Terraform use to precisely determine the source of each provider it finds locally.<br/>
+    > `$PLUGIN_DIRECTORY/$SOURCEHOSTNAME/$SOURCENAMESPACE/$NAME/$VERSION/$OS_$ARCH/`
+
+    ```bash
+    mkdir -p ~/.terraform.d/plugins/local/vmware/vra/${RELEASE}/darwin_amd64
+    ```
 
 5. Copy the extracted plugin to a target system and move to the Terraform plugins directory.
-
-    >**Note**: The directory directory hierarchy that Terraform use to precisely determine the source of each provider it finds locally.<br/>
-    > `$PLUGIN_DIRECTORY/$SOURCEHOSTNAME/$SOURCENAMESPACE/$NAME/$VERSION/$OS_$ARCH/`
 
     ```bash
     mv terraform-provider-vra_v${RELEASE} ~/.terraform.d/plugins/local/vmware/vra/${RELEASE}/darwin_amd64
@@ -131,7 +157,7 @@ The following examples use PowerShell on Windows (x64).
 1. On a Windows operating system with Internet access, download the plugin using the PowerShell. 
 
     ```powershell
-    $RELEASE="0.4.0"
+    $RELEASE="x.y.z"
     Invoke-WebRequest https://github.com/vmware/terraform-provider-vra/releases/download/v${RELEASE}/terraform-provider-vra_${RELEASE}_windows_amd64.zip -outfile terraform-provider-vra_${RELEASE}_windows_amd64.zip
     ```
 
@@ -163,7 +189,7 @@ The following examples use PowerShell on Windows (x64).
 
 ### Configure the Terraform Configuration Files
 
- A working directory can be initialized with providers that are installed locally on a system by using `terraform init`. The Terraform configuration block is used to configure some behaviors of Terraform itself, such as the Terraform version and the required providers source and version.
+A working directory can be initialized with providers that are installed locally on a system by using `terraform init`. The Terraform configuration block is used to configure some behaviors of Terraform itself, such as the Terraform version and the required providers source and version.
 
 **Example**: A Terraform configuration block.
 
@@ -172,10 +198,10 @@ terraform {
   required_providers {
     vra = {
       source  = "local/vmware/vra"
-      version = ">= 0.4.0"
+      version = ">= x.y.z"
     }
   }
-  required_version = ">= 1.0.0"
+  required_version = ">= 0.13"
 }
 ```
 
@@ -186,14 +212,14 @@ To verify the initialization, navigate to the working directory for your Terrafo
 **Example**: Initialize and Use a Manually Installed Provider
 
 ```
-$ ./terraform init
+$ terraform init
 
 Initializing the backend...
 
 Initializing provider plugins...
-- Finding local/vmware/vra versions matching ">= 0.4.0"...
-- Installing local/vmware/vra v0.4.0...
-- Installed local/vmware/vra v0.4.0 (unauthenticated)
+- Finding local/vmware/vra versions matching ">= x.y.x" ...
+- Installing local/vmware/vra x.y.x ...
+- Installed local/vmware/vra x.y.x (unauthenticated)
 ...
 
 Terraform has been successfully initialized!
@@ -205,16 +231,16 @@ To find the provider version, navigate to the working directory of your Terrafor
 **Example**: Terraform Provider Version from the Terraform Registry 
 
 ```
-$ ./terraform version
-Terraform v1.0.0
+$ terraform version
+Terraform x.y.z
 on linux_amd64
-+ provider registry.terraform.io/vmware/vra v0.4.0
++ provider registry.terraform.io/vmware/vra x.y.z
 ```
 **Example**: Terraform Provider Version for a Manually Installed Provider
 
 ```
-$ ./terraform version
-Terraform v1.0.0
+$ terraform version
+Terraform x.y.z
 on linux_amd64
-+ provider local/vmware/vra v0.4.0
++ provider local/vmware/vra x.y.z
 ```
