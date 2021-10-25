@@ -1,89 +1,38 @@
-# Terraform provider for VMware vRealize Automation
+# Terraform Provider for VMware vRealize Automation
 
-Introduction
-------------
+A self-contained deployable integration between Terraform and VMware vRealize Automation which allows Terraform users to request and provision IaaS resources such as machines, networks, load balancers, along with the configuration of cloud accounts, zones, and projects. This provider supports both vRealize Automation Cloud (SaaS) and vRealize Automation 8 (on-premises). 
 
-A self-contained deployable integration between Terraform and VMware vRealize Automation (vRA) which allows Terraform users to request and provision vRA IaaS resources such as machine, network, load_balancer, along with initial setup of cloud accounts, zones, and projects. This provider supports vRealize Automation Cloud (SaaS) and vRealize 8 (on-prem). There is a separate provider available for [vRealize Automation 7.x](https://github.com/terraform-providers/terraform-provider-vra7)
+> Note: There is a separate provider available for [vRealize Automation 7.x](https://github.com/terraform-providers/terraform-provider-vra7).
 
-Requirements
-------------
+## Requirements
 
-To get the vra plugin up and running you need the following things.
-* [Terraform 0.12 or above](https://www.terraform.io/downloads.html)
-* [Go Language 1.12 or above](https://golang.org/dl/)
+* [Terraform 0.12+](https://www.terraform.io/downloads.html)
+* [Go 1.16](https://golang.org/dl/) (to build the provider plugin)
 
-Installing the provider
------------------------
+## Using the Provider
 
-The provider is currently considered a third-party provider and thus isn't installed automatically by ```terraform```. See [Installing the vRA Terraform provider](docs/install_provider.md) for instructions on how to install it. 
+The [Terraform Provider for VMware vRealize Automation](https://registry.terraform.io/providers/vmware/vra/latest) is a verified provider. Verified providers are owned and maintained by members of the HashiCorp Technology Partner Program. HashiCorp verifies the authenticity of the publisher and the providers are listed on the Terraform Registry with a verified tier label.
 
-Using the provider
-----------------------
+To use a released version of the Terraform provider in your environment, run [`terraform init`](https://www.terraform.io/docs/commands/init.html) and Terraform will automatically install the provider from the Terraform Registry. 
 
-There are some one time setup needed to begin using the IaaS resources. This may
-already be done by administrators or can be done via terraform as well.
+See [Installing the Terraform Provider for VMware vRealize Automation](docs/install_provider.md) for additional instructions on automated and manual installation methods and how to control the provider version.
 
-### Cloud Accounts
+For either installation method, documentation about the provider configuration, resources, and data sources can be found on the [provider page](https://registry.terraform.io/providers/vmware/vra/latest/docs) on the Terraform Registry.
 
-Because vRA works across multiple clouds, a cloud account with credentials must
-first be setup. Follow these examples for setting up specific cloud accounts:
+Examples on the use of the provider configuration, resources, and data sources can be found in the project's  `examples` directory.
 
-* Setup [cloud\_account\_aws](examples/cloud_account_aws/README.md)
-* Setup [cloud\_account\_azure](examples/cloud_account_azure/README.md)
-* Setup [cloud\_account\_vsphere](examples/cloud_account_vsphere/README.md)
+## Upgrading the Provider
 
-### Zones
-
-While the cloud account examples included setting up zones, here is an example
-to setup a zone:
-
-* Setup [zone](examples/zone/README.md)
-
-
-### Projects
-
-While the cloud account examples included setting up a project, here is an example
-to setup a project:
-
-* Setup [project](examples/project/README.md)
-
-### Flavor mappings
-Flavor profile represents a structure that holds flavor mappings defined for the corresponding cloud end-point region.
-* Setup [flavor\_profile](examples/machine/README.md)
-
-### Image mappings
-Image profile represents a structure that holds a list of image mappings defined for the particular region.
-* Setup [image\_profile](examples/machine/README.md)
-
-### Machine
-* Setup [machine](examples/machine/README.md)
-
-
-Upgrading the provider
-----------------------
-
-The vra provider doesn't upgrade automatically once you've started using it. After a new release you can run 
+The provider does not upgrade automatically. After each new release, you can run the following command to upgrade the provider: 
 
 ```bash
 terraform init -upgrade
 ```
 
-## Execution
-These are the Terraform commands that can be used for the vRA plugin:
-* `terraform init` - The init command is used to initialize a working directory containing Terraform configuration files.
-* `terraform plan` - Plan command shows plan for resources like how many resources will be provisioned and how many will be destroyed.
-* `terraform apply` - apply is responsible to execute actual calls to provision resources.
-* `terraform refresh` - By using the refresh command you can check the status of the request.
-* `terraform show` - show will set a console output for resource configuration and request status.
-* `terraform destroy` - destroy command will destroy all the  resources present in terraform configuration file.
-* `terraform import` - import existing infrastructure into terraforrm state file to manage from current workspace.
-
-Navigate to the location where `main.tf` and binary are placed and use the above commands as needed.
-
 ## Contributing
 
-The terraform-provider-vra project team welcomes contributions from the community. Before you start working with terraform-provider-vra, please read our [Developer Certificate of Origin](https://cla.vmware.com/dco). All contributions to this repository must be signed as described on that page. Your signature certifies that you wrote the patch or have the right to pass it on as an open-source patch. For more detailed information, refer to [CONTRIBUTING.md](CONTRIBUTING.md).
+The project team welcomes contributions from the community. Before you start working with terraform-provider-vra, please read our [Developer Certificate of Origin](https://cla.vmware.com/dco). All contributions to this repository must be signed as described on that page. Your signature certifies that you wrote the patch or have the right to pass it on as an open-source patch. For more detailed information, refer to [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## License
 
-terraform-provider-vra is available under the [Mozilla Public License, version 2.0 license](LICENSE).
+The Terraform Provider for VMware vRealize Automation is available under the [Mozilla Public License, version 2.0 license](LICENSE).
