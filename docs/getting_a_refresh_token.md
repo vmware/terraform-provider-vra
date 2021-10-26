@@ -1,55 +1,248 @@
-# Getting a refresh token
+# Get Your Refresh Token for the vRealize Automation API
 
+Before making a call to vRealize Automation, you request an API token that authenticates you for authorized API connections. The API token is also known as a "refresh token".
 
-## refresh_token vs access_token
+The Terraform provider for VMware vRealize Automation accepts either a `refresh_token` or an `access_token`, but not both at the same time. 
 
-This provider will accept either an access_token or a refresh_token (but not both at the same time). Access tokens are valid for 8 hours, while refresh tokens are valid for 6 months.
+* Refresh token are valid for **90 days**, when using the API.
+* Access tokens are valid for **8 hours**, but times out after **25 minutes** of inactivity.
 
-# Process of getting a token
+  For more information on obtaining an `access_token`, see [Get Your Access Token for the vRealize Automation API](https://code.vmware.com/docs/14701/vrealize-automation-8-6-api-programming-guide/GUID-AC1E4407-6139-412A-B4AA-1F102942EA94.html) on VMware {code}.
 
-The process of getting a token is fairly straightforward. You will need user credentials consisting of:
+# Procedures
 
-* username
-* password
-* domain (optional, may or may not be needed)
+## UI Procedure
 
-In additon you will need the name of the host associated with the identity access service. For vRealize Automation Cloud this will be api.mgmt.cloud.vmware.com. For the on premise version vRealize Automation 8 this will be the hostname associated with the appliance(s) that was deployed.
+The following procedure is only applicable to vRealize Automation Cloud.
 
-You then pass a JSON body  containing the credential information to the Identity Service API.
+1. Login to the VMware Cloud Services console using your credentials at https://console.cloud.vmware.com.
 
-```json
-    # with domain
-    { "username":"jdoe","password":"VMW@re123!","domain":"example.com"}
+2. Once logged in, click the drop-down arrow by your name and select **My Account**.
 
-    # without domain
-    { "username":"jdoe","password":"VMW@re123!"}
+3. On the `My Account` page, click the **API Tokens** tab.
+
+4. In the `API Tokens` section, click **Generate Token**.
+
+    a. On the `Generate a New API Token` page, enter a **Token Name**.
+    
+    b. Select a **Token TTL** (Time to Line). The default is 6 months in the UI.
+    
+    c. Under the `Define Scopes` section select the **Organization Owner** for the **Organization Roles**.
+    
+    d. Under the `Define Scopes` section expand **VMware Cloud Assembly** and select the **Cloud Assembly Administrator** in for the **Service Roles**. 
+
+    e. Under the `Define Scopes` section expand **VMware Service Broker** and select the **Service Broker Administrator** in for the **Service Roles**. 
+
+    f. (Optional) Under the `Email Preferences` section check the option to send expiration reminders.
+
+    g. Click **Generate**.
+
+    The **Token Generated** window displays a token with the name that you specified and the name of your organization.
+
+5. Click **COPY**.
+
+    Clicking **COPY** ensures that you capture the exact string. 
+    
+    > Note: Once you click **Continue**, you will not be able to retrieve this token again.
+
+6. Use the `refresh_token` in the Terraform provider configuration. For example:
+
+    ```hcl
+    provider "vra" {
+      url           = "https://api.mgmt.cloud.vmware.com"
+      refresh_token = "mx7w9**********************zB3UC"
+      insecure      = false
+    }
+    ```
+
+## API Procedure
+
+The following procedure is applicable to both vRealize Automation Cloud and vRealize Automation.
+
+To request a `refresh_token` using the API, you will need your user credentials:
+
+  * username
+  * password
+  * domain (optional)
+
+In addition, you will need the fully qualified domain name (FQDN) of the endpoint associated with the identity access service. 
+
+* vRealize Automation Cloud is available in multiple global regions. When making a API request to the service hosted in the United States, use `api.mgmt.cloud.vmware.com`. For organizations located outside of the United States, prefix the URL with the country abbreviation for your API endpoint as shown in the following:
+
+  * Australia: `au.api.mgmt.cloud.vmware.com`
+  * Brazil: `br.api.mgmt.cloud.vmware.com`
+  * Canada: `ca.api.mgmt.cloud.vmware.com`
+  * Germany: `de.api.mgmt.cloud.vmware.com`
+  * Japan: `jp.api.mgmt.cloud.vmware.com`
+  * Singapore: `sg.api.mgmt.cloud.vmware.com`
+  * United Kingdom: `uk.api.mgmt.cloud.vmware.com`
+
+* For vRealize Automation 8, this will be the fully qualified domain name of the vRealize Automation cluster VIP or appliance. For example, `cloud.example.com`.
+
+You then pass a JSON body containing the credentials to the API.
+
+  **Example**: JSON body with domain.
+  ```json
+  {
+    "username":"john.doe",
+    "password":"VMw@re1!",
+    "domain":"example.com"
+  }
+  ```
+  **Example**: JSON body without domain.
+  ```json
+  {
+    "username":"john.doe",
+    "password":"VMw@re1!"
+  }
+  ```
+
+If successful, a JSON response will be returned with the value for the `refresh_token`.
+
+### PowerShell Example
+
+1. Set the variables:
+
+    ```powershell
+
+    $vraFqdn="cloud.example.com"
+
+    $vraUsername="john.doe"
+
+    $vraPassword="VMw@re1!"
+
+    $vraDomain="example.com"
+
+    $vraUrl="https://$vraFqdn/csp/gateway/am/api/login?access_token"
+
+    $vraBody="{""username"":""$vraUsername"",""password"":""$vraPassword"",""domain"":""$vraDomain""}"
+    ```
+    
+2. `POST` request to the API:
+
+    ```powershell
+    $vraResponse = Invoke-RestMethod -Method POST -ContentType "application/json" -URI $vraUrl -Body $vraBody
+    ```
+
+3. Get the `refresh_token`:
+
+    ```powershell
+    $vraResponse.refresh_token
+    ```
+    The `refresh_token` is returned.
+
+    ```powershell
+    mx7w9**********************zB3UC
+    ```
+
+4. Use the `refresh_token` in the Terraform provider configuration. For example:
+
+    ```hcl
+    provider "vra" {
+      url           = "https://api.mgmt.cloud.vmware.com"
+      refresh_token = "mx7w9**********************zB3UC"
+      insecure      = false
+    }
+    ```
+
+### Bash Example
+
+1. Set the variables:
+
+    ```shell
+    vraFqdn=cloud@example.com
+
+    vraUsername=john.doe
+    
+    vraPassword=VMw@re1!
+    
+    vraDomain=example.com
+  
+    vraUrl="https://"$vraFqdn"/csp/gateway/am/api/login?access_token"
+    
+    vraBody="{\"username\":\"$vraUsername\",\"password\":\"$vraPassword\",\"domain\":\"$vraDomain\"}"
+    ```
+
+2. `POST` request to the API:
+
+    ```shell
+    curl -k -X POST $vraUrl -H "Accept: application/json" -H "Content-Type: application/json" -s -d $vraBody
+    ```
+    The `refresh_token` is returned.
+
+    ```shell
+    {"refresh_token":"mx7w9**********************zB3UC"}
+    ```
+
+3. Use the `refresh_token` in the Terraform provider configuration. For example:
+
+    ```hcl
+    provider "vra" {
+      url           = "https://api.mgmt.cloud.vmware.com"
+      refresh_token = "mx7w9**********************zB3UC"
+      insecure      = false
+    }
+    ```
+
+## Scripts
+
+Scripts for both PowerShell and Bash are included in the project repository in the `docs` directory. These scripts will prompt you for the values and return the `refresh_token`.  
+
+* PowerShell Script: [`get_token.ps1`](./get_token.ps1)
+* Bash Script: [`get_token.sh`](./get_token.sh)
+
+### PowerShell Script on Windows: `get_token.ps1`
+
+```powershell
+> ./get_token.ps1
+
+Enter the FQDN for the vRealize Automation services: cloud.rainpole.io
+
+Enter the username to authenticate with vRealize Automation: john.doe
+
+Enter the password to authenticate with vRealize Automation: ********
+
+Enter the domain or press enter to skip: example.com
+
+Successfully connected to the endpoint for vRealize Automation services: cloud.rainpole.io
+
+Generating Refresh Token...
+
+----------Refresh Token---------
+mx7w9**********************zB3UC
+--------------------------------
+
+Saving environmental variables...
+
+VRA_URL = https://cloud.example.com
+VRA_REFRESH_TOKEN = mx7w9**********************zB3UC
 ```
 
-If successful you should receive a JSON response with multiple values in it from which the refresh token can be extracted.
+### Bash Script on Linux or macOS: `get_token.sh`
 
-![json response example](./images/json_response.png)
+```shell
+$ ./get_token.sh
 
+Enter the FQDN for the vRealize Automation services:
+cloud.rainpole.io
 
-## Bash example
+Enter the username to authenticate with vRealize Automation:
+john.doe
 
-![](images/bash_get_token.png)
+Enter the password to authenticate with vRealize Automation:
+********
 
-## Powershell Example
-![](images/powershell_get_token.png)
+Enter the domain or press enter to skip:
+example.com
 
-## Included scripts
-There are two scripts included in this repository in the docs folder that will prompt you for the needed values and print out the refresh token.  
+Generating Refresh Token...
 
-* [get_token.ps1](./get_token.ps1) - Powershell script
-* [get_token.sh](./get_token.sh) - bash script
+----------Refresh Token---------
+mx7w9**********************zB3UC
+--------------------------------
 
-### Running get_token.sh
-![](images/sh_script_example.png)
+Environmental variables...
 
-### Running get_token.ps1
-![](images/ps_script_example.png)
-
-
-#### Reference Links
-
-  https://vdc-repo.vmware.com/vmwb-repository/dcr-public/97d1d46c-8846-4c12-85a8-5655d1189825/488ad51d-542f-4439-ade2-f9caedeeab51/GUID-AC1E4407-6139-412A-B4AA-1F102942EA94.html
+VRA_URL = https://xreg-vra01.rainpole.io
+VRA_REFRESH_TOKEN = mx7w9**********************zB3UC
+```
