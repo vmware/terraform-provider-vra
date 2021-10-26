@@ -1,61 +1,86 @@
 #!/bin/bash
+
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+# WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+# COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+# OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+# Generates and returns a `refresh_token` from vRealize Automation Cloud or vRealize Automation for use by the Terraform P\provider.
+# 
+#        terraform {
+#            required_providers {
+#                vra = {
+#                    source  = "vmware/vra"
+#                    version = ">= x.y.z"
+#            }
+#        }
+#            required_version = ">= 0.13"
+#        }
 #
-# Script to generate a refresh token for vRA8 on prem or vRA Cloud. 
-# This will prompt for the following values if they are not already set:
-#    username
-# Sets environment variables for VRA_REFRESH_TOKEN and VRA_URL which can be consumed by the 
-# TF provider more securely than leaving the token in cleartext. 
+#        provider "vra" {
+#            url           = "https://api.mgmt.cloud.vmware.com"
+#            refresh_token = "mx7w9**********************zB3UC"
+#            insecure      = false
+#        }
 #
-#
-if  ! [ -x "$(command -v jq)" ]
+# Sets environment variables for `VRA_REFRESH_TOKEN` and `VRA_URL` for use by the Terraform provider.
+
+### Check for an installtion of jq. ###
+
+if ! [ -x "$(command -v jq)" ]
 then
-	echo -e "\nthe jq utility is missing. See https://stedolan.github.io/jq/ for instructions to get it\n"
+	echo -e "\nThe jq utility is missing. See https://stedolan.github.io/jq/ for installation instructions.\n"
 	exit 1
 fi
 
-#Check for an already existing username value
-if [[ -v username ]] 
+### Check for an existing endpoint value. ###
+
+if [[ -v VRA_URL || -v fqdn ]]
 then
-	echo -e "\nusername variable found: $username\n"
-else 
-	echo -e "\nPlease enter username to connect to vra with"
+	echo -e "\nFQDN variable found: $fqdn. Skipping...\n"
+	export VRA_URL="https://$fqdn"
+else
+ 	echo -e "\nEnter the FQDN for the vRealize Automation services:"
+	read fqdn
+	export VRA_URL="https://$fqdn"
+fi
+
+### Check for an existing username value. ###
+
+if [[ -v username ]]
+then
+	echo -e "\nUsername variable found: $username. Skipping...\n"
+else
+	echo -e "\nEnter the username to authenticate with vRealize Automation:"
 	read username
 fi
 
-#Check for an already existing password value
+### Check for an existing password value. ###
+
 if [[ -v password ]]
 then
-    echo -e "\npassword variable found\n"
+    echo -e "\nPassword variable found. Skipping...\n"
 else
-    echo -e "\nPlease enter password to connect to vra with\n"
+    echo -e "\nEnter the password to authenticate with vRealize Automation:"
     read -s password
 fi
 
-#Check for an already existing LDAP/AD domain value
+### Check for an a existing domain value. ###
+
 if [[ -v domain ]]
 then
-    echo -e "\nExisting domain variable found: $domain\n"
+    echo -e "\nDomain variable found: $domain. Skipping...\n"
 else
-	echo -e "\nPlease enter domain to connect to vra with (for AD/LDAP users) or press Enter if you not want to use domain"
+	echo -e "\nEnter the domain or press enter to skip:"
 	read domain
 fi
 
-if [[ -v VRA_URL || -v host ]]
-then 
-	echo -e "\nfound a value for the vra/cas server\n"
-	export VRA_URL="https://$host"
-else
- 	echo -e "\nPlease enter the hostname/fqdn of the VRA8 server/ or cloud identity server"
-	read host
-	export VRA_URL="https://$host"
-fi
+### Generate the refresh token. ###
 
-#use different json bodies with curl depending on whether or not a domain 
-# was specified
-echo -e "\nGetting Token"
+echo -e "\nGenerating Refresh Token..."
 if [[ $domain == "" ]]
 then
-	export VRA_REFRESH_TOKEN=`curl -vvvk -X POST \
+	export VRA_REFRESH_TOKEN=`curl -k -X POST \
   		"$VRA_URL/csp/gateway/am/api/login?access_token" \
   		-H 'Content-Type: application/json' \
   		-s \
@@ -75,11 +100,15 @@ else
 		}' | jq -r .refresh_token`
 fi
 
-
-#clean up password 
-unset password
-
-echo -e "\nRefresh Token"
-echo "----------------------------"
+echo ""
+echo "----------Refresh Token----------"
 echo $VRA_REFRESH_TOKEN
-echo "----------------------------"
+echo "---------------------------------"
+echo ""
+echo "Environmental variables..."
+echo ""
+echo "VRA_URL = " $VRA_URL
+echo "VRA_REFRESH_TOKEN = " $VRA_REFRESH_TOKEN
+
+### Clear the password value. ###
+unset password
