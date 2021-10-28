@@ -66,6 +66,8 @@ resource "vra_project" "this" {
 
   machine_naming_template = "$${resource.name}-$${####}"
 
+  placement_policy = "SPREAD"
+
   constraints {
     extensibility {
       expression = "foo:bar"

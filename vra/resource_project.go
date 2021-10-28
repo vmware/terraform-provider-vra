@@ -2,6 +2,7 @@ package vra
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -57,6 +58,20 @@ func resourceProject() *schema.Resource {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: "The naming template to be used for resources provisioned in this project.",
+			},
+			"placement_policy": {
+				Type:        schema.TypeString,
+				Default:     "DEFAULT",
+				Description: "The placement policy that will be applied when selecting a cloud zone for provisioning.",
+				Optional:    true,
+				ValidateFunc: func(v interface{}, k string) (ws []string, errors []error) {
+					value := v.(string)
+					if value != "DEFAULT" && value != "SPREAD" {
+						errors = append(errors, fmt.Errorf(
+							"%q must be one of 'DEFAULT', 'SPREAD'", k))
+					}
+					return
+				},
 			},
 			"members": {
 				Type:        schema.TypeSet,
@@ -149,6 +164,7 @@ func resourceProjectCreate(ctx context.Context, d *schema.ResourceData, m interf
 	members := expandUserListAndNewUserList(d.Get("members").(*schema.Set).List(), d.Get("member_roles").(*schema.Set).List())
 	name := d.Get("name").(string)
 	operationTimeout := int64(d.Get("operation_timeout").(int))
+	placementPolicy := d.Get("placement_policy").(string)
 	sharedResources := d.Get("shared_resources").(bool)
 	viewers := expandUserListAndNewUserList(d.Get("viewers").(*schema.Set).List(), d.Get("viewer_roles").(*schema.Set).List())
 	zoneAssignment := expandZoneAssignment(d.Get("zone_assignments").(*schema.Set).List())
@@ -162,6 +178,7 @@ func resourceProjectCreate(ctx context.Context, d *schema.ResourceData, m interf
 		Members:                      members,
 		Name:                         &name,
 		OperationTimeout:             &operationTimeout,
+		PlacementPolicy:              placementPolicy,
 		SharedResources:              *withBool(sharedResources),
 		Viewers:                      viewers,
 		ZoneAssignmentConfigurations: zoneAssignment,
@@ -199,6 +216,7 @@ func resourceProjectRead(ctx context.Context, d *schema.ResourceData, m interfac
 	d.Set("member_roles", flattenUsers(project.Members))
 	d.Set("name", project.Name)
 	d.Set("operation_timeout", project.OperationTimeout)
+	d.Set("placement_policy", project.PlacementPolicy)
 	d.Set("shared_resources", project.SharedResources)
 	d.Set("viewers", flattenUsers(project.Viewers))
 	d.Set("viewer_roles", flattenUsers(project.Viewers))
@@ -221,6 +239,7 @@ func resourceProjectUpdate(ctx context.Context, d *schema.ResourceData, m interf
 	viewers := expandUserListAndNewUserList(d.Get("viewers").(*schema.Set).List(), d.Get("viewer_roles").(*schema.Set).List())
 	name := d.Get("name").(string)
 	operationTimeout := int64(d.Get("operation_timeout").(int))
+	placementPolicy := d.Get("placement_policy").(string)
 	sharedResources := d.Get("shared_resources").(bool)
 	zoneAssignment := expandZoneAssignment(d.Get("zone_assignments").(*schema.Set).List())
 
@@ -233,6 +252,7 @@ func resourceProjectUpdate(ctx context.Context, d *schema.ResourceData, m interf
 		Members:                      members,
 		Name:                         &name,
 		OperationTimeout:             &operationTimeout,
+		PlacementPolicy:              placementPolicy,
 		SharedResources:              *withBool(sharedResources),
 		Viewers:                      viewers,
 		ZoneAssignmentConfigurations: zoneAssignment,
