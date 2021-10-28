@@ -65,11 +65,6 @@ func resourceCloudAccountNSXT() *schema.Resource {
 				Optional:    true,
 				Description: "Create NSX-T cloud account in Manager (legacy) mode. When set to true, NSX-T cloud account is created in Manager mode. Mode cannot be changed after cloud account is created. Default value is false.",
 			},
-			"global_manager": {
-				Type:        schema.TypeBool,
-				Optional:    true,
-				Description: "Indicates whether this is an NSX-T Global Manager cloud account. NSX-T Global Manager can only be associated with NSX-T cloud accounts. Default value: false.",
-			},
 			"tags": tagsSchema(),
 			// Computed attributes
 			"associated_cloud_account_ids": {
@@ -118,7 +113,6 @@ func resourceCloudAccountNSXTCreate(ctx context.Context, d *schema.ResourceData,
 				Description:                 d.Get("description").(string),
 				HostName:                    withString(d.Get("hostname").(string)),
 				ManagerMode:                 d.Get("manager_mode").(bool),
-				IsGlobalManager:             d.Get("global_manager").(bool),
 				Name:                        withString(d.Get("name").(string)),
 				Password:                    withString(d.Get("password").(string)),
 				Tags:                        tags,
@@ -156,7 +150,6 @@ func resourceCloudAccountNSXTRead(ctx context.Context, d *schema.ResourceData, m
 	d.Set("dc_id", nsxtAccount.Dcid)
 	d.Set("description", nsxtAccount.Description)
 	d.Set("manager_mode", nsxtAccount.ManagerMode)
-	d.Set("global_manager", nsxtAccount.IsGlobalManager)
 	d.Set("name", nsxtAccount.Name)
 	d.Set("org_id", nsxtAccount.OrgID)
 	d.Set("owner", nsxtAccount.Owner)
