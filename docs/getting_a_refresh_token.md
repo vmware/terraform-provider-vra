@@ -243,6 +243,6 @@ mx7w9**********************zB3UC
 
 Environmental variables...
 
-VRA_URL = https://xreg-vra01.rainpole.io
+VRA_URL = https://cloud.example.com
 VRA_REFRESH_TOKEN = mx7w9**********************zB3UC
 ```
