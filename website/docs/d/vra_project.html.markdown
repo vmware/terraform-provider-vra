@@ -6,6 +6,7 @@ description: |-
 ---
 
 # Data Source: vra_project
+
 ## Example Usages
 This is an example of how to create a project data source.
 
@@ -29,12 +30,13 @@ A project data source supports the following arguments:
 
 ## Argument Reference
 
-* `administrators` - (Optional) List of administrator users associated with the project. Only administrators can manage project's configuration. 
-Deprecated, to specify the type of principal, please refer `administrator_roles`.
+* `administrators` - (Optional) A list of administrator users associated with the project. Only administrators can manage project's configuration. 
+
+  > **Note**:  Deprecated - please refer to `administrator_roles`.
 
 * `administrator_roles` - (Optional) Administrator users or groups associated with the project. Only administrators can manage project's configuration. 
 
-* `constraints` - (Optional) List of storage, network and extensibility constraints to be applied when provisioning through this project.
+* `constraints` - (Optional) A list of storage, network and extensibility constraints to be applied when provisioning through this project.
 
 * `custom_properties` - (Optional) The project custom properties which are added to all requests in this project.
 
@@ -44,7 +46,9 @@ Deprecated, to specify the type of principal, please refer `administrator_roles`
 
 * `machine_naming_template` - (Optional) The naming template to be used for resources provisioned in this project.
 
-* `members` - (Optional) List of member users associated with the project. Deprecated, to specify the type of principal, please refer `member_roles`.
+* `members` - (Optional) A list of member users associated with the project. 
+  
+  > **Note**:  Deprecated - please refer to `member_roles`.
 
 * `member_roles` - (Optional) Member users or groups associated with the project. 
 
@@ -52,12 +56,16 @@ Deprecated, to specify the type of principal, please refer `administrator_roles`
 
 * `operation_timeout` - (Optional) The timeout that should be used for Blueprint operations and Provisioning tasks. The timeout is in seconds.
 
+* `placement_policy` - (Optional) The placement policy that will be applied when selecting a cloud zone for provisioning. Must be one of `DEFAULT` or `SPREAD`.
+
 * `shared_resources` - (Optional) Specifies whether the resources in this projects are shared or not. If not set default will be used.
 
-* `zone_assignments` - (Optional) List of configurations for zone assignment to a project.
+* `zone_assignments` - (Optional) A list of configurations for zone assignment to a project.
 
 * `shared_resources` - (Optional) The id of the organization this entity belongs to.
 
-* `viewers` - (Optional) List of viewer users associated with the project. Deprecated, to specify the type of principal, please refer `viewer_roles`.
+* `viewers` - (Optional) A list of viewer users associated with the project. 
+
+  > **Note**:  Deprecated - please refer to `viewer_roles`.
 
 * `viewer_roles` - (Optional) Viewer users or groups associated with the project. 

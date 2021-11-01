@@ -74,6 +74,11 @@ func dataSourceProject() *schema.Resource {
 				Optional:    true,
 				Description: "The timeout that should be used for Blueprint operations and Provisioning tasks. The timeout is in seconds.",
 			},
+			"placement_policy": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "The placement policy that will be applied when selecting a cloud zone for provisioning.",
+			},
 			"id": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -166,6 +171,7 @@ func dataSourceProjectRead(d *schema.ResourceData, meta interface{}) error {
 		d.Set("member_roles", flattenUsers(project.Members))
 		d.Set("name", project.Name)
 		d.Set("operation_timeout", project.OperationTimeout)
+		d.Set("placement_policy", project.PlacementPolicy)
 		d.Set("shared_resources", project.SharedResources)
 		d.Set("viewers", flattenUsers(project.Viewers))
 		d.Set("viewer_roles", flattenUsers(project.Viewers))

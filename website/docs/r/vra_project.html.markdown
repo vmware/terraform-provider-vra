@@ -2,10 +2,12 @@
 layout: "vra"
 page_title: "VMware vRealize Automation: vra_project"
 description: |-
-  Provides a VMware vRA vra_project resource.
+  Provides a VMware vRealize Automation vra_project resource.
 ---
 # Resource: vra\_project
+
 ## Example Usages
+
 This is an example of how to create a project resource.
 
 ```hcl
@@ -34,12 +36,12 @@ resource "vra_project" "this" {
   
   administrator_roles {
     email = "jason@vra.local"
-    type = "user"
+    type  = "user"
   }
 
   administrator_roles {
     email = "jason-group@vra.local"
-    type = "group"
+    type  = "group"
   }
 
   # Deprecated, please use member_roles instead.
@@ -47,12 +49,12 @@ resource "vra_project" "this" {
 
   member_roles {
     email = "tony@vra.local"
-    type = "user"
+    type  = "user"
   }
 
   member_roles {
     email = "tony-group@vra.local"
-    type = "group"
+    type  = "group"
   }
 
   # Deprecated, please use viewer_roles instead
@@ -60,17 +62,19 @@ resource "vra_project" "this" {
 
   viewer_roles {
     email = "shauna@vra.local"
-    type = "user"
+    type  = "user"
   }
 
   viewer_roles {
     email = "shauna-group@vra.local"
-    type = "group"
+    type  = "group"
   }
 
   operation_timeout = 6000
 
   machine_naming_template = "$${resource.name}-$${####}"
+
+  placement_policy = "SPREAD"
 
   constraints {
     extensibility {
@@ -78,7 +82,7 @@ resource "vra_project" "this" {
       mandatory  = false
     }
     extensibility {
-      expression = "environment:Test"
+      expression = "environment:test"
       mandatory  = true
     }
 
@@ -87,7 +91,7 @@ resource "vra_project" "this" {
       mandatory  = false
     }
     network {
-      expression = "environment:Test"
+      expression = "environment:test"
       mandatory  = true
     }
 
@@ -96,7 +100,7 @@ resource "vra_project" "this" {
       mandatory  = false
     }
     storage {
-      expression = "environment:Test"
+      expression = "environment:test"
       mandatory  = true
     }
   }
@@ -107,12 +111,13 @@ A project resource supports the following arguments:
 
 ## Argument Reference
 
-* `administrators` - (Optional) List of administrator users associated with the project. Only administrators can manage project's configuration. 
-Deprecated, specify the type of principal, please refer `administrator_roles`.
+* `administrators` - (Optional) A list of administrator users associated with the project. Only administrators can manage project's configuration. 
+
+  > **Note**:  Deprecated - please refer to `administrator_roles`.
 
 * `administrator_roles` - (Optional) Administrator users or groups associated with the project. Only administrators can manage project's configuration. 
 
-* `constraints` - (Optional) List of storage, network and extensibility constraints to be applied when provisioning through this project.
+* `constraints` - (Optional) A list of storage, network, and extensibility constraints to be applied when provisioning through this project.
 
 * `custom_properties` - (Optional) The project custom properties which are added to all requests in this project.
 
@@ -120,27 +125,34 @@ Deprecated, specify the type of principal, please refer `administrator_roles`.
 
 * `machine_naming_template` - (Optional) The naming template to be used for resources provisioned in this project.
 
-* `members` - (Optional) List of member users associated with the project. Deprecated, specify the type of principal, please refer `member_roles`.
+* `members` - (Optional) A list of member users associated with the project. 
+  
+  > **Note**:  Deprecated - please refer to `member_roles`.
 
 * `member_roles` - (Optional) Member users or groups associated with the project. 
 
 * `name` - (Required) A human-friendly name used as an identifier in APIs that support this option.
 
-* `operation_timeout` - (Optional) The timeout that should be used for Blueprint operations and Provisioning tasks. The timeout is in seconds.
+* `operation_timeout` - (Optional) The timeout that should be used for cloud template operations and provisioning tasks. The timeout is measured in seconds.
+
+* `placement_policy` - (Optional) The placement policy that will be applied when selecting a cloud zone for provisioning. Must be one of `DEFAULT` or `SPREAD`.
 
 * `shared_resources` - (Optional) Specifies whether the resources in this projects are shared or not. If not set default will be used.
 
-* `viewers` - (Optional) List of viewer users associated with the project. Deprecated, specify the type of principal, please refer `viewer_roles`.
+* `viewers` - (Optional) A list of viewer users associated with the project. 
+
+  > **Note**:  Deprecated - please refer to `viewer_roles`.
 
 * `viewer_roles` - (Optional) Viewer users or groups associated with the project. 
 
-* `zone_assignments` - (Optional) List of configurations for zone assignment to a project.
+* `zone_assignments` - (Optional) A list of configurations for zone assignment to a project.
 
-**Due to the design of IAAS API to update a project, it's not able to add and remove user or group at the same time. Please execute `terraform apply` twice.**
+**Due to the design of the vRealize Automation IaaS API to update a project, it's not able to add and remove user or group at the same time. Please execute `terraform apply` twice.**
 
 Example:
 
-Initially, we have `jason` and `tony` configured as administrator in the config file
+Initially, we have `jason` and `tony` configured as administrator. The initial the configuration:
+
 ```hcl
   administrator_roles {
     email = "jason@vra.local"
@@ -153,7 +165,7 @@ Initially, we have `jason` and `tony` configured as administrator in the config 
   }
 ```
 
-Now we want to add `bob` as a new administrator and remove `jason`, the modified config file will be 
+Next, we want to add `bob` as a new administrator and remove `jason`. The modified configuration:
 
 ```hcl
   administrator_roles {
@@ -167,5 +179,5 @@ Now we want to add `bob` as a new administrator and remove `jason`, the modified
   }
 ```
 
-To complete the whole operation, it requires executing `terraform apply` twice.
+To complete the whole operation, it requires running `terraform apply` twice.
 
