@@ -68,7 +68,7 @@ func resourceCloudAccountNSXT() *schema.Resource {
 			"tags": tagsSchema(),
 			// Computed attributes
 			"associated_cloud_account_ids": {
-				Type:     schema.TypeList,
+				Type:     schema.TypeSet,
 				Computed: true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,

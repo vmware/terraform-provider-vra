@@ -32,7 +32,7 @@ func dataSourceBlueprint() *schema.Resource {
 				Computed: true,
 			},
 			"content_source_sync_messages": {
-				Type:     schema.TypeList,
+				Type:     schema.TypeSet,
 				Computed: true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,

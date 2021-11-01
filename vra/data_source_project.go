@@ -97,7 +97,7 @@ func dataSourceProject() *schema.Resource {
 			},
 			"viewer_roles": userSchema("List of viewer roles associated with the project."),
 			"zone_assignments": {
-				Type:        schema.TypeList,
+				Type:        schema.TypeSet,
 				Optional:    true,
 				Description: "List of configurations for zone assignment to a project.",
 				Elem: &schema.Resource{

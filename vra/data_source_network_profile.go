@@ -29,7 +29,7 @@ func dataSourceNetworkProfile() *schema.Resource {
 				Computed: true,
 			},
 			"fabric_network_ids": {
-				Type:     schema.TypeList,
+				Type:     schema.TypeSet,
 				Computed: true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
@@ -82,7 +82,7 @@ func dataSourceNetworkProfile() *schema.Resource {
 				Computed: true,
 			},
 			"security_group_ids": {
-				Type:     schema.TypeList,
+				Type:     schema.TypeSet,
 				Computed: true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,

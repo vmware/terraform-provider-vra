@@ -50,7 +50,7 @@ func resourceCloudAccountGCP() *schema.Resource {
 				Optional: true,
 			},
 			"regions": {
-				Type:     schema.TypeList,
+				Type:     schema.TypeSet,
 				Optional: true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
@@ -72,7 +72,7 @@ func resourceCloudAccountGCP() *schema.Resource {
 				Computed: true,
 			},
 			"region_ids": {
-				Type:     schema.TypeList,
+				Type:     schema.TypeSet,
 				Computed: true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
@@ -92,10 +92,10 @@ func resourceCloudAccountGCPCreate(ctx context.Context, d *schema.ResourceData, 
 	apiClient := m.(*Client).apiClient
 
 	if v, ok := d.GetOk("regions"); ok {
-		if !compareUnique(v.([]interface{})) {
+		if !compareUnique(v.(*schema.Set).List()) {
 			return diag.FromErr(errors.New("specified regions are not unique"))
 		}
-		regions = expandStringList(v.([]interface{}))
+		regions = expandStringList(v.(*schema.Set).List())
 	}
 
 	createResp, err := apiClient.CloudAccount.CreateGcpCloudAccount(cloud_account.NewCreateGcpCloudAccountParams().WithBody(&models.CloudAccountGcpSpecification{
@@ -173,10 +173,10 @@ func resourceCloudAccountGCPUpdate(ctx context.Context, d *schema.ResourceData, 
 	id := d.Id()
 
 	if v, ok := d.GetOk("regions"); ok {
-		if !compareUnique(v.([]interface{})) {
+		if !compareUnique(v.(*schema.Set).List()) {
 			return diag.FromErr(errors.New("specified regions are not unique"))
 		}
-		regions = expandStringList(v.([]interface{}))
+		regions = expandStringList(v.(*schema.Set).List())
 	}
 	tags := expandTags(d.Get("tags").(*schema.Set).List())
 

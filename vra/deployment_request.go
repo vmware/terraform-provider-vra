@@ -99,7 +99,7 @@ func deploymentRequestSchema() *schema.Schema {
 					Computed: true,
 				},
 				"resource_ids": {
-					Type:     schema.TypeList,
+					Type:     schema.TypeSet,
 					Optional: true,
 					Computed: true,
 					Elem: &schema.Schema{

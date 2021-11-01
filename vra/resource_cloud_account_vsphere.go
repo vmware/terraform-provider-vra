@@ -37,7 +37,7 @@ func resourceCloudAccountVsphere() *schema.Resource {
 				Sensitive: true,
 			},
 			"regions": {
-				Type:     schema.TypeList,
+				Type:     schema.TypeSet,
 				Required: true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
@@ -54,7 +54,7 @@ func resourceCloudAccountVsphere() *schema.Resource {
 				Default:  false,
 			},
 			"associated_cloud_account_ids": {
-				Type:     schema.TypeList,
+				Type:     schema.TypeSet,
 				Optional: true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
@@ -88,7 +88,7 @@ func resourceCloudAccountVsphere() *schema.Resource {
 				Computed: true,
 			},
 			"region_ids": {
-				Type:     schema.TypeList,
+				Type:     schema.TypeSet,
 				Computed: true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
@@ -109,17 +109,17 @@ func resourceCloudAccountVsphereCreate(ctx context.Context, d *schema.ResourceDa
 
 	tags := expandTags(d.Get("tags").(*schema.Set).List())
 	if v, ok := d.GetOk("regions"); ok {
-		if !compareUnique(v.([]interface{})) {
-			return diag.FromErr(errors.New("Specified regions are not unique"))
+		if !compareUnique(v.(*schema.Set).List()) {
+			return diag.FromErr(errors.New("specified regions are not unique"))
 		}
-		regions = expandStringList(v.([]interface{}))
+		regions = expandStringList(v.(*schema.Set).List())
 	}
 
 	if v, ok := d.GetOk("associated_cloud_account_ids"); ok {
-		if !compareUnique(v.([]interface{})) {
+		if !compareUnique(v.(*schema.Set).List()) {
 			return diag.FromErr(errors.New("specified associated cloud account ids are not unique"))
 		}
-		associatedCloudAccountIds = expandStringList(v.([]interface{}))
+		associatedCloudAccountIds = expandStringList(v.(*schema.Set).List())
 	}
 
 	createResp, err := apiClient.CloudAccount.CreateVSphereCloudAccount(
@@ -215,10 +215,10 @@ func resourceCloudAccountVsphereUpdate(ctx context.Context, d *schema.ResourceDa
 	id := d.Id()
 
 	if v, ok := d.GetOk("regions"); ok {
-		if !compareUnique(v.([]interface{})) {
-			return diag.FromErr(errors.New("Specified regions are not unique"))
+		if !compareUnique(v.(*schema.Set).List()) {
+			return diag.FromErr(errors.New("specified regions are not unique"))
 		}
-		regions = expandStringList(v.([]interface{}))
+		regions = expandStringList(v.(*schema.Set).List())
 	}
 	_, err := apiClient.CloudAccount.UpdateVSphereCloudAccount(cloud_account.NewUpdateVSphereCloudAccountParams().WithID(id).WithBody(&models.UpdateCloudAccountVsphereSpecification{
 		CreateDefaultZones: false,

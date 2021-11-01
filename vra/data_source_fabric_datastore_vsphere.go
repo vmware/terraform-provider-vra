@@ -27,7 +27,7 @@ func dataSourceFabricDatastoreVsphere() *schema.Resource {
 				Optional:      true,
 			},
 			"cloud_account_ids": {
-				Type:        schema.TypeList,
+				Type:        schema.TypeSet,
 				Computed:    true,
 				Description: "Set of ids of the cloud accounts this entity belongs to.",
 				Elem: &schema.Schema{

@@ -53,7 +53,7 @@ func dataSourceCatalogItem() *schema.Resource {
 				Computed: true,
 			},
 			"project_ids": {
-				Type:     schema.TypeList,
+				Type:     schema.TypeSet,
 				Computed: true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,

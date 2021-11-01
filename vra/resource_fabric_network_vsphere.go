@@ -34,7 +34,7 @@ func resourceFabricNetworkVsphere() *schema.Resource {
 				Computed: true,
 			},
 			"cloud_account_ids": {
-				Type:     schema.TypeList,
+				Type:     schema.TypeSet,
 				Computed: true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
