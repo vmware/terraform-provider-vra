@@ -2,41 +2,50 @@
 layout: "vra"
 page_title: "VMware vRealize Automation: vra_load_balancer"
 description: |-
-  Provides a VMware vRA vra_load_balancer resource.
+  Creates a vra_load_balancer resource.
 ---
+
 # Resource: vra_load_balancer
+
+Creates a VMware vRealize Automation load balancer resource.
+
 ## Example Usages
 
-This is an example of how to read a load balancer resource.
+The following example shows how to create a load balancer resource.
+
 
 ```hcl
-resource "vra_load_balancer" "my_load_balancer" {
-    name = "my-lb-%d"
-    project_id = vra_project.my-project.id
-    description = "load balancer description"
-    
-    targets {
-        machine_id = vra_machine.my_machine.id
-    }
+resource "vra_load_balancer" "this" {
+  name        = "my-load-balancer"
+  project_id  = vra_project.my-project.id
+  description = "My Load Balancer"
+  custom_properties = {
+    "edgeClusterRouterStateLink"  = "/resources/routers/<uuid>"
+    "tier0LogicalRouterStateLink" = "/resources/routers/<uuid>"
+  }
 
-    nics {
-        network_id = data.vra_network.my-network.id
-    }
+  targets {
+    machine_id = vra_machine.my_machine.id
+  }
 
-    routes {
-        protocol = "TCP"
-        port = "80"
-        member_protocol = "TCP"
-        member_port = "80"
-        health_check_configuration = {
-            protocol = "TCP"
-            port = "80"
-            interval_seconds = 30
-            timeout_seconds = 10
-            unhealthy_threshold = 2
-            healthy_threshold = 10
-        }
+  nics {
+    network_id = data.vra_network.my-network.id
+  }
+
+  routes {
+    protocol        = "TCP"
+    port            = "80"
+    member_protocol = "TCP"
+    member_port     = "80"
+    health_check_configuration {
+      protocol            = "TCP"
+      port                = "80"
+      interval_seconds    = 30
+      timeout_seconds     = 10
+      unhealthy_threshold = 2
+      healthy_threshold   = 10
     }
+  }
 }
 ```
 
