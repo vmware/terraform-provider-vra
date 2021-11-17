@@ -192,7 +192,7 @@ resource "vra_flavor_profile" "my-flavor-profile" {
 	}
 }
 
-resource "vra_machine" "my_machine" {
+resource "vra_machine" "my-machine" {
 	name        = "my-machine-%d"
 	description = "test machine updated"
 	project_id  = vra_project.my-project.id
@@ -211,13 +211,16 @@ resource "vra_machine" "my_machine" {
 func testAccCheckVRALoadBalancerNoTargetLinkConfig(rInt int) string {
 
 	return testAccCheckVRALoadBalancer(rInt) + fmt.Sprintf(`
-	resource "vra_load_balancer" "my_load_balancer" {
-		name = "my-lb-%d"
+	resource "vra_load_balancer" "my-load-balancer" {
+		name = "my-load-balancer"
 		project_id = vra_project.my-project.id
-		description = "load balancer description"
-
+		description = "My Load Balancer"
+		custom_properties = {
+			"edgeClusterRouterStateLink" = "/resources/routers/<uuid>"
+			"tier0LogicalRouterStateLink" = "/resources/routers/<uuid>"
+		}
 		targets {
-			machine_id = "invalid-machine-id"
+			machine_id = data.vra_machine.my-machine.id
 		}
 
 		nics {
@@ -229,7 +232,7 @@ func testAccCheckVRALoadBalancerNoTargetLinkConfig(rInt int) string {
 			port = "80"
 			member_protocol = "TCP"
 			member_port = "80"
-			health_check_configuration = {
+			health_check_configuration {
 				protocol = "TCP"
 				port = "80"
 				interval_seconds = 30
