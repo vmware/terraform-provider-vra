@@ -20,8 +20,8 @@ import (
 
 // API Versions
 const (
-	CatalogAPIVersion     = "2019-01-15"
-	DeploymentsAPIVersion = "2019-01-15"
+	CatalogAPIVersion     = "2020-08-25"
+	DeploymentsAPIVersion = "2020-08-25"
 )
 
 const IncreasedTimeOut = 60 * time.Second
