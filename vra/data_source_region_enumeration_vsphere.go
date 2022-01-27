@@ -1,41 +1,53 @@
 package vra
 
 import (
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"context"
+	"time"
+
 	"github.com/vmware/vra-sdk-go/pkg/client/cloud_account"
 	"github.com/vmware/vra-sdk-go/pkg/models"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func dataSourceRegionEnumerationVsphere() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceRegionEnumerationVsphereRead,
+		ReadContext: dataSourceRegionEnumerationVsphereRead,
 
 		Schema: map[string]*schema.Schema{
 			"accept_self_signed_cert": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				Default:  false,
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Default:     false,
+				Description: "Whether to accept self signed certificate when connecting to the vCenter Server.",
 			},
 			"dcid": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "Identifier of a data collector vm deployed in the on premise infrastructure.",
 			},
 			"hostname": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "IP address or FQDN of the vCenter Server.",
 			},
 			"password": {
-				Type:      schema.TypeString,
-				Required:  true,
-				Sensitive: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Sensitive:   true,
+				Description: "Password of the vCenter Server.",
 			},
 			"username": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "Username of the vCenter Server.",
 			},
 			"regions": {
-				Type:     schema.TypeSet,
-				Computed: true,
+				Type:        schema.TypeSet,
+				Computed:    true,
+				Description: "A set of region ids that can be enabled for this cloud account.",
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
@@ -44,25 +56,49 @@ func dataSourceRegionEnumerationVsphere() *schema.Resource {
 	}
 }
 
-func dataSourceRegionEnumerationVsphereRead(d *schema.ResourceData, meta interface{}) error {
+func dataSourceRegionEnumerationVsphereRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	apiClient := meta.(*Client).apiClient
 
-	getResp, err := apiClient.CloudAccount.EnumerateVSphereRegions(
-		cloud_account.NewEnumerateVSphereRegionsParams().
+	enumResp, err := apiClient.CloudAccount.EnumerateVSphereRegionsAsync(
+		cloud_account.NewEnumerateVSphereRegionsAsyncParams().
+			WithAPIVersion(withString(IaaSAPIVersion)).
 			WithTimeout(IncreasedTimeOut).
-			WithBody(&models.CloudAccountVsphereSpecification{
+			WithBody(&models.CloudAccountVsphereRegionEnumerationSpecification{
 				AcceptSelfSignedCertificate: d.Get("accept_self_signed_cert").(bool),
 				Dcid:                        d.Get("dcid").(string),
-				HostName:                    withString(d.Get("hostname").(string)),
-				Password:                    withString(d.Get("password").(string)),
-				Username:                    withString(d.Get("username").(string)),
+				HostName:                    d.Get("hostname").(string),
+				Password:                    d.Get("password").(string),
+				Username:                    d.Get("username").(string),
 			}))
-
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
-	d.Set("regions", getResp.Payload.ExternalRegionIds)
+	stateChangeFunc := resource.StateChangeConf{
+		Delay:      5 * time.Second,
+		Pending:    []string{models.RequestTrackerStatusINPROGRESS},
+		Refresh:    dataSourceRegionEnumerationReadRefreshFunc(*apiClient, *enumResp.Payload.ID),
+		Target:     []string{models.RequestTrackerStatusFINISHED},
+		Timeout:    d.Timeout(schema.TimeoutRead),
+		MinTimeout: 5 * time.Second,
+	}
+
+	resourceIds, err := stateChangeFunc.WaitForStateContext(ctx)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+	enumID := (resourceIds.([]string))[0]
+
+	getResp, err := apiClient.CloudAccount.GetRegionEnumerationResult(
+		cloud_account.NewGetRegionEnumerationResultParams().
+			WithAPIVersion(withString(IaaSAPIVersion)).
+			WithTimeout(IncreasedTimeOut).
+			WithID(enumID))
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
+	d.Set("regions", extractIdsFromRegionSpecification(getResp.Payload.ExternalRegions))
 	d.SetId(d.Get("hostname").(string))
 
 	return nil
