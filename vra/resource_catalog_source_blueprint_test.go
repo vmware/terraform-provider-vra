@@ -45,7 +45,7 @@ func testAccCheckVRACatalogSourceBlueprintDestroy(s *terraform.State) error {
 			continue
 		}
 
-		_, err := apiClient.CatalogSources.GetUsingGET(catalog_sources.NewGetUsingGETParams().WithSourceID(strfmt.UUID(rs.Primary.ID)))
+		_, err := apiClient.CatalogSources.GetUsingGET2(catalog_sources.NewGetUsingGET2Params().WithSourceID(strfmt.UUID(rs.Primary.ID)))
 		if err == nil {
 			return fmt.Errorf("resource 'vra_catalog_source_blueprint' still exists with id %s", rs.Primary.ID)
 		}

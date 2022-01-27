@@ -186,12 +186,12 @@ func resourceDeploymentCreate(ctx context.Context, d *schema.ResourceData, m int
 	deploymentName := d.Get("name").(string)
 	projectID := d.Get("project_id").(string)
 
-	getResp, err := apiClient.Deployments.CheckDeploymentNameUsingGET(deployments.NewCheckDeploymentNameUsingGETParams().WithName(deploymentName))
+	getResp, err := apiClient.Deployments.CheckDeploymentNameUsingGET2(deployments.NewCheckDeploymentNameUsingGET2Params().WithName(deploymentName))
 	log.Printf("getResp: %v, err: %v", getResp, err)
 
 	if err != nil {
 		switch err.(type) {
-		case *deployments.CheckDeploymentNameUsingGETNotFound:
+		case *deployments.CheckDeploymentNameUsingGET2NotFound:
 			log.Printf("Deployment '%v' doesn't exist already and hence can be created", deploymentName)
 		}
 	} else {
@@ -227,15 +227,19 @@ func resourceDeploymentCreate(ctx context.Context, d *schema.ResourceData, m int
 		}
 
 		log.Printf("[DEBUG] Create deployment: %#v", catalogItemRequest)
-		postOk, err := apiClient.CatalogItems.RequestCatalogItemUsingPOST(
-			catalog_items.NewRequestCatalogItemUsingPOSTParams().WithID(strfmt.UUID(catalogItemID)).
+		postOk, err := apiClient.CatalogItems.RequestCatalogItemInstancesUsingPOST1(
+			catalog_items.NewRequestCatalogItemInstancesUsingPOST1Params().WithID(strfmt.UUID(catalogItemID)).
 				WithAPIVersion(withString(CatalogAPIVersion)).WithRequest(&catalogItemRequest))
 
 		if err != nil {
 			return diag.FromErr(err)
 		}
 
-		d.SetId(postOk.GetPayload().DeploymentID)
+		payload := postOk.GetPayload()
+		if len(payload) == 0 {
+			return diag.Errorf("failed to request vra_deployment '%s' from catalog item", d.Get("name"))
+		}
+		d.SetId(payload[0].DeploymentID)
 		log.Printf("Finished requesting vra_deployment '%s' from catalog item", d.Get("name"))
 	} else {
 		blueprintVersion := ""
@@ -341,17 +345,20 @@ func resourceDeploymentRead(ctx context.Context, d *schema.ResourceData, m inter
 	id := d.Id()
 	expandProject := d.Get("expand_project").(bool)
 
-	resp, err := apiClient.Deployments.GetDeploymentByIDUsingGET(
-		deployments.NewGetDeploymentByIDUsingGETParams().
+	expand := []string{"resources", "lastRequest"}
+	if expandProject {
+		expand = append(expand, "project")
+	}
+
+	resp, err := apiClient.Deployments.GetDeploymentByIDV3UsingGET(
+		deployments.NewGetDeploymentByIDV3UsingGETParams().
 			WithDeploymentID(strfmt.UUID(id)).
-			WithExpandResources(withBool(true)).
-			WithExpandLastRequest(withBool(true)).
-			WithExpandProject(withBool(expandProject)).
+			WithExpand(expand).
 			WithAPIVersion(withString(DeploymentsAPIVersion)).
 			WithTimeout(IncreasedTimeOut))
 	if err != nil {
 		switch err.(type) {
-		case *deployments.GetDeploymentByIDUsingGETNotFound:
+		case *deployments.GetDeploymentByIDV3UsingGETNotFound:
 			d.SetId("")
 			return nil
 		}
@@ -471,7 +478,7 @@ func resourceDeploymentDelete(ctx context.Context, d *schema.ResourceData, m int
 	apiClient := m.(*Client).apiClient
 
 	id := d.Id()
-	_, err := apiClient.Deployments.DeleteDeploymentUsingDELETE(deployments.NewDeleteDeploymentUsingDELETEParams().WithDeploymentID(strfmt.UUID(id)))
+	_, err := apiClient.Deployments.DeleteDeploymentUsingDELETE2(deployments.NewDeleteDeploymentUsingDELETE2Params().WithDeploymentID(strfmt.UUID(id)))
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -480,9 +487,9 @@ func resourceDeploymentDelete(ctx context.Context, d *schema.ResourceData, m int
 
 	stateChangeFunc := resource.StateChangeConf{
 		Delay:      5 * time.Second,
-		Pending:    []string{reflect.TypeOf((*deployments.GetDeploymentByIDUsingGETOK)(nil)).String()},
+		Pending:    []string{reflect.TypeOf((*deployments.GetDeploymentByIDV3UsingGETOK)(nil)).String()},
 		Refresh:    deploymentDeleteStatusRefreshFunc(*apiClient, d.Id()),
-		Target:     []string{reflect.TypeOf((*deployments.GetDeploymentByIDUsingGETNotFound)(nil)).String()},
+		Target:     []string{reflect.TypeOf((*deployments.GetDeploymentByIDV3UsingGETNotFound)(nil)).String()},
 		Timeout:    d.Timeout(schema.TimeoutDelete),
 		MinTimeout: 5 * time.Second,
 	}
@@ -601,13 +608,13 @@ func getCatalogItemSchema(apiClient *client.MulticloudIaaS, catalogItemID string
 	log.Printf("Getting the schema for catalog item: %v version: %v", catalogItemID, catalogItemVersion)
 	var catalogItemSchema interface{}
 	if catalogItemVersion == "" {
-		getItemResp, err := apiClient.CatalogItems.GetCatalogItemUsingGET1(catalog_items.NewGetCatalogItemUsingGET1Params().WithID(strfmt.UUID(catalogItemID)))
+		getItemResp, err := apiClient.CatalogItems.GetCatalogItemUsingGET5(catalog_items.NewGetCatalogItemUsingGET5Params().WithID(strfmt.UUID(catalogItemID)))
 		if err != nil {
 			return nil, err
 		}
 		catalogItemSchema = getItemResp.GetPayload().Schema
 	} else {
-		getVersionResp, err := apiClient.CatalogItems.GetVersionByIDUsingGET(catalog_items.NewGetVersionByIDUsingGETParams().WithID(strfmt.UUID(catalogItemID)).WithVersionID(catalogItemVersion))
+		getVersionResp, err := apiClient.CatalogItems.GetVersionByIDUsingGET2(catalog_items.NewGetVersionByIDUsingGET2Params().WithID(strfmt.UUID(catalogItemID)).WithVersionID(catalogItemVersion))
 		if err != nil {
 			return nil, err
 		}
@@ -645,10 +652,10 @@ func getBlueprintSchema(apiClient *client.MulticloudIaaS, blueprintID string, bl
 
 func deploymentStatusRefreshFunc(apiClient client.MulticloudIaaS, id string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
-		ret, err := apiClient.Deployments.GetDeploymentByIDUsingGET(
-			deployments.NewGetDeploymentByIDUsingGETParams().
+		ret, err := apiClient.Deployments.GetDeploymentByIDV3UsingGET(
+			deployments.NewGetDeploymentByIDV3UsingGETParams().
 				WithDeploymentID(strfmt.UUID(id)).
-				WithExpandLastRequest(withBool(true)).
+				WithExpand([]string{"lastRequest"}).
 				WithAPIVersion(withString(DeploymentsAPIVersion)))
 		if err != nil {
 			return id, models.DeploymentStatusCREATEFAILED, err
@@ -786,8 +793,8 @@ func updateDeploymentMetadata(d *schema.ResourceData, apiClient *client.Multiclo
 	}
 
 	log.Printf("[DEBUG] update deployment: %#v", updateDeploymentSpecification)
-	_, err := apiClient.Deployments.PatchDeploymentUsingPATCH(
-		deployments.NewPatchDeploymentUsingPATCHParams().WithDeploymentID(deploymentUUID).WithUpdate(&updateDeploymentSpecification))
+	_, err := apiClient.Deployments.PatchDeploymentUsingPATCH2(
+		deployments.NewPatchDeploymentUsingPATCH2Params().WithDeploymentID(deploymentUUID).WithUpdate(&updateDeploymentSpecification))
 	if err != nil {
 		return err
 	}
@@ -799,8 +806,8 @@ func updateDeploymentMetadata(d *schema.ResourceData, apiClient *client.Multiclo
 func runDeploymentUpdateAction(ctx context.Context, d *schema.ResourceData, apiClient *client.MulticloudIaaS, deploymentUUID strfmt.UUID) error {
 	log.Printf("Noticed changes to inputs. Starting to update deployment with inputs")
 	// Get the deployment actions
-	deploymentActions, err := apiClient.DeploymentActions.GetDeploymentActionsUsingGET(deployment_actions.
-		NewGetDeploymentActionsUsingGETParams().WithDeploymentID(deploymentUUID))
+	deploymentActions, err := apiClient.DeploymentActions.GetDeploymentActionsUsingGET2(deployment_actions.
+		NewGetDeploymentActionsUsingGET2Params().WithDeploymentID(deploymentUUID))
 	if err != nil {
 		return err
 	}
@@ -943,8 +950,8 @@ func getInputTypesMapFromBlueprintInputsSchema(schema map[string]models.Property
 // Returns whether the day2 action is valid currently, exact action ID for a given action string
 func getDeploymentDay2ActionID(apiClient *client.MulticloudIaaS, deploymentUUID strfmt.UUID, actionName string) (bool, string, error) {
 	// Get the deployment actions
-	deploymentActions, err := apiClient.DeploymentActions.GetDeploymentActionsUsingGET(deployment_actions.
-		NewGetDeploymentActionsUsingGETParams().WithDeploymentID(deploymentUUID))
+	deploymentActions, err := apiClient.DeploymentActions.GetDeploymentActionsUsingGET2(deployment_actions.
+		NewGetDeploymentActionsUsingGET2Params().WithDeploymentID(deploymentUUID))
 	if err != nil {
 		return false, "", err
 	}
@@ -975,8 +982,8 @@ func getDeploymentActionSchema(apiClient *client.MulticloudIaaS, deploymentUUID 
 	log.Printf("Getting the schema for deploymentID: %v, actionID: %v", deploymentUUID, actionID)
 	var actionSchema interface{}
 
-	deploymentAction, err := apiClient.DeploymentActions.GetDeploymentActionUsingGET(deployment_actions.
-		NewGetDeploymentActionUsingGETParams().WithDeploymentID(deploymentUUID).WithActionID(actionID))
+	deploymentAction, err := apiClient.DeploymentActions.GetDeploymentActionUsingGET2(deployment_actions.
+		NewGetDeploymentActionUsingGET2Params().WithDeploymentID(deploymentUUID).WithActionID(actionID))
 	if err != nil {
 		return nil, err
 	}
@@ -1048,8 +1055,8 @@ func runAction(ctx context.Context, d *schema.ResourceData, apiClient *client.Mu
 		Inputs:   inputs,
 	}
 
-	resp, err := apiClient.DeploymentActions.SubmitDeploymentActionRequestUsingPOST(
-		deployment_actions.NewSubmitDeploymentActionRequestUsingPOSTParams().
+	resp, err := apiClient.DeploymentActions.SubmitDeploymentActionRequestUsingPOST2(
+		deployment_actions.NewSubmitDeploymentActionRequestUsingPOST2Params().
 			WithAPIVersion(withString(DeploymentsAPIVersion)).
 			WithDeploymentID(deploymentUUID).
 			WithActionRequest(&resourceActionRequest))
@@ -1075,10 +1082,10 @@ func runAction(ctx context.Context, d *schema.ResourceData, apiClient *client.Mu
 
 func deploymentActionStatusRefreshFunc(apiClient client.MulticloudIaaS, deploymentUUID strfmt.UUID, requestID strfmt.UUID) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
-		ret, err := apiClient.Deployments.GetDeploymentByIDUsingGET(
-			deployments.NewGetDeploymentByIDUsingGETParams().
+		ret, err := apiClient.Deployments.GetDeploymentByIDV3UsingGET(
+			deployments.NewGetDeploymentByIDV3UsingGETParams().
 				WithDeploymentID(deploymentUUID).
-				WithExpandLastRequest(withBool(true)).
+				WithExpand([]string{"lastRequest"}).
 				WithAPIVersion(withString(DeploymentsAPIVersion)).
 				WithTimeout(IncreasedTimeOut))
 		if err != nil {
@@ -1104,14 +1111,14 @@ func deploymentActionStatusRefreshFunc(apiClient client.MulticloudIaaS, deployme
 
 func deploymentDeleteStatusRefreshFunc(apiClient client.MulticloudIaaS, id string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
-		ret, err := apiClient.Deployments.GetDeploymentByIDUsingGET(
-			deployments.NewGetDeploymentByIDUsingGETParams().
+		ret, err := apiClient.Deployments.GetDeploymentByIDV3UsingGET(
+			deployments.NewGetDeploymentByIDV3UsingGETParams().
 				WithDeploymentID(strfmt.UUID(id)).
-				WithExpandLastRequest(withBool(true)).
+				WithExpand([]string{"lastRequest"}).
 				WithAPIVersion(withString(DeploymentsAPIVersion)))
 		if err != nil {
 			switch err.(type) {
-			case *deployments.GetDeploymentByIDUsingGETNotFound:
+			case *deployments.GetDeploymentByIDV3UsingGETNotFound:
 				return "", reflect.TypeOf(err).String(), nil
 			default:
 				return [...]string{id}, reflect.TypeOf(err).String(), fmt.Errorf(ret.Error())

@@ -129,7 +129,7 @@ func resourceImageProfileUpdate(ctx context.Context, d *schema.ResourceData, m i
 
 	_, err := apiClient.ImageProfile.UpdateImageProfile(image_profile.NewUpdateImageProfileParams().WithID(id).WithBody(&models.UpdateImageProfileSpecification{
 		Description:  d.Get("description").(string),
-		Name:         withString(d.Get("name").(string)),
+		Name:         d.Get("name").(string),
 		ImageMapping: imageMapping,
 	}))
 	if err != nil {

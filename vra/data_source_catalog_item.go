@@ -90,8 +90,8 @@ func dataSourceCatalogItemRead(d *schema.ResourceData, meta interface{}) error {
 
 	expandProjects := d.Get("expand_projects").(bool)
 
-	getItemsResp, err := apiClient.CatalogItems.GetCatalogItemsUsingGET1(
-		catalog_items.NewGetCatalogItemsUsingGET1Params().
+	getItemsResp, err := apiClient.CatalogItems.GetCatalogItemsUsingGET5(
+		catalog_items.NewGetCatalogItemsUsingGET5Params().
 			WithSearch(withString(name.(string))).
 			WithExpandProjects(withBool(expandProjects)))
 	if err != nil {
@@ -121,14 +121,14 @@ func dataSourceCatalogItemRead(d *schema.ResourceData, meta interface{}) error {
 
 	for _, catalogItem := range getItemsResp.Payload.Content {
 		if (idOk && catalogItem.ID.String() == id) || (nameOk && *catalogItem.Name == name.(string)) {
-			getItemResp, err := apiClient.CatalogItems.GetCatalogItemUsingGET1(catalog_items.NewGetCatalogItemUsingGET1Params().WithID(*catalogItem.ID).WithExpandProjects(withBool(expandProjects)))
+			getItemResp, err := apiClient.CatalogItems.GetCatalogItemUsingGET5(catalog_items.NewGetCatalogItemUsingGET5Params().WithID(*catalogItem.ID).WithExpandProjects(withBool(expandProjects)))
 
 			if err != nil {
 				return err
 			}
 
 			if d.Get("expand_versions").(bool) {
-				getVersionsResp, err := apiClient.CatalogItems.GetVersionsUsingGET(catalog_items.NewGetVersionsUsingGETParams().WithID(*catalogItem.ID))
+				getVersionsResp, err := apiClient.CatalogItems.GetVersionsUsingGET2(catalog_items.NewGetVersionsUsingGET2Params().WithID(*catalogItem.ID))
 
 				if err != nil {
 					return err

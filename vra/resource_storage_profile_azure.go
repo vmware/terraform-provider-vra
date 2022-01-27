@@ -143,7 +143,7 @@ func resourceStorageProfileAzureRead(ctx context.Context, d *schema.ResourceData
 	d.Set("data_disk_caching", AzureStorageProfile.DataDiskCaching)
 	d.Set("external_region_id", AzureStorageProfile.ExternalRegionID)
 	d.Set("name", AzureStorageProfile.Name)
-	d.Set("organization_id", AzureStorageProfile.OrganizationID)
+	d.Set("organization_id", AzureStorageProfile.OrgID)
 	d.Set("os_disk_caching", AzureStorageProfile.OsDiskCaching)
 	d.Set("owner", AzureStorageProfile.Owner)
 	d.Set("supports_encryption", AzureStorageProfile.SupportsEncryption)

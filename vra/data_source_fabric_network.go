@@ -108,7 +108,7 @@ func resourceFabricNetworkRead(d *schema.ResourceData, meta interface{}) error {
 	d.Set("is_default", fabricNetwork.IsDefault)
 	d.Set("is_public", fabricNetwork.IsPublic)
 	d.Set("name", fabricNetwork.Name)
-	d.Set("organization_id", fabricNetwork.OrganizationID)
+	d.Set("organization_id", fabricNetwork.OrgID)
 	d.Set("owner", fabricNetwork.Owner)
 	d.Set("updated_at", fabricNetwork.UpdatedAt)
 	d.Set("custom_properties", fabricNetwork.CustomProperties)

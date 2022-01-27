@@ -163,7 +163,7 @@ func resourceFlavorProfileUpdate(ctx context.Context, d *schema.ResourceData, m 
 
 	_, err := apiClient.FlavorProfile.UpdateFlavorProfile(flavor_profile.NewUpdateFlavorProfileParams().WithID(id).WithBody(&models.UpdateFlavorProfileSpecification{
 		Description:   description,
-		Name:          &name,
+		Name:          name,
 		FlavorMapping: flavorMapping,
 	}))
 	if err != nil {

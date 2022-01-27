@@ -138,7 +138,7 @@ func resourceStorageProfileAwsRead(ctx context.Context, d *schema.ResourceData, 
 	d.Set("external_region_id", awsStorageProfile.ExternalRegionID)
 	d.Set("iops", awsStorageProfile.Iops)
 	d.Set("name", awsStorageProfile.Name)
-	d.Set("organization_id", awsStorageProfile.OrganizationID)
+	d.Set("organization_id", awsStorageProfile.OrgID)
 	d.Set("owner", awsStorageProfile.Owner)
 	d.Set("supports_encryption", awsStorageProfile.SupportsEncryption)
 	d.Set("updated_at", awsStorageProfile.UpdatedAt)

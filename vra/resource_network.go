@@ -203,7 +203,7 @@ func resourceNetworkRead(ctx context.Context, d *schema.ResourceData, m interfac
 	d.Set("external_id", network.ExternalID)
 	d.Set("external_zone_id", network.ExternalZoneID)
 	d.Set("name", network.Name)
-	d.Set("organization_id", network.OrganizationID)
+	d.Set("organization_id", network.OrgID)
 	d.Set("owner", network.Owner)
 	d.Set("project_id", network.ProjectID)
 	d.Set("updated_at", network.UpdatedAt)

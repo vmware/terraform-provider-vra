@@ -86,7 +86,7 @@ func TestFlattenImageMapping(t *testing.T) {
 		ID:               withString("abc123"),
 		IsPrivate:        true,
 		Name:             "Template: Ubuntu",
-		OrganizationID:   "abac",
+		OrgID:            "abac",
 		OsFamily:         "Linux",
 		Owner:            "self",
 		UpdatedAt:        "2020-02-10",
@@ -101,7 +101,7 @@ func TestFlattenImageMapping(t *testing.T) {
 		ID:               withString("abc123"),
 		IsPrivate:        true,
 		Name:             "Template: CentOs",
-		OrganizationID:   "abcd",
+		OrgID:            "abcd",
 		OsFamily:         "Linux",
 		Owner:            "self",
 	}
@@ -125,7 +125,7 @@ func TestFlattenImageMapping(t *testing.T) {
 		im1["private"].(bool) != imd1.IsPrivate ||
 		im1["image_name"].(string) != imd1.Name ||
 		im1["name"].(string) != "Ubuntu" ||
-		im1["organization"].(string) != imd1.OrganizationID ||
+		im1["organization"].(string) != imd1.OrgID ||
 		im1["os_family"].(string) != imd1.OsFamily ||
 		im1["owner"].(string) != imd1.Owner {
 		t.Errorf("image mapping descriptions 'Ubuntu' is not flattened correctly")
@@ -141,7 +141,7 @@ func TestFlattenImageMapping(t *testing.T) {
 		im2["private"].(bool) != imd2.IsPrivate ||
 		im2["image_name"].(string) != imd2.Name ||
 		im2["name"].(string) != "CentOs" ||
-		im2["organization"].(string) != imd2.OrganizationID ||
+		im2["organization"].(string) != imd2.OrgID ||
 		im2["os_family"].(string) != imd2.OsFamily ||
 		im2["owner"].(string) != imd2.Owner {
 		t.Errorf("image mapping descriptions 'CentOs' is not flattened correctly")

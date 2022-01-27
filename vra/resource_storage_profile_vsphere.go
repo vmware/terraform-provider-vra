@@ -188,7 +188,7 @@ func resourceStorageProfileVsphereRead(ctx context.Context, d *schema.ResourceDa
 	d.Set("external_region_id", VsphereStorageProfile.ExternalRegionID)
 	d.Set("limit_iops", VsphereStorageProfile.LimitIops)
 	d.Set("name", VsphereStorageProfile.Name)
-	d.Set("organization_id", VsphereStorageProfile.OrganizationID)
+	d.Set("organization_id", VsphereStorageProfile.OrgID)
 	d.Set("provisioning_type", VsphereStorageProfile.ProvisioningType)
 	d.Set("owner", VsphereStorageProfile.Owner)
 	d.Set("shares", VsphereStorageProfile.Shares)

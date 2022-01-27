@@ -77,8 +77,8 @@ func dataSourceCatalogSourceEntitlementRead(d *schema.ResourceData, m interface{
 		return fmt.Errorf("one of id or catalog_source_id must be provided with project_id")
 	}
 
-	resp, err := apiClient.CatalogEntitlements.GetEntitlementsUsingGET(
-		catalog_entitlements.NewGetEntitlementsUsingGETParams().WithProjectID(withString(projectID)))
+	resp, err := apiClient.CatalogEntitlements.GetEntitlementsUsingGET2(
+		catalog_entitlements.NewGetEntitlementsUsingGET2Params().WithProjectID(withString(projectID)))
 
 	if err != nil {
 		return err

@@ -180,7 +180,7 @@ func resourceNetworkProfileRead(ctx context.Context, d *schema.ResourceData, m i
 	d.Set("isolated_network_cidr_prefix", networkProfile.IsolatedNetworkCIDRPrefix)
 	d.Set("name", networkProfile.Name)
 	d.Set("org_id", networkProfile.OrgID)
-	d.Set("organization_id", networkProfile.OrganizationID)
+	d.Set("organization_id", networkProfile.OrgID)
 	d.Set("owner", networkProfile.Owner)
 	d.Set("updated_at", networkProfile.UpdatedAt)
 
