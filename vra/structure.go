@@ -64,66 +64,6 @@ func indexOf(value string, items []string) (int, error) {
 	return -1, fmt.Errorf("Could not find %s in item list %v", value, items)
 }
 
-// flattenAndNormalizeCloudAccountRegionIds will return region id's in the same order as regionOrder
-func flattenAndNormalizeCloudAccountRegionIds(regionOrder []string, cloudAccount *models.CloudAccount) ([]string, error) {
-	returnOrder := cloudAccount.EnabledRegionIds
-	refStrings := cloudAccount.Links["regions"].Hrefs
-	m := make([]string, len(regionOrder))
-	for i, r := range regionOrder {
-		index, err := indexOf(r, returnOrder)
-		if err != nil {
-			return []string{}, err
-		}
-		m[i] = strings.TrimPrefix(refStrings[index], "/iaas/api/regions/")
-	}
-	return m, nil
-}
-
-// flattenAndNormalizeCLoudAccountAWSRegionIds will return region id's in the same order as regionOrder
-func flattenAndNormalizeCLoudAccountAWSRegionIds(regionOrder []string, cloudAccount *models.CloudAccountAws) ([]string, error) {
-	returnOrder := cloudAccount.EnabledRegionIds
-	refStrings := cloudAccount.Links["regions"].Hrefs
-	m := make([]string, len(regionOrder))
-	for i, r := range regionOrder {
-		index, err := indexOf(r, returnOrder)
-		if err != nil {
-			return []string{}, err
-		}
-		m[i] = strings.TrimPrefix(refStrings[index], "/iaas/api/regions/")
-	}
-	return m, nil
-}
-
-// flattenAndNormalizeCLoudAccountAzureRegionIds will return region id's in the same order as regionOrder
-func flattenAndNormalizeCLoudAccountAzureRegionIds(regionOrder []string, cloudAccount *models.CloudAccountAzure) ([]string, error) {
-	returnOrder := cloudAccount.EnabledRegionIds
-	refStrings := cloudAccount.Links["regions"].Hrefs
-	m := make([]string, len(regionOrder))
-	for i, r := range regionOrder {
-		index, err := indexOf(r, returnOrder)
-		if err != nil {
-			return []string{}, err
-		}
-		m[i] = strings.TrimPrefix(refStrings[index], "/iaas/api/regions/")
-	}
-	return m, nil
-}
-
-// flattenAndNormalizeCloudAccountVsphereRegionIds will return region id's in the same order as regionOrder
-func flattenAndNormalizeCloudAccountVsphereRegionIds(regionOrder []string, cloudAccount *models.CloudAccountVsphere) ([]string, error) {
-	returnOrder := cloudAccount.EnabledRegionIds
-	refStrings := cloudAccount.Links["regions"].Hrefs
-	m := make([]string, len(regionOrder))
-	for i, r := range regionOrder {
-		index, err := indexOf(r, returnOrder)
-		if err != nil {
-			return []string{}, err
-		}
-		m[i] = strings.TrimPrefix(refStrings[index], "/iaas/api/regions/")
-	}
-	return m, nil
-}
-
 // flattenAssociatedCloudAccountIds will return associated cloud account ids from the Href links in the order received
 func flattenAssociatedCloudAccountIds(links map[string]models.Href) []string {
 	refStrings := links["associated-cloud-accounts"].Hrefs
@@ -132,21 +72,6 @@ func flattenAssociatedCloudAccountIds(links map[string]models.Href) []string {
 		m[i] = strings.TrimPrefix(r, "/iaas/api/cloud-accounts/")
 	}
 	return m
-}
-
-// flattenAndNormalizeCLoudAccountGcpRegionIds will return region id's in the same order as regionOrder
-func flattenAndNormalizeCLoudAccountGcpRegionIds(regionOrder []string, cloudAccount *models.CloudAccountGcp) ([]string, error) {
-	returnOrder := cloudAccount.EnabledRegionIds
-	refStrings := cloudAccount.Links["regions"].Hrefs
-	m := make([]string, len(regionOrder))
-	for i, r := range regionOrder {
-		index, err := indexOf(r, returnOrder)
-		if err != nil {
-			return []string{}, err
-		}
-		m[i] = strings.TrimPrefix(refStrings[index], "/iaas/api/regions/")
-	}
-	return m, nil
 }
 
 // expandInputs will convert the interface  into a map of [string:interface]

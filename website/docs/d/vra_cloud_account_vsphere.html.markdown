@@ -57,7 +57,7 @@ The following arguments are supported for an vSphere cloud account data source:
 
 * `description` - A human-friendly description.
 
-* `enabled_region_ids` - A set of region IDs that are enabled for this account.
+* `regions` - A set of region IDs that are enabled for this account.
 
 * `hostname` - The IP address or FQDN of the vCenter Server. The cloud proxy belongs on this vCenter.
 

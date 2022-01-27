@@ -20,50 +20,66 @@ func dataSourceCloudAccountAzure() *schema.Resource {
 				Optional:      true,
 				Computed:      true,
 				ConflictsWith: []string{"name"},
+				Description:   "The id of this resource instance.",
 			},
 			"name": {
 				Type:          schema.TypeString,
 				Optional:      true,
 				Computed:      true,
 				ConflictsWith: []string{"id"},
+				Description:   "The name of this resource instance.",
 			},
+
 			// Computed attributes
 			"application_id": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "Azure Client Application ID.",
 			},
 			"created_at": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "Date when the entity was created. The date is in ISO 8601 and UTC.",
 			},
 			"description": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "A human-friendly description.",
 			},
 			"links": linksSchema(),
 			"org_id": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "The id of the organization this entity belongs to.",
 			},
 			"owner": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "Email of the user that owns the entity.",
 			},
 			"regions": {
-				Type:     schema.TypeSet,
-				Computed: true,
+				Type:        schema.TypeSet,
+				Computed:    true,
+				Description: "The set of region ids that are enabled for this cloud account.",
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
 			},
 			"subscription_id": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "Azure Subscription ID.",
 			},
 			"tags": tagsSchema(),
 			"tenant_id": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "Azure Tenant ID.",
+			},
+			"updated_at": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "Date when the entity was last updated. The date is ISO 8601 and UTC.",
 			},
 		},
 	}
@@ -72,47 +88,66 @@ func dataSourceCloudAccountAzure() *schema.Resource {
 func dataSourceCloudAccountAzureRead(d *schema.ResourceData, meta interface{}) error {
 	apiClient := meta.(*Client).apiClient
 
-	id, idOk := d.GetOk("id")
-	name, nameOk := d.GetOk("name")
+	id := d.Get("id").(string)
+	name := d.Get("name").(string)
 
-	if !idOk && !nameOk {
-		return fmt.Errorf("One of id or name must be assigned")
+	if id == "" && name == "" {
+		return fmt.Errorf("one of 'id' or 'name' must be set")
 	}
 
-	getResp, err := apiClient.CloudAccount.GetAzureCloudAccounts(cloud_account.NewGetAzureCloudAccountsParams())
-	if err != nil {
-		return err
-	}
-
-	setFields := func(account *models.CloudAccountAzure) error {
-		d.SetId(*account.ID)
-		d.Set("application_id", account.ClientApplicationID)
-		d.Set("created_at", account.CreatedAt)
-		d.Set("description", account.Description)
-		d.Set("name", account.Name)
-		d.Set("org_id", account.OrgID)
-		d.Set("owner", account.Owner)
-		d.Set("regions", account.EnabledRegionIds)
-		d.Set("subscription_id", account.SubscriptionID)
-		d.Set("tenant_id", account.TenantID)
-		d.Set("updated_at", account.UpdatedAt)
-
-		if err := d.Set("links", flattenLinks(account.Links)); err != nil {
-			return fmt.Errorf("error setting cloud_account_azure links - error: %#v", err)
+	var cloudAccountAzure *models.CloudAccountAzure
+	if id != "" {
+		getResp, err := apiClient.CloudAccount.GetAzureCloudAccount(cloud_account.NewGetAzureCloudAccountParams().WithID(id))
+		if err != nil {
+			switch err.(type) {
+			case *cloud_account.GetAzureCloudAccountNotFound:
+				return fmt.Errorf("azure cloud account with id '%s' not found", id)
+			default:
+				// nop
+			}
+			return err
 		}
 
-		if err := d.Set("tags", flattenTags(account.Tags)); err != nil {
-			return fmt.Errorf("error setting cloud_account_azure tags - error: %v", err)
+		cloudAccountAzure = getResp.GetPayload()
+	} else {
+		getResp, err := apiClient.CloudAccount.GetAzureCloudAccounts(cloud_account.NewGetAzureCloudAccountsParams())
+		if err != nil {
+			return err
 		}
 
-		return nil
-	}
+		for _, account := range getResp.Payload.Content {
+			if account.Name == name {
+				cloudAccountAzure = account
+			}
+		}
 
-	for _, account := range getResp.Payload.Content {
-		if (idOk && account.ID == id) || (nameOk && account.Name == name) {
-			return setFields(account)
+		if cloudAccountAzure == nil {
+			return fmt.Errorf("azure cloud account with name '%s' not found", name)
 		}
 	}
 
-	return fmt.Errorf("cloud account %s not found", name)
+	d.SetId(*cloudAccountAzure.ID)
+	d.Set("application_id", cloudAccountAzure.ClientApplicationID)
+	d.Set("created_at", cloudAccountAzure.CreatedAt)
+	d.Set("description", cloudAccountAzure.Description)
+	d.Set("name", cloudAccountAzure.Name)
+	d.Set("org_id", cloudAccountAzure.OrgID)
+	d.Set("owner", cloudAccountAzure.Owner)
+	d.Set("subscription_id", cloudAccountAzure.SubscriptionID)
+	d.Set("tenant_id", cloudAccountAzure.TenantID)
+	d.Set("updated_at", cloudAccountAzure.UpdatedAt)
+
+	if err := d.Set("links", flattenLinks(cloudAccountAzure.Links)); err != nil {
+		return fmt.Errorf("error setting cloud_account_azure links - error: %#v", err)
+	}
+
+	if err := d.Set("regions", extractIdsFromRegion(cloudAccountAzure.EnabledRegions)); err != nil {
+		return fmt.Errorf("error setting cloud_account_azure regions - error: %#v", err)
+	}
+
+	if err := d.Set("tags", flattenTags(cloudAccountAzure.Tags)); err != nil {
+		return fmt.Errorf("error setting cloud_account_azure tags - error: %v", err)
+	}
+
+	return nil
 }

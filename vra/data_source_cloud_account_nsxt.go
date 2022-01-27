@@ -26,8 +26,9 @@ func dataSourceCloudAccountNSXT() *schema.Resource {
 				Optional:      true,
 				Computed:      true,
 				ConflictsWith: []string{"id"},
-				Description:   "A human-friendly description.",
+				Description:   "The name of this resource instance.",
 			},
+
 			// Computed attributes
 			"associated_cloud_account_ids": {
 				Type:     schema.TypeSet,
@@ -44,7 +45,7 @@ func dataSourceCloudAccountNSXT() *schema.Resource {
 			"dc_id": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: "Identifier of a data collector vm deployed in the on premise infrastructure. Refer to the data-collector API to create or list data collectors.",
+				Description: "Identifier of a data collector vm deployed in the on premise infrastructure",
 			},
 			"description": {
 				Type:        schema.TypeString,
@@ -94,7 +95,7 @@ func dataSourceCloudAccountNSXTRead(d *schema.ResourceData, meta interface{}) er
 	name, nameOk := d.GetOk("name")
 
 	if !idOk && !nameOk {
-		return fmt.Errorf("one of id or name must be assigned")
+		return fmt.Errorf("one of 'id' or 'name' must be assigned")
 	}
 
 	getResp, err := apiClient.CloudAccount.GetNsxTCloudAccounts(cloud_account.NewGetNsxTCloudAccountsParams())
@@ -121,8 +122,9 @@ func dataSourceCloudAccountNSXTRead(d *schema.ResourceData, meta interface{}) er
 		}
 
 		if err := d.Set("tags", flattenTags(account.Tags)); err != nil {
-			return fmt.Errorf("error setting cloud account tags - error: %#v", err)
+			return fmt.Errorf("error setting cloud_account_nsxt tags - error: %#v", err)
 		}
+
 		return nil
 	}
 	for _, account := range getResp.Payload.Content {

@@ -13,11 +13,23 @@ func dataSourceCloudAccountVsphere() *schema.Resource {
 		Read: dataSourceCloudAccountVsphereRead,
 
 		Schema: map[string]*schema.Schema{
+			// Optional arguments
 			"id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Type:          schema.TypeString,
+				Optional:      true,
+				Computed:      true,
+				ConflictsWith: []string{"name"},
+				Description:   "The id of this resource instance.",
 			},
+			"name": {
+				Type:          schema.TypeString,
+				Optional:      true,
+				Computed:      true,
+				ConflictsWith: []string{"id"},
+				Description:   "The name of this resource instance.",
+			},
+
+			// Computed attributes
 			"associated_cloud_account_ids": {
 				Type:     schema.TypeSet,
 				Computed: true,
@@ -26,55 +38,54 @@ func dataSourceCloudAccountVsphere() *schema.Resource {
 				},
 			},
 			"created_at": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"custom_properties": {
-				Type:     schema.TypeMap,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "Date when the entity was created. The date is in ISO 8601 and UTC.",
 			},
 			"dcid": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "Identifier of a data collector vm deployed in the on premise infrastructure.",
 			},
 			"description": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "A human-friendly description.",
 			},
-			"enabled_region_ids": {
-				Type:     schema.TypeSet,
-				Computed: true,
+			"hostname": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "IP address or FQDN of the vCenter Server.",
+			},
+			"links": linksSchema(),
+			"org_id": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "The id of the organization this entity belongs to.",
+			},
+			"owner": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "Email of the user that owns the entity.",
+			},
+			"regions": {
+				Type:        schema.TypeSet,
+				Computed:    true,
+				Description: "The set of region ids that are enabled for this cloud account.",
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
 			},
-			"hostname": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-			},
-			"name": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-			},
-			"org_id": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"owner": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
 			"tags": tagsSchema(),
 			"updated_at": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "Date when the entity was last updated. The date is ISO 8601 and UTC.",
 			},
 			"username": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "Username of the vCenter Server.",
 			},
 		},
 	}
@@ -83,42 +94,67 @@ func dataSourceCloudAccountVsphere() *schema.Resource {
 func dataSourceCloudAccountVsphereRead(d *schema.ResourceData, meta interface{}) error {
 	apiClient := meta.(*Client).apiClient
 
-	id, idOk := d.GetOk("id")
-	name, nameOk := d.GetOk("name")
+	id := d.Get("id").(string)
+	name := d.Get("name").(string)
 
-	if !idOk && !nameOk {
-		return fmt.Errorf("One of id or name must be assigned")
-	}
-	getResp, err := apiClient.CloudAccount.GetVSphereCloudAccounts(cloud_account.NewGetVSphereCloudAccountsParams())
-	if err != nil {
-		return err
+	if id == "" && name == "" {
+		return fmt.Errorf("one of 'id' or 'name' must be set")
 	}
 
-	setFields := func(account *models.CloudAccountVsphere) {
-		d.SetId(*account.ID)
-		d.Set("associated_cloud_account_ids", flattenAssociatedCloudAccountIds(account.Links))
-		d.Set("created_at", account.CreatedAt)
-		d.Set("custom_properties", account.CustomProperties)
-		d.Set("dcid", account.Dcid)
-		d.Set("description", account.Description)
-		d.Set("enabled_region_ids", account.EnabledRegionIds)
-		d.Set("hostname", account.HostName)
-		d.Set("name", account.Name)
-		d.Set("org_id", account.OrgID)
-		d.Set("owner", account.Owner)
-		d.Set("tags", account.Tags)
-		d.Set("updated_at", account.UpdatedAt)
-	}
-	for _, account := range getResp.Payload.Content {
-		if idOk && account.ID == id {
-			setFields(account)
-			return nil
+	var cloudAccountVsphere *models.CloudAccountVsphere
+	if id != "" {
+		getResp, err := apiClient.CloudAccount.GetVSphereCloudAccount(cloud_account.NewGetVSphereCloudAccountParams().WithID(id))
+		if err != nil {
+			switch err.(type) {
+			case *cloud_account.GetVSphereCloudAccountNotFound:
+				return fmt.Errorf("vsphere cloud account with id '%s' not found", id)
+			default:
+				// nop
+			}
+			return err
 		}
-		if nameOk && account.Name == name {
-			setFields(account)
-			return nil
+
+		cloudAccountVsphere = getResp.GetPayload()
+	} else {
+		getResp, err := apiClient.CloudAccount.GetVSphereCloudAccounts(cloud_account.NewGetVSphereCloudAccountsParams())
+		if err != nil {
+			return err
+		}
+
+		for _, account := range getResp.Payload.Content {
+			if account.Name == name {
+				cloudAccountVsphere = account
+			}
+		}
+
+		if cloudAccountVsphere == nil {
+			return fmt.Errorf("vsphere cloud account with name '%s' not found", name)
 		}
 	}
 
-	return fmt.Errorf("cloud account %s not found", name)
+	d.SetId(*cloudAccountVsphere.ID)
+	d.Set("associated_cloud_account_ids", flattenAssociatedCloudAccountIds(cloudAccountVsphere.Links))
+	d.Set("created_at", cloudAccountVsphere.CreatedAt)
+	d.Set("dcid", cloudAccountVsphere.Dcid)
+	d.Set("description", cloudAccountVsphere.Description)
+	d.Set("hostname", cloudAccountVsphere.HostName)
+	d.Set("name", cloudAccountVsphere.Name)
+	d.Set("org_id", cloudAccountVsphere.OrgID)
+	d.Set("owner", cloudAccountVsphere.Owner)
+	d.Set("updated_at", cloudAccountVsphere.UpdatedAt)
+	d.Set("username", cloudAccountVsphere.Username)
+
+	if err := d.Set("links", flattenLinks(cloudAccountVsphere.Links)); err != nil {
+		return fmt.Errorf("error setting cloud_account_vsphere links - error: %#v", err)
+	}
+
+	if err := d.Set("regions", extractIdsFromRegion(cloudAccountVsphere.EnabledRegions)); err != nil {
+		return fmt.Errorf("error setting cloud_account_vsphere regions - error: %#v", err)
+	}
+
+	if err := d.Set("tags", flattenTags(cloudAccountVsphere.Tags)); err != nil {
+		return fmt.Errorf("error setting cloud_account_vsphere tags - error: %#v", err)
+	}
+
+	return nil
 }
