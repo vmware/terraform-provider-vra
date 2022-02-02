@@ -3,11 +3,17 @@ package vra
 import (
 	"context"
 	"errors"
+	"fmt"
+	"strings"
+	"time"
 
+	"github.com/vmware/vra-sdk-go/pkg/client"
 	"github.com/vmware/vra-sdk-go/pkg/client/cloud_account"
+	"github.com/vmware/vra-sdk-go/pkg/client/request"
 	"github.com/vmware/vra-sdk-go/pkg/models"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -24,104 +30,109 @@ func resourceCloudAccountAWS() *schema.Resource {
 		Schema: map[string]*schema.Schema{
 			// Required arguments
 			"access_key": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "Aws Access key ID.",
 			},
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
-			},
-			"secret_key": {
-				Type:      schema.TypeString,
-				Required:  true,
-				Sensitive: true,
-			},
-			// Optional arguments
-			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "The name of this resource instance.",
 			},
 			"regions": {
-				Type:     schema.TypeSet,
-				Optional: true,
+				Type:        schema.TypeSet,
+				Required:    true,
+				Description: "The set of region ids that will be enabled for this cloud account.",
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
 			},
+			"secret_key": {
+				Type:        schema.TypeString,
+				Required:    true,
+				Sensitive:   true,
+				Description: "Aws Secret Access Key.",
+			},
+
+			// Optional arguments
+			"description": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "A human-friendly description.",
+			},
 			"tags": tagsSchema(),
+
 			// Computed attributes
 			"created_at": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "Date when the entity was created. The date is in ISO 8601 and UTC.",
 			},
 			"links": linksSchema(),
 			"org_id": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "The id of the organization this entity belongs to.",
 			},
 			"owner": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"region_ids": {
-				Type:     schema.TypeSet,
-				Computed: true,
-				Elem: &schema.Schema{
-					Type: schema.TypeString,
-				},
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "Email of the user that owns the entity.",
 			},
 			"updated_at": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "Date when the entity was last updated. The date is ISO 8601 and UTC.",
 			},
 		},
 	}
 }
 
 func resourceCloudAccountAWSCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	var regions []string
+	var regions []*models.RegionSpecification
 
 	apiClient := m.(*Client).apiClient
-
-	accessKey := d.Get("access_key").(string)
-	description := d.Get("description").(string)
-	name := d.Get("name").(string)
-	secretAccessKey := d.Get("secret_key").(string)
-	tags := expandTags(d.Get("tags").(*schema.Set).List())
 
 	if v, ok := d.GetOk("regions"); ok {
 		if !compareUnique(v.(*schema.Set).List()) {
 			return diag.FromErr(errors.New("specified regions are not unique"))
 		}
-		regions = expandStringList(v.(*schema.Set).List())
+		regions = expandRegionSpecificationList(v.(*schema.Set).List())
 	}
 
-	createResp, err := apiClient.CloudAccount.CreateAwsCloudAccount(cloud_account.NewCreateAwsCloudAccountParams().WithBody(&models.CloudAccountAwsSpecification{
-		AccessKeyID:        &accessKey,
-		CreateDefaultZones: false,
-		Description:        description,
-		Name:               &name,
-		SecretAccessKey:    &secretAccessKey,
-		RegionIds:          regions,
-		Tags:               tags,
-	}))
-
+	createResp, err := apiClient.CloudAccount.CreateAwsCloudAccountAsync(
+		cloud_account.NewCreateAwsCloudAccountAsyncParams().
+			WithAPIVersion(withString(IaaSAPIVersion)).
+			WithTimeout(IncreasedTimeOut).
+			WithBody(&models.CloudAccountAwsSpecification{
+				AccessKeyID:        withString(d.Get("access_key").(string)),
+				CreateDefaultZones: false,
+				Description:        d.Get("description").(string),
+				Name:               withString(d.Get("name").(string)),
+				Regions:            regions,
+				SecretAccessKey:    withString(d.Get("secret_key").(string)),
+				Tags:               expandTags(d.Get("tags").(*schema.Set).List()),
+			}))
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
-	// The returned EnabledRegionIds and Hrefs containing the region ids can be in a different order than the request order.
-	// Call a routine to normalize the order to correspond with the users region order.
-	regionsIds, err := flattenAndNormalizeCLoudAccountAWSRegionIds(regions, createResp.Payload)
+	stateChangeFunc := resource.StateChangeConf{
+		Delay:      5 * time.Second,
+		Pending:    []string{models.RequestTrackerStatusINPROGRESS},
+		Refresh:    resourceCloudAccountAWSStateRefreshFunc(*apiClient, *createResp.Payload.ID),
+		Target:     []string{models.RequestTrackerStatusFINISHED},
+		Timeout:    d.Timeout(schema.TimeoutCreate),
+		MinTimeout: 5 * time.Second,
+	}
+
+	resourceIds, err := stateChangeFunc.WaitForStateContext(ctx)
 	if err != nil {
 		return diag.FromErr(err)
 	}
-	d.Set("region_ids", regionsIds)
+	cloudAccountAWS := (resourceIds.([]string))[0]
 
-	if err := d.Set("tags", flattenTags(tags)); err != nil {
-		return diag.Errorf("Error setting cloud account tags - error: %#v", err)
-	}
-	d.SetId(*createResp.Payload.ID)
+	d.SetId(cloudAccountAWS)
 
 	return resourceCloudAccountAWSRead(ctx, d, m)
 }
@@ -135,63 +146,73 @@ func resourceCloudAccountAWSRead(ctx context.Context, d *schema.ResourceData, m 
 		switch err.(type) {
 		case *cloud_account.GetAwsCloudAccountNotFound:
 			d.SetId("")
-			return nil
+			return diag.Errorf("aws cloud account '%s' not found", id)
 		}
 		return diag.FromErr(err)
 	}
-	awsAccount := *ret.Payload
-	regions := awsAccount.EnabledRegionIds
 
+	awsAccount := *ret.Payload
 	d.Set("access_key", awsAccount.AccessKeyID)
 	d.Set("created_at", awsAccount.CreatedAt)
 	d.Set("description", awsAccount.Description)
 	d.Set("name", awsAccount.Name)
 	d.Set("org_id", awsAccount.OrgID)
 	d.Set("owner", awsAccount.Owner)
-	d.Set("regions", regions)
 	d.Set("updated_at", awsAccount.UpdatedAt)
 
 	if err := d.Set("links", flattenLinks(awsAccount.Links)); err != nil {
 		return diag.Errorf("error setting cloud_account_aws links - error: %#v", err)
 	}
 
-	// The returned EnabledRegionIds and Hrefs containing the region ids can be in a different order than the request order.
-	// Call a routine to normalize the order to correspond with the users region order.
-	regionsIds, err := flattenAndNormalizeCLoudAccountAWSRegionIds(regions, &awsAccount)
-	if err != nil {
-		return diag.FromErr(err)
+	if err := d.Set("regions", extractIdsFromRegion(awsAccount.EnabledRegions)); err != nil {
+		return diag.Errorf("error setting cloud_account_aws regions - error: %#v", err)
 	}
-	d.Set("region_ids", regionsIds)
 
 	if err := d.Set("tags", flattenTags(awsAccount.Tags)); err != nil {
-		return diag.Errorf("Error setting cloud account tags - error: %#v", err)
+		return diag.Errorf("Error setting cloud_account_aws tags - error: %#v", err)
 	}
 
 	return nil
 }
 
 func resourceCloudAccountAWSUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	var regions []string
+	var regions []*models.RegionSpecification
 
 	apiClient := m.(*Client).apiClient
-
-	id := d.Id()
-	description := d.Get("description").(string)
-	tags := expandTags(d.Get("tags").(*schema.Set).List())
 
 	if v, ok := d.GetOk("regions"); ok {
 		if !compareUnique(v.(*schema.Set).List()) {
 			return diag.FromErr(errors.New("specified regions are not unique"))
 		}
-		regions = expandStringList(v.(*schema.Set).List())
+		regions = expandRegionSpecificationList(v.(*schema.Set).List())
 	}
-	_, err := apiClient.CloudAccount.UpdateAwsCloudAccount(cloud_account.NewUpdateAwsCloudAccountParams().WithID(id).WithBody(&models.UpdateCloudAccountAwsSpecification{
-		CreateDefaultZones: false,
-		Description:        description,
-		RegionIds:          regions,
-		Tags:               tags,
-	}))
+
+	id := d.Id()
+	updateResp, err := apiClient.CloudAccount.UpdateAWSCloudAccountAsync(
+		cloud_account.NewUpdateAWSCloudAccountAsyncParams().
+			WithAPIVersion(withString(IaaSAPIVersion)).
+			WithTimeout(IncreasedTimeOut).
+			WithID(id).
+			WithBody(&models.UpdateCloudAccountAwsSpecification{
+				CreateDefaultZones: false,
+				Description:        d.Get("description").(string),
+				Regions:            regions,
+				Tags:               expandTags(d.Get("tags").(*schema.Set).List()),
+			}))
 	if err != nil {
+		return diag.FromErr(err)
+	}
+
+	stateChangeFunc := resource.StateChangeConf{
+		Delay:      5 * time.Second,
+		Pending:    []string{models.RequestTrackerStatusINPROGRESS},
+		Refresh:    resourceCloudAccountAWSStateRefreshFunc(*apiClient, *updateResp.Payload.ID),
+		Target:     []string{models.RequestTrackerStatusFINISHED},
+		Timeout:    d.Timeout(schema.TimeoutUpdate),
+		MinTimeout: 5 * time.Second,
+	}
+
+	if _, err := stateChangeFunc.WaitForStateContext(ctx); err != nil {
 		return diag.FromErr(err)
 	}
 
@@ -202,12 +223,36 @@ func resourceCloudAccountAWSDelete(ctx context.Context, d *schema.ResourceData, 
 	apiClient := m.(*Client).apiClient
 
 	id := d.Id()
-	_, err := apiClient.CloudAccount.DeleteAwsCloudAccount(cloud_account.NewDeleteAwsCloudAccountParams().WithID(id))
-	if err != nil {
+	if _, _, err := apiClient.CloudAccount.DeleteAwsCloudAccount(cloud_account.NewDeleteAwsCloudAccountParams().WithID(id)); err != nil {
 		return diag.FromErr(err)
 	}
 
 	d.SetId("")
 
 	return nil
+}
+
+func resourceCloudAccountAWSStateRefreshFunc(apiClient client.MulticloudIaaS, id string) resource.StateRefreshFunc {
+	return func() (interface{}, string, error) {
+		ret, err := apiClient.Request.GetRequestTracker(request.NewGetRequestTrackerParams().WithID(id))
+		if err != nil {
+			return "", models.RequestTrackerStatusFAILED, err
+		}
+
+		status := ret.Payload.Status
+		switch *status {
+		case models.RequestTrackerStatusFAILED:
+			return []string{""}, *status, fmt.Errorf(ret.Payload.Message)
+		case models.RequestTrackerStatusINPROGRESS:
+			return [...]string{id}, *status, nil
+		case models.RequestTrackerStatusFINISHED:
+			cloudAccountIds := make([]string, len(ret.Payload.Resources))
+			for i, r := range ret.Payload.Resources {
+				cloudAccountIds[i] = strings.TrimPrefix(r, "/iaas/api/cloud-accounts/")
+			}
+			return cloudAccountIds, *status, nil
+		default:
+			return [...]string{id}, ret.Payload.Message, fmt.Errorf("resourceCloudAccountAWSStateRefreshFunc: unknown status %v", *status)
+		}
+	}
 }

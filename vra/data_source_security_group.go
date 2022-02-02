@@ -83,7 +83,7 @@ func dataSourceSecurityGroupRead(d *schema.ResourceData, meta interface{}) error
 	d.Set("external_id", securityGroup.ExternalID)
 	d.Set("external_region_id", securityGroup.ExternalRegionID)
 	d.Set("name", securityGroup.Name)
-	d.Set("organization_id", securityGroup.OrganizationID)
+	d.Set("organization_id", securityGroup.OrgID)
 	d.Set("owner", securityGroup.Owner)
 	d.Set("rules", securityGroup.Rules)
 	d.Set("updated_at", securityGroup.UpdatedAt)

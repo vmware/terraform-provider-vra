@@ -111,8 +111,8 @@ func resourceCatalogSourceBlueprintCreate(ctx context.Context, d *schema.Resourc
 		catalogSource.Description = v.(string)
 	}
 
-	_, createResp, err := apiClient.CatalogSources.PostUsingPOST(
-		catalog_sources.NewPostUsingPOSTParams().WithSource(&catalogSource))
+	_, createResp, err := apiClient.CatalogSources.PostUsingPOST2(
+		catalog_sources.NewPostUsingPOST2Params().WithSource(&catalogSource))
 
 	if err != nil {
 		return diag.FromErr(err)
@@ -128,12 +128,12 @@ func resourceCatalogSourceBlueprintRead(ctx context.Context, d *schema.ResourceD
 	log.Printf("Reading the vra_catalog_source_blueprint resource with name %s", d.Get("name"))
 	apiClient := m.(*Client).apiClient
 
-	resp, err := apiClient.CatalogSources.GetUsingGET(
-		catalog_sources.NewGetUsingGETParams().WithSourceID(strfmt.UUID(d.Id())))
+	resp, err := apiClient.CatalogSources.GetUsingGET2(
+		catalog_sources.NewGetUsingGET2Params().WithSourceID(strfmt.UUID(d.Id())))
 
 	if err != nil {
 		switch err.(type) {
-		case *catalog_sources.GetUsingGETNotFound:
+		case *catalog_sources.GetUsingGET2NotFound:
 			d.SetId("")
 			return nil
 		}
@@ -184,8 +184,8 @@ func resourceCatalogSourceBlueprintUpdate(ctx context.Context, d *schema.Resourc
 		catalogSource.Description = v.(string)
 	}
 
-	_, createResp, err := apiClient.CatalogSources.PostUsingPOST(
-		catalog_sources.NewPostUsingPOSTParams().WithSource(&catalogSource))
+	_, createResp, err := apiClient.CatalogSources.PostUsingPOST2(
+		catalog_sources.NewPostUsingPOST2Params().WithSource(&catalogSource))
 
 	if err != nil {
 		return diag.FromErr(err)
@@ -201,8 +201,8 @@ func resourceCatalogSourceBlueprintDelete(ctx context.Context, d *schema.Resourc
 	log.Printf("Starting to delete the vra_catalog_source_blueprint resource with name %s", d.Get("name"))
 	apiClient := m.(*Client).apiClient
 
-	_, err := apiClient.CatalogSources.DeleteUsingDELETE(
-		catalog_sources.NewDeleteUsingDELETEParams().WithSourceID(strfmt.UUID(d.Id())))
+	_, err := apiClient.CatalogSources.DeleteUsingDELETE4(
+		catalog_sources.NewDeleteUsingDELETE4Params().WithSourceID(strfmt.UUID(d.Id())))
 
 	if err != nil {
 		return diag.FromErr(err)

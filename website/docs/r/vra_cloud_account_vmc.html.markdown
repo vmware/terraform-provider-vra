@@ -79,8 +79,6 @@ Example:[ { "key" : "vmware", "value": "provider" } ]
 
 * `owner` - Email of entity owner.
 
-* `region-ids` - Set of region IDs enabled for the cloud account.
-
 * `updated_at` - Date when the entity was last updated. Date and time format is ISO 8601 and UTC.
 
 

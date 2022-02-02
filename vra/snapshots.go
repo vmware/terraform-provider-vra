@@ -73,11 +73,16 @@ func flattenSnapshots(diskSnapshots []*models.DiskSnapshot) []map[string]interfa
 		helper["description"] = diskSnapshot.Desc
 		helper["name"] = diskSnapshot.Name
 		helper["id"] = diskSnapshot.ID
-		helper["is_current"] = diskSnapshot.IsCurrent
 		helper["org_id"] = diskSnapshot.OrgID
 		helper["owner"] = diskSnapshot.Owner
 		helper["updated_at"] = diskSnapshot.UpdatedAt
 		helper["links"] = flattenLinks(diskSnapshot.Links)
+
+		helper["is_current"] = false
+		if isCurrent, ok := diskSnapshot.SnapshotProperties["isCurrent"]; ok && isCurrent == "true" {
+			helper["is_current"] = true
+		}
+
 		snapshots = append(snapshots, helper)
 	}
 

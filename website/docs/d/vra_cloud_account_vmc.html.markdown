@@ -63,8 +63,6 @@ The following arguments are supported for an vmc cloud account data source:
 
 * `regions` - A set of region names that are enabled for this account.
 
-* `region-ids` - A set of region IDs that are enabled for this account.
-
 * `sddc_name` - Identifier of the on-premise SDDC to be used by this cloud account. Note that NSX-V SDDCs are not supported.
 
 * `tags` - A set of tag keys and optional values that were set on this resource.

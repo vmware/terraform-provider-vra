@@ -111,7 +111,7 @@ func testAccCheckVRADeploymentDestroy(s *terraform.State) error {
 			continue
 		}
 
-		_, err := apiClient.Deployments.GetDeploymentByIDUsingGET(deployments.NewGetDeploymentByIDUsingGETParams().WithDeploymentID(strfmt.UUID(rs.Primary.ID)))
+		_, err := apiClient.Deployments.GetDeploymentByIDV3UsingGET(deployments.NewGetDeploymentByIDV3UsingGETParams().WithDeploymentID(strfmt.UUID(rs.Primary.ID)))
 		if err == nil {
 			return fmt.Errorf("resource 'vra_deployment' still exists with id %s", rs.Primary.ID)
 		}

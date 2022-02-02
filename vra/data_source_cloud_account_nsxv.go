@@ -19,13 +19,16 @@ func dataSourceCloudAccountNSXV() *schema.Resource {
 				Optional:      true,
 				Computed:      true,
 				ConflictsWith: []string{"name"},
+				Description:   "The id of this resource instance.",
 			},
 			"name": {
 				Type:          schema.TypeString,
 				Optional:      true,
 				Computed:      true,
 				ConflictsWith: []string{"id"},
+				Description:   "The name of this resource instance.",
 			},
+
 			// Computed attributes
 			"associated_cloud_account_ids": {
 				Type:     schema.TypeSet,
@@ -35,38 +38,46 @@ func dataSourceCloudAccountNSXV() *schema.Resource {
 				},
 			},
 			"created_at": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "Date when the entity was created. The date is in ISO 8601 and UTC.",
 			},
 			"dc_id": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "Identifier of a data collector vm deployed in the on premise infrastructure",
 			},
 			"description": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "A human-friendly description.",
 			},
 			"hostname": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "Host name for the NSX-V endpoint.",
 			},
 			"links": linksSchema(),
 			"org_id": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "The id of the organization this entity belongs to.",
 			},
 			"owner": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "Email of the user that owns the entity.",
 			},
 			"tags": tagsSchema(),
 			"updated_at": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "Date when the entity was last updated. The date is ISO 8601 and UTC.",
 			},
 			"username": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "Username to authenticate with the cloud account.",
 			},
 		},
 	}
@@ -79,7 +90,7 @@ func dataSourceCloudAccountNSXVRead(d *schema.ResourceData, meta interface{}) er
 	name, nameOk := d.GetOk("name")
 
 	if !idOk && !nameOk {
-		return fmt.Errorf("one of id or name must be assigned")
+		return fmt.Errorf("one of 'id' or 'name' must be assigned")
 	}
 
 	getResp, err := apiClient.CloudAccount.GetNsxVCloudAccounts(cloud_account.NewGetNsxVCloudAccountsParams())
@@ -89,8 +100,8 @@ func dataSourceCloudAccountNSXVRead(d *schema.ResourceData, meta interface{}) er
 
 	setFields := func(account *models.CloudAccountNsxV) error {
 		d.SetId(*account.ID)
-		d.Set("created_at", account.CreatedAt)
 		d.Set("associated_cloud_account_ids", flattenAssociatedCloudAccountIds(account.Links))
+		d.Set("created_at", account.CreatedAt)
 		d.Set("dc_id", account.Dcid)
 		d.Set("description", account.Description)
 		d.Set("hostname", account.HostName)
@@ -105,8 +116,9 @@ func dataSourceCloudAccountNSXVRead(d *schema.ResourceData, meta interface{}) er
 		}
 
 		if err := d.Set("tags", flattenTags(account.Tags)); err != nil {
-			return fmt.Errorf("error setting cloud account tags - error: %#v", err)
+			return fmt.Errorf("error setting cloud_account_nsxv tags - error: %#v", err)
 		}
+
 		return nil
 	}
 	for _, account := range getResp.Payload.Content {

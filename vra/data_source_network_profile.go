@@ -142,7 +142,7 @@ func dataSourceNetworkProfileRead(d *schema.ResourceData, meta interface{}) erro
 	d.Set("isolated_network_domain_cidr", networkProfile.IsolationNetworkDomainCIDR)
 	d.Set("isolated_network_cidr_prefix", networkProfile.IsolatedNetworkCIDRPrefix)
 	d.Set("name", networkProfile.Name)
-	d.Set("organization_id", networkProfile.OrganizationID)
+	d.Set("organization_id", networkProfile.OrgID)
 	d.Set("owner", networkProfile.Owner)
 	d.Set("updated_at", networkProfile.UpdatedAt)
 

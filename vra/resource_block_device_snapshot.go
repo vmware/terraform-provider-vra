@@ -152,7 +152,7 @@ func findCreatedBlockDeviceSnapshot(blockDeviceID string, m interface{}) (string
 	}
 
 	for _, diskSnapshot := range diskSnapshots {
-		if diskSnapshot.IsCurrent {
+		if isCurrent, ok := diskSnapshot.SnapshotProperties["isCurrent"]; ok && isCurrent == "true" {
 			return *diskSnapshot.ID, nil
 		}
 	}
@@ -180,12 +180,15 @@ func resourceBlockDeviceSnapshotRead(ctx context.Context, d *schema.ResourceData
 	d.SetId(*diskSnapshot.ID)
 	d.Set("created_at", diskSnapshot.CreatedAt)
 	d.Set("description", diskSnapshot.Desc)
-	d.Set("is_current", diskSnapshot.IsCurrent)
 	d.Set("name", diskSnapshot.Name)
 	d.Set("org_id", diskSnapshot.OrgID)
 	d.Set("owner", diskSnapshot.Owner)
 	d.Set("updated_at", diskSnapshot.UpdatedAt)
 
+	d.Set("is_current", false)
+	if isCurrent, ok := diskSnapshot.SnapshotProperties["isCurrent"]; ok && isCurrent == "true" {
+		d.Set("is_current", true)
+	}
 	if err := d.Set("links", flattenLinks(diskSnapshot.Links)); err != nil {
 		return diag.Errorf("error setting vra_block_device_snapshot links - error: %#v", err)
 	}

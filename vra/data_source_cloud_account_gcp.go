@@ -19,54 +19,66 @@ func dataSourceCloudAccountGCP() *schema.Resource {
 				Optional:      true,
 				Computed:      true,
 				ConflictsWith: []string{"name"},
+				Description:   "The id of this resource instance.",
 			},
 			"name": {
 				Type:          schema.TypeString,
 				Optional:      true,
 				Computed:      true,
 				ConflictsWith: []string{"id"},
+				Description:   "The name of this resource instance.",
 			},
+
 			// Computed attributes
 			"client_email": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "GCP Client email.",
 			},
 			"created_at": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "Date when the entity was created. The date is in ISO 8601 and UTC.",
 			},
 			"description": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "A human-friendly description.",
 			},
 			"links": linksSchema(),
 			"org_id": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "The id of the organization this entity belongs to.",
 			},
 			"owner": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "Email of the user that owns the entity.",
 			},
 			"private_key_id": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "GCP Private key ID.",
 			},
 			"project_id": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "GCP Project ID.",
 			},
 			"regions": {
-				Type:     schema.TypeSet,
-				Computed: true,
+				Type:        schema.TypeSet,
+				Computed:    true,
+				Description: "The set of region ids that are enabled for this cloud account.",
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
 			},
 			"tags": tagsSchema(),
 			"updated_at": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "Date when the entity was last updated. The date is ISO 8601 and UTC.",
 			},
 		},
 	}
@@ -75,48 +87,66 @@ func dataSourceCloudAccountGCP() *schema.Resource {
 func dataSourceCloudAccountGCPRead(d *schema.ResourceData, meta interface{}) error {
 	apiClient := meta.(*Client).apiClient
 
-	id, idOk := d.GetOk("id")
-	name, nameOk := d.GetOk("name")
+	id := d.Get("id").(string)
+	name := d.Get("name").(string)
 
-	if !idOk && !nameOk {
-		return fmt.Errorf("one of id or name must be assigned")
+	if id == "" && name == "" {
+		return fmt.Errorf("one of 'id' or 'name' must be set")
 	}
 
-	getResp, err := apiClient.CloudAccount.GetGcpCloudAccounts(cloud_account.NewGetGcpCloudAccountsParams())
-	if err != nil {
-		return err
-	}
-
-	setFields := func(account *models.CloudAccountGcp) error {
-		d.SetId(*account.ID)
-		d.Set("client_email", account.ClientEmail)
-		d.Set("created_at", account.CreatedAt)
-		d.Set("description", account.Description)
-		d.Set("name", account.Name)
-		d.Set("org_id", account.OrgID)
-		d.Set("owner", account.Owner)
-		d.Set("private_key_id", account.PrivateKeyID)
-		d.Set("project_id", account.ProjectID)
-		d.Set("regions", account.EnabledRegionIds)
-		d.Set("updated_at", account.UpdatedAt)
-
-		if err := d.Set("links", flattenLinks(account.Links)); err != nil {
-			return fmt.Errorf("error setting cloud_account_gcp links - error: %#v", err)
+	var cloudAccountGcp *models.CloudAccountGcp
+	if id != "" {
+		getResp, err := apiClient.CloudAccount.GetGcpCloudAccount(cloud_account.NewGetGcpCloudAccountParams().WithID(id))
+		if err != nil {
+			switch err.(type) {
+			case *cloud_account.GetGcpCloudAccountNotFound:
+				return fmt.Errorf("gcp cloud account with id '%s' not found", id)
+			default:
+				// nop
+			}
+			return err
 		}
 
-		if err := d.Set("tags", flattenTags(account.Tags)); err != nil {
-			return fmt.Errorf("error setting cloud account tags - error: %#v", err)
+		cloudAccountGcp = getResp.GetPayload()
+	} else {
+		getResp, err := apiClient.CloudAccount.GetGcpCloudAccounts(cloud_account.NewGetGcpCloudAccountsParams())
+		if err != nil {
+			return err
 		}
-		return nil
-	}
-	for _, account := range getResp.Payload.Content {
-		if idOk && account.ID == id {
-			return setFields(account)
+
+		for _, account := range getResp.Payload.Content {
+			if account.Name == name {
+				cloudAccountGcp = account
+			}
 		}
-		if nameOk && account.Name == name {
-			return setFields(account)
+
+		if cloudAccountGcp == nil {
+			return fmt.Errorf("gcp cloud account with name '%s' not found", name)
 		}
 	}
 
-	return fmt.Errorf("cloud account %s not found", name)
+	d.SetId(*cloudAccountGcp.ID)
+	d.Set("client_email", cloudAccountGcp.ClientEmail)
+	d.Set("created_at", cloudAccountGcp.CreatedAt)
+	d.Set("description", cloudAccountGcp.Description)
+	d.Set("name", cloudAccountGcp.Name)
+	d.Set("org_id", cloudAccountGcp.OrgID)
+	d.Set("owner", cloudAccountGcp.Owner)
+	d.Set("private_key_id", cloudAccountGcp.PrivateKeyID)
+	d.Set("project_id", cloudAccountGcp.ProjectID)
+	d.Set("updated_at", cloudAccountGcp.UpdatedAt)
+
+	if err := d.Set("links", flattenLinks(cloudAccountGcp.Links)); err != nil {
+		return fmt.Errorf("error setting cloud_account_gcp links - error: %#v", err)
+	}
+
+	if err := d.Set("regions", extractIdsFromRegion(cloudAccountGcp.EnabledRegions)); err != nil {
+		return fmt.Errorf("error setting cloud_account_gcp regions - error: %#v", err)
+	}
+
+	if err := d.Set("tags", flattenTags(cloudAccountGcp.Tags)); err != nil {
+		return fmt.Errorf("error setting cloud_account_gcp tags - error: %#v", err)
+	}
+
+	return nil
 }

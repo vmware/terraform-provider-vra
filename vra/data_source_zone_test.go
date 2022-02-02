@@ -55,7 +55,7 @@ func testAccDataSourceVRAZone(rInt int) string {
 	 resource "vra_zone" "my-zone" {
 		name = "my-vra-zone-%d"
 		description = "description my-vra-zone"
-		region_id = "${element(vra_cloud_account_aws.my-cloud-account.region_ids, 0)}"
+		region_id = "${element(vra_cloud_account_aws.my-cloud-account.regions, 0)}"
 		tags {
 			key = "mykey"
 			value = "myvalue"

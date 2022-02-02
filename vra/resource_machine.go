@@ -350,7 +350,7 @@ func resourceMachineRead(ctx context.Context, d *schema.ResourceData, m interfac
 	d.Set("created_at", machine.CreatedAt)
 	d.Set("updated_at", machine.UpdatedAt)
 	d.Set("owner", machine.Owner)
-	d.Set("organization_id", machine.OrganizationID)
+	d.Set("organization_id", machine.OrgID)
 	d.Set("custom_properties", machine.CustomProperties)
 
 	if image, found := machine.CustomProperties["image"]; found {
@@ -438,7 +438,7 @@ func attachAndDetachDisks(ctx context.Context, d *schema.ResourceData, apiClient
 	for i, diskToDetach := range disksToDetach {
 		diskID := diskToDetach["block_device_id"].(string)
 		log.Printf("Detaching the disk %v of %v (disk id: %v) from vra_machine resource %v", i+1, len(disksToDetach), diskID, d.Get("name"))
-		deleteMachineDiskAccepted, err := apiClient.Disk.DeleteMachineDisk(disk.NewDeleteMachineDiskParams().WithID(id).WithId1(diskID))
+		deleteMachineDiskAccepted, _, err := apiClient.Disk.DeleteMachineDisk(disk.NewDeleteMachineDiskParams().WithID(id).WithDiskID(diskID))
 
 		if err != nil {
 			return err

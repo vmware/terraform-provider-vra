@@ -115,7 +115,7 @@ func flattenImageMappings(list map[string]models.ImageMappingDescription) []inte
 			//"image_id":           *mappingDescription.ID,
 			"image_name":   mappingDescription.Name,
 			"name":         mappingName,
-			"organization": mappingDescription.OrganizationID,
+			"organization": mappingDescription.OrgID,
 			"os_family":    mappingDescription.OsFamily,
 			"owner":        mappingDescription.Owner,
 			"private":      mappingDescription.IsPrivate,

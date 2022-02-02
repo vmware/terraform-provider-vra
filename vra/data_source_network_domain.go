@@ -99,7 +99,7 @@ func resourceNetworkDomainRead(d *schema.ResourceData, meta interface{}) error {
 	d.Set("external_region_id", NetworkDomain.ExternalRegionID)
 	d.Set("custom_properties", NetworkDomain.CustomProperties)
 	d.Set("name", NetworkDomain.Name)
-	d.Set("organization_id", NetworkDomain.OrganizationID)
+	d.Set("organization_id", NetworkDomain.OrgID)
 	d.Set("owner", NetworkDomain.Owner)
 	d.Set("updated_at", NetworkDomain.UpdatedAt)
 

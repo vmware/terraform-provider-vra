@@ -123,12 +123,12 @@ func dataSourceCatalogSourceBlueprintRead(d *schema.ResourceData, m interface{})
 
 	// Get catalog source by id if id is provided
 	if idOk {
-		resp, err := apiClient.CatalogSources.GetUsingGET(
-			catalog_sources.NewGetUsingGETParams().WithSourceID(strfmt.UUID(id.(string))))
+		resp, err := apiClient.CatalogSources.GetUsingGET2(
+			catalog_sources.NewGetUsingGET2Params().WithSourceID(strfmt.UUID(id.(string))))
 
 		if err != nil {
 			switch err.(type) {
-			case *catalog_sources.GetUsingGETNotFound:
+			case *catalog_sources.GetUsingGET2NotFound:
 				return fmt.Errorf("blueprint catalog source with id '%v' is not found", id)
 			}
 			return err
@@ -141,8 +141,8 @@ func dataSourceCatalogSourceBlueprintRead(d *schema.ResourceData, m interface{})
 
 	// Search catalog sources if name is provided and look for exact match with type com.vmw.blueprint
 	if nameOk {
-		resp, err := apiClient.CatalogSources.GetPageUsingGET(
-			catalog_sources.NewGetPageUsingGETParams().WithSearch(withString(name.(string))))
+		resp, err := apiClient.CatalogSources.GetPageUsingGET2(
+			catalog_sources.NewGetPageUsingGET2Params().WithSearch(withString(name.(string))))
 
 		if err != nil {
 			return err
@@ -163,8 +163,8 @@ func dataSourceCatalogSourceBlueprintRead(d *schema.ResourceData, m interface{})
 
 	// Filter catalog sources if projectId is provided and look for exact match with type com.vmw.blueprint and projectId as global catalog sources are returned as well
 	if projectIDOk {
-		resp, err := apiClient.CatalogSources.GetPageUsingGET(
-			catalog_sources.NewGetPageUsingGETParams().WithProjectID(withString(projectID.(string))))
+		resp, err := apiClient.CatalogSources.GetPageUsingGET2(
+			catalog_sources.NewGetPageUsingGET2Params().WithProjectID(withString(projectID.(string))))
 
 		if err != nil {
 			return err

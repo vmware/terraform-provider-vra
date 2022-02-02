@@ -183,8 +183,8 @@ func dataSourceDeploymentRead(d *schema.ResourceData, m interface{}) error {
 	}
 
 	if nameOk {
-		getAllResp, err := apiClient.Deployments.GetDeploymentsUsingGET(
-			deployments.NewGetDeploymentsUsingGETParams().WithName(withString(name.(string))))
+		getAllResp, err := apiClient.Deployments.GetDeploymentsV3UsingGET(
+			deployments.NewGetDeploymentsV3UsingGETParams().WithName(withString(name.(string))))
 
 		if err != nil {
 			return err
@@ -199,12 +199,21 @@ func dataSourceDeploymentRead(d *schema.ResourceData, m interface{}) error {
 	}
 
 	// Get the deployment details with all the user provided flags
-	getResp, err := apiClient.Deployments.GetDeploymentByIDUsingGET(
-		deployments.NewGetDeploymentByIDUsingGETParams().
+	expand := []string{}
+	if expandProject {
+		expand = append(expand, "project")
+	}
+	if expandResources {
+		expand = append(expand, "resources")
+	}
+	if expandLastRequest {
+		expand = append(expand, "lastRequest")
+	}
+
+	getResp, err := apiClient.Deployments.GetDeploymentByIDV3UsingGET(
+		deployments.NewGetDeploymentByIDV3UsingGETParams().
 			WithDeploymentID(strfmt.UUID(id.(string))).
-			WithExpandProject(withBool(expandProject)).
-			WithExpandResources(withBool(expandResources)).
-			WithExpandLastRequest(withBool(expandLastRequest)).
+			WithExpand(expand).
 			WithAPIVersion(withString(DeploymentsAPIVersion)).
 			WithTimeout(IncreasedTimeOut))
 

@@ -60,7 +60,7 @@ func expandNics(configNics []interface{}) []*models.NetworkInterfaceSpecificatio
 		nicMap := configNic.(map[string]interface{})
 
 		nic := models.NetworkInterfaceSpecification{
-			NetworkID: withString(nicMap["network_id"].(string)),
+			NetworkID: nicMap["network_id"].(string),
 		}
 
 		if v, ok := nicMap["name"].(string); ok && v != "" {

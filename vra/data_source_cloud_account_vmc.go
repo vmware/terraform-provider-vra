@@ -19,62 +19,76 @@ func dataSourceCloudAccountVMC() *schema.Resource {
 				Optional:      true,
 				Computed:      true,
 				ConflictsWith: []string{"name"},
+				Description:   "The id of this resource instance.",
 			},
 			"name": {
 				Type:          schema.TypeString,
 				Optional:      true,
 				Computed:      true,
 				ConflictsWith: []string{"id"},
+				Description:   "The name of this resource instance.",
 			},
+
 			// Computed attributes
 			"created_at": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "Date when the entity was created. The date is in ISO 8601 and UTC.",
 			},
 			"dc_id": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "Identifier of a data collector vm deployed in the on premise infrastructure.",
 			},
 			"description": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "A human-friendly description.",
 			},
 			"links": linksSchema(),
 			"nsx_hostname": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "IP address or FQDN of the NSX-T Server in the specified SDDC.",
 			},
 			"org_id": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "The id of the organization this entity belongs to.",
 			},
 			"owner": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "Email of the user that owns the entity.",
 			},
 			"regions": {
-				Type:     schema.TypeSet,
-				Computed: true,
+				Type:        schema.TypeSet,
+				Computed:    true,
+				Description: "The set of region ids that are enabled for this cloud account.",
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
 			},
 			"sddc_name": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "Identifier of the on-premise SDDC.",
 			},
 			"tags": tagsSchema(),
 			"updated_at": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "Date when the entity was last updated. The date is ISO 8601 and UTC.",
 			},
 			"vcenter_hostname": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "IP address or FQDN of the vCenter Server in the specified SDDC.",
 			},
 			"vcenter_username": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "Username of the vCenter Server in the specified SDDC.",
 			},
 		},
 	}
@@ -83,52 +97,70 @@ func dataSourceCloudAccountVMC() *schema.Resource {
 func dataSourceCloudAccountVMCRead(d *schema.ResourceData, meta interface{}) error {
 	apiClient := meta.(*Client).apiClient
 
-	id, idOk := d.GetOk("id")
-	name, nameOk := d.GetOk("name")
+	id := d.Get("id").(string)
+	name := d.Get("name").(string)
 
-	if !idOk && !nameOk {
-		return fmt.Errorf("one of id or name must be assigned")
+	if id == "" && name == "" {
+		return fmt.Errorf("one of 'id' or 'name' must be set")
 	}
 
-	getResp, err := apiClient.CloudAccount.GetCloudAccounts(cloud_account.NewGetCloudAccountsParams())
-	if err != nil {
-		return err
-	}
-
-	setFields := func(account *models.CloudAccount) error {
-		cloudAccountProperties := account.CloudAccountProperties
-
-		d.SetId(*account.ID)
-		d.Set("created_at", account.CreatedAt)
-		d.Set("dc_id", cloudAccountProperties["dcId"])
-		d.Set("description", account.Description)
-		d.Set("name", account.Name)
-		d.Set("nsx_hostname", cloudAccountProperties["nsxHostName"])
-		d.Set("owner", account.Owner)
-		d.Set("org_id", account.OrgID)
-		d.Set("regions", account.EnabledRegionIds)
-		d.Set("sddc_name", cloudAccountProperties["sddcId"])
-		d.Set("updated_at", account.UpdatedAt)
-		d.Set("vcenter_hostname", cloudAccountProperties["hostName"])
-		d.Set("vcenter_username", cloudAccountProperties["privateKeyId"])
-
-		if err := d.Set("links", flattenLinks(account.Links)); err != nil {
-			return fmt.Errorf("error setting cloud_account_vmc links - error: %#v", err)
+	var cloudAccount *models.CloudAccount
+	if id != "" {
+		getResp, err := apiClient.CloudAccount.GetCloudAccount(cloud_account.NewGetCloudAccountParams().WithID(id))
+		if err != nil {
+			switch err.(type) {
+			case *cloud_account.GetCloudAccountNotFound:
+				return fmt.Errorf("vmc cloud account with id '%s' not found", id)
+			default:
+				// nop
+			}
+			return err
 		}
 
-		if err := d.Set("tags", flattenTags(account.Tags)); err != nil {
-			return fmt.Errorf("error setting cloud account tags - error: %#v", err)
+		cloudAccount = getResp.GetPayload()
+	} else {
+		getResp, err := apiClient.CloudAccount.GetCloudAccounts(cloud_account.NewGetCloudAccountsParams())
+		if err != nil {
+			return err
 		}
-		return nil
-	}
-	for _, account := range getResp.Payload.Content {
-		if idOk && account.ID == id && *account.CloudAccountType == "vmc" {
-			return setFields(account)
+
+		for _, account := range getResp.Payload.Content {
+			if account.Name == name {
+				cloudAccount = account
+			}
 		}
-		if nameOk && account.Name == name && *account.CloudAccountType == "vmc" {
-			return setFields(account)
+
+		if cloudAccount == nil {
+			return fmt.Errorf("vmc cloud account with name '%s' not found", name)
 		}
 	}
 
-	return fmt.Errorf("cloud account %s not found", name)
+	cloudAccountProperties := cloudAccount.CloudAccountProperties
+
+	d.SetId(*cloudAccount.ID)
+	d.Set("created_at", cloudAccount.CreatedAt)
+	d.Set("dc_id", cloudAccountProperties["dcId"])
+	d.Set("description", cloudAccount.Description)
+	d.Set("name", cloudAccount.Name)
+	d.Set("nsx_hostname", cloudAccountProperties["nsxHostName"])
+	d.Set("org_id", cloudAccount.OrgID)
+	d.Set("owner", cloudAccount.Owner)
+	d.Set("sddc_name", cloudAccountProperties["sddcId"])
+	d.Set("updated_at", cloudAccount.UpdatedAt)
+	d.Set("vcenter_hostname", cloudAccountProperties["hostName"])
+	d.Set("vcenter_username", cloudAccountProperties["privateKeyId"])
+
+	if err := d.Set("links", flattenLinks(cloudAccount.Links)); err != nil {
+		return fmt.Errorf("error setting cloud_account_vmc links - error: %#v", err)
+	}
+
+	if err := d.Set("regions", extractIdsFromRegion(cloudAccount.EnabledRegions)); err != nil {
+		return fmt.Errorf("error setting cloud_account_vmc regions - error: %#v", err)
+	}
+
+	if err := d.Set("tags", flattenTags(cloudAccount.Tags)); err != nil {
+		return fmt.Errorf("error setting cloud_account_vmc tags - error: %#v", err)
+	}
+
+	return nil
 }

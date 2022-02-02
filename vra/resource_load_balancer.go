@@ -214,7 +214,7 @@ func resourceLoadBalancerRead(ctx context.Context, d *schema.ResourceData, m int
 	d.Set("external_region_id", loadBalancer.ExternalRegionID)
 	d.Set("external_zone_id", loadBalancer.ExternalZoneID)
 	d.Set("name", loadBalancer.Name)
-	d.Set("organization_id", loadBalancer.OrganizationID)
+	d.Set("organization_id", loadBalancer.OrgID)
 	d.Set("owner", loadBalancer.Owner)
 	d.Set("project_id", loadBalancer.ProjectID)
 	d.Set("updated_at", loadBalancer.UpdatedAt)

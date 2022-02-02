@@ -85,8 +85,8 @@ func resourceCatalogSourceEntitlementCreate(ctx context.Context, d *schema.Resou
 		ProjectID:  withString(d.Get("project_id").(string)),
 	}
 
-	_, createResp, err := apiClient.CatalogEntitlements.CreateEntitlementUsingPOST(
-		catalog_entitlements.NewCreateEntitlementUsingPOSTParams().WithEntitlement(&entitlement))
+	_, createResp, err := apiClient.CatalogEntitlements.CreateEntitlementUsingPOST2(
+		catalog_entitlements.NewCreateEntitlementUsingPOST2Params().WithEntitlement(&entitlement))
 
 	if err != nil {
 		return diag.FromErr(err)
@@ -102,8 +102,8 @@ func resourceCatalogSourceEntitlementRead(ctx context.Context, d *schema.Resourc
 	log.Printf("Reading the vra_catalog_source_entitlement resource with name %s", d.Get("name"))
 	apiClient := m.(*Client).apiClient
 
-	resp, err := apiClient.CatalogEntitlements.GetEntitlementsUsingGET(
-		catalog_entitlements.NewGetEntitlementsUsingGETParams().WithProjectID(withString(d.Get("project_id").(string))))
+	resp, err := apiClient.CatalogEntitlements.GetEntitlementsUsingGET2(
+		catalog_entitlements.NewGetEntitlementsUsingGET2Params().WithProjectID(withString(d.Get("project_id").(string))))
 
 	if err != nil {
 		return diag.FromErr(err)
@@ -133,8 +133,8 @@ func resourceCatalogSourceEntitlementDelete(ctx context.Context, d *schema.Resou
 	log.Printf("Starting to delete the vra_catalog_source_entitlement resource with name %s", d.Get("name"))
 	apiClient := m.(*Client).apiClient
 
-	_, err := apiClient.CatalogEntitlements.DeleteEntitlementUsingDELETE(
-		catalog_entitlements.NewDeleteEntitlementUsingDELETEParams().WithID(strfmt.UUID(d.Id())))
+	_, err := apiClient.CatalogEntitlements.DeleteEntitlementUsingDELETE2(
+		catalog_entitlements.NewDeleteEntitlementUsingDELETE2Params().WithID(strfmt.UUID(d.Id())))
 
 	if err != nil {
 		return diag.FromErr(err)

@@ -81,12 +81,12 @@ func resourceNetworkIPRangeCreate(ctx context.Context, d *schema.ResourceData, m
 	startIPAddress := d.Get("start_ip_address").(string)
 
 	networkIPRangeSpecification := models.NetworkIPRangeSpecification{
-		EndIPAddress:    &endIPAddress,
-		FabricNetworkID: d.Get("fabric_network_id").(string),
-		IPVersion:       d.Get("ip_version").(string),
-		Name:            &name,
-		StartIPAddress:  &startIPAddress,
-		Tags:            expandTags(d.Get("tags").(*schema.Set).List()),
+		EndIPAddress:     &endIPAddress,
+		FabricNetworkIds: []string{d.Get("fabric_network_id").(string)},
+		IPVersion:        d.Get("ip_version").(string),
+		Name:             &name,
+		StartIPAddress:   &startIPAddress,
+		Tags:             expandTags(d.Get("tags").(*schema.Set).List()),
 	}
 
 	if v, ok := d.GetOk("description"); ok {
@@ -124,7 +124,7 @@ func resourceNetworkIPRangeRead(ctx context.Context, d *schema.ResourceData, m i
 	d.Set("end_ip_address", networkIPRange.EndIPAddress)
 	d.Set("ip_version", networkIPRange.IPVersion)
 	d.Set("name", networkIPRange.Name)
-	d.Set("org_id", networkIPRange.OrganizationID)
+	d.Set("org_id", networkIPRange.OrgID)
 	d.Set("name", networkIPRange.Name)
 	d.Set("owner", networkIPRange.Owner)
 	d.Set("start_ip_address", networkIPRange.StartIPAddress)
@@ -153,12 +153,12 @@ func resourceNetworkIPRangeUpdate(ctx context.Context, d *schema.ResourceData, m
 	startIPAddress := d.Get("start_ip_address").(string)
 
 	networkIPRangeSpecification := models.NetworkIPRangeSpecification{
-		EndIPAddress:    &endIPAddress,
-		FabricNetworkID: d.Get("fabric_network_id").(string),
-		IPVersion:       d.Get("ip_version").(string),
-		Name:            &name,
-		StartIPAddress:  &startIPAddress,
-		Tags:            expandTags(d.Get("tags").(*schema.Set).List()),
+		EndIPAddress:     &endIPAddress,
+		FabricNetworkIds: []string{d.Get("fabric_network_id").(string)},
+		IPVersion:        d.Get("ip_version").(string),
+		Name:             &name,
+		StartIPAddress:   &startIPAddress,
+		Tags:             expandTags(d.Get("tags").(*schema.Set).List()),
 	}
 
 	if v, ok := d.GetOk("description"); ok {
