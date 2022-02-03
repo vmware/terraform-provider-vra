@@ -1,139 +1,147 @@
 package vra
 
 import (
-        "github.com/go-openapi/strfmt"
-        "github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-        "github.com/vmware/vra-sdk-go/pkg/client/catalog_entitlements"
-        "github.com/vmware/vra-sdk-go/pkg/models"
+	"context"
 
-        "log"
+	"github.com/go-openapi/strfmt"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/vmware/vra-sdk-go/pkg/client/catalog_entitlements"
+	"github.com/vmware/vra-sdk-go/pkg/models"
 )
 
 func resourceCatalogItemEntitlement() *schema.Resource {
-        return &schema.Resource{
-                Create: resourceCatalogItemEntitlementCreate,
-                Delete: resourceCatalogItemEntitlementDelete,
-                Read:   resourceCatalogItemEntitlementRead,
-                Importer: &schema.ResourceImporter{
-                        State: schema.ImportStatePassthrough,
-                },
+	return &schema.Resource{
+		CreateContext: resourceCatalogItemEntitlementCreate,
+		DeleteContext: resourceCatalogItemEntitlementDelete,
+		ReadContext:   resourceCatalogItemEntitlementRead,
+		Importer: &schema.ResourceImporter{
+			StateContext: schema.ImportStatePassthroughContext,
+		},
 
-                Schema: map[string]*schema.Schema{
-                        "catalog_item_id": {
-                                Type:     schema.TypeString,
-                                Required: true,
-                                ForceNew: true,
-                        },
-                        "definition": {
-                                Type:     schema.TypeSet,
-                                Computed: true,
-                                Elem: &schema.Resource{
-                                        Schema: map[string]*schema.Schema{
-                                                "description": {
-                                                        Type:     schema.TypeString,
-                                                        Computed: true,
-                                                },
-                                                "id": {
-                                                        Type:     schema.TypeString,
-                                                        Computed: true,
-                                                },
-                                                "name": {
-                                                        Type:     schema.TypeString,
-                                                        Computed: true,
-                                                },
-                                                "source_type": {
-                                                        Type:     schema.TypeString,
-                                                        Computed: true,
-                                                },
-                                                "type": {
-                                                        Type:     schema.TypeString,
-                                                        Computed: true,
-                                                },
-                                        },
-                                },
-                        },
-                        "project_id": {
-                                Type:     schema.TypeString,
-                                Required: true,
-                                ForceNew: true,
-                        },
-                },
-        }
+		Schema: map[string]*schema.Schema{
+			"catalog_item_id": {
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: "Catalog item id.",
+			},
+			"definition": {
+				Type:     schema.TypeSet,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"description": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "Description of the catalog item.",
+						},
+						"icon_id": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "Icon id of associated catalog item.",
+						},
+						"id": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "Id of the catalog item.",
+						},
+						"name": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "Name of the catalog item.",
+						},
+						"number_of_items": {
+							Type:        schema.TypeInt,
+							Computed:    true,
+							Description: "Number of items in the associated catalog source.",
+						},
+						"source_name": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "Catalog source name.",
+						},
+						"source_type": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "Catalog source type.",
+						},
+						"type": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "Content definition type.",
+						},
+					},
+				},
+			},
+			"project_id": {
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: "Project id.",
+			},
+		},
+	}
 }
 
-func resourceCatalogItemEntitlementCreate(d *schema.ResourceData, m interface{}) error {
-        log.Printf("starting to create vra_catalog_item_entitlement resource")
+func resourceCatalogItemEntitlementCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+	apiClient := m.(*Client).apiClient
 
-        apiClient := m.(*Client).apiClient
+	catalogItemID := strfmt.UUID(d.Get("catalog_item_id").(string))
+	contentDefinition := models.ContentDefinition{
+		ID:   &catalogItemID,
+		Type: withString("CatalogItemIdentifier"),
+	}
+	entitlement := models.Entitlement{
+		Definition: &contentDefinition,
+		ProjectID:  withString(d.Get("project_id").(string)),
+	}
 
-        catalogItemID := strfmt.UUID(d.Get("catalog_item_id").(string))
+	_, createResp, err := apiClient.CatalogEntitlements.CreateEntitlementUsingPOST2(
+		catalog_entitlements.NewCreateEntitlementUsingPOST2Params().WithEntitlement(&entitlement))
+	if err != nil {
+		return diag.FromErr(err)
+	}
 
-        contentDefinition := models.ContentDefinition{
-                ID:   &catalogItemID,
-                Type: withString("CatalogItemIdentifier"),
-        }
+	id := createResp.GetPayload().ID.String()
+	d.SetId(id)
 
-        entitlement := models.Entitlement{
-                Definition: &contentDefinition,
-                ProjectID:  withString(d.Get("project_id").(string)),
-        }
-
-        _, createResp, err := apiClient.CatalogEntitlements.CreateEntitlementUsingPOST(
-                catalog_entitlements.NewCreateEntitlementUsingPOSTParams().WithEntitlement(&entitlement))
-
-        if err != nil {
-                return err
-        }
-
-        d.SetId(createResp.GetPayload().ID.String())
-        log.Printf("Finished creating vra_catalog_item_entitlement resource with name %s", d.Get("name"))
-
-        return resourceCatalogItemEntitlementRead(d, m)
+	return resourceCatalogItemEntitlementRead(ctx, d, m)
 }
 
-func resourceCatalogItemEntitlementRead(d *schema.ResourceData, m interface{}) error {
-        log.Printf("Reading the vra_catalog_item_entitlement resource with name %s", d.Get("name"))
-        apiClient := m.(*Client).apiClient
+func resourceCatalogItemEntitlementRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+	apiClient := m.(*Client).apiClient
 
-        resp, err := apiClient.CatalogEntitlements.GetEntitlementsUsingGET(
-                catalog_entitlements.NewGetEntitlementsUsingGETParams().WithProjectID(withString(d.Get("project_id").(string))))
+	id := d.Id()
+	resp, err := apiClient.CatalogEntitlements.GetEntitlementsUsingGET2(
+		catalog_entitlements.NewGetEntitlementsUsingGET2Params().WithProjectID(withString(d.Get("project_id").(string))))
+	if err != nil {
+		return diag.FromErr(err)
+	}
 
-        if err != nil {
-                return err
-        }
+	if len(resp.Payload) > 0 {
+		for _, entitlement := range resp.Payload {
+			if entitlement.ID.String() == id {
+				d.Set("project_id", entitlement.ProjectID)
+				d.Set("definition", flattenContentDefinition(entitlement.Definition))
+				return nil
+			}
+		}
+	}
 
-        setFields := func(entitlement *models.Entitlement) {
-                d.SetId(entitlement.ID.String())
-                d.Set("project_id", entitlement.ProjectID)
-                d.Set("definition", flattenContentDefinition(entitlement.Definition))
-        }
-
-        if len(resp.Payload) > 0 {
-                for _, entitlement := range resp.Payload {
-                        if entitlement.Definition.ID.String() == d.Get("catalog_item_id").(string) {
-                                setFields(entitlement)
-                                log.Printf("Finished reading the vra_catalog_item_entitlement resource with name %s", d.Get("name"))
-                                return nil
-                        }
-                }
-        }
-
-        d.SetId("")
-        return nil
+	d.SetId("")
+	return nil
 }
 
-func resourceCatalogItemEntitlementDelete(d *schema.ResourceData, m interface{}) error {
-        log.Printf("Starting to delete the vra_catalog_item_entitlement resource with name %s", d.Get("name"))
-        apiClient := m.(*Client).apiClient
+func resourceCatalogItemEntitlementDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+	apiClient := m.(*Client).apiClient
 
-        _, err := apiClient.CatalogEntitlements.DeleteEntitlementUsingDELETE(
-                catalog_entitlements.NewDeleteEntitlementUsingDELETEParams().WithID(strfmt.UUID(d.Id())))
+	_, err := apiClient.CatalogEntitlements.DeleteEntitlementUsingDELETE2(
+		catalog_entitlements.NewDeleteEntitlementUsingDELETE2Params().WithID(strfmt.UUID(d.Id())))
+	if err != nil {
+		return diag.FromErr(err)
+	}
 
-        if err != nil {
-                return err
-        }
-
-        d.SetId("")
-        log.Printf("Finished deleting the vra_catalog_item_entitlement resource with name %s", d.Get("name"))
-        return nil
+	d.SetId("")
+	return nil
 }

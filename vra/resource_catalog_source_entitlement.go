@@ -23,9 +23,10 @@ func resourceCatalogSourceEntitlement() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"catalog_source_id": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: "Catalog source id.",
 			},
 			"definition": {
 				Type:     schema.TypeSet,
@@ -33,36 +34,53 @@ func resourceCatalogSourceEntitlement() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"description": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "Description of the catalog source.",
+						},
+						"icon_id": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "Icon id of associated catalog source.",
 						},
 						"id": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "Id of the catalog source.",
 						},
 						"name": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "Name of the catalog source.",
 						},
 						"number_of_items": {
-							Type:     schema.TypeInt,
-							Computed: true,
+							Type:        schema.TypeInt,
+							Computed:    true,
+							Description: "Number of items in the associated catalog source.",
+						},
+						"source_name": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "Catalog source name.",
 						},
 						"source_type": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "Catalog source type.",
 						},
 						"type": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "Content definition type.",
 						},
 					},
 				},
 			},
 			"project_id": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: "Project id.",
 			},
 		},
 	}

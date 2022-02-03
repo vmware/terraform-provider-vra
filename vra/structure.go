@@ -124,9 +124,11 @@ func flattenContentDefinition(contentDefinition *models.ContentDefinition) inter
 	helper := make(map[string]interface{})
 
 	helper["description"] = contentDefinition.Description
+	helper["icon_id"] = contentDefinition.IconID
 	helper["id"] = contentDefinition.ID
 	helper["name"] = contentDefinition.Name
 	helper["number_of_items"] = contentDefinition.NumItems
+	helper["source_name"] = contentDefinition.SourceName
 	helper["source_type"] = contentDefinition.SourceType
 	helper["type"] = contentDefinition.Type
 
