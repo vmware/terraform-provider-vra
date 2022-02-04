@@ -30,7 +30,7 @@ func expandRegionSpecificationList(rList []interface{}) []*models.RegionSpecific
 	for _, r := range rList {
 		rs := models.RegionSpecification{
 			ExternalRegionID: withString(r.(string)),
-			Name:             withString(""),
+			Name:             withString(r.(string)),
 		}
 		rsList = append(rsList, &rs)
 	}
