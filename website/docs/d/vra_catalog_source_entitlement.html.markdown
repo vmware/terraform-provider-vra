@@ -1,6 +1,6 @@
 ---
 layout: "vra"
-page_title: "VMware vRealize Automation: Data source vra_catalog_source_entitlement"
+page_title: "VMware vRealize Automation: vra_catalog_source_entitlement"
 description: A data source for catalog source entitlement.
 ---
 
@@ -10,7 +10,7 @@ This data source provides information about a catalog source entitlement in vRA.
 
 ## Example Usages
 
-This is an example of how to get a vRA cloud template catalog source entitlement its id.
+This is an example of how to get a vRA catalog source entitlement by its id:
 
 ```hcl
 data "vra_catalog_source_entitlement" "this" {
@@ -19,15 +19,14 @@ data "vra_catalog_source_entitlement" "this" {
 }
 ```
 
-This is an example of how to get a vRA cloud template catalog source entitlement by catalog source id.
+This is an example of how to get a vRA catalog source entitlement by its catalog source id:
 
 ```hcl
 data "vra_catalog_source_entitlement" "this" {
-  catalog_source_id = var_catalog_source_id
+  catalog_source_id = var.catalog_source_id
   project_id        = var.project_id
 }
 ```
-
 
 ## Argument Reference
 
@@ -37,19 +36,22 @@ data "vra_catalog_source_entitlement" "this" {
 
 * `project_id` - (Required) The id of the project that this entitlement belongs to.
 
-
 ## Attribute Reference
 
-* `definition` - Represents a catalog item or content source that is linked to a project via an entitlement.
+* `definition` - Represents a catalog source that is linked to a project via an entitlement.
 
-    * `description` - Description of either the catalog item, or the catalog source.
-    
-    * `id` - ID of either the catalog source, or the catalog item.
-    
-    * `name` - Name of either the catalog item, or the catalog source.
+    * `description` - Description of the catalog source.
+
+    * `icon_id` - Icon id of associated catalog source.
+
+    * `id` - Id of the catalog source.
+
+    * `name` - Name of the catalog source.
 
     * `number_of_items` - Number of items in the associated catalog source.
-    
-    * `source_type` - Type of the catalog source.
-    
+
+    * `source_name` - Catalog source name.
+
+    * `source_type` - Catalog source type.
+
     * `type` - Content definition type.

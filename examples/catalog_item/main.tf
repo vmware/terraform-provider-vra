@@ -98,6 +98,12 @@ data "vra_catalog_item" "this" {
   expand_versions = true
 }
 
+// Example catalog item entitlement
+resource "vra_catalog_item_entitlement" "this" {
+  catalog_item_id = data.vra_catalog_item.this.id
+  project_id = vra_project.this.id
+}
+
 // Example to request a deployment from a catalog item
 resource "vra_deployment" "this" {
   name        = format("%s-%d", var.deployment_name, random_integer.suffix.result)
