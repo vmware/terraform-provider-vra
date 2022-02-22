@@ -2,25 +2,23 @@ package vra
 
 import (
 	"fmt"
-	"log"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/vmware/vra-sdk-go/pkg/client/catalog_entitlements"
-	"github.com/vmware/vra-sdk-go/pkg/models"
 )
 
-func dataSourceCatalogSourceEntitlement() *schema.Resource {
+func dataSourceCatalogItemEntitlement() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceCatalogSourceEntitlementRead,
+		Read: dataSourceCatalogItemEntitlementRead,
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
 
 		Schema: map[string]*schema.Schema{
-			"catalog_source_id": {
+			"catalog_item_id": {
 				Type:          schema.TypeString,
 				Optional:      true,
-				Description:   "Catalog source id.",
+				Description:   "Catalog item id.",
 				ConflictsWith: []string{"id"},
 			},
 			"definition": {
@@ -31,22 +29,22 @@ func dataSourceCatalogSourceEntitlement() *schema.Resource {
 						"description": {
 							Type:        schema.TypeString,
 							Computed:    true,
-							Description: "Description of the catalog source.",
+							Description: "Description of the catalog item.",
 						},
 						"icon_id": {
 							Type:        schema.TypeString,
 							Computed:    true,
-							Description: "Icon id of associated catalog source.",
+							Description: "Icon id of associated catalog item.",
 						},
 						"id": {
 							Type:        schema.TypeString,
 							Computed:    true,
-							Description: "Id of the catalog source.",
+							Description: "Id of the catalog item.",
 						},
 						"name": {
 							Type:        schema.TypeString,
 							Computed:    true,
-							Description: "Name of the catalog source.",
+							Description: "Name of the catalog item.",
 						},
 						"number_of_items": {
 							Type:        schema.TypeInt,
@@ -75,7 +73,7 @@ func dataSourceCatalogSourceEntitlement() *schema.Resource {
 				Type:          schema.TypeString,
 				Optional:      true,
 				Description:   "Entitlement id.",
-				ConflictsWith: []string{"catalog_source_id"},
+				ConflictsWith: []string{"catalog_item_id"},
 			},
 			"project_id": {
 				Type:        schema.TypeString,
@@ -86,48 +84,34 @@ func dataSourceCatalogSourceEntitlement() *schema.Resource {
 	}
 }
 
-func dataSourceCatalogSourceEntitlementRead(d *schema.ResourceData, m interface{}) error {
-	log.Printf("Reading the vra_catalog_source_entitlement data source")
+func dataSourceCatalogItemEntitlementRead(d *schema.ResourceData, m interface{}) error {
 	apiClient := m.(*Client).apiClient
 
 	id, idOk := d.GetOk("id")
-	catalogSourceID, catalogSourceIDOk := d.GetOk("catalog_source_id")
+	catalogItemID, catalogItemIDOk := d.GetOk("catalog_item_id")
 	projectID := d.Get("project_id").(string)
 
-	if !idOk && !catalogSourceIDOk {
-		return fmt.Errorf("one of id or catalog_source_id must be provided with project_id")
+	if !idOk && !catalogItemIDOk {
+		return fmt.Errorf("one of id or catalog_item_id must be provided with project_id")
 	}
 
 	resp, err := apiClient.CatalogEntitlements.GetEntitlementsUsingGET2(
 		catalog_entitlements.NewGetEntitlementsUsingGET2Params().WithProjectID(withString(projectID)))
-
 	if err != nil {
 		return err
 	}
 
-	setFields := func(entitlement *models.Entitlement) {
-		d.SetId(entitlement.ID.String())
-		d.Set("project_id", entitlement.ProjectID)
-		d.Set("catalog_source_id", entitlement.Definition.ID)
-		d.Set("definition", flattenContentDefinition(entitlement.Definition))
-	}
-
 	if len(resp.Payload) > 0 {
 		for _, entitlement := range resp.Payload {
-			if idOk && entitlement.ID.String() == id.(string) {
-				setFields(entitlement)
-				log.Printf("Finished reading the vra_catalog_source_entitlement data source")
-				return nil
-			}
-
-			if catalogSourceIDOk && entitlement.Definition.ID.String() == catalogSourceID.(string) {
-				setFields(entitlement)
-				log.Printf("Finished reading the vra_catalog_source_entitlement data source")
+			if (idOk && entitlement.ID.String() == id.(string)) || (catalogItemIDOk && entitlement.Definition.ID.String() == catalogItemID.(string)) {
+				d.SetId(entitlement.ID.String())
+				d.Set("catalog_item_id", entitlement.Definition.ID)
+				d.Set("definition", flattenContentDefinition(entitlement.Definition))
+				d.Set("project_id", entitlement.ProjectID)
 				return nil
 			}
 		}
 	}
 
-	return fmt.Errorf("no catalog source entitlements found for the project_id '%v'", projectID)
-
+	return fmt.Errorf("no catalog item entitlements found for the project_id '%s'", projectID)
 }

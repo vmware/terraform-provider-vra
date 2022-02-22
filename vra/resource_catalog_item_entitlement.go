@@ -8,25 +8,23 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/vmware/vra-sdk-go/pkg/client/catalog_entitlements"
 	"github.com/vmware/vra-sdk-go/pkg/models"
-
-	"log"
 )
 
-func resourceCatalogSourceEntitlement() *schema.Resource {
+func resourceCatalogItemEntitlement() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: resourceCatalogSourceEntitlementCreate,
-		DeleteContext: resourceCatalogSourceEntitlementDelete,
-		ReadContext:   resourceCatalogSourceEntitlementRead,
+		CreateContext: resourceCatalogItemEntitlementCreate,
+		DeleteContext: resourceCatalogItemEntitlementDelete,
+		ReadContext:   resourceCatalogItemEntitlementRead,
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
 
 		Schema: map[string]*schema.Schema{
-			"catalog_source_id": {
+			"catalog_item_id": {
 				Type:        schema.TypeString,
 				Required:    true,
 				ForceNew:    true,
-				Description: "Catalog source id.",
+				Description: "Catalog item id.",
 			},
 			"definition": {
 				Type:     schema.TypeSet,
@@ -36,22 +34,22 @@ func resourceCatalogSourceEntitlement() *schema.Resource {
 						"description": {
 							Type:        schema.TypeString,
 							Computed:    true,
-							Description: "Description of the catalog source.",
+							Description: "Description of the catalog item.",
 						},
 						"icon_id": {
 							Type:        schema.TypeString,
 							Computed:    true,
-							Description: "Icon id of associated catalog source.",
+							Description: "Icon id of associated catalog item.",
 						},
 						"id": {
 							Type:        schema.TypeString,
 							Computed:    true,
-							Description: "Id of the catalog source.",
+							Description: "Id of the catalog item.",
 						},
 						"name": {
 							Type:        schema.TypeString,
 							Computed:    true,
-							Description: "Name of the catalog source.",
+							Description: "Name of the catalog item.",
 						},
 						"number_of_items": {
 							Type:        schema.TypeInt,
@@ -86,18 +84,14 @@ func resourceCatalogSourceEntitlement() *schema.Resource {
 	}
 }
 
-func resourceCatalogSourceEntitlementCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	log.Printf("starting to create vra_catalog_source_entitlement resource")
-
+func resourceCatalogItemEntitlementCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	apiClient := m.(*Client).apiClient
 
-	catalogSourceID := strfmt.UUID(d.Get("catalog_source_id").(string))
-
+	catalogItemID := strfmt.UUID(d.Get("catalog_item_id").(string))
 	contentDefinition := models.ContentDefinition{
-		ID:   &catalogSourceID,
-		Type: withString("CatalogSourceIdentifier"),
+		ID:   &catalogItemID,
+		Type: withString("CatalogItemIdentifier"),
 	}
-
 	entitlement := models.Entitlement{
 		Definition: &contentDefinition,
 		ProjectID:  withString(d.Get("project_id").(string)),
@@ -105,39 +99,31 @@ func resourceCatalogSourceEntitlementCreate(ctx context.Context, d *schema.Resou
 
 	_, createResp, err := apiClient.CatalogEntitlements.CreateEntitlementUsingPOST2(
 		catalog_entitlements.NewCreateEntitlementUsingPOST2Params().WithEntitlement(&entitlement))
-
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
-	d.SetId(createResp.GetPayload().ID.String())
-	log.Printf("Finished creating vra_catalog_source_entitlement resource with name %s", d.Get("name"))
+	id := createResp.GetPayload().ID.String()
+	d.SetId(id)
 
-	return resourceCatalogSourceEntitlementRead(ctx, d, m)
+	return resourceCatalogItemEntitlementRead(ctx, d, m)
 }
 
-func resourceCatalogSourceEntitlementRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	log.Printf("Reading the vra_catalog_source_entitlement resource with name %s", d.Get("name"))
+func resourceCatalogItemEntitlementRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	apiClient := m.(*Client).apiClient
 
+	id := d.Id()
 	resp, err := apiClient.CatalogEntitlements.GetEntitlementsUsingGET2(
 		catalog_entitlements.NewGetEntitlementsUsingGET2Params().WithProjectID(withString(d.Get("project_id").(string))))
-
 	if err != nil {
 		return diag.FromErr(err)
-	}
-
-	setFields := func(entitlement *models.Entitlement) {
-		d.SetId(entitlement.ID.String())
-		d.Set("project_id", entitlement.ProjectID)
-		d.Set("definition", flattenContentDefinition(entitlement.Definition))
 	}
 
 	if len(resp.Payload) > 0 {
 		for _, entitlement := range resp.Payload {
-			if entitlement.Definition.ID.String() == d.Get("catalog_source_id").(string) {
-				setFields(entitlement)
-				log.Printf("Finished reading the vra_catalog_source_entitlement resource with name %s", d.Get("name"))
+			if entitlement.ID.String() == id {
+				d.Set("project_id", entitlement.ProjectID)
+				d.Set("definition", flattenContentDefinition(entitlement.Definition))
 				return nil
 			}
 		}
@@ -147,18 +133,15 @@ func resourceCatalogSourceEntitlementRead(ctx context.Context, d *schema.Resourc
 	return nil
 }
 
-func resourceCatalogSourceEntitlementDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	log.Printf("Starting to delete the vra_catalog_source_entitlement resource with name %s", d.Get("name"))
+func resourceCatalogItemEntitlementDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	apiClient := m.(*Client).apiClient
 
 	_, err := apiClient.CatalogEntitlements.DeleteEntitlementUsingDELETE2(
 		catalog_entitlements.NewDeleteEntitlementUsingDELETE2Params().WithID(strfmt.UUID(d.Id())))
-
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
 	d.SetId("")
-	log.Printf("Finished deleting the vra_catalog_source_entitlement resource with name %s", d.Get("name"))
 	return nil
 }
