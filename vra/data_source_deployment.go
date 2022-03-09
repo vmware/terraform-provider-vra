@@ -6,7 +6,6 @@ import (
 	"github.com/go-openapi/strfmt"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/vmware/vra-sdk-go/pkg/client/deployments"
-	"github.com/vmware/vra-sdk-go/pkg/models"
 
 	"log"
 )
@@ -138,50 +137,6 @@ func dataSourceDeploymentRead(d *schema.ResourceData, m interface{}) error {
 		return fmt.Errorf("one of id or name must be assigned")
 	}
 
-	expandLastRequest := d.Get("expand_last_request").(bool)
-	expandProject := d.Get("expand_project").(bool)
-	expandResources := d.Get("expand_resources").(bool)
-
-	setFields := func(deployment *models.Deployment) error {
-		d.SetId(deployment.ID.String())
-		d.Set("blueprint_id", deployment.BlueprintID)
-		d.Set("blueprint_version", deployment.BlueprintVersion)
-		d.Set("catalog_item_id", deployment.CatalogItemID)
-		d.Set("catalog_item_version", deployment.CatalogItemVersion)
-		d.Set("created_at", deployment.CreatedAt)
-		d.Set("created_by", deployment.CreatedBy)
-		d.Set("description", deployment.Description)
-		d.Set("last_updated_at", deployment.LastUpdatedAt)
-		d.Set("last_updated_by", deployment.LastUpdatedBy)
-		d.Set("lease_expire_at", deployment.LeaseExpireAt)
-		d.Set("name", deployment.Name)
-		d.Set("org_id", deployment.OrgID)
-		d.Set("owner", deployment.OwnedBy)
-		d.Set("project_id", deployment.ProjectID)
-		d.Set("status", deployment.Status)
-
-		if err := d.Set("expense", flattenExpense(deployment.Expense)); err != nil {
-			return fmt.Errorf("error setting deployment expense - error: %#v", err)
-		}
-
-		if err := d.Set("inputs", expandInputs(deployment.Inputs)); err != nil {
-			return fmt.Errorf("error setting deployment inputs - error: %#v", err)
-		}
-
-		if err := d.Set("last_request", flattenDeploymentRequest(deployment.LastRequest)); err != nil {
-			return fmt.Errorf("error setting deployment last_request - error: %#v", err)
-		}
-
-		if err := d.Set("project", flattenResourceReference(deployment.Project)); err != nil {
-			return fmt.Errorf("error setting project in deployment - error: %#v", err)
-		}
-
-		if err := d.Set("resources", flattenResources(deployment.Resources)); err != nil {
-			return fmt.Errorf("error setting resources in deployment - error: %#v", err)
-		}
-		return nil
-	}
-
 	if nameOk {
 		getAllResp, err := apiClient.Deployments.GetDeploymentsV3UsingGET(
 			deployments.NewGetDeploymentsV3UsingGETParams().WithName(withString(name.(string))))
@@ -200,12 +155,15 @@ func dataSourceDeploymentRead(d *schema.ResourceData, m interface{}) error {
 
 	// Get the deployment details with all the user provided flags
 	expand := []string{}
+	expandProject := d.Get("expand_project").(bool)
 	if expandProject {
 		expand = append(expand, "project")
 	}
+	expandResources := d.Get("expand_resources").(bool)
 	if expandResources {
 		expand = append(expand, "resources")
 	}
+	expandLastRequest := d.Get("expand_last_request").(bool)
 	if expandLastRequest {
 		expand = append(expand, "lastRequest")
 	}
@@ -222,5 +180,54 @@ func dataSourceDeploymentRead(d *schema.ResourceData, m interface{}) error {
 	}
 
 	deployment := getResp.Payload
-	return setFields(deployment)
+	d.SetId(deployment.ID.String())
+	d.Set("blueprint_id", deployment.BlueprintID)
+	d.Set("blueprint_version", deployment.BlueprintVersion)
+	d.Set("catalog_item_id", deployment.CatalogItemID)
+	d.Set("catalog_item_version", deployment.CatalogItemVersion)
+	d.Set("created_at", deployment.CreatedAt)
+	d.Set("created_by", deployment.CreatedBy)
+	d.Set("description", deployment.Description)
+	d.Set("last_updated_at", deployment.LastUpdatedAt)
+	d.Set("last_updated_by", deployment.LastUpdatedBy)
+	d.Set("lease_expire_at", deployment.LeaseExpireAt)
+	d.Set("name", deployment.Name)
+	d.Set("org_id", deployment.OrgID)
+	d.Set("owner", deployment.OwnedBy)
+	d.Set("project_id", deployment.ProjectID)
+	d.Set("status", deployment.Status)
+
+	if err := d.Set("expense", flattenExpense(deployment.Expense)); err != nil {
+		return fmt.Errorf("error setting deployment expense - error: %#v", err)
+	}
+
+	if err := d.Set("inputs", expandInputs(deployment.Inputs)); err != nil {
+		return fmt.Errorf("error setting deployment inputs - error: %#v", err)
+	}
+
+	if err := d.Set("last_request", flattenDeploymentRequest(deployment.LastRequest)); err != nil {
+		return fmt.Errorf("error setting deployment last_request - error: %#v", err)
+	}
+
+	if err := d.Set("project", flattenResourceReference(deployment.Project)); err != nil {
+		return fmt.Errorf("error setting project in deployment - error: %#v", err)
+	}
+
+	if expandResources {
+		getResourcesResp, err := apiClient.Deployments.GetDeploymentResourcesUsingGET2(
+			deployments.NewGetDeploymentResourcesUsingGET2Params().
+				WithDeploymentID(strfmt.UUID(id.(string))).
+				WithExpand([]string{"currentRequest"}).
+				WithAPIVersion(withString(DeploymentsAPIVersion)).
+				WithTimeout(IncreasedTimeOut))
+		if err != nil {
+			return fmt.Errorf("error retrieving deployment resources - error: %#v", err)
+		}
+
+		if err := d.Set("resources", flattenResources(getResourcesResp.GetPayload())); err != nil {
+			return fmt.Errorf("error setting resources in deployment - error: %#v", err)
+		}
+	}
+
+	return nil
 }

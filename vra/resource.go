@@ -60,14 +60,14 @@ func resourcesSchema() *schema.Schema {
 	}
 }
 
-func flattenResources(resources []*models.DeploymentResource) []map[string]interface{} {
-	if len(resources) == 0 {
-		return make([]map[string]interface{}, 0)
+func flattenResources(deploymentResources *models.PageOfDeploymentResource) []map[string]interface{} {
+	resources := make([]map[string]interface{}, 0)
+
+	if deploymentResources == nil {
+		return resources
 	}
 
-	configResources := make([]map[string]interface{}, 0, len(resources))
-
-	for _, value := range resources {
+	for _, value := range deploymentResources.Content {
 		helper := make(map[string]interface{})
 
 		helper["created_at"] = value.CreatedAt.String()
@@ -83,10 +83,10 @@ func flattenResources(resources []*models.DeploymentResource) []map[string]inter
 		propertiesSlice, _ := json.Marshal(value.Properties)
 		helper["properties_json"] = string(propertiesSlice)
 
-		configResources = append(configResources, helper)
+		resources = append(resources, helper)
 	}
 
-	return configResources
+	return resources
 }
 
 //func expandResources(configResources []interface{}) []*models.Resource {
