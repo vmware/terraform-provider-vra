@@ -407,7 +407,17 @@ func resourceDeploymentRead(ctx context.Context, d *schema.ResourceData, m inter
 
 	d.Set("project_id", deployment.ProjectID)
 
-	if err := d.Set("resources", flattenResources(deployment.Resources)); err != nil {
+	getResourcesResp, err := apiClient.Deployments.GetDeploymentResourcesUsingGET2(
+		deployments.NewGetDeploymentResourcesUsingGET2Params().
+			WithDeploymentID(strfmt.UUID(id)).
+			WithExpand([]string{"currentRequest"}).
+			WithAPIVersion(withString(DeploymentsAPIVersion)).
+			WithTimeout(IncreasedTimeOut))
+	if err != nil {
+		return diag.Errorf("error retrieving deployment resources - error: %#v", err)
+	}
+
+	if err := d.Set("resources", flattenResources(getResourcesResp.GetPayload())); err != nil {
 		return diag.Errorf("error setting resources in deployment - error: %#v", err)
 	}
 
