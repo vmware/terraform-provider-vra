@@ -82,7 +82,7 @@ The following examples use Bash on Linux (x64).
 2. Extract the plugin.
 
     ```bash
-    tar xvf terraform-provider-vra_${RELEASE}_linux_amd64.zip
+    unzip terraform-provider-vra_${RELEASE}_linux_amd64.zip
     ```
 3. Create a directory for the provider.
 
