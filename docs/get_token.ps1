@@ -1,34 +1,124 @@
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
-# WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
-# COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
-# OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
 <#
+    .NOTES
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+    WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+    COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+    OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.    
+
     .SYNOPSIS
-    Generates and returns a `refresh_token` from vRealize Automation Cloud or vRealize Automation for use by the Terraform provider.
+        Generates and returns a `refresh_token` from vRealize Automation Cloud or vRealize Automation for use by the Terraform provider.
 
     .DESCRIPTION
-    The Request-vRARefreshToken function connects to the specified vRealize Automation endpoint and obtains a refresh token that is needed the Terraform provider.
-
-        terraform {
-            required_providers {
-                vra = {
-                    source  = "vmware/vra"
-                    version = ">= x.y.z"
+        The Request-vRARefreshToken function connects to the specified vRealize Automation endpoint and obtains a refresh token that is needed the Terraform provider.
+            terraform {
+                required_providers {
+                    vra = {
+                        source  = "vmware/vra"
+                        version = ">= x.y.z"
+                }
             }
-        }
-            required_version = ">= 0.13"
-        }
+                required_version = ">= 0.13"
+            }
+            provider "vra" {
+                url           = "https://api.mgmt.cloud.vmware.com"
+                refresh_token = "mx7w9**********************zB3UC"
+                insecure      = false
+            }
 
-        provider "vra" {
-            url           = "https://api.mgmt.cloud.vmware.com"
-            refresh_token = "mx7w9**********************zB3UC"
-            insecure      = false
-        }
+    .PARAMETER FQDN
+        (string) FQDN of the vRA Instance
+    
+    .PARAMETER Username
+        (string) Username used to connect to the vRA instance
+
+    .PARAMETER Password
+        (string) Password used to authenticate
+    
+    .PARAMETER Domain
+        (string) Authentication domain configured
+    
+    .PARAMETER SkipCertValidation
+        (switch) Skip certificate validation
 
     .EXAMPLE
-    .\get_token.ps1
+        get_token.ps1
+        #Fully interactive
+        Enter the FQDN for the vRealize Automation services: cloud.rainpole.io
+        Enter the username to authenticate with vRealize Automation: john.doe
+        Enter the password to authenticate with vRealize Automation: ********
+        Enter the domain or press enter to skip: example.com
+        Successfully connected to endpoint for vRealize Automation services: cloud.rainpole.io
+        Generating token...
+
+        ---------Refresh Token---------
+        N5WD************************kfgm
+        -------------------------------
+
+        Saving environmental variables...
+
+        VRA_URL = https://cloud.rainpole.io
+        VRA_REFRESH_TOKEN = N5WD************************kfgm
+
+    .EXAMPLE
+        get_token.ps1 -FQDN cloud.rainpole.io -Username john.doe -Password ****** -Domain example.com
+        #All parameters on CLI
+
+        Successfully connected to endpoint for vRealize Automation services: cloud.rainpole.io
+        Generating token...
+
+        ---------Refresh Token---------
+        N5WD************************kfgm
+        -------------------------------
+
+        Saving environmental variables...
+
+        VRA_URL = https://cloud.rainpole.io
+        VRA_REFRESH_TOKEN = N5WD************************kfgm
+
+    .EXAMPLE
+        get_token.ps1 -FQDN cloud.rainpole.io -Username john.doe -Domain example.com
+        # Enter only password interactively to avoid it entering console history
+        Enter the password to authenticate with vRealize Automation: *****************
+        Successfully connected to endpoint for vRealize Automation services: cloud.rainpole.io
+        Generating token...
+
+        ---------Refresh Token---------
+        N5WD************************kfgm
+        -------------------------------
+
+        Saving environmental variables...
+
+        VRA_URL = https://cloud.rainpole.io
+        VRA_REFRESH_TOKEN = N5WD************************kfgm
+    
+    .INPUTS
+    None
+
+    .OUTPUTS
+    Text
+
+    .LINK
+    https://github.com/vmware/terraform-provider-vra
+
 #>
+[CmdletBinding()]
+Param (
+    [Parameter ()]
+        [ValidateNotNullOrEmpty()]
+        [Alias('Server')] 
+        [String]$FQDN = (Read-Host "Enter the FQDN for the vRealize Automation services"),
+    [Parameter ()] 
+        [ValidateNotNullOrEmpty()]
+        [Alias('User')]
+        [String]$Username = (Read-Host "Enter the username to authenticate with vRealize Automation"),
+    [Parameter ()] 
+        [ValidateNotNullOrEmpty()]
+        [Alias('Pass')]
+        [string]$Password = (Read-Host -MaskInput -Prompt "Enter the password to authenticate with vRealize Automation"),
+    [Parameter ()] [String]$domain = (Read-Host -Prompt "Enter the domain or press enter to skip"),
+    [Parameter ()] [switch]$SkipCertValidation=$false
+)
+
 
 Function Set-BasicAuthHeader {
     $base64AuthInfo = [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(("{0}:{1}" -f $username, $password))) # Create Basic Authentication Encoded Credentials
@@ -39,35 +129,12 @@ Function Set-BasicAuthHeader {
 }
 Function Request-vRARefreshToken {
     Param (
-        [Parameter (HelpMessage = "FQDN for the vRealize Automation.")] [String]$fqdn,
-        [Parameter (HelpMessage = "Username to authenticate with vRealize Automation.")] [String]$username,
-        [Parameter (HelpMessage = "Password to authenticate with vRealize Automation.")] [String]$password,
-        [Parameter (HelpMessage = "Domain for the user or press enter to skip.")] [String]$domain,
-        [Parameter (HelpMessage = "Skip certificate validation.")] [switch]$SkipCertValidation
+        [String]$fqdn,
+        [String]$username,
+        [String]$password,
+        [String]$domain,
+        [switch]$SkipCertValidation
     )
-
-    if ($PSBoundParameters.Keys.Contains("fqdn")) { 
-        Write-Host "FQDN variable found: $fqdn Skipping..."
-    } else {
-        $fqdn = Read-Host -Prompt "Enter the FQDN for the vRealize Automation services"
-    }
-
-    if ($PSBoundParameters.Keys.Contains("username")) { 
-        Write-Host "Username variable found: $username. Skipping..."
-    } else {
-        $username = Read-Host -Prompt "Enter the username to authenticate with vRealize Automation"
-    }
-
-    if ($PSBoundParameters.Keys.Contains("password")) { 
-        Write-Host "Password variable found. Skipping..."
-    } else {
-        $password = Read-Host -Prompt "Enter the password to authenticate with vRealize Automation"
-    }
-
-    if ($PSBoundParameters.Keys.Contains("domain")) { 
-        Write-Host "Domain variable found: $domain. Skipping..."
-    } else {
-    }
 
     if ($SkipCertValidation) {
         add-type @"
@@ -128,4 +195,4 @@ Function Request-vRARefreshToken {
 }
 
 # Execute Functions
-Request-vRARefreshToken
+Request-vRARefreshToken -FQDN $FQDN -Username $Username -Password $Password -Domain $Domain -SkipCertValidation $SkipCertValidation
