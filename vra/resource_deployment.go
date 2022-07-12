@@ -699,7 +699,11 @@ func updateDeploymentWithNewBlueprint(ctx context.Context, d *schema.ResourceDat
 	}
 
 	if blueprintID != "" && blueprintContent != "" {
-		return diag.FromErr(errors.New("only one of (blueprint_id, blueprintContent) required"))
+		if blueprintID == "inline-blueprint" {
+			blueprintID = ""
+		} else {
+			return diag.FromErr(errors.New("only one of (blueprint_id, blueprintContent) required"))
+		}
 	}
 
 	deploymentName := d.Get("name").(string)
