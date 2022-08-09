@@ -32,6 +32,11 @@ func dataSourceRegionEnumerationVMC() *schema.Resource {
 				Optional:    true,
 				Description: "Identifier of a data collector vm deployed in the on premise infrastructure.",
 			},
+			"nsx_hostname": {
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "The IP address of the NSX Manager server in the specified SDDC / FQDN.",
+			},
 			"sddc_name": {
 				Type:        schema.TypeString,
 				Required:    true,
@@ -77,6 +82,7 @@ func dataSourceRegionEnumerationVMCRead(ctx context.Context, d *schema.ResourceD
 				APIKey:                      d.Get("api_token").(string),
 				DcID:                        d.Get("dc_id").(string),
 				HostName:                    d.Get("vcenter_hostname").(string),
+				NsxHostName:                 d.Get("nsx_hostname").(string),
 				Password:                    d.Get("vcenter_password").(string),
 				SddcID:                      d.Get("sddc_name").(string),
 				Username:                    d.Get("vcenter_username").(string),

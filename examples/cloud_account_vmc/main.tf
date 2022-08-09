@@ -13,6 +13,7 @@ data "vra_data_collector" "this" {
 data "vra_region_enumeration_vmc" "this" {
   api_token = var.api_token
   sddc_name = var.sddc_name
+  nsx_hostname = var.nsx_hostname
 
   vcenter_hostname = var.vcenter_hostname
   vcenter_password = var.vcenter_password
