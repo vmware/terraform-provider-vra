@@ -36,7 +36,7 @@ func expandContentSourceRepositoryConfig(repoConfigs []interface{}) []*ContentSo
 	return configs
 }
 
-//Convert from json back to an array
+// Convert from json back to an array
 func flattenContentsourceRepositoryConfig(list interface{}) []map[string]interface{} {
 	l := map[string]interface{}{}
 	v := reflect.ValueOf(list)
