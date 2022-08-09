@@ -19,7 +19,8 @@ data "vra_region_enumeration_vmc" "this" {
 
   api_token = var.api_token
   sddc_name = var.sddc_name
-  
+  nsx_hostname = var.nsx_hostname
+
   vcenter_hostname = var.vcenter_hostname
   vcenter_password = var.vcenter_password
   vcenter_username = var.vcenter_username
@@ -34,6 +35,8 @@ The region enumeration data source for VMC cloud account supports the following 
 * `api_token` - (Required) API Token for the cloud account endpoint.
 
 * `dc_id` - (Optional) ID of a data collector vm deployed in the on premise infrastructure. Refer to the data-collector API to create or list data collectors.
+
+* `nsx_hostname` - (Required) The IP address of the NSX Manager server in the specified SDDC / FQDN.
 
 * `sddc_name` - (Required) Identifier of the on-premise SDDC to be used by this cloud account.
 

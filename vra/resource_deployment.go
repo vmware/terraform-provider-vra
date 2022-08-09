@@ -941,7 +941,7 @@ func getInputsByType(inputs map[string]interface{}, inputTypesMap map[string]str
 }
 
 // Returns a map of string, string with input variables and their types defined in the given schema map.
-//Used for getting map of inputs and their types for Catalog item and Deployment actions
+// Used for getting map of inputs and their types for Catalog item and Deployment actions
 func getInputTypesMapFromSchema(schema map[string]interface{}) (map[string]string, error) {
 	log.Printf("Getting the map of inputs and their types")
 	inputTypesMap := make(map[string]string, len(schema))
