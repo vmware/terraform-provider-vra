@@ -50,5 +50,5 @@ resource "vra_cloud_account_vmc" "this" {
 
 data "vra_region" "region_1" {
   cloud_account_id = vra_cloud_account_vmc.this.id
-  region           = data.vra_region_enumeration.this.regions[0]
+  region           = tolist(data.vra_region_enumeration.this.regions)[0]
 }
