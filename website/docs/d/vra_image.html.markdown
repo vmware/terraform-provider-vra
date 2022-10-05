@@ -10,54 +10,43 @@ description: |-
 The `vra_image` data source can be used to discover the lookup machine images with cloud accounts. This can then be used with resource that require an image. For example, to create an image profile using the `vra_image_profile` resource.
 
 ## Example Usage
-This is an example of how to lookup images from a vSphere cloud account.
+
+This is an example of how to lookup images.
+
+**Image data source by Id:**
 
 ```hcl
-data "vra_cloud_account_vsphere" "this" {
-  name = var.cloud_account
+# Lookup image using its id
+data "vra_image" "this" {
+  id = var.image_id
 }
+```
 
-data "vra_region" "this" {
-  cloud_account_id = data.vra_cloud_account_vsphere.this.id
-  region = var.region
-}
+**Image data source by filter query:**
 
-data "vra_image" "image_0" {
-  filter = "name eq '${var.image_name_0}' and cloudAccountId eq '${data.vra_cloud_account_vsphere.this.id}' and externalRegionId eq '${var.region}'"
-}
-
-data "vra_image" "image_1" {
-  filter = "name eq '${var.image_name_1}' and cloudAccountId eq '${data.vra_cloud_account_vsphere.this.id}' and externalRegionId eq '${var.region}'"
-}
-
-resource "vra_image_profile" "this" {
-  name        = var.image_profile_name
-  description = var.image_profile_description
-  region_id   = data.vra_region.this.id
-
-  image_mapping {
-    name     = var.image_name_0
-    image_id = data.vra_image.image_0.id
-  }
-
-  image_mapping {
-    name     = var.image_name_1
-    image_id = data.vra_image.image_1.id
-  }
+```hcl
+# Lookup image using its name
+data "vra_image" "this" {
+  filter = "name eq '${var.image_name}'"
 }
 ```
 
 ## Argument Reference
 
-The following arguments are supported:
-
-* `filter` - (Required) Search criteria to narrow down the image discovery.
+* `id` - (Optional) The id of the image resource instance. Only one of 'id' or 'filter' must be specified.
+* `filter` - (Optional) Search criteria to narrow down the image resource instance. Only one of 'id' or 'filter' must be specified.
 
 ## Attribute Reference
 
-* `description` - A human-friendly description of the image.
-* `external_id` - External entity id on the provider side.
-* `id` - The id of the image.
-* `name` - A human-friendly name used as an identifier in APIs that support this option.  
-* `private` - Indicates whether this image is private. For vSphere, private images are templates and snapshots and public images are content library items.
-* `region` - The regionId of the image. For a vSphere cloud account, it is the `externalRegionId` such as `Datacenter:datacenter-2` and for an AWS cloud account, it is region name such as `us-east-1`, etc.
+* `created_at` - Date when the entity was created. The date is in ISO 8601 and UTC
+* `custom_properties` - A list of key value pair of custom properties for the image resource.
+* `description` - A human-friendly description.
+* `external_id` - External entity Id on the provider side.
+* `links` - HATEOAS of the entity.
+* `name` - A human-friendly name used as an identifier for the image resource instance. 
+* `org_id` - The id of the organization this entity belongs to.
+* `os_family` - Operating System family of the image.
+* `owner` - Email of the user that owns the entity.
+* `private` - Indicates whether this image is private. For vSphere, private images are considered to be templates and snapshots and public are Content Library Items.
+* `region` - The region of the image. For a vSphere cloud account, it is the `externalRegionId` such as `Datacenter:datacenter-2` and for an AWS cloud account, it is region name such as `us-east-1`, etc.
+* `updated_at` - Date when the entity was last updated. The date is ISO 8601 and UTC.
