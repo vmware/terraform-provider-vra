@@ -8,9 +8,7 @@ run:
 linters:
   disable-all: true
   enable:
-    - deadcode
     - errcheck
-    # - gofmt
     - goimports
     - gosimple
     - govet
@@ -19,11 +17,9 @@ linters:
     - misspell
     - revive
     - staticcheck
-    - structcheck
     - typecheck
     - unused
     - unconvert
-    - varcheck
     - vet
     - vetshadow
 
