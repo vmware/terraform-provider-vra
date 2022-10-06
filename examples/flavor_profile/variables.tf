@@ -4,8 +4,14 @@ variable "refresh_token" {
 variable "url" {
 }
 
-variable "cloud_account" {
+variable "aws_cloud_account" {
 }
 
-variable "region" {
+variable "vsphere_cloud_account" {
+}
+
+variable "aws_region" {
+}
+
+variable "vsphere_region" {
 }

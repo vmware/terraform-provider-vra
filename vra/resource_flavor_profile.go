@@ -24,64 +24,77 @@ func resourceFlavorProfile() *schema.Resource {
 			"cloud_account_id": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: "The ID of the cloud account this entity belongs to.",
+				Description: "Id of the cloud account this flavor profile belongs to.",
 			},
 			"created_at": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "Date when the entity was created. The date is in ISO 8601 and UTC.",
 			},
 			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "A human-friendly description.",
 			},
 			"external_region_id": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "The id of the region for which this profile is defined.",
 			},
 			"flavor_mapping": {
-				Type:     schema.TypeSet,
-				Optional: true,
+				Type:        schema.TypeSet,
+				Optional:    true,
+				Description: "A list of the flavor mappings defined for the corresponding cloud end-point region.",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"name": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: "The name of the flavor mapping.",
 						},
 						"instance_type": {
-							Type:     schema.TypeString,
-							Optional: true,
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: "The value of the instance type in the corresponding cloud. Mandatory for public clouds. Only `instance_type` or `cpu_count`/`memory` must be specified.",
 						},
 						"cpu_count": {
-							Type:     schema.TypeInt,
-							Optional: true,
+							Type:        schema.TypeInt,
+							Optional:    true,
+							Description: "Number of CPU cores. Mandatory for private clouds such as vSphere. Only `instance_type` or `cpu_count`/`memory` must be specified.",
 						},
 						"memory": {
-							Type:     schema.TypeInt,
-							Optional: true,
+							Type:        schema.TypeInt,
+							Optional:    true,
+							Description: "Total amount of memory (in megabytes). Mandatory for private clouds such as vSphere. Only `instance_type` or `cpu_count`/`memory` must be specified.",
 						},
 					},
 				},
 			},
 			"links": linksSchema(),
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "A human-friendly name used as an identifier in APIs that support this option.",
 			},
 			"org_id": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "The id of the organization this entity belongs to.",
 			},
 			"owner": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "Email of the user that owns the entity.",
 			},
 			"region_id": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "The id of the region for which this profile is defined ",
 			},
 			"updated_at": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "Date when the entity was last updated. The date is ISO 8601 and UTC.",
 			},
 		},
 	}
@@ -161,12 +174,11 @@ func resourceFlavorProfileUpdate(ctx context.Context, d *schema.ResourceData, m 
 	name := d.Get("name").(string)
 	flavorMapping := expandFlavors(d.Get("flavor_mapping").(*schema.Set).List())
 
-	_, err := apiClient.FlavorProfile.UpdateFlavorProfile(flavor_profile.NewUpdateFlavorProfileParams().WithID(id).WithBody(&models.UpdateFlavorProfileSpecification{
+	if _, err := apiClient.FlavorProfile.UpdateFlavorProfile(flavor_profile.NewUpdateFlavorProfileParams().WithID(id).WithBody(&models.UpdateFlavorProfileSpecification{
 		Description:   description,
 		Name:          name,
 		FlavorMapping: flavorMapping,
-	}))
-	if err != nil {
+	})); err != nil {
 		return diag.FromErr(err)
 	}
 
@@ -177,8 +189,7 @@ func resourceFlavorProfileDelete(ctx context.Context, d *schema.ResourceData, m 
 	apiClient := m.(*Client).apiClient
 
 	id := d.Id()
-	_, err := apiClient.FlavorProfile.DeleteFlavorProfile(flavor_profile.NewDeleteFlavorProfileParams().WithID(id))
-	if err != nil {
+	if _, err := apiClient.FlavorProfile.DeleteFlavorProfile(flavor_profile.NewDeleteFlavorProfileParams().WithID(id)); err != nil {
 		return diag.FromErr(err)
 	}
 
