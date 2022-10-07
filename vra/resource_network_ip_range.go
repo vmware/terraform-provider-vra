@@ -2,6 +2,7 @@ package vra
 
 import (
 	"context"
+	"errors"
 	"log"
 
 	"github.com/vmware/vra-sdk-go/pkg/client/network_ip_range"
@@ -24,50 +25,75 @@ func resourceNetworkIPRange() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"created_at": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "Date when the entity was created. The date is in ISO 8601 and UTC.",
 			},
 			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "A human-friendly description.",
 			},
 			"end_ip_address": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "End IP address of the range.",
 				// Do we need to validate?
 			},
 			"external_id": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "External entity Id on the provider side.",
 			},
 			"fabric_network_id": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "The Id of the fabric network.",
+				Deprecated:  "Please use `fabric_network_ids` instead.",
+			},
+			"fabric_network_ids": {
+				Type:          schema.TypeSet,
+				Optional:      true,
+				ConflictsWith: []string{"fabric_network_id"},
+				Description:   "The Ids of the fabric networks.",
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
 			},
 			"ip_version": {
 				Type:         schema.TypeString,
 				Required:     true,
+				Description:  "IP address version: IPv4 or IPv6.",
 				ValidateFunc: validation.StringInSlice([]string{"IPv4", "IPv6"}, true),
 			},
+			"links": linksSchema(),
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "The name of the network IP range.",
 			},
 			"org_id": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "The id of the organization this entity belongs to.",
+			},
+			"owner": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "Email of the user that owns the entity.",
 			},
 			"start_ip_address": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "Start IP address of the range.",
 				// Do we need to validate?
 			},
 			"updated_at": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "Date when the entity was last updated. The date is ISO 8601 and UTC.",
 			},
-			"tags":  tagsSchema(),
-			"links": linksSchema(),
+			"tags": tagsSchema(),
 		},
 	}
 }
@@ -79,10 +105,19 @@ func resourceNetworkIPRangeCreate(ctx context.Context, d *schema.ResourceData, m
 	name := d.Get("name").(string)
 	endIPAddress := d.Get("end_ip_address").(string)
 	startIPAddress := d.Get("start_ip_address").(string)
+	fabricNetworkIDs := []string{}
+	if v, ok := d.GetOk("fabric_network_ids"); ok {
+		if !compareUnique(v.(*schema.Set).List()) {
+			return diag.FromErr(errors.New("specified fabric_network_ids are not unique"))
+		}
+		fabricNetworkIDs = expandStringList(v.(*schema.Set).List())
+	} else if v, ok := d.GetOk("fabric_network_id"); ok {
+		fabricNetworkIDs = append(fabricNetworkIDs, v.(string))
+	}
 
 	networkIPRangeSpecification := models.NetworkIPRangeSpecification{
 		EndIPAddress:     &endIPAddress,
-		FabricNetworkIds: []string{d.Get("fabric_network_id").(string)},
+		FabricNetworkIds: fabricNetworkIDs,
 		IPVersion:        d.Get("ip_version").(string),
 		Name:             &name,
 		StartIPAddress:   &startIPAddress,
@@ -118,24 +153,23 @@ func resourceNetworkIPRangeRead(ctx context.Context, d *schema.ResourceData, m i
 	}
 
 	networkIPRange := *resp.Payload
-	//d.Set("custom_properties", networkIPRange.CustomProperties)
 	d.Set("created_at", networkIPRange.CreatedAt)
 	d.Set("description", networkIPRange.Description)
 	d.Set("end_ip_address", networkIPRange.EndIPAddress)
+	d.Set("external_id", networkIPRange.ExternalID)
 	d.Set("ip_version", networkIPRange.IPVersion)
 	d.Set("name", networkIPRange.Name)
 	d.Set("org_id", networkIPRange.OrgID)
-	d.Set("name", networkIPRange.Name)
 	d.Set("owner", networkIPRange.Owner)
 	d.Set("start_ip_address", networkIPRange.StartIPAddress)
 	d.Set("updated_at", networkIPRange.UpdatedAt)
 
-	if err := d.Set("tags", flattenTags(networkIPRange.Tags)); err != nil {
-		return diag.Errorf("error setting network ip range tags - error: %v", err)
-	}
-
 	if err := d.Set("links", flattenLinks(networkIPRange.Links)); err != nil {
 		return diag.Errorf("error setting network ip range links - error: %#v", err)
+	}
+
+	if err := d.Set("tags", flattenTags(networkIPRange.Tags)); err != nil {
+		return diag.Errorf("error setting network ip range tags - error: %v", err)
 	}
 
 	log.Printf("Finished reading the vra_network_ip_range resource with name %s", d.Get("name"))
@@ -151,10 +185,19 @@ func resourceNetworkIPRangeUpdate(ctx context.Context, d *schema.ResourceData, m
 	name := d.Get("name").(string)
 	endIPAddress := d.Get("end_ip_address").(string)
 	startIPAddress := d.Get("start_ip_address").(string)
+	fabricNetworkIDs := []string{}
+	if v, ok := d.GetOk("fabricNetworkIDs"); ok {
+		if !compareUnique(v.(*schema.Set).List()) {
+			return diag.FromErr(errors.New("specified fabric_network_ids are not unique"))
+		}
+		fabricNetworkIDs = expandStringList(v.(*schema.Set).List())
+	} else if v, ok := d.GetOk("fabric_network_id"); ok {
+		fabricNetworkIDs = append(fabricNetworkIDs, v.(string))
+	}
 
 	networkIPRangeSpecification := models.NetworkIPRangeSpecification{
 		EndIPAddress:     &endIPAddress,
-		FabricNetworkIds: []string{d.Get("fabric_network_id").(string)},
+		FabricNetworkIds: fabricNetworkIDs,
 		IPVersion:        d.Get("ip_version").(string),
 		Name:             &name,
 		StartIPAddress:   &startIPAddress,

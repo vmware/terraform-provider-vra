@@ -95,11 +95,11 @@ func testAccCheckVRANetworkIPRangeConfig(rInt int) string {
 	}
 	  
 	resource "vra_network_ip_range" "this" {
-		name              = "my-vra-network-range-%d"
-		start_ip_address  = "%s"
-		end_ip_address    = "%s"
-		ip_version        = "%s"
-		fabric_network_id = data.vra_fabric_network.this.id
+		name               = "my-vra-network-range-%d"
+		start_ip_address   = "%s"
+		end_ip_address     = "%s"
+		ip_version         = "%s"
+		fabric_network_ids = [data.vra_fabric_network.this.id]
 	}	  
 	 
 `, rInt, id, secret, fabricNetworkName, rInt, startIP, endIP, ipVersion)
