@@ -13,12 +13,12 @@ data "vra_fabric_network" "subnet" {
 }
 
 resource "vra_network_ip_range" "this" {
-  name              = "example-ip-range"
-  description       = "Internal Network IP Range Example"
-  start_ip_address  = var.start_ip
-  end_ip_address    = var.end_ip
-  ip_version        = var.ip_version
-  fabric_network_id = data.vra_fabric_network.subnet.id
+  name               = "example-ip-range"
+  description        = "Internal Network IP Range Example"
+  start_ip_address   = var.start_ip
+  end_ip_address     = var.end_ip
+  ip_version         = var.ip_version
+  fabric_network_ids = [data.vra_fabric_network.subnet.id]
 
   tags {
     key   = "foo"
