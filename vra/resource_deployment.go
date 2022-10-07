@@ -146,6 +146,11 @@ func resourceDeployment() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 			},
+			"reason": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "Reason for requesting a blueprint",
+			},
 			"resources": resourcesSchema(),
 			// TODO: Add plan / simulate feature
 			"status": {
@@ -226,6 +231,10 @@ func resourceDeploymentCreate(ctx context.Context, d *schema.ResourceData, m int
 			catalogItemRequest.Reason = v.(string)
 		}
 
+		if v, ok := d.GetOk("reason"); ok {
+			catalogItemRequest.Reason = v.(string)
+		}
+
 		log.Printf("[DEBUG] Create deployment: %#v", catalogItemRequest)
 		postOk, err := apiClient.CatalogItems.RequestCatalogItemInstancesUsingPOST1(
 			catalog_items.NewRequestCatalogItemInstancesUsingPOST1Params().WithID(strfmt.UUID(catalogItemID)).
@@ -277,6 +286,10 @@ func resourceDeploymentCreate(ctx context.Context, d *schema.ResourceData, m int
 			}
 		}
 		blueprintRequest.Inputs = inputs
+
+		if v, ok := d.GetOk("reason"); ok {
+			blueprintRequest.Reason = v.(string)
+		}
 
 		bpRequestCreated, bpRequestAccepted, err := apiClient.BlueprintRequests.CreateBlueprintRequestUsingPOST1(
 			blueprint_requests.NewCreateBlueprintRequestUsingPOST1Params().WithRequest(&blueprintRequest))
@@ -743,6 +756,10 @@ func updateDeploymentWithNewBlueprint(ctx context.Context, d *schema.ResourceDat
 		blueprintRequest.Inputs = inputs
 	} else {
 		blueprintRequest.Inputs = make(map[string]interface{})
+	}
+
+	if v, ok := d.GetOk("reason"); ok {
+		blueprintRequest.Reason = v.(string)
 	}
 
 	bpRequestCreated, bpRequestAccepted, err := apiClient.BlueprintRequests.CreateBlueprintRequestUsingPOST1(
