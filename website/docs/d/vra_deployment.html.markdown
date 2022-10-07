@@ -37,20 +37,18 @@ data "vra_deployment" "this" {
 
 * `id` - (Optional) The id of the deployment. One of `id` or `name` must be provided.
 
-* `name` - (Optional) Name of the deployment. One of `id` or `name` must be provided. 
+* `name` - (Optional) The name of the deployment. One of `id` or `name` must be provided.
 
 
 ## Attribute Reference
 
-* `blueprint_d` - The id of the vRA cloud template to request the deployment. Conflicts with `catalog_item_id` and `blueprint_content`.
+* `blueprint_id` - The id of the cloud template used to request the deployment.
 
-* `blueprint_version` - The version of the vRA cloud template to request the deployment. Used only when `blueprint_id` is provided.
+* `blueprint_version` - The version of the cloud template used to request the deployment.
 
-* `blueprint_content` - vRA Cloud template content. Conflicts with `blueprint_id` and `catalog_item_id`. 
+* `catalog_item_id` - The id of the catalog item used to request the deployment.
 
-* `catalog_item_id` - The id of the vRA catalog item to request the deployment. Conflicts with `blueprint_id` and `blueprint_content`.
-
-* `catalog_item_version` - The version of the vRA catalog item to request the deployment. Used only when `catalog_item_id` is provided.
+* `catalog_item_version` - The version of the catalog item used to request the deployment.
 
 * `created_at` - Date when the entity was created. The date is in ISO 6801 and UTC.
 
@@ -122,13 +120,13 @@ data "vra_deployment" "this" {
 
     * `updated_at` - Last update time (e.g. date format ‘2019-07-13T23:16:49.310Z’).
     
-* `last_updated_at` - Time at which the deployment was last updated.
+* `last_updated_at` - Date when the entity was last updated. The date is in ISO 6801 and UTC.
 
-* `last_updated_by` - The user that last updated the deployment. 
+* `last_updated_by` - The user that last updated the deployment.
 
-* `lease_expire_at` - Time at which the deployment lease expires.
+* `lease_expire_at` - Date when the deployment lease expire. The date is in ISO 6801 and UTC.
 
-* `org_id` - The ID of the organization this deployment belongs to.
+* `org_id` - The Id of the organization this deployment belongs to.
 
 * `owner` - The user this deployment belongs to.
 
@@ -184,4 +182,4 @@ data "vra_deployment" "this" {
     
     * `type` - Type of the resource.
 
-* `status` - Deployment status. Supported values are: `CREATE_SUCCESSFUL`, `CREATE_INPROGRESS`, `CREATE_FAILED`, `UPDATE_SUCCESSFUL`, `UPDATE_INPROGRESS`, `UPDATE_FAILED`, `DELETE_SUCCESSFUL`, `DELETE_INPROGRESS`, `DELETE_FAILED`, `ACTION_SUCCESSFUL`, `ACTION_INPROGRESS`, `ACTION_FAILED`.
+* `status` - The status of the deployment with respect to its life cycle operations.

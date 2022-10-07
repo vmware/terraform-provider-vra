@@ -5,7 +5,11 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"log"
+	"reflect"
 	"strconv"
+	"strings"
+	"time"
 
 	"github.com/go-openapi/strfmt"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -18,11 +22,6 @@ import (
 	"github.com/vmware/vra-sdk-go/pkg/client/deployment_actions"
 	"github.com/vmware/vra-sdk-go/pkg/client/deployments"
 	"github.com/vmware/vra-sdk-go/pkg/models"
-
-	"log"
-	"reflect"
-	"strings"
-	"time"
 )
 
 const (
@@ -46,42 +45,53 @@ func resourceDeployment() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"blueprint_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Type:          schema.TypeString,
+				Optional:      true,
+				Computed:      true,
+				ConflictsWith: []string{"blueprint_content", "catalog_item_id"},
+				Description:   "The id of the cloud template to be used to request the deployment.",
 			},
 			"blueprint_version": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: "The version of the cloud template to be used to request the deployment.",
 			},
 			"blueprint_content": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:          schema.TypeString,
+				Optional:      true,
+				ConflictsWith: []string{"blueprint_id", "catalog_item_id"},
+				Description:   "The content of the the cloud template to be used to request the deployment.",
 			},
 			"catalog_item_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
+				Type:          schema.TypeString,
+				Optional:      true,
+				Computed:      true,
+				ConflictsWith: []string{"blueprint_id", "blueprint_content"},
+				ForceNew:      true,
+				Description:   "The id of the catalog item to be used to request the deployment.",
 			},
 			"catalog_item_version": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				ForceNew:    true,
+				Description: "The version of the catalog item to be used to request the deployment.",
 			},
 			"created_at": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "Date when the entity was created. The date is in ISO 6801 and UTC.",
 			},
 			"created_by": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "The user the entity was created by.",
 			},
 			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "A human-friendly description.",
 			},
 			"expand_last_request": {
 				Type:       schema.TypeBool,
@@ -89,8 +99,9 @@ func resourceDeployment() *schema.Resource {
 				Deprecated: "Deprecated. True by default even if not provided.",
 			},
 			"expand_project": {
-				Type:     schema.TypeBool,
-				Optional: true,
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: "Flag to indicate whether to expand project information.",
 			},
 			"expand_resources": {
 				Type:       schema.TypeBool,
@@ -116,41 +127,53 @@ func resourceDeployment() *schema.Resource {
 			},
 			"last_request": deploymentRequestSchema(),
 			"last_updated_at": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "Date when the entity was last updated. The date is in ISO 6801 and UTC.",
 			},
 			"last_updated_by": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "The user that last updated the deployment.",
 			},
 			"lease_expire_at": {
-				Type:     schema.TypeString,
-				Computed: true,
-				Optional: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "Date when the deployment lease expire. The date is in ISO 6801 and UTC.",
 			},
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "The name of the deployment.",
 			},
 			"org_id": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "The Id of the organization this deployment belongs to.",
 			},
 			"owner": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: "The user this deployment belongs to.",
 			},
 			"project": resourceReferenceSchema(),
 			"project_id": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "The id of the project this deployment belongs to.",
+			},
+			"reason": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "Reason for requesting/updating a blueprint.",
 			},
 			"resources": resourcesSchema(),
 			// TODO: Add plan / simulate feature
 			"status": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "The status of the deployment with respect to its life cycle operations.",
 			},
 		},
 
@@ -226,6 +249,10 @@ func resourceDeploymentCreate(ctx context.Context, d *schema.ResourceData, m int
 			catalogItemRequest.Reason = v.(string)
 		}
 
+		if v, ok := d.GetOk("reason"); ok {
+			catalogItemRequest.Reason = v.(string)
+		}
+
 		log.Printf("[DEBUG] Create deployment: %#v", catalogItemRequest)
 		postOk, err := apiClient.CatalogItems.RequestCatalogItemInstancesUsingPOST1(
 			catalog_items.NewRequestCatalogItemInstancesUsingPOST1Params().WithID(strfmt.UUID(catalogItemID)).
@@ -277,6 +304,10 @@ func resourceDeploymentCreate(ctx context.Context, d *schema.ResourceData, m int
 			}
 		}
 		blueprintRequest.Inputs = inputs
+
+		if v, ok := d.GetOk("reason"); ok {
+			blueprintRequest.Reason = v.(string)
+		}
 
 		bpRequestCreated, bpRequestAccepted, err := apiClient.BlueprintRequests.CreateBlueprintRequestUsingPOST1(
 			blueprint_requests.NewCreateBlueprintRequestUsingPOST1Params().WithRequest(&blueprintRequest))
@@ -370,7 +401,7 @@ func resourceDeploymentRead(ctx context.Context, d *schema.ResourceData, m inter
 	d.Set("blueprint_version", deployment.BlueprintVersion)
 	d.Set("catalog_item_id", deployment.CatalogItemID)
 	d.Set("catalog_item_version", deployment.CatalogItemVersion)
-	d.Set("created_at", deployment.CreatedAt)
+	d.Set("created_at", deployment.CreatedAt.String())
 	d.Set("created_by", deployment.CreatedBy)
 	d.Set("description", deployment.Description)
 
@@ -394,9 +425,9 @@ func resourceDeploymentRead(ctx context.Context, d *schema.ResourceData, m inter
 		return diag.Errorf("error setting deployment last_request - error: %#v", err)
 	}
 
-	d.Set("last_updated_at", deployment.LastUpdatedAt)
+	d.Set("last_updated_at", deployment.LastUpdatedAt.String())
 	d.Set("last_updated_by", deployment.LastUpdatedBy)
-	d.Set("lease_expire_at", deployment.LeaseExpireAt)
+	d.Set("lease_expire_at", deployment.LeaseExpireAt.String())
 	d.Set("name", deployment.Name)
 	d.Set("org_id", deployment.OrgID)
 	d.Set("owner", deployment.OwnedBy)
@@ -743,6 +774,10 @@ func updateDeploymentWithNewBlueprint(ctx context.Context, d *schema.ResourceDat
 		blueprintRequest.Inputs = inputs
 	} else {
 		blueprintRequest.Inputs = make(map[string]interface{})
+	}
+
+	if v, ok := d.GetOk("reason"); ok {
+		blueprintRequest.Reason = v.(string)
 	}
 
 	bpRequestCreated, bpRequestAccepted, err := apiClient.BlueprintRequests.CreateBlueprintRequestUsingPOST1(
