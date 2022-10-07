@@ -35,10 +35,11 @@ data "vra_catalog_item" "this" {
 
 * `expand_versions` - (Optional) Flag to indicate whether to expand detailed versions of the catalog item.
 
-* `id` - (Optional) The id of catalog item. One of `id`, or `name` must be provided.
+* `id` - (Optional) The id of catalog item. One of `id` or `name` must be provided.
 
-* `name` - (Optional) Name of the catalog item. One of `id`, or `name` must be provided.
+* `name` - (Optional) Name of the catalog item. One of `id` or `name` must be provided.
 
+* `project_id` - (Optional) The id of the project to narrow the search while looking for catalog items.
 
 ## Attribute Reference
 
@@ -47,6 +48,10 @@ data "vra_catalog_item" "this" {
 * `created_by` - The user the entity was created by.
 
 * `description` - Catalog item description.
+
+* `form_id` - Form ID.
+
+* `icon_id` - Icon ID.
 
 * `last_updated_at` - Date-time when the entity was last updated.
 
