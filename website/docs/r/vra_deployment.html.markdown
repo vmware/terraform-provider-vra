@@ -80,15 +80,15 @@ resource "vra_deployment" "this" {
 
 ## Argument Reference
 
-* `blueprint_d` - (Optional) The id of the vRA cloud template to request the deployment. Conflicts with `catalog_item_id` and `blueprint_content`.
+* `blueprint_id` - (Optional) The id of the cloud template to be used to request the deployment. Conflicts with `blueprint_content` and `catalog_item_id`.
 
-* `blueprint_version` - (Optional) The version of the vRA cloud template to request the deployment. Used only when `blueprint_id` is provided.
+* `blueprint_version` - (Optional) The version of the cloud template to be used to request the deployment. Used only when `blueprint_id` is provided.
 
-* `blueprint_content` - (Optional) vRA Cloud template content. Conflicts with `blueprint_id` and `catalog_item_id`. 
+* `blueprint_content` - (Optional) The content of the the cloud template to be used to request the deployment. Conflicts with `blueprint_id` and `catalog_item_id`.
 
-* `catalog_item_id` - (Optional) The id of the vRA catalog item to request the deployment. Conflicts with `blueprint_id` and `blueprint_content`.
+* `catalog_item_id` - (Optional) The id of the catalog item to be used to request the deployment. Conflicts with `blueprint_id` and `blueprint_content`.
 
-* `catalog_item_version` - (Optional) The version of the vRA catalog item to request the deployment. Used only when `catalog_item_id` is provided.
+* `catalog_item_version` - (Optional) The version of the catalog item to be used to request the deployment. Used only when `catalog_item_id` is provided.
 
 * `description` - (Optional) A human-friendly description.
 
@@ -96,14 +96,13 @@ resource "vra_deployment" "this" {
 
 * `inputs` - (Optional) Inputs provided by the user. For inputs including those with default values, refer to `inputs_including_defaults`.
 
-* `name` - (Required) A human-friendly name used as an identifier in APIs that support this option.
-
-* `org_id` - (Optional) The ID of the organization this deployment belongs to.
+* `name` - (Required) The name of the deployment.
 
 * `owner` - (Optional) The user this deployment belongs to. At create, the owner is ignored but is used to update during next apply.
 
-* `project_id` - (Required) The id of the project this entity belongs to. 
+* `project_id` - (Required) The id of the project this deployment belongs to.
 
+* `reason` - (Optional) Reason for requesting/updating a blueprint.
 
 ## Attribute Reference
 
@@ -131,7 +130,7 @@ resource "vra_deployment" "this" {
     
     * `unit` - Monetary unit.
     
-* `id` - The id of this entity.
+* `id` - The id of the deployment.
 
 * `inputs_including_defaults` - All the inputs applied during last create/update operation, including those with default values. For the list of inputs provided by the user in the configuration, refer to `inputs`.
 
@@ -177,11 +176,13 @@ resource "vra_deployment" "this" {
 
     * `updated_at` - Last update time (e.g. date format ‘2019-07-13T23:16:49.310Z’).
     
-* `last_updated_at` - Time at which the deployment was last updated.
+* `last_updated_at` - TDate when the entity was last updated. The date is in ISO 6801 and UTC.
 
-* `last_updated_by` - The user that last updated the deployment. 
+* `last_updated_by` - The user that last updated the deployment.
 
-* `lease_expire_at` - Time at which the deployment lease expires.
+* `lease_expire_at` - Date when the deployment lease expire. The date is in ISO 6801 and UTC.
+
+* `org_id` - The Id of the organization this deployment belongs to.
 
 * `project` - The project this entity belongs to.
 
@@ -233,8 +234,7 @@ resource "vra_deployment" "this" {
     
     * `type` - Type of the resource.
 
-* `status` - Deployment status. Supported values are: `CREATE_SUCCESSFUL`, `CREATE_INPROGRESS`, `CREATE_FAILED`, `UPDATE_SUCCESSFUL`, `UPDATE_INPROGRESS`, `UPDATE_FAILED`, `DELETE_SUCCESSFUL`, `DELETE_INPROGRESS`, `DELETE_FAILED`, `ACTION_SUCCESSFUL`, `ACTION_INPROGRESS`, `ACTION_FAILED`.
-
+* `status` - The status of the deployment with respect to its life cycle operations.
 
 ## Import
 
