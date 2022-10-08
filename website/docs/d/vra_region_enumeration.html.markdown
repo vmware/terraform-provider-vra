@@ -17,7 +17,7 @@ DeprecationMessage: 'region_enumeration' is deprecated. Use 'region_enumeration_
 data "vra_region_enumeration_vsphere" "this" {
   accept_self_signed_cert = false
 
-  dcid = var.vra_data_collector_id
+  dc_id = var.vra_data_collector_id
   
   hostname = var.hostname
   password = var.password
@@ -30,7 +30,7 @@ The region enumeration data source supports the following arguments:
 ## Argument Reference
 * `accept_self_signed_cert` - (Optional) Accept self signed certificate when connecting to vSphere. Example: false
 
-* `dcid` - (Optional) ID of a data collector vm deployed in the on premise infrastructure. Example: d5316b00-f3b8-4895-9e9a-c4b98649c2ca
+* `dc_id` - (Optional) ID of a data collector vm deployed in the on premise infrastructure. Example: d5316b00-f3b8-4895-9e9a-c4b98649c2ca
 
 * `hostname` - (Required) Host name for the cloud account endpoint. Example: dc1-lnd.mycompany.com
 

@@ -78,6 +78,13 @@ func resourceCloudAccountVsphere() *schema.Resource {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: "Identifier of a data collector vm deployed in the on premise infrastructure.",
+				Deprecated:  "Please use `dc_id` instead.",
+			},
+			"dc_id": {
+				Type:          schema.TypeString,
+				Optional:      true,
+				ConflictsWith: []string{"dcid"},
+				Description:   "Identifier of a data collector vm deployed in the on premise infrastructure.",
 			},
 			"description": {
 				Type:        schema.TypeString,
@@ -132,6 +139,12 @@ func resourceCloudAccountVsphereCreate(ctx context.Context, d *schema.ResourceDa
 		regions = expandRegionSpecificationList(v.(*schema.Set).List())
 	}
 
+	dcid := ""
+	if v, ok := d.GetOk("dc_id"); ok {
+		dcid = v.(string)
+	} else if v, ok := d.GetOk("dcid"); ok {
+		dcid = v.(string)
+	}
 	createResp, err := apiClient.CloudAccount.CreateVSphereCloudAccountAsync(
 		cloud_account.NewCreateVSphereCloudAccountAsyncParams().
 			WithAPIVersion(withString(IaaSAPIVersion)).
@@ -140,7 +153,7 @@ func resourceCloudAccountVsphereCreate(ctx context.Context, d *schema.ResourceDa
 				AcceptSelfSignedCertificate: d.Get("accept_self_signed_cert").(bool),
 				AssociatedCloudAccountIds:   associatedCloudAccountIds,
 				CreateDefaultZones:          false,
-				Dcid:                        d.Get("dcid").(string),
+				Dcid:                        dcid,
 				Description:                 d.Get("description").(string),
 				HostName:                    withString(d.Get("hostname").(string)),
 				Name:                        withString(d.Get("name").(string)),
@@ -191,6 +204,7 @@ func resourceCloudAccountVsphereRead(ctx context.Context, d *schema.ResourceData
 	d.Set("associated_cloud_account_ids", flattenAssociatedCloudAccountIds(vsphereAccount.Links))
 	d.Set("created_at", vsphereAccount.CreatedAt)
 	d.Set("dcid", vsphereAccount.Dcid)
+	d.Set("dc_id", vsphereAccount.Dcid)
 	d.Set("description", vsphereAccount.Description)
 	d.Set("hostname", vsphereAccount.HostName)
 	d.Set("name", vsphereAccount.Name)

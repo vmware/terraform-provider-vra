@@ -55,6 +55,6 @@ func testAccCheckVRARegionEnumerationConfig(dcname string) string {
 	  username    = "%s"
 	  password    = "%s"
 	  hostname    = "%s"
-	  dcid        = data.vra_data_collector.dc.id
+	  dc_id       = data.vra_data_collector.dc.id
 	}`, dcname, username, password, hostname)
 }

@@ -30,7 +30,7 @@ func TestAccDataSourceVRACloudAccountVsphere(t *testing.T) {
 					resource.TestCheckResourceAttrPair(resourceName1, "description", dataSourceName1, "description"),
 					resource.TestCheckResourceAttrPair(resourceName1, "name", dataSourceName1, "name"),
 					resource.TestCheckResourceAttrPair(resourceName1, "hostname", dataSourceName1, "hostname"),
-					resource.TestCheckResourceAttrPair(resourceName1, "dcid", dataSourceName1, "dcid"),
+					resource.TestCheckResourceAttrPair(resourceName1, "dc_id", dataSourceName1, "dc_id"),
 				),
 			},
 		},
@@ -52,7 +52,7 @@ func testAccDataSourceVRACloudAccountVsphereBase(rInt int) string {
 	  username    = "%s"
 	  password    = "%s"
 	  hostname    = "%s"
-	  dcid        = data.vra_data_collector.dc.id
+	  dc_id       = data.vra_data_collector.dc.id
 	}
 
 	resource "vra_cloud_account_vsphere" "my_vsphere_account" {
@@ -61,7 +61,7 @@ func testAccDataSourceVRACloudAccountVsphereBase(rInt int) string {
 	  username    = "%s"
 	  password    = "%s"
 	  hostname    = "%s"
-	  dcid        = data.vra_data_collector.dc.id
+	  dc_id       = data.vra_data_collector.dc.id
 
 	  regions                 = data.vra_region_enumeration.dc_regions.regions
 	  accept_self_signed_cert = true
