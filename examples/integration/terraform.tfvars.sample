@@ -1,0 +1,15 @@
+url = ""
+refresh_token = ""
+
+ad_server = ""
+ad_endpoint_id = ""
+ad_user = ""
+ad_password = ""
+ad_default_ou = ""
+
+github_token = ""
+
+saltstack_hostname = ""
+saltstack_endpoint_id = ""
+saltstack_username = ""
+saltstack_password = ""
