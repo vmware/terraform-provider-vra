@@ -46,6 +46,12 @@ func dataSourceCloudAccountVsphere() *schema.Resource {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: "Identifier of a data collector vm deployed in the on premise infrastructure.",
+				Deprecated:  "Please use `dc_id` instead.",
+			},
+			"dc_id": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "Identifier of a data collector vm deployed in the on premise infrastructure.",
 			},
 			"description": {
 				Type:        schema.TypeString,
@@ -136,6 +142,7 @@ func dataSourceCloudAccountVsphereRead(d *schema.ResourceData, meta interface{})
 	d.Set("associated_cloud_account_ids", flattenAssociatedCloudAccountIds(cloudAccountVsphere.Links))
 	d.Set("created_at", cloudAccountVsphere.CreatedAt)
 	d.Set("dcid", cloudAccountVsphere.Dcid)
+	d.Set("dc_id", cloudAccountVsphere.Dcid)
 	d.Set("description", cloudAccountVsphere.Description)
 	d.Set("hostname", cloudAccountVsphere.HostName)
 	d.Set("name", cloudAccountVsphere.Name)

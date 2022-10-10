@@ -60,7 +60,7 @@ func testAccDataSourceVRACloudAccountVMCBase(rInt int) string {
 	  username    = "%s"
 	  password    = "%s"
 	  hostname    = "%s"
-	  dcid        = data.vra_data_collector.dc.id
+	  dc_id       = data.vra_data_collector.dc.id
 	}
 
 	resource "vra_cloud_account_vmc" "this" {

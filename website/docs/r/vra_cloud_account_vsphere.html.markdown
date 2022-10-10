@@ -20,7 +20,7 @@ resource "vra_cloud_account_vsphere" "this" {
   username    = var.username
   password    = var.password
   hostname    = var.hostname
-  dcid        = var.vra_data_collector_id // Required for vRA Cloud, Optional for vRA 8.X
+  dc_id       = var.vra_data_collector_id // Required for vRA Cloud, Optional for vRA 8.X
   regions                      = var.regions
   associated_cloud_account_ids = [var.vra_cloud_account_nsxt_id]
 

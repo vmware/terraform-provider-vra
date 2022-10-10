@@ -84,7 +84,7 @@ func testAccCheckVRACloudAccountvSphereConfig(rInt int) string {
 	  username    = "%s"
 	  password    = "%s"
 	  hostname    = "%s"
-	  dcid        = data.vra_data_collector.dc.id
+	  dc_id       = data.vra_data_collector.dc.id
 	}
 
 	resource "vra_cloud_account_vsphere" "my_vsphere_account" {
@@ -93,7 +93,7 @@ func testAccCheckVRACloudAccountvSphereConfig(rInt int) string {
 	  username    = "%s"
 	  password    = "%s"
 	  hostname    = "%s"
-	  dcid        = data.vra_data_collector.dc.id
+	  dc_id       = data.vra_data_collector.dc.id
 
 	  regions                 = data.vra_region_enumeration.dc_regions.regions
 	  accept_self_signed_cert = true
