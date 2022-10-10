@@ -59,6 +59,20 @@ func testAccPreCheckMachine(t *testing.T) {
 	}
 }
 
+func testAccPreCheckIntegration(t *testing.T) {
+	if v := os.Getenv("VRA_URL"); v == "" {
+		t.Fatal("VRA_URL must be set for acceptance tests")
+	}
+
+	if os.Getenv("VRA_REFRESH_TOKEN") == "" && os.Getenv("VRA_ACCESS_TOKEN") == "" {
+		t.Fatal("VRA_REFRESH_TOKEN or VRA_ACCESS_TOKEN must be set for acceptance tests")
+	}
+
+	if v := os.Getenv("VRA_GITHUB_TOKEN"); v == "" {
+		t.Fatal("VRA_GITHUB_TOKEN must be set for acceptance tests")
+	}
+}
+
 func testAccPreCheckLoadBalancer(t *testing.T) {
 	if os.Getenv("VRA_REFRESH_TOKEN") == "" && os.Getenv("VRA_ACCESS_TOKEN") == "" {
 		t.Fatal("VRA_REFRESH_TOKEN or VRA_ACCESS_TOKEN must be set for acceptance tests")
