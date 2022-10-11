@@ -121,7 +121,7 @@ func dataSourceRegionEnumerationRead(ctx context.Context, d *schema.ResourceData
 	return nil
 }
 
-func dataSourceRegionEnumerationReadRefreshFunc(apiClient client.MulticloudIaaS, id string) resource.StateRefreshFunc {
+func dataSourceRegionEnumerationReadRefreshFunc(apiClient client.API, id string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		reqResp, err := apiClient.Request.GetRequestTracker(request.NewGetRequestTrackerParams().WithID(id))
 		if err != nil {

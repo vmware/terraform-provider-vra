@@ -228,7 +228,7 @@ func resourceCloudAccountNSXTDelete(ctx context.Context, d *schema.ResourceData,
 	return nil
 }
 
-func resourceCloudAccountNSXTStateRefreshFunc(apiClient client.MulticloudIaaS, id string) resource.StateRefreshFunc {
+func resourceCloudAccountNSXTStateRefreshFunc(apiClient client.API, id string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		ret, err := apiClient.Request.GetRequestTracker(request.NewGetRequestTrackerParams().WithID(id))
 		if err != nil {

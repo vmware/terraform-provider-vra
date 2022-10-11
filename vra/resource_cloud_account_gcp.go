@@ -245,7 +245,7 @@ func resourceCloudAccountGCPDelete(ctx context.Context, d *schema.ResourceData, 
 	return nil
 }
 
-func resourceCloudAccountGCPStateRefreshFunc(apiClient client.MulticloudIaaS, id string) resource.StateRefreshFunc {
+func resourceCloudAccountGCPStateRefreshFunc(apiClient client.API, id string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		ret, err := apiClient.Request.GetRequestTracker(request.NewGetRequestTrackerParams().WithID(id))
 		if err != nil {

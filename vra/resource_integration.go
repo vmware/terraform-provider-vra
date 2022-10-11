@@ -264,7 +264,7 @@ func resourceIntegrationDelete(ctx context.Context, d *schema.ResourceData, m in
 	apiClient := m.(*Client).apiClient
 
 	id := d.Id()
-	if _, err := apiClient.Integration.DeleteIntegration(integration.NewDeleteIntegrationParams().WithAPIVersion(withString(IaaSAPIVersion)).WithID(id)); err != nil {
+	if _, _, err := apiClient.Integration.DeleteIntegration(integration.NewDeleteIntegrationParams().WithAPIVersion(withString(IaaSAPIVersion)).WithID(id)); err != nil {
 		return diag.FromErr(err)
 	}
 
@@ -273,7 +273,7 @@ func resourceIntegrationDelete(ctx context.Context, d *schema.ResourceData, m in
 	return nil
 }
 
-func resourceIntegrationStateRefreshFunc(apiClient client.MulticloudIaaS, id string) resource.StateRefreshFunc {
+func resourceIntegrationStateRefreshFunc(apiClient client.API, id string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		ret, err := apiClient.Request.GetRequestTracker(request.NewGetRequestTrackerParams().WithID(id))
 		if err != nil {

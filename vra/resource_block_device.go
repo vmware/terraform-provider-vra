@@ -225,7 +225,7 @@ func resourceBlockDeviceCreate(ctx context.Context, d *schema.ResourceData, m in
 	return resourceBlockDeviceRead(ctx, d, m)
 }
 
-func blockDeviceStateRefreshFunc(apiClient client.MulticloudIaaS, id string) resource.StateRefreshFunc {
+func blockDeviceStateRefreshFunc(apiClient client.API, id string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		ret, err := apiClient.Request.GetRequestTracker(request.NewGetRequestTrackerParams().WithID(id))
 		if err != nil {
@@ -324,7 +324,7 @@ func resourceBlockDeviceUpdate(ctx context.Context, d *schema.ResourceData, m in
 	return resourceBlockDeviceRead(ctx, d, m)
 }
 
-func resizeDisk(ctx context.Context, d *schema.ResourceData, apiClient *client.MulticloudIaaS, id string) error {
+func resizeDisk(ctx context.Context, d *schema.ResourceData, apiClient *client.API, id string) error {
 
 	log.Printf("Starting resize of vra_block_device resource with name %s", d.Get("name"))
 

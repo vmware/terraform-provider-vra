@@ -297,7 +297,7 @@ func resourceMachineCreate(ctx context.Context, d *schema.ResourceData, m interf
 	return resourceMachineRead(ctx, d, m)
 }
 
-func machineStateRefreshFunc(apiClient client.MulticloudIaaS, id string) resource.StateRefreshFunc {
+func machineStateRefreshFunc(apiClient client.API, id string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		ret, err := apiClient.Request.GetRequestTracker(request.NewGetRequestTrackerParams().WithID(id))
 		if err != nil {
@@ -421,7 +421,7 @@ func resourceMachineUpdate(ctx context.Context, d *schema.ResourceData, m interf
 }
 
 // attaches and detaches disks
-func attachAndDetachDisks(ctx context.Context, d *schema.ResourceData, apiClient *client.MulticloudIaaS, id string) error {
+func attachAndDetachDisks(ctx context.Context, d *schema.ResourceData, apiClient *client.API, id string) error {
 	log.Printf("identified change in the disks configuration for the machine %s", d.Get("name"))
 
 	oldValue, newValue := d.GetChange("disks")
@@ -514,7 +514,7 @@ func attachAndDetachDisks(ctx context.Context, d *schema.ResourceData, apiClient
 }
 
 // updates machine description and tags
-func updateMachine(d *schema.ResourceData, apiClient *client.MulticloudIaaS, id string) error {
+func updateMachine(d *schema.ResourceData, apiClient *client.API, id string) error {
 	log.Printf("identified change in the description and/or tags")
 	description := d.Get("description").(string)
 	tags := expandTags(d.Get("tags").(*schema.Set).List())
@@ -555,7 +555,7 @@ func disksDifference(a, b []interface{}) (diff []map[string]interface{}) {
 }
 
 // resize machine when there is a change in the flavor
-func resizeMachine(ctx context.Context, d *schema.ResourceData, apiClient *client.MulticloudIaaS, id string) error {
+func resizeMachine(ctx context.Context, d *schema.ResourceData, apiClient *client.API, id string) error {
 	log.Printf("identified change in the flavor, machine resize will be performed")
 	flavor := d.Get("flavor").(string)
 	resizeMachine, err := apiClient.Compute.ResizeMachine(compute.NewResizeMachineParams().WithID(id).WithName(&flavor))

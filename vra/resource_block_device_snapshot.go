@@ -112,7 +112,7 @@ func resourceBlockDeviceSnapshotCreate(ctx context.Context, d *schema.ResourceDa
 	return resourceBlockDeviceSnapshotRead(ctx, d, m)
 }
 
-func BlockDeviceSnapshotStateRefreshFunc(apiClient client.MulticloudIaaS, id string) resource.StateRefreshFunc {
+func BlockDeviceSnapshotStateRefreshFunc(apiClient client.API, id string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		ret, err := apiClient.Request.GetRequestTracker(request.NewGetRequestTrackerParams().WithID(id))
 		if err != nil {
