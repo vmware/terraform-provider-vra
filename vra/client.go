@@ -109,7 +109,7 @@ func (r *ReauthorizeRuntime) Submit(operation *runtime.ClientOperation) (interfa
 // Client the VRA Client
 type Client struct {
 	url       string
-	apiClient *client.MulticloudIaaS
+	apiClient *client.API
 }
 
 // NewClientFromRefreshToken configures and returns a VRA "Client" struct using "refresh_token" from provider config
@@ -208,7 +208,7 @@ func createTransport(insecure bool) (http.RoundTripper, error) {
 	}, nil
 }
 
-func getAPIClient(url string, token string, insecure bool) (*client.MulticloudIaaS, error) {
+func getAPIClient(url string, token string, insecure bool) (*client.API, error) {
 	parsedURL, err := neturl.Parse(url)
 	if err != nil {
 		return nil, err

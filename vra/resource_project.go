@@ -179,7 +179,7 @@ func resourceProjectCreate(ctx context.Context, d *schema.ResourceData, m interf
 		Name:                         &name,
 		OperationTimeout:             &operationTimeout,
 		PlacementPolicy:              placementPolicy,
-		SharedResources:              *withBool(sharedResources),
+		SharedResources:              withBool(sharedResources),
 		Viewers:                      viewers,
 		ZoneAssignmentConfigurations: zoneAssignment,
 	}))
@@ -253,7 +253,7 @@ func resourceProjectUpdate(ctx context.Context, d *schema.ResourceData, m interf
 		Name:                         &name,
 		OperationTimeout:             &operationTimeout,
 		PlacementPolicy:              placementPolicy,
-		SharedResources:              *withBool(sharedResources),
+		SharedResources:              withBool(sharedResources),
 		Viewers:                      viewers,
 		ZoneAssignmentConfigurations: zoneAssignment,
 	}))

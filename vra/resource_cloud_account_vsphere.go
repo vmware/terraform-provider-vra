@@ -283,7 +283,7 @@ func resourceCloudAccountVsphereDelete(ctx context.Context, d *schema.ResourceDa
 	return nil
 }
 
-func resourceCloudAccountVsphereStateRefreshFunc(apiClient client.MulticloudIaaS, id string) resource.StateRefreshFunc {
+func resourceCloudAccountVsphereStateRefreshFunc(apiClient client.API, id string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		ret, err := apiClient.Request.GetRequestTracker(request.NewGetRequestTrackerParams().WithID(id))
 		if err != nil {

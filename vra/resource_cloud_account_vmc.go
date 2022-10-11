@@ -257,7 +257,7 @@ func resourceCloudAccountVMCDelete(ctx context.Context, d *schema.ResourceData, 
 	apiClient := m.(*Client).apiClient
 
 	id := d.Id()
-	if _, err := apiClient.CloudAccount.DeleteCloudAccount(cloud_account.NewDeleteCloudAccountParams().WithID(id)); err != nil {
+	if _, _, err := apiClient.CloudAccount.DeleteCloudAccount(cloud_account.NewDeleteCloudAccountParams().WithID(id)); err != nil {
 		return diag.FromErr(err)
 	}
 
@@ -266,7 +266,7 @@ func resourceCloudAccountVMCDelete(ctx context.Context, d *schema.ResourceData, 
 	return nil
 }
 
-func resourceCloudAccountVMCStateRefreshFunc(apiClient client.MulticloudIaaS, id string) resource.StateRefreshFunc {
+func resourceCloudAccountVMCStateRefreshFunc(apiClient client.API, id string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		ret, err := apiClient.Request.GetRequestTracker(request.NewGetRequestTrackerParams().WithID(id))
 		if err != nil {
