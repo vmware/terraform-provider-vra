@@ -17,7 +17,7 @@ If you know of a publicly disclosed security vulnerability for this project, ple
 
 **IMPORTANT: Do not file public issues on GitHub for security vulnerabilities**
 
-To report a vulnerability or a security-related issue, please contact ecurity@vmware.com directly with the details of the vulnerability. The email will be fielded by the maintainers who have committer and release permissions. Emails will be addressed within 3 business days, including a detailed plan to investigate the issue and any potential workarounds to perform in the meantime. Do not report non-security-impacting bugs through this channel. Use GitHub issues for all non-security-impacting bugs.
+To report a vulnerability or a security-related issue, please contact security@vmware.com directly with the details of the vulnerability. The email will be fielded by the maintainers who have committer and release permissions. Emails will be addressed within 3 business days, including a detailed plan to investigate the issue and any potential workarounds to perform in the meantime. Do not report non-security-impacting bugs through this channel. Use GitHub issues for all non-security-impacting bugs.
 
 
 ## Proposed Email Content
