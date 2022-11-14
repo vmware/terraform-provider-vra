@@ -129,16 +129,15 @@ func dataSourceCatalogItemRead(d *schema.ResourceData, meta interface{}) error {
 			return err
 		}
 		catalogItems := getResp.GetPayload()
-		if len(catalogItems.Content) > 1 {
-			return fmt.Errorf("more than one catalog item found with the same name, try to narrow filter by project_id")
+		for _, catalogItem := range catalogItems.Content {
+			if *catalogItem.Name == name {
+				id = catalogItem.ID.String()
+				break
+			}
 		}
-		if len(catalogItems.Content) == 0 {
-			return fmt.Errorf("catalog item %s not found", name)
+		if id == "" {
+			return fmt.Errorf("catalog item '%s' not found", name)
 		}
-
-		// GetCatalogItemsUsingGET5 does not return the catalog item schema, so we need to use the GetCatalogItemUsingGET5
-		// call in order to retrieve it.
-		id = string(*catalogItems.Content[0].ID)
 	}
 
 	getResp, err := apiClient.CatalogItems.GetCatalogItemUsingGET5(catalog_items.NewGetCatalogItemUsingGET5Params().WithID(strfmt.UUID(id.(string))).WithExpandProjects(withBool(expandProjects)))
