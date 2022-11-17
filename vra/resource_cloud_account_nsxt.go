@@ -110,7 +110,7 @@ func resourceCloudAccountNSXTCreate(ctx context.Context, d *schema.ResourceData,
 
 	createResp, err := apiClient.CloudAccount.CreateNsxTCloudAccountAsync(
 		cloud_account.NewCreateNsxTCloudAccountAsyncParams().
-			WithAPIVersion(withString(IaaSAPIVersion)).
+			WithAPIVersion(IaaSAPIVersion).
 			WithTimeout(IncreasedTimeOut).
 			WithBody(&models.CloudAccountNsxTSpecification{
 				AcceptSelfSignedCertificate: d.Get("accept_self_signed_cert").(bool),
@@ -189,7 +189,7 @@ func resourceCloudAccountNSXTUpdate(ctx context.Context, d *schema.ResourceData,
 	id := d.Id()
 	updateResp, err := apiClient.CloudAccount.UpdateNsxTCloudAccountAsync(
 		cloud_account.NewUpdateNsxTCloudAccountAsyncParams().
-			WithAPIVersion(withString(IaaSAPIVersion)).
+			WithAPIVersion(IaaSAPIVersion).
 			WithTimeout(IncreasedTimeOut).
 			WithID(id).
 			WithBody(&models.UpdateCloudAccountNsxTSpecification{

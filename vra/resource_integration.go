@@ -129,7 +129,7 @@ func resourceIntegrationCreate(ctx context.Context, d *schema.ResourceData, m in
 
 	createResp, err := apiClient.Integration.CreateIntegrationAsync(
 		integration.NewCreateIntegrationAsyncParams().
-			WithAPIVersion(withString(IaaSAPIVersion)).
+			WithAPIVersion(IaaSAPIVersion).
 			WithTimeout(IncreasedTimeOut).
 			WithBody(&models.IntegrationSpecification{
 				AssociatedCloudAccountIds: associatedCloudAccountIds,
@@ -173,7 +173,7 @@ func resourceIntegrationRead(ctx context.Context, d *schema.ResourceData, m inte
 	apiClient := m.(*Client).apiClient
 
 	id := d.Id()
-	ret, err := apiClient.Integration.GetIntegration(integration.NewGetIntegrationParams().WithAPIVersion(withString(IaaSAPIVersion)).WithID(id))
+	ret, err := apiClient.Integration.GetIntegration(integration.NewGetIntegrationParams().WithAPIVersion(IaaSAPIVersion).WithID(id))
 	if err != nil {
 		switch err.(type) {
 		case *integration.GetIntegrationNotFound:
@@ -226,7 +226,7 @@ func resourceIntegrationUpdate(ctx context.Context, d *schema.ResourceData, m in
 	id := d.Id()
 	updateResp, err := apiClient.Integration.UpdateIntegrationAsync(
 		integration.NewUpdateIntegrationAsyncParams().
-			WithAPIVersion(withString(IaaSAPIVersion)).
+			WithAPIVersion(IaaSAPIVersion).
 			WithTimeout(IncreasedTimeOut).
 			WithID(id).
 			WithBody(&models.UpdateIntegrationSpecification{
@@ -264,7 +264,7 @@ func resourceIntegrationDelete(ctx context.Context, d *schema.ResourceData, m in
 	apiClient := m.(*Client).apiClient
 
 	id := d.Id()
-	if _, _, err := apiClient.Integration.DeleteIntegration(integration.NewDeleteIntegrationParams().WithAPIVersion(withString(IaaSAPIVersion)).WithID(id)); err != nil {
+	if _, _, err := apiClient.Integration.DeleteIntegration(integration.NewDeleteIntegrationParams().WithAPIVersion(IaaSAPIVersion).WithID(id)); err != nil {
 		return diag.FromErr(err)
 	}
 

@@ -54,7 +54,7 @@ func dataSourceRegionEnumerationAzureRead(ctx context.Context, d *schema.Resourc
 
 	enumResp, err := apiClient.CloudAccount.EnumerateAzureRegionsAsync(
 		cloud_account.NewEnumerateAzureRegionsAsyncParams().
-			WithAPIVersion(withString(IaaSAPIVersion)).
+			WithAPIVersion(IaaSAPIVersion).
 			WithTimeout(IncreasedTimeOut).
 			WithBody(&models.CloudAccountAzureRegionEnumerationSpecification{
 				ClientApplicationID:        d.Get("application_id").(string),
@@ -83,7 +83,7 @@ func dataSourceRegionEnumerationAzureRead(ctx context.Context, d *schema.Resourc
 
 	getResp, err := apiClient.CloudAccount.GetRegionEnumerationResult(
 		cloud_account.NewGetRegionEnumerationResultParams().
-			WithAPIVersion(withString(IaaSAPIVersion)).
+			WithAPIVersion(IaaSAPIVersion).
 			WithTimeout(IncreasedTimeOut).
 			WithID(enumID))
 	if err != nil {
