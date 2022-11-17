@@ -32,7 +32,7 @@ A project data source supports the following arguments:
 
 * `administrators` - (Optional) A list of administrator users associated with the project. Only administrators can manage project's configuration. 
 
-  > **Note**:  Deprecated - please refer to `administrator_roles`.
+  > **Note**:  Deprecated - please use `administrator_roles` instead.
 
 * `administrator_roles` - (Optional) Administrator users or groups associated with the project. Only administrators can manage project's configuration. 
 
@@ -48,7 +48,7 @@ A project data source supports the following arguments:
 
 * `members` - (Optional) A list of member users associated with the project. 
   
-  > **Note**:  Deprecated - please refer to `member_roles`.
+  > **Note**:  Deprecated - please use `member_roles` instead.
 
 * `member_roles` - (Optional) Member users or groups associated with the project. 
 
@@ -64,8 +64,10 @@ A project data source supports the following arguments:
 
 * `shared_resources` - (Optional) The id of the organization this entity belongs to.
 
+* `supervisor_roles` - (Optional) Supervisor users or groups associated with the project.d
+
 * `viewers` - (Optional) A list of viewer users associated with the project. 
 
-  > **Note**:  Deprecated - please refer to `viewer_roles`.
+  > **Note**:  Deprecated - please use `viewer_roles` instead.
 
 * `viewer_roles` - (Optional) Viewer users or groups associated with the project. 
