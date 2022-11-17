@@ -27,17 +27,10 @@ func dataSourceRegionEnumeration() *schema.Resource {
 				Default:     false,
 				Description: "Whether to accept self signed certificate when connecting to the vCenter Server.",
 			},
-			"dcid": {
+			"dc_id": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: "Identifier of a data collector vm deployed in the on premise infrastructure.",
-				Deprecated:  "Please use `dc_id` instead.",
-			},
-			"dc_id": {
-				Type:          schema.TypeString,
-				Optional:      true,
-				ConflictsWith: []string{"dcid"},
-				Description:   "Identifier of a data collector vm deployed in the on premise infrastructure.",
 			},
 			"hostname": {
 				Type:        schema.TypeString,
@@ -70,19 +63,13 @@ func dataSourceRegionEnumeration() *schema.Resource {
 func dataSourceRegionEnumerationRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	apiClient := meta.(*Client).apiClient
 
-	dcid := ""
-	if v, ok := d.GetOk("dc_id"); ok {
-		dcid = v.(string)
-	} else if v, ok := d.GetOk("dcid"); ok {
-		dcid = v.(string)
-	}
 	enumResp, err := apiClient.CloudAccount.EnumerateVSphereRegionsAsync(
 		cloud_account.NewEnumerateVSphereRegionsAsyncParams().
 			WithAPIVersion(IaaSAPIVersion).
 			WithTimeout(IncreasedTimeOut).
 			WithBody(&models.CloudAccountVsphereRegionEnumerationSpecification{
 				AcceptSelfSignedCertificate: d.Get("accept_self_signed_cert").(bool),
-				Dcid:                        dcid,
+				Dcid:                        d.Get("dc_id").(string),
 				HostName:                    d.Get("hostname").(string),
 				Password:                    d.Get("password").(string),
 				Username:                    d.Get("username").(string),
