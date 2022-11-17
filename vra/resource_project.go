@@ -24,7 +24,7 @@ func resourceProject() *schema.Resource {
 			"administrators": {
 				Type:        schema.TypeSet,
 				Optional:    true,
-				Deprecated:  "To specify the type of principal, please refer administrator_roles.",
+				Deprecated:  "To specify the type of principal, please use `administrator_roles` instead.",
 				Description: "List of administrator users associated with the project. Only administrators can manage project's configuration.",
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
@@ -76,7 +76,7 @@ func resourceProject() *schema.Resource {
 			"members": {
 				Type:        schema.TypeSet,
 				Optional:    true,
-				Deprecated:  "To specify the type of principal, please refer member_roles.",
+				Deprecated:  "To specify the type of principal, please use `member_roles` instaed.",
 				Description: "List of member users associated with the project.",
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
@@ -99,10 +99,11 @@ func resourceProject() *schema.Resource {
 				Default:     true,
 				Description: "Specifies whether the resources in this projects are shared or not. If not set default will be used.",
 			},
+			"supervisor_roles": userSchema("List of supervisor roles associated with the project."),
 			"viewers": {
 				Type:        schema.TypeSet,
 				Optional:    true,
-				Deprecated:  "To specify the type of principal, please refer viewer_roles.",
+				Deprecated:  "To specify the type of principal, please use `viewer_roles` instead.",
 				Description: "List of viewer users associated with the project.",
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
@@ -166,6 +167,7 @@ func resourceProjectCreate(ctx context.Context, d *schema.ResourceData, m interf
 	operationTimeout := int64(d.Get("operation_timeout").(int))
 	placementPolicy := d.Get("placement_policy").(string)
 	sharedResources := d.Get("shared_resources").(bool)
+	supervisors := expandUsers(d.Get("supervisor_roles").(*schema.Set).List())
 	viewers := expandUserListAndNewUserList(d.Get("viewers").(*schema.Set).List(), d.Get("viewer_roles").(*schema.Set).List())
 	zoneAssignment := expandZoneAssignment(d.Get("zone_assignments").(*schema.Set).List())
 
@@ -180,6 +182,7 @@ func resourceProjectCreate(ctx context.Context, d *schema.ResourceData, m interf
 		OperationTimeout:             &operationTimeout,
 		PlacementPolicy:              placementPolicy,
 		SharedResources:              withBool(sharedResources),
+		Supervisors:                  supervisors,
 		Viewers:                      viewers,
 		ZoneAssignmentConfigurations: zoneAssignment,
 	}))
@@ -218,6 +221,7 @@ func resourceProjectRead(ctx context.Context, d *schema.ResourceData, m interfac
 	d.Set("operation_timeout", project.OperationTimeout)
 	d.Set("placement_policy", project.PlacementPolicy)
 	d.Set("shared_resources", project.SharedResources)
+	d.Set("supervisor_roles", flattenUsers(project.Supervisors))
 	d.Set("viewers", flattenUsers(project.Viewers))
 	d.Set("viewer_roles", flattenUsers(project.Viewers))
 	d.Set("zone_assignments", flattenZoneAssignment(project.Zones))
@@ -236,6 +240,7 @@ func resourceProjectUpdate(ctx context.Context, d *schema.ResourceData, m interf
 	description := d.Get("description").(string)
 	machineNamingTemplate := d.Get("machine_naming_template").(string)
 	members := expandUserListAndNewUserList(d.Get("members").(*schema.Set).List(), d.Get("member_roles").(*schema.Set).List())
+	supervisors := expandUsers(d.Get("supervisor_roles").(*schema.Set).List())
 	viewers := expandUserListAndNewUserList(d.Get("viewers").(*schema.Set).List(), d.Get("viewer_roles").(*schema.Set).List())
 	name := d.Get("name").(string)
 	operationTimeout := int64(d.Get("operation_timeout").(int))
@@ -254,6 +259,7 @@ func resourceProjectUpdate(ctx context.Context, d *schema.ResourceData, m interf
 		OperationTimeout:             &operationTimeout,
 		PlacementPolicy:              placementPolicy,
 		SharedResources:              withBool(sharedResources),
+		Supervisors:                  supervisors,
 		Viewers:                      viewers,
 		ZoneAssignmentConfigurations: zoneAssignment,
 	}))

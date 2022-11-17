@@ -18,6 +18,7 @@ func dataSourceProject() *schema.Resource {
 				Type:        schema.TypeSet,
 				Computed:    true,
 				Optional:    true,
+				Deprecated:  "Please use `administrator_roles` instead.",
 				Description: "List of administrator users associated with the project. Only administrators can manage project's configuration.",
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
@@ -57,6 +58,7 @@ func dataSourceProject() *schema.Resource {
 				Type:        schema.TypeSet,
 				Computed:    true,
 				Optional:    true,
+				Deprecated:  "Please use `member_roles` instead.",
 				Description: "List of member users associated with the project.",
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
@@ -91,10 +93,12 @@ func dataSourceProject() *schema.Resource {
 				Optional:    true,
 				Description: "Specifies whether the resources in this projects are shared or not. If not set default will be used.",
 			},
+			"supervisor_roles": userSchema("List of supervisor roles associated with the project."),
 			"viewers": {
 				Type:        schema.TypeSet,
 				Computed:    true,
 				Optional:    true,
+				Deprecated:  "Please use `viewer_roles` instead.",
 				Description: "List of viewer users associated with the project.",
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
@@ -173,6 +177,7 @@ func dataSourceProjectRead(d *schema.ResourceData, meta interface{}) error {
 		d.Set("operation_timeout", project.OperationTimeout)
 		d.Set("placement_policy", project.PlacementPolicy)
 		d.Set("shared_resources", project.SharedResources)
+		d.Set("supervisor_roles", flattenUsers(project.Supervisors))
 		d.Set("viewers", flattenUsers(project.Viewers))
 		d.Set("viewer_roles", flattenUsers(project.Viewers))
 		d.Set("zone_assignments", flattenZoneAssignment(project.Zones))

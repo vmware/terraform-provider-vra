@@ -30,9 +30,6 @@ resource "vra_project" "this" {
   }
   
   shared_resources = false
-
-  # Deprecated, please use administrator_roles instead.
-  administrators = ["jason@vra.local"]
   
   administrator_roles {
     email = "jason@vra.local"
@@ -44,9 +41,6 @@ resource "vra_project" "this" {
     type  = "group"
   }
 
-  # Deprecated, please use member_roles instead.
-  members = ["tony@vra.local"]
-
   member_roles {
     email = "tony@vra.local"
     type  = "user"
@@ -57,8 +51,15 @@ resource "vra_project" "this" {
     type  = "group"
   }
 
-  # Deprecated, please use viewer_roles instead
-  viewers = ["shauna@vra.local"]
+  supervisor_roles {
+    email = "ethan@vra.local"
+    type  = "user"
+  }
+
+  supervisor_roles {
+    email = "ethan-group@vra.local"
+    type  = "group"
+  }
 
   viewer_roles {
     email = "shauna@vra.local"
@@ -113,7 +114,7 @@ A project resource supports the following arguments:
 
 * `administrators` - (Optional) A list of administrator users associated with the project. Only administrators can manage project's configuration. 
 
-  > **Note**:  Deprecated - please refer to `administrator_roles`.
+  > **Note**:  Deprecated - please use `administrator_roles` instead.
 
 * `administrator_roles` - (Optional) Administrator users or groups associated with the project. Only administrators can manage project's configuration. 
 
@@ -127,7 +128,7 @@ A project resource supports the following arguments:
 
 * `members` - (Optional) A list of member users associated with the project. 
   
-  > **Note**:  Deprecated - please refer to `member_roles`.
+  > **Note**:  Deprecated - please use `member_roles` instead.
 
 * `member_roles` - (Optional) Member users or groups associated with the project. 
 
@@ -139,9 +140,11 @@ A project resource supports the following arguments:
 
 * `shared_resources` - (Optional) Specifies whether the resources in this projects are shared or not. If not set default will be used.
 
+* `supervisor_roles` - (Optional) Supervisor users or groups associated with the project.
+
 * `viewers` - (Optional) A list of viewer users associated with the project. 
 
-  > **Note**:  Deprecated - please refer to `viewer_roles`.
+  > **Note**:  Deprecated - please use `viewer_roles` instead.
 
 * `viewer_roles` - (Optional) Viewer users or groups associated with the project. 
 
