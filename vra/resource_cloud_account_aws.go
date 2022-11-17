@@ -102,7 +102,7 @@ func resourceCloudAccountAWSCreate(ctx context.Context, d *schema.ResourceData, 
 
 	createResp, err := apiClient.CloudAccount.CreateAwsCloudAccountAsync(
 		cloud_account.NewCreateAwsCloudAccountAsyncParams().
-			WithAPIVersion(withString(IaaSAPIVersion)).
+			WithAPIVersion(IaaSAPIVersion).
 			WithTimeout(IncreasedTimeOut).
 			WithBody(&models.CloudAccountAwsSpecification{
 				AccessKeyID:        withString(d.Get("access_key").(string)),
@@ -190,7 +190,7 @@ func resourceCloudAccountAWSUpdate(ctx context.Context, d *schema.ResourceData, 
 	id := d.Id()
 	updateResp, err := apiClient.CloudAccount.UpdateAWSCloudAccountAsync(
 		cloud_account.NewUpdateAWSCloudAccountAsyncParams().
-			WithAPIVersion(withString(IaaSAPIVersion)).
+			WithAPIVersion(IaaSAPIVersion).
 			WithTimeout(IncreasedTimeOut).
 			WithID(id).
 			WithBody(&models.UpdateCloudAccountAwsSpecification{

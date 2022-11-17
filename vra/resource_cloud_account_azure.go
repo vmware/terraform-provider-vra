@@ -112,7 +112,7 @@ func resourceCloudAccountAzureCreate(ctx context.Context, d *schema.ResourceData
 
 	createResp, err := apiClient.CloudAccount.CreateAzureCloudAccountAsync(
 		cloud_account.NewCreateAzureCloudAccountAsyncParams().
-			WithAPIVersion(withString(IaaSAPIVersion)).
+			WithAPIVersion(IaaSAPIVersion).
 			WithTimeout(IncreasedTimeOut).
 			WithBody(&models.CloudAccountAzureSpecification{
 				ClientApplicationID:        withString(d.Get("application_id").(string)),
@@ -204,7 +204,7 @@ func resourceCloudAccountAzureUpdate(ctx context.Context, d *schema.ResourceData
 	id := d.Id()
 	updateResp, err := apiClient.CloudAccount.UpdateAzureCloudAccountAsync(
 		cloud_account.NewUpdateAzureCloudAccountAsyncParams().
-			WithAPIVersion(withString(IaaSAPIVersion)).
+			WithAPIVersion(IaaSAPIVersion).
 			WithTimeout(IncreasedTimeOut).
 			WithID(id).
 			WithBody(&models.UpdateCloudAccountAzureSpecification{
