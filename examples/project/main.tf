@@ -23,9 +23,6 @@ resource "vra_project" "this" {
 
   shared_resources = false
 
-  # Deprecated, please use administrator_roles instead.
-  administrators = ["jason@vra.local"]
-
   administrator_roles {
     email = "jason@vra.local"
     type = "user"
@@ -35,9 +32,6 @@ resource "vra_project" "this" {
     email = "jason-group@vra.local"
     type = "group"
   }
-
-  # Deprecated, please use member_roles instead.
-  members = ["tony@vra.local"]
 
   member_roles {
     email = "tony@vra.local"
@@ -49,8 +43,15 @@ resource "vra_project" "this" {
     type = "group"
   }
 
-  # Deprecated, please use viewer_roles instead
-  viewers = ["shauna@vra.local"]
+  supervisor_roles {
+    email = "ethan@vra.local"
+    type = "user"
+  }
+
+  supervisor_roles {
+    email = "ethan-group@vra.local"
+    type = "group"
+  }
 
   viewer_roles {
     email = "shauna@vra.local"
