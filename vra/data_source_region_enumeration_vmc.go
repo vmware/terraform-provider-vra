@@ -75,7 +75,7 @@ func dataSourceRegionEnumerationVMCRead(ctx context.Context, d *schema.ResourceD
 
 	enumResp, err := apiClient.CloudAccount.EnumerateVmcRegionsAsync(
 		cloud_account.NewEnumerateVmcRegionsAsyncParams().
-			WithAPIVersion(withString(IaaSAPIVersion)).
+			WithAPIVersion(IaaSAPIVersion).
 			WithTimeout(IncreasedTimeOut).
 			WithBody(&models.CloudAccountVmcRegionEnumerationSpecification{
 				AcceptSelfSignedCertificate: d.Get("accept_self_signed_cert").(bool),
@@ -108,7 +108,7 @@ func dataSourceRegionEnumerationVMCRead(ctx context.Context, d *schema.ResourceD
 
 	getResp, err := apiClient.CloudAccount.GetRegionEnumerationResult(
 		cloud_account.NewGetRegionEnumerationResultParams().
-			WithAPIVersion(withString(IaaSAPIVersion)).
+			WithAPIVersion(IaaSAPIVersion).
 			WithTimeout(IncreasedTimeOut).
 			WithID(enumID))
 	if err != nil {

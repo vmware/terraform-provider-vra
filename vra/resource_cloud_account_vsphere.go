@@ -147,7 +147,7 @@ func resourceCloudAccountVsphereCreate(ctx context.Context, d *schema.ResourceDa
 	}
 	createResp, err := apiClient.CloudAccount.CreateVSphereCloudAccountAsync(
 		cloud_account.NewCreateVSphereCloudAccountAsyncParams().
-			WithAPIVersion(withString(IaaSAPIVersion)).
+			WithAPIVersion(IaaSAPIVersion).
 			WithTimeout(IncreasedTimeOut).
 			WithBody(&models.CloudAccountVsphereSpecification{
 				AcceptSelfSignedCertificate: d.Get("accept_self_signed_cert").(bool),
@@ -157,10 +157,10 @@ func resourceCloudAccountVsphereCreate(ctx context.Context, d *schema.ResourceDa
 				Description:                 d.Get("description").(string),
 				HostName:                    withString(d.Get("hostname").(string)),
 				Name:                        withString(d.Get("name").(string)),
-				Password:                    withString(d.Get("password").(string)),
+				Password:                    d.Get("password").(string),
 				Regions:                     regions,
 				Tags:                        expandTags(d.Get("tags").(*schema.Set).List()),
-				Username:                    withString(d.Get("username").(string)),
+				Username:                    d.Get("username").(string),
 			}))
 	if err != nil {
 		return diag.FromErr(err)
@@ -242,7 +242,7 @@ func resourceCloudAccountVsphereUpdate(ctx context.Context, d *schema.ResourceDa
 	id := d.Id()
 	updateResp, err := apiClient.CloudAccount.UpdateVSphereCloudAccountAsync(
 		cloud_account.NewUpdateVSphereCloudAccountAsyncParams().
-			WithAPIVersion(withString(IaaSAPIVersion)).
+			WithAPIVersion(IaaSAPIVersion).
 			WithTimeout(IncreasedTimeOut).
 			WithID(id).
 			WithBody(&models.UpdateCloudAccountVsphereSpecification{

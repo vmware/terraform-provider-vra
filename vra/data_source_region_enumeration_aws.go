@@ -44,7 +44,7 @@ func dataSourceRegionEnumerationAWSRead(ctx context.Context, d *schema.ResourceD
 
 	enumResp, err := apiClient.CloudAccount.EnumerateAwsRegionsAsync(
 		cloud_account.NewEnumerateAwsRegionsAsyncParams().
-			WithAPIVersion(withString(IaaSAPIVersion)).
+			WithAPIVersion(IaaSAPIVersion).
 			WithTimeout(IncreasedTimeOut).
 			WithBody(&models.CloudAccountAwsRegionEnumerationSpecification{
 				AccessKeyID:     d.Get("access_key").(string),
@@ -71,7 +71,7 @@ func dataSourceRegionEnumerationAWSRead(ctx context.Context, d *schema.ResourceD
 
 	getResp, err := apiClient.CloudAccount.GetRegionEnumerationResult(
 		cloud_account.NewGetRegionEnumerationResultParams().
-			WithAPIVersion(withString(IaaSAPIVersion)).
+			WithAPIVersion(IaaSAPIVersion).
 			WithTimeout(IncreasedTimeOut).
 			WithID(enumID))
 	if err != nil {
