@@ -59,6 +59,6 @@ A network resource supports the following resource:
 * `self_link` - Self link of this request.
 
 * `tags` - A set of tag keys and optional values that were set on this resource.
-           example:[ { "key" : "ownedBy", "value": "Rainpole" } ]
+           example: `[ { "key" : "ownedBy", "value": "Rainpole" } ]`
 
 * `update_at` - Date when the entity was last updated. The date is ISO 8601 and UTC.

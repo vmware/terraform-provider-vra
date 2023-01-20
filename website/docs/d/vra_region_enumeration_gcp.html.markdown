@@ -32,5 +32,5 @@ The region enumeration data source for GCP cloud account supports the following 
 * `project_id` - (Required) GCP Project ID.
 
 ## Attribute Reference
-* `regions` - A set of Region names to enable provisioning on. Example: northamerica-northeast1 
+* `regions` - A set of Region names to enable provisioning on. Example: `["northamerica-northeast1"]`
 

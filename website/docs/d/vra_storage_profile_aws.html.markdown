@@ -29,7 +29,7 @@ A storage profile aws data source supports the following arguments:
 
 ## Argument Reference
 
-* `filter` - (Optional) Filter query string that is supported by vRA multi-cloud IaaS API. Example: regionId eq '<regionId>' and cloudAccountId eq '<cloudAccountId>'.
+* `filter` - (Optional) Filter query string that is supported by vRA multi-cloud IaaS API. Example: `regionId eq '<regionId>' and cloudAccountId eq '<cloudAccountId>'`.
 
 * `id` - (Optional) The id of the image profile instance.
 
@@ -42,7 +42,7 @@ A storage profile aws data source supports the following arguments:
 * `supports_encryption` - (Optional) Indicates whether this storage profile supports encryption or not.
 
 * `tags` - (Optional) A set of tag keys and optional values that were set on this Network Profile.
-           example:[ { "key" : "ownedBy", "value": "Rainpole" } ]
+           example: `[ { "key" : "ownedBy", "value": "Rainpole" } ]`
 
 * `volume_type` - (Optional) Indicates the type of volume associated with type of storage.
 

@@ -68,7 +68,7 @@ A storage profile aws resource supports the following arguments:
 * `supports_encryption` - (Optional) Indicates whether this storage profile supports encryption or not.
 
 * `tags` - (Optional) A set of tag keys and optional values that were set on this Network Profile.
-           example:[ { "key" : "ownedBy", "value": "Rainpole" } ]
+           example: `[ { "key" : "ownedBy", "value": "Rainpole" } ]`
 
 * `volume_type` - (Optional) Indicates the type of volume associated with type of storage.
 

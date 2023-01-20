@@ -54,8 +54,8 @@ A fabric Azure storage account supports the following arguments:
 * `owner` - Email of the user that owns the entity.
 
 * `tags` -  A set of tag keys and optional values that were set on this resource.
-                       example:[ { "key" : "ownedBy", "value": "Rainpole" } ]
+                       example: `[ { "key" : "ownedBy", "value": "Rainpole" } ]`
 
-* `type` -  Indicates the performance tier for the storage type. Premium disks are SSD backed and Standard disks are HDD backed. example: Standard_LRS / Premium_LRS
+* `type` -  Indicates the performance tier for the storage type. Premium disks are SSD backed and Standard disks are HDD backed. example: `Standard_LRS / Premium_LRS`
 
 * `updated_at` - Date when the entity was last updated. The date is ISO 8601 and UTC.

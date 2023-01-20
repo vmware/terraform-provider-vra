@@ -64,7 +64,7 @@ The following arguments are supported for an Azure cloud account data source:
 * `subscription_id` - Azure Subscription ID.
 
 * `tags` - A set of tag keys and optional values that were set on this resource.
-example:[ { "key" : "vmware", "value": "provider" } ]
+example: `[ { "key" : "vmware", "value": "provider" } ]`
   * `key` - Tag’s key.
   * `value` - Tag’s value.
 

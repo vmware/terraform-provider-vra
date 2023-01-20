@@ -66,10 +66,10 @@ The following arguments are supported for an vmc cloud account data source:
 * `sddc_name` - Identifier of the on-premise SDDC to be used by this cloud account. Note that NSX-V SDDCs are not supported.
 
 * `tags` - A set of tag keys and optional values that were set on this resource.
-example:[ { "key" : "vmware", "value": "provider" } ]
+example: `[ { "key" : "vmware", "value": "provider" } ]`
   * `key` - Tag’s key.
   * `value` - Tag’s value.
-  
+
 * `updated_at` - Date when the entity was last updated. The date is ISO 8601 and UTC.
 
 * `vcenter_hostname` - The IP address or FQDN of the vCenter Server in the specified SDDC. The cloud proxy belongs on this vCenter.

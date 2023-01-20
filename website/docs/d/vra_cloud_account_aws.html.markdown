@@ -61,9 +61,9 @@ The following arguments are supported for an AWS cloud account data source:
 * `regions` - A set of region names that are enabled for this account.
 
 * `tags` - A set of tag keys and optional values that were set on this resource.
-example:[ { "key" : "vmware", "value": "provider" } ]
+example: `[ { "key" : "vmware", "value": "provider" } ]`
   * `key` - Tag’s key.
   * `value` - Tag’s value.
-  
+
 * `updated_at` - Date when the entity was last updated. The date is ISO 8601 and UTC.
 
