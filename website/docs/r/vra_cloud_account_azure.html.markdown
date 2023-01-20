@@ -41,8 +41,8 @@ Create your Azure cloud account resource with the following arguments:
 
 * `subscription_id` - (Required) Azure Subscription ID.
 
-* `tags` - (Optional) Set of tag keys and values to apply to the cloud account.  
-Example:[ { "key" : "vmware", "value": "provider" } ]
+* `tags` - (Optional) Set of tag keys and values to apply to the cloud account.
+Example: `[ { "key" : "vmware", "value": "provider" } ]`
 
 * `tenant_id` - (Required) Azure Tenant ID.
 

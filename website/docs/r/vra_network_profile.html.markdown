@@ -40,7 +40,7 @@ A network profile resource supports the following arguments:
 * `description` - (Optional) A human-friendly description.
 
 * `fabric_network_ids` - (Optional) A list of fabric network Ids which are assigned to the network profile.
-                         example:[ "6543" ]
+                         example: `[ "6543" ]`
 
 * `isolated_external_fabric_network_id` - (Optional) The id of the fabric network used for outbound access.
 
@@ -54,7 +54,7 @@ A network profile resource supports the following arguments:
 
 * `created_at` - Date when  entity was created. Date and time format is ISO 8601 and UTC.
 
-* `external_region_id` - The external regionId of the resource. 
+* `external_region_id` - The external regionId of the resource.
 
 * `isolated_network_cidr_prefix` - The CIDR prefix length to be used for the isolated networks that are created with the network profile.
 
@@ -73,9 +73,9 @@ A network profile resource supports the following arguments:
 * `owner` - Email of the user that owns the entity.
 
 * `security_group_ids` - A list of security group Ids which are assigned to the network profile.
-                         example:[ "6545" ]
+                         example: `[ "6545" ]`
 
 * `tags` - A set of tag keys and optional values that were set on this Network Profile.
-           example:[ { "key" : "ownedBy", "value": "Rainpole" } ]
+           example: `[ { "key" : "ownedBy", "value": "Rainpole" } ]`
 
 * `updated_at` - Date when the entity was last updated. The date is ISO 8601 and UTC.

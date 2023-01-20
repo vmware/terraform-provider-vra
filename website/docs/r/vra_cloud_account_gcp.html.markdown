@@ -48,8 +48,8 @@ Create your GCP cloud account resource with the following arguments:
 
 * `project_id` - (Required) GCP Project ID.
 
-* `tags` - (Optional) Set of tag keys and values to apply to the cloud account.  
-Example:[ { "key" : "vmware", "value": "provider" } ]
+* `tags` - (Optional) Set of tag keys and values to apply to the cloud account.
+Example: `[ { "key" : "vmware", "value": "provider" } ]`
 
 ## Attribute Reference
 

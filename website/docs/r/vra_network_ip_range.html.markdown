@@ -51,7 +51,7 @@ The following arguments are supported for a vRA Network IP range resource:
 * `start_ip_address` - (Required) Start IP address of the range.
 
 * `tags` -  (Optional) Set of tag keys and values to apply to the resource.
-            Example:[ { "key" : "vmware", "value": "provider" } ]
+            Example: `[ { "key" : "vmware", "value": "provider" } ]`
 
 ## Attribute Reference
 

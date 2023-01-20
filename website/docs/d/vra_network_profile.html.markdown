@@ -29,7 +29,7 @@ A network profile data source supports the following arguments:
 
 ## Argument Reference
 
-* `filter` - (Optional) Filter query string that is supported by vRA multi-cloud IaaS API. Example: regionId eq '<regionId>' and cloudAccountId eq '<cloudAccountId>'.
+* `filter` - (Optional) Filter query string that is supported by vRA multi-cloud IaaS API. Example: `regionId eq '<regionId>' and cloudAccountId eq '<cloudAccountId>'`.
 
 * `id` - (Optional) The id of the image profile instance.
 
@@ -43,10 +43,10 @@ A network profile data source supports the following arguments:
 
 * `description` - A human-friendly description.
 
-* `external_region_id` - The external regionId of the resource. 
+* `external_region_id` - The external regionId of the resource.
 
 * `fabric_network_ids` - A list of fabric network Ids which are assigned to the network profile.
-                         example:[ "6543" ]
+                         example: `[ "6543" ]`
 * `isolated_network_cidr_prefix` - The CIDR prefix length to be used for the isolated networks that are created with the network profile.
 
 * `isolated_network_domain_cidr` - CIDR of the isolation network domain.
@@ -64,9 +64,9 @@ A network profile data source supports the following arguments:
 * `region_id` - The id of the region for which this profile is defined as in vRealize Automation(vRA).
 
 * `security_group_ids` - A list of security group Ids which are assigned to the network profile.
-                         example:[ "6545" ]
+                         example: `[ "6545" ]`
 
 * `tags` - A set of tag keys and optional values that were set on this Network Profile.
-           example:[ { "key" : "ownedBy", "value": "Rainpole" } ]
+           example: `[ { "key" : "ownedBy", "value": "Rainpole" } ]`
 
 * `updated_at` - Date when the entity was last updated. The date is ISO 8601 and UTC.

@@ -66,7 +66,7 @@ The following arguments are supported for an vSphere cloud account data source:
 * `owner` - Email of the user that owns the entity.
 
 * `tags` - A set of tag keys and optional values that were set on this resource.
-example:[ { "key" : "vmware", "value": "provider" } ]
+example: `[ { "key" : "vmware", "value": "provider" } ]`
   * `key` - Tag’s key.
   * `value` - Tag’s value.
 
