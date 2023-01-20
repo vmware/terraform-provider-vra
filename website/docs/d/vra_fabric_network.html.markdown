@@ -35,7 +35,7 @@ A fabric network data source supports the following arguments:
 
 * `cidr` - Network CIDR to be used.
 
-* `id` - ID of the vRA fabric network. 
+* `id` - ID of the vRA fabric network.
 
 * `is_public` - Indicates whether the sub-network supports public IP assignment.
 
@@ -56,7 +56,7 @@ A fabric network data source supports the following arguments:
 * `owner` - Email of the user that owns the entity.
 
 * `tags` -  Set of tag keys and values to apply to the resource.
-            Example:[ { "key" : "vmware", "value": "provider" } ]
+            Example: `[ { "key" : "vmware", "value": "provider" } ]`
 
 * `updated_at` - Date when the entity was last updated. The date is ISO 8601 and UTC.
 

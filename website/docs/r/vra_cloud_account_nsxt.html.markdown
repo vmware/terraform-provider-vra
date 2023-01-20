@@ -47,8 +47,8 @@ Create your NSX-T cloud account resource with the following arguments:
 
 * `password` - (Required) Password used to authenticate to the cloud Account.
 
-* `tags` - (Optional) Set of tag keys and values to apply to the cloud account.  
-Example:[ { "key" : "vmware", "value": "provider" } ]
+* `tags` - (Optional) Set of tag keys and values to apply to the cloud account.
+Example: `[ { "key" : "vmware", "value": "provider" } ]`
 
 * `username` - (Required) Username used to authenticate to the cloud account.
 

@@ -28,9 +28,9 @@ resource "vra_project" "this" {
     "foo": "bar",
     "foo2": "bar2"
   }
-  
+
   shared_resources = false
-  
+
   administrator_roles {
     email = "jason@vra.local"
     type  = "user"
@@ -112,11 +112,11 @@ A project resource supports the following arguments:
 
 ## Argument Reference
 
-* `administrators` - (Optional) A list of administrator users associated with the project. Only administrators can manage project's configuration. 
+* `administrators` - (Optional) A list of administrator users associated with the project. Only administrators can manage project's configuration.
 
   > **Note**:  Deprecated - please use `administrator_roles` instead.
 
-* `administrator_roles` - (Optional) Administrator users or groups associated with the project. Only administrators can manage project's configuration. 
+* `administrator_roles` - (Optional) Administrator users or groups associated with the project. Only administrators can manage project's configuration.
 
 * `constraints` - (Optional) A list of storage, network, and extensibility constraints to be applied when provisioning through this project.
 
@@ -126,11 +126,11 @@ A project resource supports the following arguments:
 
 * `machine_naming_template` - (Optional) The naming template to be used for resources provisioned in this project.
 
-* `members` - (Optional) A list of member users associated with the project. 
-  
+* `members` - (Optional) A list of member users associated with the project.
+
   > **Note**:  Deprecated - please use `member_roles` instead.
 
-* `member_roles` - (Optional) Member users or groups associated with the project. 
+* `member_roles` - (Optional) Member users or groups associated with the project.
 
 * `name` - (Required) A human-friendly name used as an identifier in APIs that support this option.
 
@@ -142,17 +142,15 @@ A project resource supports the following arguments:
 
 * `supervisor_roles` - (Optional) Supervisor users or groups associated with the project.
 
-* `viewers` - (Optional) A list of viewer users associated with the project. 
+* `viewers` - (Optional) A list of viewer users associated with the project.
 
   > **Note**:  Deprecated - please use `viewer_roles` instead.
 
-* `viewer_roles` - (Optional) Viewer users or groups associated with the project. 
+* `viewer_roles` - (Optional) Viewer users or groups associated with the project.
 
 * `zone_assignments` - (Optional) A list of configurations for zone assignment to a project.
 
 **Due to the design of the vRealize Automation IaaS API to update a project, it's not able to add and remove user or group at the same time. Please execute `terraform apply` twice.**
-
-Example:
 
 Initially, we have `jason` and `tony` configured as administrator. The initial the configuration:
 

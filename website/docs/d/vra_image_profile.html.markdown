@@ -29,7 +29,7 @@ An image profile data source supports the following arguments:
 
 ## Argument Reference
 
-* `filter` - (Optional) Filter query string that is supported by vRA multi-cloud IaaS API. Example: regionId eq '<regionId>' and cloudAccountId eq '<cloudAccountId>'.
+* `filter` - (Optional) Filter query string that is supported by vRA multi-cloud IaaS API. Example: `regionId eq '<regionId>' and cloudAccountId eq '<cloudAccountId>'`.
 
 * `id` - (Optional) The id of the image profile instance.
 
@@ -43,7 +43,7 @@ An image profile data source supports the following arguments:
 
 * `description` - A human-friendly description.
 
-* `external_region_id` - The external regionId of the resource. 
+* `external_region_id` - The external regionId of the resource.
 
 * `image_mapping` - Image mapping defined for the corresponding region.
 

@@ -42,8 +42,8 @@ Create your AWS cloud account resource with the following arguments:
 
 * `secret_key` - (Required) AWS Secret Access Key
 
-* `tags` - (Optional) Set of tag keys and values to apply to the cloud account.  
-Example:[ { "key" : "vmware", "value": "provider" } ]
+* `tags` - (Optional) Set of tag keys and values to apply to the cloud account.
+Example: `[ { "key" : "vmware", "value": "provider" } ]`
 
 
 
@@ -58,7 +58,7 @@ Example:[ { "key" : "vmware", "value": "provider" } ]
 * `org_id` - ID of organization that entity belongs to.
 
 * `owner` - Email of entity owner.
-  
+
 * `updated_at` - Date when entity was last updated. Date and time format is ISO 8601 and UTC.
 
 

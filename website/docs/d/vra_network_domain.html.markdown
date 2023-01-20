@@ -34,7 +34,7 @@ A network domain object supports the following arguments:
 
 * `external_region_id` - The id of the region for which this entity is defined.
 
-* `id` - ID of the fabric network domain object. 
+* `id` - ID of the fabric network domain object.
 
 * `links` - HATEOAS of the entity
 
@@ -45,6 +45,6 @@ A network domain object supports the following arguments:
 * `owner` - Email of the user that owns the entity.
 
 * `tags` -  Set of tag keys and values to apply to the resource.
-            Example:[ { "key" : "vmware", "value": "provider" } ]
-                       
+            Example: `[ { "key" : "vmware", "value": "provider" } ]`
+
 * `updated_at` - Date when the entity was last updated. The date is ISO 8601 and UTC.

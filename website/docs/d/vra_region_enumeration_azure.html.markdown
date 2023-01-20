@@ -32,4 +32,4 @@ The region enumeration data source for Azure cloud account supports the followin
 * `tenant_id` - (Required) Azure Tenant ID
 
 ## Attribute Reference
-* `regions` - A set of Region names to enable provisioning on. Example: northamerica-northeast1 
+* `regions` - A set of Region names to enable provisioning on. Example: `["northamerica-northeast1"]`

@@ -26,5 +26,5 @@ The region enumeration data source for AWS cloud account supports the following 
 * `secret_key` - (Required) Aws Secret Access Key.
 
 ## Attribute Reference
-* `regions` - A set of Region names to enable provisioning on. Example: us-east-2, ap-northeast-1
+* `regions` - A set of Region names to enable provisioning on. Example: `["us-east-2", "ap-northeast-1"]`
 

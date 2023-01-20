@@ -32,7 +32,7 @@ A storage profile data source supports the following arguments:
 
 * `disk_properties` - (Optional) Map of storage properties that are to be applied on disk while provisioning.
 
-* `filter` - (Optional) Filter query string that is supported by vRA multi-cloud IaaS API. Example: regionId eq '<regionId>' and cloudAccountId eq '<cloudAccountId>'.
+* `filter` - (Optional) Filter query string that is supported by vRA multi-cloud IaaS API. Example: `regionId eq '<regionId>' and cloudAccountId eq '<cloudAccountId>'`.
 
 * `id` - (Optional) The id of the image profile instance.
 
@@ -56,6 +56,6 @@ A storage profile data source supports the following arguments:
 * `supports_encryption` - Indicates whether this storage profile supports encryption or not.
 
 * `tags` - A set of tag keys and optional values that were set on this Network Profile.
-           example:[ { "key" : "ownedBy", "value": "Rainpole" } ]
+           example: `[ { "key" : "ownedBy", "value": "Rainpole" } ]`
 
 * `updated_at` - Date when the entity was last updated. The date is ISO 8601 and UTC.
