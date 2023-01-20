@@ -79,7 +79,7 @@ A block device data source supports the following attributes:
 * `status` - Status of the block device.
 
 * `tags` - A set of tag keys and optional values that were set on this resource instance.
-example:[ { "key" : "vmware.enumeration.type", "value": "nebs_block" } ]
+example: `[ { "key" : "vmware.enumeration.type", "value": "nebs_block" } ]`
   * `key` - Tag’s key.
   * `value` - Tag’s value.
 

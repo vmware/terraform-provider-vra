@@ -29,7 +29,7 @@ A storage profile azure data source supports the following arguments:
 
 ## Argument Reference
 
-* `filter` - (Optional) Filter query string that is supported by vRA multi-cloud IaaS API. Example: regionId eq '<regionId>' and cloudAccountId eq '<cloudAccountId>'.
+* `filter` - (Optional) Filter query string that is supported by vRA multi-cloud IaaS API. Example: `regionId eq '<regionId>' and cloudAccountId eq '<cloudAccountId>'`.
 
 * `id` - (Optional) The id of the image profile instance.
 
@@ -64,6 +64,6 @@ A storage profile azure data source supports the following arguments:
 * `region_id` - A link to the region that is associated with the storage profile.
 
 * `tags` - A set of tag keys and optional values that were set on this Network Profile.
-                      example:[ { "key" : "ownedBy", "value": "Rainpole" } ]
+                      example: `[ { "key" : "ownedBy", "value": "Rainpole" } ]`
 
 * `updated_at` - Date when the entity was last updated. The date is ISO 8601 and UTC.

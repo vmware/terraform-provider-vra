@@ -110,6 +110,6 @@ A storage profile resource supports the following arguments:
 * `owner` - Email of the user that owns the entity.
 
 * `tags` - A set of tag keys and optional values that were set on this Network Profile.
-           example:[ { "key" : "ownedBy", "value": "Rainpole" } ]
+           example: `[ { "key" : "ownedBy", "value": "Rainpole" } ]`
 
 * `updated_at` - Date when the entity was last updated. The date is ISO 8601 and UTC.

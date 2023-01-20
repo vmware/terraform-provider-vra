@@ -18,7 +18,7 @@ data "vra_region_enumeration_vsphere" "this" {
   accept_self_signed_cert = false
 
   dc_id = var.vra_data_collector_id
-  
+
   hostname = var.hostname
   password = var.password
   username = var.username
@@ -28,16 +28,16 @@ data "vra_region_enumeration_vsphere" "this" {
 The region enumeration data source supports the following arguments:
 
 ## Argument Reference
-* `accept_self_signed_cert` - (Optional) Accept self signed certificate when connecting to vSphere. Example: false
+* `accept_self_signed_cert` - (Optional) Accept self signed certificate when connecting to vSphere. Example: `false`
 
-* `dc_id` - (Optional) ID of a data collector vm deployed in the on premise infrastructure. Example: d5316b00-f3b8-4895-9e9a-c4b98649c2ca
+* `dc_id` - (Optional) ID of a data collector vm deployed in the on premise infrastructure. Example: `d5316b00-f3b8-4895-9e9a-c4b98649c2ca`
 
-* `hostname` - (Required) Host name for the cloud account endpoint. Example: dc1-lnd.mycompany.com
+* `hostname` - (Required) Host name for the cloud account endpoint. Example: `dc1-lnd.mycompany.com`
 
 * `password` - (Required) Password for the user used to authenticate with the cloud Account
 
 * `username` - (Required) Username to authenticate with the cloud account
 
 ## Attribute Reference
-* `regions` - A set of datacenter managed object reference identifiers to enable provisioning on. Example: Datacenter:datacenter-2 
+* `regions` - A set of datacenter managed object reference identifiers to enable provisioning on. Example: Datacenter:datacenter-2
 

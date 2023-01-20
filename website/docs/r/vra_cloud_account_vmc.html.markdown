@@ -58,11 +58,11 @@ Create your VMC cloud account resource with the following arguments:
 
 * `sddc_name` - (Required) Identifier of the on-premise SDDC to be used by the cloud account. Note that NSX-V SDDCs are not supported.
 
-* `tags` - (Optional) Set of tag keys and values to apply to the cloud account.  
-Example:[ { "key" : "vmware", "value": "provider" } ]
+* `tags` - (Optional) Set of tag keys and values to apply to the cloud account.
+Example: `[ { "key" : "vmware", "value": "provider" } ]`
 
 * `vcenter_hostname` - (Required) IP address or FQDN of the vCenter Server in the specified SDDC. The cloud proxy belongs on this vCenter.
-  
+
 * `vcenter_password` - (Required) Password used to authenticate to the cloud Account.
 
 * `vcenter_username` - (Required) vCenter user name for the specified SDDC. The user requires CloudAdmin credentials. The user does not require CloudGlobalAdmin credentials.

@@ -30,7 +30,7 @@ data "vra_region_enumeration_vmc" "this" {
 The region enumeration data source for VMC cloud account supports the following arguments:
 
 ## Argument Reference
-* `accept_self_signed_cert` - (Optional) Accept self signed certificate when connecting to vSphere. Example: false
+* `accept_self_signed_cert` - (Optional) Accept self signed certificate when connecting to vSphere. Example: `false`
 
 * `api_token` - (Required) API Token for the cloud account endpoint.
 
@@ -47,4 +47,4 @@ The region enumeration data source for VMC cloud account supports the following 
 * `vcenter_username` - (Required) vCenter user name for the specified SDDC.The specified user requires CloudAdmin credentials. The user does not require CloudGlobalAdmin credentials.
 
 ## Attribute Reference
-* `regions` - A set of Region names to enable provisioning on. Example: northamerica-northeast1 
+* `regions` - A set of Region names to enable provisioning on. Example: `["northamerica-northeast1"]`

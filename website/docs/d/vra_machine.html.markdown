@@ -28,7 +28,7 @@ data "vra_machine" "this" {
 ## Argument Reference
 * `description` - (Optional) A human-friendly description.
 
-* `filter` - (Optional) Filter query string that is supported by vRA multi-cloud IaaS API. Example: regionId eq '<regionId>' and cloudAccountId eq '<cloudAccountId>'.
+* `filter` - (Optional) Filter query string that is supported by vRA multi-cloud IaaS API. Example: `regionId eq '<regionId>' and cloudAccountId eq '<cloudAccountId>'`.
 
 * `id` - (Optional) The id of the image profile instance.
 
@@ -63,6 +63,6 @@ data "vra_machine" "this" {
 * `project_id` - The id of the project this resource belongs to.
 
 * `tags` - A set of tag keys and optional values that were set on this resource.
-           example:[ { "key" : "ownedBy", "value": "Rainpole" } ]
+           example: `[ { "key" : "ownedBy", "value": "Rainpole" } ]`
 
 * `update_at` - Date when the entity was last updated. The date is ISO 8601 and UTC.
