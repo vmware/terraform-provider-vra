@@ -21,17 +21,17 @@ func TestAccDataSourceStorageProfileVsphere(t *testing.T) {
 				Config:      testAccDataSourceVRAStorageProfileVsphereNotFound(),
 				ExpectError: regexp.MustCompile("vra_storage_profile_vsphere filter did not match any storage profile"),
 			},
-			{
-				// TODO: Enable filter by name once this is fixed https://jira.eng.vmware.com/browse/VCOM-13947
-				//Config: testAccDataSourceVRAStorageProfileVsphereExternalRegionIDFilter(),
-				//Check: resource.ComposeTestCheckFunc(
-				//	resource.TestCheckResourceAttrPair(resourceName1, "id", dataSourceName1, "id"),
-				//	resource.TestCheckResourceAttrPair(resourceName1, "description", dataSourceName1, "description"),
-				//	resource.TestCheckResourceAttrPair(resourceName1, "name", dataSourceName1, "name"),
-				//	resource.TestCheckResourceAttrPair(resourceName1, "default_item", dataSourceName1, "default_item"),
-				//	resource.TestCheckResourceAttrPair(resourceName1, "external_region_id", dataSourceName1, "external_region_id"),
-				//),
-			},
+			//{
+			// TODO: Enable filter by name once this is fixed https://jira.eng.vmware.com/browse/VCOM-13947
+			//Config: testAccDataSourceVRAStorageProfileVsphereExternalRegionIDFilter(),
+			//Check: resource.ComposeTestCheckFunc(
+			//	resource.TestCheckResourceAttrPair(resourceName1, "id", dataSourceName1, "id"),
+			//	resource.TestCheckResourceAttrPair(resourceName1, "description", dataSourceName1, "description"),
+			//	resource.TestCheckResourceAttrPair(resourceName1, "name", dataSourceName1, "name"),
+			//	resource.TestCheckResourceAttrPair(resourceName1, "default_item", dataSourceName1, "default_item"),
+			//	resource.TestCheckResourceAttrPair(resourceName1, "external_region_id", dataSourceName1, "external_region_id"),
+			//),
+			//},
 			{
 				Config: testAccDataSourceVRAStorageProfileVsphereByID(),
 				Check: resource.ComposeTestCheckFunc(

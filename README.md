@@ -7,7 +7,7 @@ A self-contained deployable integration between Terraform and VMware vRealize Au
 ## Requirements
 
 * [Terraform 0.12+](https://www.terraform.io/downloads.html)
-* [Go 1.16](https://golang.org/dl/) (to build the provider plugin)
+* [Go 1.20](https://golang.org/dl/) (to build the provider plugin)
 
 ## Using the Provider
 
