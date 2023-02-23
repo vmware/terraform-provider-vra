@@ -26,6 +26,7 @@ const (
 )
 
 const IncreasedTimeOut = 60 * time.Second
+const DefaultDollarTop = 1000
 
 type ReauthTimeout struct {
 	mu      sync.Mutex
