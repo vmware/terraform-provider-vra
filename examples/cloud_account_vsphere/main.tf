@@ -4,7 +4,7 @@ provider "vra" {
   insecure      = var.insecure // false for vRA Cloud and true for vRA 8.0
 }
 
- Required for vRA Cloud, Optional for vRA 8.X
+# Required for vRA Cloud, Optional for vRA 8.X
 data "vra_data_collector" "dc" {
   count = var.datacollector != "" ? 1 : 0
   name  = var.datacollector
