@@ -1,15 +1,24 @@
 name: golangci-lint
+
 on:
   pull_request:
+
 jobs:
-  golangci:
-    name: lint
+  golint:
+    name: golint
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - name: golangci-lint
-        uses: golangci/golangci-lint-action@v2
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Set up Go
+        uses: actions/setup-go@v3
         with:
-          version: v1.50.0
+          go-version: '1.20'
+
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v3
+        with:
+          version: v1.51.2
           args: --issues-exit-code=1
           only-new-issues: true

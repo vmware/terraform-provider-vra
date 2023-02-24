@@ -26,6 +26,7 @@ const (
 )
 
 const IncreasedTimeOut = 60 * time.Second
+const DefaultDollarTop = 1000
 
 type ReauthTimeout struct {
 	mu      sync.Mutex
@@ -221,7 +222,7 @@ func getAPIClient(url string, token string, insecure bool) (*client.API, error) 
 	}
 
 	// Setup logging through the terraform helper
-	t.Transport = logging.NewTransport("VRA", newTransport)
+	t.Transport = logging.NewSubsystemLoggingHTTPTransport("VRA", newTransport)
 	t.SetDebug(true)
 	t.SetLogger(SwaggerLogger{})
 	apiclient := client.New(t, strfmt.Default)
