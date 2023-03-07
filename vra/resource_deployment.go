@@ -913,14 +913,9 @@ func runDeploymentUpdateAction(ctx context.Context, d *schema.ResourceData, apiC
 				log.Printf("Error while getting catalog item inputs. Checking with blueprint instead")
 
 				if blueprintID != "" {
-					blueprintVersion := ""
-					if v, ok := d.GetOk("blueprint_version"); ok {
-						blueprintVersion = v.(string)
-					}
-
 					// Get the schema from blueprint to convert the provided input values
 					// to the type defined in the schema.
-					inputs, err = getBlueprintInputsByType(apiClient, blueprintID, blueprintVersion, v)
+					inputs, err = getBlueprintInputsByType(apiClient, blueprintID, catalogItemVersion, v)
 					if err != nil {
 						return err
 					}
