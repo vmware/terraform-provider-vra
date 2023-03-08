@@ -893,6 +893,8 @@ func runDeploymentUpdateAction(ctx context.Context, d *schema.ResourceData, apiC
 		blueprintID = v.(string)
 	}
 
+	log.Printf("Checking values before any update [catalog_item_id]: %s, [blueprint_id]: %s.", catalogItemID, blueprintID)
+
 	// If catalog_item_id is provided, get the catalog item schema deployment with the catalog item
 	if catalogItemID != "" {
 		catalogItemVersion := ""
@@ -905,7 +907,21 @@ func runDeploymentUpdateAction(ctx context.Context, d *schema.ResourceData, apiC
 			// to the type defined in the schema.
 			inputs, err = getCatalogItemInputsByType(apiClient, catalogItemID, catalogItemVersion, v)
 			if err != nil {
-				return err
+
+				// If the catalog item version is no longer available,
+				// check the inputs from the version in the blueprint
+				log.Printf("Error while getting catalog item inputs. Checking with blueprint instead")
+
+				if blueprintID != "" {
+					// Get the schema from blueprint to convert the provided input values
+					// to the type defined in the schema.
+					inputs, err = getBlueprintInputsByType(apiClient, blueprintID, catalogItemVersion, v)
+					if err != nil {
+						return err
+					}
+				} else {
+					return err
+				}
 			}
 		}
 	} else if blueprintID != "" {
