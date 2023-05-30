@@ -909,13 +909,13 @@ func runDeploymentUpdateAction(ctx context.Context, d *schema.ResourceData, apiC
 			if err != nil {
 
 				// If the catalog item version is no longer available,
-				// check the inputs from the version in the blueprint
-				log.Printf("Error while getting catalog item inputs. Checking with blueprint instead")
+				// check the inputs from the update action
+				log.Printf("Error while getting catalog item inputs. Checking with update action instead")
 
-				if blueprintID != "" {
-					// Get the schema from blueprint to convert the provided input values
+				if deploymentUUID != "" && actionID != "" {
+					// Get the schema from update action to convert the provided input values
 					// to the type defined in the schema.
-					inputs, err = getBlueprintInputsByType(apiClient, blueprintID, catalogItemVersion, v)
+					inputs, err = getDeploymentActionInputsByType(apiClient, deploymentUUID, actionID, v)
 					if err != nil {
 						return err
 					}
@@ -1040,6 +1040,21 @@ func getDeploymentDay2ActionID(apiClient *client.API, deploymentUUID strfmt.UUID
 		}
 	}
 	return actionAvailable, actionID, fmt.Errorf("%s action is not found in the list of day2 actions allowed on the deployment", actionName)
+}
+
+func getDeploymentActionInputsByType(apiClient *client.API, deploymentUUID strfmt.UUID, actionID string, inputValues interface{}) (map[string]interface{}, error) {
+	inputTypesMap, err := getDeploymentActionInputTypesMap(apiClient, deploymentUUID, actionID)
+	if err != nil {
+		return nil, err
+	}
+
+	log.Printf("InputTypesMap: %v", inputTypesMap)
+	inputs, err := getInputsByType(inputValues.(map[string]interface{}), inputTypesMap)
+	if err != nil {
+		return nil, err
+	}
+
+	return inputs, nil
 }
 
 // Gets the schema for a given deployment action id
