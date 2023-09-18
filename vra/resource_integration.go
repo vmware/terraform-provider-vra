@@ -130,7 +130,6 @@ func resourceIntegrationCreate(ctx context.Context, d *schema.ResourceData, m in
 	createResp, err := apiClient.Integration.CreateIntegrationAsync(
 		integration.NewCreateIntegrationAsyncParams().
 			WithAPIVersion(IaaSAPIVersion).
-			WithTimeout(IncreasedTimeOut).
 			WithBody(&models.IntegrationSpecification{
 				AssociatedCloudAccountIds: associatedCloudAccountIds,
 				CertificateInfo: &models.CertificateInfoSpecification{
@@ -227,7 +226,6 @@ func resourceIntegrationUpdate(ctx context.Context, d *schema.ResourceData, m in
 	updateResp, err := apiClient.Integration.UpdateIntegrationAsync(
 		integration.NewUpdateIntegrationAsyncParams().
 			WithAPIVersion(IaaSAPIVersion).
-			WithTimeout(IncreasedTimeOut).
 			WithID(id).
 			WithBody(&models.UpdateIntegrationSpecification{
 				AssociatedCloudAccountIds: associatedCloudAccountIds,

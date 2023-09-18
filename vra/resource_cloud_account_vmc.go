@@ -128,7 +128,6 @@ func resourceCloudAccountVMCCreate(ctx context.Context, d *schema.ResourceData, 
 	createResp, err := apiClient.CloudAccount.CreateVmcCloudAccountAsync(
 		cloud_account.NewCreateVmcCloudAccountAsyncParams().
 			WithAPIVersion(IaaSAPIVersion).
-			WithTimeout(IncreasedTimeOut).
 			WithBody(&models.CloudAccountVmcSpecification{
 				AcceptSelfSignedCertificate: d.Get("accept_self_signed_cert").(bool),
 				APIKey:                      withString(d.Get("api_token").(string)),
@@ -226,7 +225,6 @@ func resourceCloudAccountVMCUpdate(ctx context.Context, d *schema.ResourceData, 
 	updateResp, err := apiClient.CloudAccount.UpdateCloudAccountAsync(
 		cloud_account.NewUpdateCloudAccountAsyncParams().
 			WithAPIVersion(IaaSAPIVersion).
-			WithTimeout(IncreasedTimeOut).
 			WithID(id).
 			WithBody(&models.UpdateCloudAccountSpecification{
 				CreateDefaultZones: false,

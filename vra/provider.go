@@ -42,6 +42,12 @@ func Provider() *schema.Provider {
 				Optional:    true,
 				Description: "Specify timeout for how often to reauthorize the access token",
 			},
+			"api_timeout": {
+				Type:        schema.TypeInt,
+				DefaultFunc: schema.EnvDefaultFunc("VRA_API_TIMEOUT", 30),
+				Optional:    true,
+				Description: "Specify timeout in seconds for API operations.",
+			},
 		},
 
 		DataSourcesMap: map[string]*schema.Resource{
@@ -134,6 +140,7 @@ func configureProvider(d *schema.ResourceData) (interface{}, error) {
 	refreshToken := ""
 	accessToken := ""
 	reauth := "0"
+	apiTimeout := 0
 
 	if v, ok := d.GetOk("refresh_token"); ok {
 		refreshToken = v.(string)
@@ -149,13 +156,17 @@ func configureProvider(d *schema.ResourceData) (interface{}, error) {
 		reauth = v.(string)
 	}
 
+	if v, ok := d.GetOk("api_timeout"); ok {
+		apiTimeout = v.(int)
+	}
+
 	if accessToken == "" && refreshToken == "" {
 		return nil, errors.New("refresh_token or access_token required")
 	}
 
 	if accessToken != "" {
-		return NewClientFromAccessToken(url, accessToken, insecure)
+		return NewClientFromAccessToken(url, accessToken, insecure, apiTimeout)
 	}
 
-	return NewClientFromRefreshToken(url, refreshToken, insecure, reauth)
+	return NewClientFromRefreshToken(url, refreshToken, insecure, reauth, apiTimeout)
 }

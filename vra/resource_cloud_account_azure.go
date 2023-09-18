@@ -113,7 +113,6 @@ func resourceCloudAccountAzureCreate(ctx context.Context, d *schema.ResourceData
 	createResp, err := apiClient.CloudAccount.CreateAzureCloudAccountAsync(
 		cloud_account.NewCreateAzureCloudAccountAsyncParams().
 			WithAPIVersion(IaaSAPIVersion).
-			WithTimeout(IncreasedTimeOut).
 			WithBody(&models.CloudAccountAzureSpecification{
 				ClientApplicationID:        withString(d.Get("application_id").(string)),
 				ClientApplicationSecretKey: withString(d.Get("application_key").(string)),
@@ -205,7 +204,6 @@ func resourceCloudAccountAzureUpdate(ctx context.Context, d *schema.ResourceData
 	updateResp, err := apiClient.CloudAccount.UpdateAzureCloudAccountAsync(
 		cloud_account.NewUpdateAzureCloudAccountAsyncParams().
 			WithAPIVersion(IaaSAPIVersion).
-			WithTimeout(IncreasedTimeOut).
 			WithID(id).
 			WithBody(&models.UpdateCloudAccountAzureSpecification{
 				CreateDefaultZones: false,

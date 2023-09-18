@@ -177,8 +177,7 @@ func dataSourceDeploymentRead(ctx context.Context, d *schema.ResourceData, m int
 		deployments.NewGetDeploymentByIDV3UsingGETParams().
 			WithDeploymentID(strfmt.UUID(id.(string))).
 			WithExpand(expand).
-			WithAPIVersion(withString(DeploymentsAPIVersion)).
-			WithTimeout(IncreasedTimeOut))
+			WithAPIVersion(withString(DeploymentsAPIVersion)))
 
 	if err != nil {
 		return diag.FromErr(err)
@@ -224,7 +223,6 @@ func dataSourceDeploymentRead(ctx context.Context, d *schema.ResourceData, m int
 				WithDeploymentID(strfmt.UUID(id.(string))).
 				WithExpand([]string{"currentRequest"}).
 				WithAPIVersion(withString(DeploymentsAPIVersion)).
-				WithTimeout(IncreasedTimeOut).
 				WithDollarTop(withInt32(DefaultDollarTop)))
 		if err != nil {
 			return diag.Errorf("error retrieving deployment resources - error: %#v", err)

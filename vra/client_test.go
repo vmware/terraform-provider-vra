@@ -19,7 +19,7 @@ func TestClient(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		apiClient, err := getAPIClient(tt.url, "", true)
+		apiClient, err := getAPIClient(tt.url, "", true, 30)
 		if err != nil {
 			t.Errorf("getAPIClient returned error %s", err)
 		}

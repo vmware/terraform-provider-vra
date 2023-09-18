@@ -135,7 +135,6 @@ func resourceCloudAccountVsphereCreate(ctx context.Context, d *schema.ResourceDa
 	createResp, err := apiClient.CloudAccount.CreateVSphereCloudAccountAsync(
 		cloud_account.NewCreateVSphereCloudAccountAsyncParams().
 			WithAPIVersion(IaaSAPIVersion).
-			WithTimeout(IncreasedTimeOut).
 			WithBody(&models.CloudAccountVsphereSpecification{
 				AcceptSelfSignedCertificate: d.Get("accept_self_signed_cert").(bool),
 				AssociatedCloudAccountIds:   associatedCloudAccountIds,
@@ -229,7 +228,6 @@ func resourceCloudAccountVsphereUpdate(ctx context.Context, d *schema.ResourceDa
 	updateResp, err := apiClient.CloudAccount.UpdateVSphereCloudAccountAsync(
 		cloud_account.NewUpdateVSphereCloudAccountAsyncParams().
 			WithAPIVersion(IaaSAPIVersion).
-			WithTimeout(IncreasedTimeOut).
 			WithID(id).
 			WithBody(&models.UpdateCloudAccountVsphereSpecification{
 				CreateDefaultZones: false,
