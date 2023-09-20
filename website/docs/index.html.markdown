@@ -67,6 +67,9 @@ The following arguments are used to configure the Terraform Provider for VMware 
 * `access_token` - (Optional) This is the access token used to create an API refresh token. Can also be specified with the `VRA_ACCESS_TOKEN` environment variable.
 * `refresh_token` - (Optional) This is a refresh_token used for API access that has been pre-generated. One of `access_token` or `refresh_token` is required. Can also be specified with the `VRA_REFRESH_TOKEN` environment variable.
 * `insecure` - (Optional) This specifies whether if the TLS certificates are validated. Can also be specified with the `VRA7_INSECURE` environment variable.
+* `reauthorize_timeout` - (Optional) This specifies the timeout for how often to reauthorize the access token. Can also be specified with the `VRA7_REAUTHORIZE_TIMEOUT` environment variable.
+* `api_timeout` - (Optional) This specifies the timeout in seconds for API operations. Can also be specified with the `VRA_API_TIMEOUT` environment variable.
+
 
 ## Bug Reports and Contributing
 

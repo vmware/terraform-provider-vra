@@ -113,7 +113,6 @@ func resourceCloudAccountGCPCreate(ctx context.Context, d *schema.ResourceData, 
 	createResp, err := apiClient.CloudAccount.CreateGcpCloudAccountAsync(
 		cloud_account.NewCreateGcpCloudAccountAsyncParams().
 			WithAPIVersion(IaaSAPIVersion).
-			WithTimeout(IncreasedTimeOut).
 			WithBody(&models.CloudAccountGcpSpecification{
 				ClientEmail:        withString(d.Get("client_email").(string)),
 				CreateDefaultZones: false,
@@ -205,7 +204,6 @@ func resourceCloudAccountGCPUpdate(ctx context.Context, d *schema.ResourceData, 
 	updateResp, err := apiClient.CloudAccount.UpdateGcpCloudAccountAsync(
 		cloud_account.NewUpdateGcpCloudAccountAsyncParams().
 			WithAPIVersion(IaaSAPIVersion).
-			WithTimeout(IncreasedTimeOut).
 			WithID(id).
 			WithBody(&models.UpdateCloudAccountGcpSpecification{
 				CreateDefaultZones: false,

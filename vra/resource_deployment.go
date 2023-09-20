@@ -385,8 +385,7 @@ func resourceDeploymentRead(ctx context.Context, d *schema.ResourceData, m inter
 		deployments.NewGetDeploymentByIDV3UsingGETParams().
 			WithDeploymentID(strfmt.UUID(id)).
 			WithExpand(expand).
-			WithAPIVersion(withString(DeploymentsAPIVersion)).
-			WithTimeout(IncreasedTimeOut))
+			WithAPIVersion(withString(DeploymentsAPIVersion)))
 	if err != nil {
 		switch err.(type) {
 		case *deployments.GetDeploymentByIDV3UsingGETNotFound:
@@ -443,7 +442,6 @@ func resourceDeploymentRead(ctx context.Context, d *schema.ResourceData, m inter
 			WithDeploymentID(strfmt.UUID(id)).
 			WithExpand([]string{"currentRequest"}).
 			WithAPIVersion(withString(DeploymentsAPIVersion)).
-			WithTimeout(IncreasedTimeOut).
 			WithDollarTop(withInt32(DefaultDollarTop)))
 	if err != nil {
 		return diag.Errorf("error retrieving deployment resources - error: %#v", err)
@@ -1167,8 +1165,7 @@ func deploymentActionStatusRefreshFunc(apiClient client.API, deploymentUUID strf
 			deployments.NewGetDeploymentByIDV3UsingGETParams().
 				WithDeploymentID(deploymentUUID).
 				WithExpand([]string{"lastRequest"}).
-				WithAPIVersion(withString(DeploymentsAPIVersion)).
-				WithTimeout(IncreasedTimeOut))
+				WithAPIVersion(withString(DeploymentsAPIVersion)))
 		if err != nil {
 			return "", models.RequestStatusFAILED, err
 		}

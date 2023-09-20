@@ -25,7 +25,6 @@ const (
 	DeploymentsAPIVersion = "2020-08-25"
 )
 
-const IncreasedTimeOut = 60 * time.Second
 const DefaultDollarTop = 1000
 
 type ReauthTimeout struct {
@@ -114,12 +113,12 @@ type Client struct {
 }
 
 // NewClientFromRefreshToken configures and returns a VRA "Client" struct using "refresh_token" from provider config
-func NewClientFromRefreshToken(url, refreshToken string, insecure bool, reauth string) (interface{}, error) {
+func NewClientFromRefreshToken(url, refreshToken string, insecure bool, reauth string, apiTimeout int) (interface{}, error) {
 	token, err := getToken(url, refreshToken, insecure)
 	if err != nil {
 		return "", err
 	}
-	apiClient, err := getAPIClient(url, token, insecure)
+	apiClient, err := getAPIClient(url, token, insecure, apiTimeout)
 	if err != nil {
 		return "", err
 	}
@@ -136,8 +135,8 @@ func NewClientFromRefreshToken(url, refreshToken string, insecure bool, reauth s
 }
 
 // NewClientFromAccessToken configures and returns a VRA "Client" struct using "access_token" from provider config
-func NewClientFromAccessToken(url, accessToken string, insecure bool) (interface{}, error) {
-	apiClient, err := getAPIClient(url, accessToken, insecure)
+func NewClientFromAccessToken(url, accessToken string, insecure bool, apiTimeout int) (interface{}, error) {
+	apiClient, err := getAPIClient(url, accessToken, insecure, apiTimeout)
 	if err != nil {
 		return "", err
 	}
@@ -209,11 +208,16 @@ func createTransport(insecure bool) (http.RoundTripper, error) {
 	}, nil
 }
 
-func getAPIClient(url string, token string, insecure bool) (*client.API, error) {
+func getAPIClient(url string, token string, insecure bool, apiTimeout int) (*client.API, error) {
 	parsedURL, err := neturl.Parse(url)
 	if err != nil {
 		return nil, err
 	}
+
+	if apiTimeout > 0 {
+		httptransport.DefaultTimeout = time.Duration(apiTimeout) * time.Second
+	}
+
 	t := httptransport.New(parsedURL.Host, parsedURL.Path, nil)
 	t.DefaultAuthentication = httptransport.APIKeyAuth("Authorization", "header", "Bearer "+token)
 	newTransport, err := createTransport(insecure)
