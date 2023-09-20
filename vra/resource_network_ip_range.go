@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"log"
+	"strings"
 
 	"github.com/vmware/vra-sdk-go/pkg/client/network_ip_range"
 	"github.com/vmware/vra-sdk-go/pkg/models"
@@ -163,6 +164,14 @@ func resourceNetworkIPRangeRead(ctx context.Context, d *schema.ResourceData, m i
 	d.Set("owner", networkIPRange.Owner)
 	d.Set("start_ip_address", networkIPRange.StartIPAddress)
 	d.Set("updated_at", networkIPRange.UpdatedAt)
+
+	if fabricNetworkLinks, ok := networkIPRange.Links["fabric-networks"]; ok {
+		fabricNetworkIds := make([]string, 0, len(fabricNetworkLinks.Hrefs))
+		for _, fabricNetworkLink := range fabricNetworkLinks.Hrefs {
+			fabricNetworkIds = append(fabricNetworkIds, strings.TrimPrefix(fabricNetworkLink, "/iaas/api/fabric-networks/"))
+		}
+		d.Set("fabric_network_ids", fabricNetworkIds)
+	}
 
 	if err := d.Set("links", flattenLinks(networkIPRange.Links)); err != nil {
 		return diag.Errorf("error setting network ip range links - error: %#v", err)
