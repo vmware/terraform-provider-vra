@@ -128,7 +128,7 @@ func resourceStorageProfileCreate(ctx context.Context, d *schema.ResourceData, m
 	return resourceStorageProfileRead(ctx, d, m)
 }
 
-func resourceStorageProfileRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+func resourceStorageProfileRead(_ context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	log.Printf("Reading the vra_storage_profile resource with name %s", d.Get("name"))
 	apiClient := m.(*Client).apiClient
 
@@ -194,7 +194,7 @@ func resourceStorageProfileUpdate(ctx context.Context, d *schema.ResourceData, m
 	return resourceStorageProfileRead(ctx, d, m)
 }
 
-func resourceStorageProfileDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+func resourceStorageProfileDelete(_ context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	log.Printf("Starting to delete the vra_storage_profile resource with name %s", d.Get("name"))
 	apiClient := m.(*Client).apiClient
 

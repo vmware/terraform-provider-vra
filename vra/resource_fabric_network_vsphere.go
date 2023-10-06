@@ -118,12 +118,12 @@ func resourceFabricNetworkVsphere() *schema.Resource {
 	}
 }
 
-func resourceFabricNetworkVsphereCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+func resourceFabricNetworkVsphereCreate(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
 	log.Printf("Starting to create vra_fabric_network resource")
 	return diag.FromErr(errors.New("vra_fabric_network_vsphere resources are only importable"))
 }
 
-func resourceFabricNetworkVsphereRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+func resourceFabricNetworkVsphereRead(_ context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	log.Printf("Reading the vra_fabric_network_vsphere resource with name %s", d.Get("name"))
 	apiClient := m.(*Client).apiClient
 
@@ -210,7 +210,7 @@ func resourceFabricNetworkVsphereUpdate(ctx context.Context, d *schema.ResourceD
 
 }
 
-func resourceFabricNetworkVsphereDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+func resourceFabricNetworkVsphereDelete(_ context.Context, d *schema.ResourceData, _ interface{}) diag.Diagnostics {
 	log.Printf("Starting to delete the vra_fabric_network_vsphere resource with name %s", d.Get("name"))
 	return nil
 }

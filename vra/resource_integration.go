@@ -168,7 +168,7 @@ func resourceIntegrationCreate(ctx context.Context, d *schema.ResourceData, m in
 	return resourceIntegrationRead(ctx, d, m)
 }
 
-func resourceIntegrationRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+func resourceIntegrationRead(_ context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	apiClient := m.(*Client).apiClient
 
 	id := d.Id()
@@ -258,7 +258,7 @@ func resourceIntegrationUpdate(ctx context.Context, d *schema.ResourceData, m in
 	return resourceIntegrationRead(ctx, d, m)
 }
 
-func resourceIntegrationDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+func resourceIntegrationDelete(_ context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	apiClient := m.(*Client).apiClient
 
 	id := d.Id()

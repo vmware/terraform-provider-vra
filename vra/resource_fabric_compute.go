@@ -93,11 +93,11 @@ func resourceFabricCompute() *schema.Resource {
 	}
 }
 
-func resourceFabricComputeCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+func resourceFabricComputeCreate(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
 	return diag.FromErr(errors.New("vra_fabric_compute resources are only importable"))
 }
 
-func resourceFabricComputeRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+func resourceFabricComputeRead(_ context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	apiClient := m.(*Client).apiClient
 
 	id := d.Id()
@@ -156,6 +156,6 @@ func resourceFabricComputeUpdate(ctx context.Context, d *schema.ResourceData, m 
 	return resourceFabricComputeRead(ctx, d, m)
 }
 
-func resourceFabricComputeDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+func resourceFabricComputeDelete(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
 	return nil
 }

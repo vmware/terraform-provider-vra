@@ -146,7 +146,7 @@ func resourceCloudAccountNSXTCreate(ctx context.Context, d *schema.ResourceData,
 	return resourceCloudAccountNSXTRead(ctx, d, m)
 }
 
-func resourceCloudAccountNSXTRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+func resourceCloudAccountNSXTRead(_ context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	apiClient := m.(*Client).apiClient
 
 	id := d.Id()
@@ -213,7 +213,7 @@ func resourceCloudAccountNSXTUpdate(ctx context.Context, d *schema.ResourceData,
 	return resourceCloudAccountNSXTRead(ctx, d, m)
 }
 
-func resourceCloudAccountNSXTDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+func resourceCloudAccountNSXTDelete(_ context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	apiClient := m.(*Client).apiClient
 
 	id := d.Id()

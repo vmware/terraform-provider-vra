@@ -167,7 +167,7 @@ func resourceCloudAccountVMCCreate(ctx context.Context, d *schema.ResourceData, 
 	return resourceCloudAccountVMCRead(ctx, d, m)
 }
 
-func resourceCloudAccountVMCRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+func resourceCloudAccountVMCRead(_ context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	apiClient := m.(*Client).apiClient
 
 	id := d.Id()
@@ -251,7 +251,7 @@ func resourceCloudAccountVMCUpdate(ctx context.Context, d *schema.ResourceData, 
 	return resourceCloudAccountVMCRead(ctx, d, m)
 }
 
-func resourceCloudAccountVMCDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+func resourceCloudAccountVMCDelete(_ context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	apiClient := m.(*Client).apiClient
 
 	id := d.Id()

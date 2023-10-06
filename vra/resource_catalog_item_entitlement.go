@@ -109,7 +109,7 @@ func resourceCatalogItemEntitlementCreate(ctx context.Context, d *schema.Resourc
 	return resourceCatalogItemEntitlementRead(ctx, d, m)
 }
 
-func resourceCatalogItemEntitlementRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+func resourceCatalogItemEntitlementRead(_ context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	apiClient := m.(*Client).apiClient
 
 	id := d.Id()
@@ -133,7 +133,7 @@ func resourceCatalogItemEntitlementRead(ctx context.Context, d *schema.ResourceD
 	return nil
 }
 
-func resourceCatalogItemEntitlementDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+func resourceCatalogItemEntitlementDelete(_ context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	apiClient := m.(*Client).apiClient
 
 	_, err := apiClient.CatalogEntitlements.DeleteEntitlementUsingDELETE2(

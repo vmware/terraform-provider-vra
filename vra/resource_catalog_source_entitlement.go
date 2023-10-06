@@ -116,7 +116,7 @@ func resourceCatalogSourceEntitlementCreate(ctx context.Context, d *schema.Resou
 	return resourceCatalogSourceEntitlementRead(ctx, d, m)
 }
 
-func resourceCatalogSourceEntitlementRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+func resourceCatalogSourceEntitlementRead(_ context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	log.Printf("Reading the vra_catalog_source_entitlement resource with name %s", d.Get("name"))
 	apiClient := m.(*Client).apiClient
 
@@ -147,7 +147,7 @@ func resourceCatalogSourceEntitlementRead(ctx context.Context, d *schema.Resourc
 	return nil
 }
 
-func resourceCatalogSourceEntitlementDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+func resourceCatalogSourceEntitlementDelete(_ context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	log.Printf("Starting to delete the vra_catalog_source_entitlement resource with name %s", d.Get("name"))
 	apiClient := m.(*Client).apiClient
 

@@ -195,7 +195,7 @@ func resourceProjectCreate(ctx context.Context, d *schema.ResourceData, m interf
 	return resourceProjectRead(ctx, d, m)
 }
 
-func resourceProjectRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+func resourceProjectRead(_ context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	apiClient := m.(*Client).apiClient
 
 	id := d.Id()
@@ -270,7 +270,7 @@ func resourceProjectUpdate(ctx context.Context, d *schema.ResourceData, m interf
 	return resourceProjectRead(ctx, d, m)
 }
 
-func resourceProjectDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+func resourceProjectDelete(_ context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	apiClient := m.(*Client).apiClient
 
 	id := d.Id()

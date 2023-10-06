@@ -172,7 +172,7 @@ func resourceCloudAccountVsphereCreate(ctx context.Context, d *schema.ResourceDa
 	return resourceCloudAccountVsphereRead(ctx, d, m)
 }
 
-func resourceCloudAccountVsphereRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+func resourceCloudAccountVsphereRead(_ context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	apiClient := m.(*Client).apiClient
 
 	id := d.Id()
@@ -254,7 +254,7 @@ func resourceCloudAccountVsphereUpdate(ctx context.Context, d *schema.ResourceDa
 	return resourceCloudAccountVsphereRead(ctx, d, m)
 }
 
-func resourceCloudAccountVsphereDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+func resourceCloudAccountVsphereDelete(_ context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	apiClient := m.(*Client).apiClient
 
 	id := d.Id()

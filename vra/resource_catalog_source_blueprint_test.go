@@ -54,7 +54,7 @@ func testAccCheckVRACatalogSourceBlueprintDestroy(s *terraform.State) error {
 	return nil
 }
 
-func testAccCheckVRACatalogSourceBlueprintValidContentConfig(rInt int) string {
+func testAccCheckVRACatalogSourceBlueprintValidContentConfig(_ int) string {
 	return `
 	resource "vra_project" "this" {
 	  name = "tf-test-project"

@@ -160,7 +160,7 @@ func findCreatedBlockDeviceSnapshot(blockDeviceID string, m interface{}) (string
 	return "", fmt.Errorf(errMsg, blockDeviceID)
 }
 
-func resourceBlockDeviceSnapshotRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+func resourceBlockDeviceSnapshotRead(_ context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	blockDeviceID := d.Get("block_device_id").(string)
 	log.Printf("Reading the vra_block_device_snapshot resource for vra_block_device %s ", blockDeviceID)
 	apiClient := m.(*Client).apiClient
@@ -197,7 +197,7 @@ func resourceBlockDeviceSnapshotRead(ctx context.Context, d *schema.ResourceData
 	return nil
 }
 
-func resourceBlockDeviceSnapshotUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+func resourceBlockDeviceSnapshotUpdate(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
 	return diag.Errorf("update vra_block_device_snapshot is not supported")
 }
 

@@ -123,7 +123,7 @@ func resourceFlavorProfileCreate(ctx context.Context, d *schema.ResourceData, m 
 	return resourceFlavorProfileRead(ctx, d, m)
 }
 
-func resourceFlavorProfileRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+func resourceFlavorProfileRead(_ context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	apiClient := m.(*Client).apiClient
 
 	id := d.Id()
@@ -185,7 +185,7 @@ func resourceFlavorProfileUpdate(ctx context.Context, d *schema.ResourceData, m 
 	return resourceFlavorProfileRead(ctx, d, m)
 }
 
-func resourceFlavorProfileDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+func resourceFlavorProfileDelete(_ context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	apiClient := m.(*Client).apiClient
 
 	id := d.Id()

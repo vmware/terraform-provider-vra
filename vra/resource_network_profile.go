@@ -159,7 +159,7 @@ func resourceNetworkProfileCreate(ctx context.Context, d *schema.ResourceData, m
 	return resourceNetworkProfileRead(ctx, d, m)
 }
 
-func resourceNetworkProfileRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+func resourceNetworkProfileRead(_ context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	log.Printf("Reading the vra_network_profile resource with name %s", d.Get("name"))
 	apiClient := m.(*Client).apiClient
 
@@ -257,7 +257,7 @@ func resourceNetworkProfileUpdate(ctx context.Context, d *schema.ResourceData, m
 	return resourceNetworkProfileRead(ctx, d, m)
 }
 
-func resourceNetworkProfileDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+func resourceNetworkProfileDelete(_ context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	log.Printf("Starting to delete the vra_network_profile resource with name %s", d.Get("name"))
 	apiClient := m.(*Client).apiClient
 

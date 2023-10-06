@@ -189,7 +189,7 @@ func loadBalancerStateRefreshFunc(apiClient client.API, id string) resource.Stat
 	}
 }
 
-func resourceLoadBalancerRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+func resourceLoadBalancerRead(_ context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	log.Printf("Reading the vra_load_balancer resource with name %s", d.Get("name"))
 	apiClient := m.(*Client).apiClient
 
@@ -234,7 +234,7 @@ func resourceLoadBalancerRead(ctx context.Context, d *schema.ResourceData, m int
 	return nil
 }
 
-func resourceLoadBalancerUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+func resourceLoadBalancerUpdate(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
 	return diag.FromErr(errors.New("Updating a load balancer resource is not allowed"))
 }
 

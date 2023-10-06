@@ -322,7 +322,7 @@ func machineStateRefreshFunc(apiClient client.API, id string) resource.StateRefr
 	}
 }
 
-func resourceMachineRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+func resourceMachineRead(_ context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	log.Printf("Reading the vra_machine resource with name %s", d.Get("name"))
 	apiClient := m.(*Client).apiClient
 

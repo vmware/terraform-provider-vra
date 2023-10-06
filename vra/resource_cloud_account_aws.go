@@ -136,7 +136,7 @@ func resourceCloudAccountAWSCreate(ctx context.Context, d *schema.ResourceData, 
 	return resourceCloudAccountAWSRead(ctx, d, m)
 }
 
-func resourceCloudAccountAWSRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+func resourceCloudAccountAWSRead(_ context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	apiClient := m.(*Client).apiClient
 
 	id := d.Id()
@@ -217,7 +217,7 @@ func resourceCloudAccountAWSUpdate(ctx context.Context, d *schema.ResourceData, 
 	return resourceCloudAccountAWSRead(ctx, d, m)
 }
 
-func resourceCloudAccountAWSDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+func resourceCloudAccountAWSDelete(_ context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	apiClient := m.(*Client).apiClient
 
 	id := d.Id()

@@ -46,7 +46,7 @@ func testAccCheckVRARegionEnumerationVMCExists(n string) resource.TestCheckFunc 
 	}
 }
 
-func testAccCheckVRARegionEnumerationVMCConfig(dcname string) string {
+func testAccCheckVRARegionEnumerationVMCConfig(_ string) string {
 	apiToken := os.Getenv("VRA_VMC_API_TOKEN")
 	sddcName := os.Getenv("VRA_VMC_SDDC_NAME")
 	vCenterHostName := os.Getenv("VRA_VMC_VCENTER_HOSTNAME")
