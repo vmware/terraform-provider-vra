@@ -78,7 +78,7 @@ func testAccCheckVRAWordpressInfrastructureResourceExists(n string) resource.Tes
 	}
 }
 
-func testAccCheckVRAWordpressInfrastructureDestroy(s *terraform.State) error {
+func testAccCheckVRAWordpressInfrastructureDestroy(_ *terraform.State) error {
 	/*
 		apiClient := testAccProviderVRA.Meta().(*Client).apiClient
 

@@ -83,7 +83,7 @@ func resourceImageProfileCreate(ctx context.Context, d *schema.ResourceData, m i
 	return resourceImageProfileRead(ctx, d, m)
 }
 
-func resourceImageProfileRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+func resourceImageProfileRead(_ context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	apiClient := m.(*Client).apiClient
 
 	id := d.Id()
@@ -139,7 +139,7 @@ func resourceImageProfileUpdate(ctx context.Context, d *schema.ResourceData, m i
 	return resourceImageProfileRead(ctx, d, m)
 }
 
-func resourceImageProfileDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+func resourceImageProfileDelete(_ context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	apiClient := m.(*Client).apiClient
 
 	id := d.Id()

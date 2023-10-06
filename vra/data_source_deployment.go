@@ -132,7 +132,7 @@ func dataSourceDeployment() *schema.Resource {
 	}
 }
 
-func dataSourceDeploymentRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+func dataSourceDeploymentRead(_ context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	apiClient := m.(*Client).apiClient
 
 	id, idOk := d.GetOk("id")

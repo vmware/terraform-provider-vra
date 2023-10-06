@@ -169,7 +169,7 @@ func resourceStorageProfileVsphereCreate(ctx context.Context, d *schema.Resource
 	return resourceStorageProfileVsphereRead(ctx, d, m)
 }
 
-func resourceStorageProfileVsphereRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+func resourceStorageProfileVsphereRead(_ context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	log.Printf("Reading the vra_storage_profile_vsphere resource with name %s", d.Get("name"))
 	apiClient := m.(*Client).apiClient
 
@@ -243,7 +243,7 @@ func resourceStorageProfileVsphereUpdate(ctx context.Context, d *schema.Resource
 	return resourceStorageProfileVsphereRead(ctx, d, m)
 }
 
-func resourceStorageProfileVsphereDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+func resourceStorageProfileVsphereDelete(_ context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	log.Printf("Starting to delete the vra_storage_profile_vsphere resource with name %s", d.Get("name"))
 	apiClient := m.(*Client).apiClient
 

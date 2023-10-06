@@ -146,7 +146,7 @@ func resourceContentSourceCreate(ctx context.Context, d *schema.ResourceData, m 
 	return resourceContentSourceRead(ctx, d, m)
 }
 
-func resourceContentSourceRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+func resourceContentSourceRead(_ context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	log.Printf("Reading the vra_ContentSource resource with name %s", d.Get("name"))
 	apiClient := m.(*Client).apiClient
 
@@ -183,7 +183,7 @@ func resourceContentSourceRead(ctx context.Context, d *schema.ResourceData, m in
 	return nil
 }
 
-func resourceContentSourceDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+func resourceContentSourceDelete(_ context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	log.Printf("Starting to delete the vra_ContentSource resource with name %s", d.Get("name"))
 	apiClient := m.(*Client).apiClient
 

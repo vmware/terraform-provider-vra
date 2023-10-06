@@ -180,7 +180,7 @@ func resourceBlueprintCreate(ctx context.Context, d *schema.ResourceData, m inte
 	return resourceBlueprintRead(ctx, d, m)
 }
 
-func resourceBlueprintRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+func resourceBlueprintRead(_ context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	log.Printf("Reading the vra_blueprint resource with name %s", d.Get("name"))
 	apiClient := m.(*Client).apiClient
 
@@ -255,7 +255,7 @@ func resourceBlueprintUpdate(ctx context.Context, d *schema.ResourceData, m inte
 	return resourceBlueprintRead(ctx, d, m)
 }
 
-func resourceBlueprintDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+func resourceBlueprintDelete(_ context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	log.Printf("Starting to delete the vra_blueprint resource with name %s", d.Get("name"))
 	apiClient := m.(*Client).apiClient
 

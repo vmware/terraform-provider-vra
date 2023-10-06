@@ -126,7 +126,7 @@ func resourceBlueprintVersionCreate(ctx context.Context, d *schema.ResourceData,
 	return resourceBlueprintVersionRead(ctx, d, m)
 }
 
-func resourceBlueprintVersionRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+func resourceBlueprintVersionRead(_ context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	log.Printf("Reading the vra_blueprint_version resource with blueprint_id %s and version %s", d.Get("blueprint_id"), d.Get("version"))
 	apiClient := m.(*Client).apiClient
 
@@ -203,7 +203,7 @@ func resourceBlueprintVersionUpdate(ctx context.Context, d *schema.ResourceData,
 	return resourceBlueprintVersionRead(ctx, d, m)
 }
 
-func resourceBlueprintVersionDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+func resourceBlueprintVersionDelete(_ context.Context, d *schema.ResourceData, _ interface{}) diag.Diagnostics {
 	log.Printf("Starting to delete the vra_blueprint_version resource with blueprint_id %s and version %s", d.Get("blueprint_id"), d.Get("version"))
 	log.Printf("vra_blueprint_version cannot be deleted in vRA. It can only  be unreleased. Removing local state")
 	d.SetId("")

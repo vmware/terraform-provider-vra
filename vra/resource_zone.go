@@ -147,7 +147,7 @@ func resourceZoneCreate(ctx context.Context, d *schema.ResourceData, m interface
 	return resourceZoneRead(ctx, d, m)
 }
 
-func resourceZoneRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+func resourceZoneRead(_ context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	apiClient := m.(*Client).apiClient
 
 	id := d.Id()
@@ -233,7 +233,7 @@ func resourceZoneUpdate(ctx context.Context, d *schema.ResourceData, m interface
 	return resourceZoneRead(ctx, d, m)
 }
 
-func resourceZoneDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+func resourceZoneDelete(_ context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	apiClient := m.(*Client).apiClient
 
 	id := d.Id()

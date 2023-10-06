@@ -366,7 +366,7 @@ func resourceDeploymentCreate(ctx context.Context, d *schema.ResourceData, m int
 	return resourceDeploymentRead(ctx, d, m)
 }
 
-func resourceDeploymentRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+func resourceDeploymentRead(_ context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	log.Printf("Reading the vra_deployment resource with name %s", d.Get("name"))
 	apiClient := m.(*Client).apiClient
 
@@ -869,9 +869,8 @@ func runDeploymentUpdateAction(ctx context.Context, d *schema.ResourceData, apiC
 				updateAvailable = true
 				actionID = action.ID
 				break
-			} else {
-				return fmt.Errorf("noticed changes to inputs, but 'Update' action is not supported based on the current state of the deployment")
 			}
+			return fmt.Errorf("noticed changes to inputs, but 'Update' action is not supported based on the current state of the deployment")
 		}
 	}
 
@@ -1159,7 +1158,7 @@ func runAction(ctx context.Context, d *schema.ResourceData, apiClient *client.AP
 	return nil
 }
 
-func deploymentActionStatusRefreshFunc(apiClient client.API, deploymentUUID strfmt.UUID, requestID strfmt.UUID) resource.StateRefreshFunc {
+func deploymentActionStatusRefreshFunc(apiClient client.API, deploymentUUID strfmt.UUID, _ strfmt.UUID) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		ret, err := apiClient.Deployments.GetDeploymentByIDV3UsingGET(
 			deployments.NewGetDeploymentByIDV3UsingGETParams().

@@ -124,7 +124,7 @@ func resourceCatalogSourceBlueprintCreate(ctx context.Context, d *schema.Resourc
 	return resourceCatalogSourceBlueprintRead(ctx, d, m)
 }
 
-func resourceCatalogSourceBlueprintRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+func resourceCatalogSourceBlueprintRead(_ context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	log.Printf("Reading the vra_catalog_source_blueprint resource with name %s", d.Get("name"))
 	apiClient := m.(*Client).apiClient
 
@@ -197,7 +197,7 @@ func resourceCatalogSourceBlueprintUpdate(ctx context.Context, d *schema.Resourc
 	return resourceCatalogSourceBlueprintRead(ctx, d, m)
 }
 
-func resourceCatalogSourceBlueprintDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+func resourceCatalogSourceBlueprintDelete(_ context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	log.Printf("Starting to delete the vra_catalog_source_blueprint resource with name %s", d.Get("name"))
 	apiClient := m.(*Client).apiClient
 

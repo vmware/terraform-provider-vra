@@ -62,7 +62,7 @@ func testAccCheckVRANetworkExists(n string) resource.TestCheckFunc {
 	}
 }
 
-func testAccCheckVRANetworkDestroy(s *terraform.State) error {
+func testAccCheckVRANetworkDestroy(_ *terraform.State) error {
 	/*
 		apiClient := testAccProviderVRA.Meta().(*Client).apiClient
 

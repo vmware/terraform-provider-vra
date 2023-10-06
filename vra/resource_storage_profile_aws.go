@@ -120,7 +120,7 @@ func resourceStorageProfileAwsCreate(ctx context.Context, d *schema.ResourceData
 	return resourceStorageProfileAwsRead(ctx, d, m)
 }
 
-func resourceStorageProfileAwsRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+func resourceStorageProfileAwsRead(_ context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	log.Printf("Reading the vra_Aws_storage_profile resource with name %s", d.Get("name"))
 	apiClient := m.(*Client).apiClient
 
@@ -186,7 +186,7 @@ func resourceStorageProfileAwsUpdate(ctx context.Context, d *schema.ResourceData
 	return resourceStorageProfileAwsRead(ctx, d, m)
 }
 
-func resourceStorageProfileAwsDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+func resourceStorageProfileAwsDelete(_ context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	log.Printf("Starting to delete the vra_aws_storage_profile resource with name %s", d.Get("name"))
 	apiClient := m.(*Client).apiClient
 

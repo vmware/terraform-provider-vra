@@ -180,7 +180,7 @@ func networkStateRefreshFunc(apiClient client.API, id string) resource.StateRefr
 	}
 }
 
-func resourceNetworkRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+func resourceNetworkRead(_ context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	log.Printf("Reading the vra_network resource with name %s", d.Get("name"))
 	apiClient := m.(*Client).apiClient
 
@@ -220,7 +220,7 @@ func resourceNetworkRead(ctx context.Context, d *schema.ResourceData, m interfac
 	return nil
 }
 
-func resourceNetworkUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+func resourceNetworkUpdate(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
 	return diag.FromErr(errors.New("Updating a network resource is not allowed"))
 }
 

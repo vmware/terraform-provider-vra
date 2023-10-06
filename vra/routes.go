@@ -8,7 +8,7 @@ import (
 )
 
 // routesSchema returns the schema to use for the routes property
-func routesSchema(isRequired bool) *schema.Schema {
+func routesSchema(_ bool) *schema.Schema {
 	return &schema.Schema{
 		Type:     schema.TypeSet,
 		Required: true,

@@ -250,7 +250,7 @@ func blockDeviceStateRefreshFunc(apiClient client.API, id string) resource.State
 	}
 }
 
-func resourceBlockDeviceRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+func resourceBlockDeviceRead(_ context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	log.Printf("Reading the vra_block_device resource with name %s", d.Get("name"))
 	apiClient := m.(*Client).apiClient
 

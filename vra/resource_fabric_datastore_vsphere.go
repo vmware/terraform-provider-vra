@@ -86,11 +86,11 @@ func resourceFabricDatastoreVsphere() *schema.Resource {
 	}
 }
 
-func resourceFabricDatastoreVsphereCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+func resourceFabricDatastoreVsphereCreate(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
 	return diag.FromErr(errors.New("vra_fabric_datastore_vsphere resources are only importable"))
 }
 
-func resourceFabricDatastoreVsphereRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+func resourceFabricDatastoreVsphereRead(_ context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	apiClient := m.(*Client).apiClient
 
 	id := d.Id()
@@ -148,6 +148,6 @@ func resourceFabricDatastoreVsphereUpdate(ctx context.Context, d *schema.Resourc
 	return resourceFabricDatastoreVsphereRead(ctx, d, m)
 }
 
-func resourceFabricDatastoreVsphereDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+func resourceFabricDatastoreVsphereDelete(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
 	return nil
 }

@@ -30,14 +30,14 @@ func TestAccDataSourceVRANetwork(t *testing.T) {
 	})
 }
 
-func testAccDataSourceVRANetworkNoneConfig(rInt int) string {
+func testAccDataSourceVRANetworkNoneConfig(_ int) string {
 	return `
 	    data "vra_network" "test-network" {
 			name = "invalid-name"
 		}`
 }
 
-func testAccDataSourceVRANetworkOneConfig(rInt int) string {
+func testAccDataSourceVRANetworkOneConfig(_ int) string {
 	return `
 		data "vra_network" "test-network" {
 			name = "foo1-mcm653-56201379059"

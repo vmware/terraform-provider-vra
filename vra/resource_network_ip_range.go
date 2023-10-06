@@ -143,7 +143,7 @@ func resourceNetworkIPRangeCreate(ctx context.Context, d *schema.ResourceData, m
 	return resourceNetworkIPRangeRead(ctx, d, m)
 }
 
-func resourceNetworkIPRangeRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+func resourceNetworkIPRangeRead(_ context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	log.Printf("Reading the vra_network_profile resource with name %s", d.Get("name"))
 	apiClient := m.(*Client).apiClient
 
@@ -227,7 +227,7 @@ func resourceNetworkIPRangeUpdate(ctx context.Context, d *schema.ResourceData, m
 
 }
 
-func resourceNetworkIPRangeDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+func resourceNetworkIPRangeDelete(_ context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	log.Printf("Starting to delete the vra_network_ip_range resource with name %s", d.Get("name"))
 	apiClient := m.(*Client).apiClient
 

@@ -148,7 +148,7 @@ func resourceCloudAccountGCPCreate(ctx context.Context, d *schema.ResourceData, 
 	return resourceCloudAccountGCPRead(ctx, d, m)
 }
 
-func resourceCloudAccountGCPRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+func resourceCloudAccountGCPRead(_ context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	apiClient := m.(*Client).apiClient
 
 	id := d.Id()
@@ -230,7 +230,7 @@ func resourceCloudAccountGCPUpdate(ctx context.Context, d *schema.ResourceData, 
 	return resourceCloudAccountGCPRead(ctx, d, m)
 }
 
-func resourceCloudAccountGCPDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+func resourceCloudAccountGCPDelete(_ context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	apiClient := m.(*Client).apiClient
 
 	id := d.Id()

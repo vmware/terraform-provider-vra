@@ -148,7 +148,7 @@ func resourceCloudAccountAzureCreate(ctx context.Context, d *schema.ResourceData
 	return resourceCloudAccountAzureRead(ctx, d, m)
 }
 
-func resourceCloudAccountAzureRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+func resourceCloudAccountAzureRead(_ context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	apiClient := m.(*Client).apiClient
 
 	id := d.Id()
@@ -230,7 +230,7 @@ func resourceCloudAccountAzureUpdate(ctx context.Context, d *schema.ResourceData
 	return resourceCloudAccountAzureRead(ctx, d, m)
 }
 
-func resourceCloudAccountAzureDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+func resourceCloudAccountAzureDelete(_ context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	apiClient := m.(*Client).apiClient
 
 	id := d.Id()
