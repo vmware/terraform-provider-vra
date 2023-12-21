@@ -100,7 +100,7 @@ func resourceNetworkIPRange() *schema.Resource {
 }
 
 func resourceNetworkIPRangeCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	log.Printf("Starting to create vra_network_profile resource")
+	log.Printf("Starting to create vra_network_ip_range resource")
 	apiClient := m.(*Client).apiClient
 
 	name := d.Get("name").(string)
@@ -129,7 +129,7 @@ func resourceNetworkIPRangeCreate(ctx context.Context, d *schema.ResourceData, m
 		networkIPRangeSpecification.Description = v.(string)
 	}
 
-	log.Printf("[DEBUG] create network ip rangee: %#v", networkIPRangeSpecification)
+	log.Printf("[DEBUG] Creating vra_network_ip_range with specification: %#v", networkIPRangeSpecification)
 
 	createNetworkIPRangeCreated, err := apiClient.NetworkIPRange.CreateInternalNetworkIPRange(network_ip_range.NewCreateInternalNetworkIPRangeParams().WithBody(&networkIPRangeSpecification))
 	if err != nil {
@@ -144,7 +144,7 @@ func resourceNetworkIPRangeCreate(ctx context.Context, d *schema.ResourceData, m
 }
 
 func resourceNetworkIPRangeRead(_ context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	log.Printf("Reading the vra_network_profile resource with name %s", d.Get("name"))
+	log.Printf("Reading the vra_network_ip_range resource with name %s", d.Get("name"))
 	apiClient := m.(*Client).apiClient
 
 	id := d.Id()
@@ -171,6 +171,9 @@ func resourceNetworkIPRangeRead(_ context.Context, d *schema.ResourceData, m int
 			fabricNetworkIds = append(fabricNetworkIds, strings.TrimPrefix(fabricNetworkLink, "/iaas/api/fabric-networks/"))
 		}
 		d.Set("fabric_network_ids", fabricNetworkIds)
+	} else if fabricNetworkLink, ok := networkIPRange.Links["fabric-network"]; ok {
+		fabricNetworkIds := []string{strings.TrimPrefix(fabricNetworkLink.Href, "/iaas/api/fabric-networks/")}
+		d.Set("fabric_network_ids", fabricNetworkIds)
 	}
 
 	if err := d.Set("links", flattenLinks(networkIPRange.Links)); err != nil {
@@ -187,7 +190,7 @@ func resourceNetworkIPRangeRead(_ context.Context, d *schema.ResourceData, m int
 }
 
 func resourceNetworkIPRangeUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	log.Printf("Starting to Update vra_network_profile resource")
+	log.Printf("Starting to update the vra_network_ip_range resource with name %s", d.Get("name"))
 	apiClient := m.(*Client).apiClient
 
 	id := d.Id()
@@ -195,7 +198,7 @@ func resourceNetworkIPRangeUpdate(ctx context.Context, d *schema.ResourceData, m
 	endIPAddress := d.Get("end_ip_address").(string)
 	startIPAddress := d.Get("start_ip_address").(string)
 	fabricNetworkIDs := []string{}
-	if v, ok := d.GetOk("fabricNetworkIDs"); ok {
+	if v, ok := d.GetOk("fabric_network_ids"); ok {
 		if !compareUnique(v.(*schema.Set).List()) {
 			return diag.FromErr(errors.New("specified fabric_network_ids are not unique"))
 		}
@@ -216,13 +219,13 @@ func resourceNetworkIPRangeUpdate(ctx context.Context, d *schema.ResourceData, m
 	if v, ok := d.GetOk("description"); ok {
 		networkIPRangeSpecification.Description = v.(string)
 	}
-	log.Printf("[DEBUG] update network ip range: %#v", networkIPRangeSpecification)
+	log.Printf("[DEBUG] Updating vra_network_ip_range resource with specification: %#v", networkIPRangeSpecification)
 
 	_, err := apiClient.NetworkIPRange.UpdateInternalNetworkIPRange(network_ip_range.NewUpdateInternalNetworkIPRangeParams().WithID(id).WithBody(&networkIPRangeSpecification))
 	if err != nil {
 		return diag.FromErr(err)
 	}
-	log.Printf("finished Updating vra_network_profile resource")
+	log.Printf("Finished updating the vra_network_ip_range resource with name %s", d.Get("name"))
 	return resourceNetworkIPRangeRead(ctx, d, m)
 
 }
