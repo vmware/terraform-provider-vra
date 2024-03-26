@@ -232,8 +232,12 @@ func resourceCloudAccountVsphereUpdate(ctx context.Context, d *schema.ResourceDa
 			WithBody(&models.UpdateCloudAccountVsphereSpecification{
 				CreateDefaultZones: false,
 				Description:        d.Get("description").(string),
+				HostName:           withString(d.Get("hostname").(string)),
+				Name:               d.Get("name").(string),
+				Password:           d.Get("password").(string),
 				Regions:            regions,
 				Tags:               expandTags(d.Get("tags").(*schema.Set).List()),
+				Username:           d.Get("username").(string),
 			}))
 	if err != nil {
 		return diag.FromErr(err)
