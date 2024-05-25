@@ -12,9 +12,10 @@ import (
 
 func resourceCatalogItemEntitlement() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: resourceCatalogItemEntitlementCreate,
-		DeleteContext: resourceCatalogItemEntitlementDelete,
-		ReadContext:   resourceCatalogItemEntitlementRead,
+		DeprecationMessage: "'vra_catalog_item_entitlement' is deprecated. Use 'vra_content_sharing_policy' instead.",
+		CreateContext:      resourceCatalogItemEntitlementCreate,
+		DeleteContext:      resourceCatalogItemEntitlementDelete,
+		ReadContext:        resourceCatalogItemEntitlementRead,
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},

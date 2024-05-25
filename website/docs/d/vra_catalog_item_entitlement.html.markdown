@@ -6,6 +6,8 @@ description: A data source for catalog item entitlement.
 
 # Data Source: vra\_catalog\_item\_entitlement
 
+> **Note**:  Deprecated - please use `vra_content_sharing_policy` instead.
+
 This data source provides information about a catalog item entitlement in vRA.
 
 ## Example Usages

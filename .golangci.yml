@@ -25,8 +25,7 @@ linters:
     - typecheck
     - unconvert
     - unused
-    - vet
-    - vetshadow
+    - govet
 
 linters-settings:
   errcheck:
