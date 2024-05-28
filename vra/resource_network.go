@@ -32,7 +32,7 @@ func resourceNetwork() *schema.Resource {
 			"name": {
 				Type:     schema.TypeString,
 				Required: true,
-				DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
+				DiffSuppressFunc: func(_, old, new string, _ *schema.ResourceData) bool {
 					return !strings.HasPrefix(new, old)
 				},
 			},
@@ -141,14 +141,14 @@ func resourceNetworkCreate(ctx context.Context, d *schema.ResourceData, m interf
 		Timeout:    d.Timeout(schema.TimeoutCreate),
 		MinTimeout: 5 * time.Second,
 	}
-	resourceIds, err := stateChangeFunc.WaitForStateContext(ctx)
-	log.Printf("Waitforstate returned: %T %+v %+v\n", resourceIds, resourceIds, err)
+	resourceIDs, err := stateChangeFunc.WaitForStateContext(ctx)
+	log.Printf("Waitforstate returned: %T %+v %+v\n", resourceIDs, resourceIDs, err)
 
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
-	networkIDs := resourceIds.([]string)
+	networkIDs := resourceIDs.([]string)
 	d.SetId(networkIDs[0])
 	log.Printf("Finished to create vra_network resource with name %s", d.Get("name"))
 

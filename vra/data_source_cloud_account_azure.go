@@ -141,7 +141,7 @@ func dataSourceCloudAccountAzureRead(d *schema.ResourceData, meta interface{}) e
 		return fmt.Errorf("error setting cloud_account_azure links - error: %#v", err)
 	}
 
-	if err := d.Set("regions", extractIdsFromRegion(cloudAccountAzure.EnabledRegions)); err != nil {
+	if err := d.Set("regions", extractIDsFromRegion(cloudAccountAzure.EnabledRegions)); err != nil {
 		return fmt.Errorf("error setting cloud_account_azure regions - error: %#v", err)
 	}
 

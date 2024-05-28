@@ -154,7 +154,7 @@ func dataSourceCloudAccountVMCRead(d *schema.ResourceData, meta interface{}) err
 		return fmt.Errorf("error setting cloud_account_vmc links - error: %#v", err)
 	}
 
-	if err := d.Set("regions", extractIdsFromRegion(cloudAccount.EnabledRegions)); err != nil {
+	if err := d.Set("regions", extractIDsFromRegion(cloudAccount.EnabledRegions)); err != nil {
 		return fmt.Errorf("error setting cloud_account_vmc regions - error: %#v", err)
 	}
 

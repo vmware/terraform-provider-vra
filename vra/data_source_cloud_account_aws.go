@@ -128,7 +128,7 @@ func dataSourceCloudAccountAWSRead(d *schema.ResourceData, meta interface{}) err
 		return fmt.Errorf("error setting cloud_account_aws links - error: %#v", err)
 	}
 
-	if err := d.Set("regions", extractIdsFromRegion(cloudAccountAws.EnabledRegions)); err != nil {
+	if err := d.Set("regions", extractIDsFromRegion(cloudAccountAws.EnabledRegions)); err != nil {
 		return fmt.Errorf("error setting cloud_account_aws regions - error: %#v", err)
 	}
 

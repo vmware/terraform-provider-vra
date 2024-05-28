@@ -113,7 +113,7 @@ func resourceCloudAccountVsphere() *schema.Resource {
 }
 
 func resourceCloudAccountVsphereCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	var associatedCloudAccountIds []string
+	var associatedCloudAccountIDs []string
 	var regions []*models.RegionSpecification
 
 	apiClient := m.(*Client).apiClient
@@ -122,7 +122,7 @@ func resourceCloudAccountVsphereCreate(ctx context.Context, d *schema.ResourceDa
 		if !compareUnique(v.(*schema.Set).List()) {
 			return diag.FromErr(errors.New("specified associated cloud account ids are not unique"))
 		}
-		associatedCloudAccountIds = expandStringList(v.(*schema.Set).List())
+		associatedCloudAccountIDs = expandStringList(v.(*schema.Set).List())
 	}
 
 	if v, ok := d.GetOk("regions"); ok {
@@ -137,7 +137,7 @@ func resourceCloudAccountVsphereCreate(ctx context.Context, d *schema.ResourceDa
 			WithAPIVersion(IaaSAPIVersion).
 			WithBody(&models.CloudAccountVsphereSpecification{
 				AcceptSelfSignedCertificate: d.Get("accept_self_signed_cert").(bool),
-				AssociatedCloudAccountIds:   associatedCloudAccountIds,
+				AssociatedCloudAccountIds:   associatedCloudAccountIDs,
 				CreateDefaultZones:          false,
 				Dcid:                        d.Get("dc_id").(string),
 				Description:                 d.Get("description").(string),
@@ -161,11 +161,11 @@ func resourceCloudAccountVsphereCreate(ctx context.Context, d *schema.ResourceDa
 		MinTimeout: 5 * time.Second,
 	}
 
-	resourceIds, err := stateChangeFunc.WaitForStateContext(ctx)
+	resourceIDs, err := stateChangeFunc.WaitForStateContext(ctx)
 	if err != nil {
 		return diag.FromErr(err)
 	}
-	cloudAccountVsphere := (resourceIds.([]string))[0]
+	cloudAccountVsphere := (resourceIDs.([]string))[0]
 
 	d.SetId(cloudAccountVsphere)
 
@@ -187,7 +187,7 @@ func resourceCloudAccountVsphereRead(_ context.Context, d *schema.ResourceData, 
 	}
 
 	vsphereAccount := *ret.Payload
-	d.Set("associated_cloud_account_ids", flattenAssociatedCloudAccountIds(vsphereAccount.Links))
+	d.Set("associated_cloud_account_ids", flattenAssociatedCloudAccountIDs(vsphereAccount.Links))
 	d.Set("created_at", vsphereAccount.CreatedAt)
 	d.Set("dc_id", vsphereAccount.Dcid)
 	d.Set("description", vsphereAccount.Description)
@@ -201,7 +201,7 @@ func resourceCloudAccountVsphereRead(_ context.Context, d *schema.ResourceData, 
 	if err := d.Set("links", flattenLinks(vsphereAccount.Links)); err != nil {
 		return diag.Errorf("error setting cloud_account_vsphere links - error: %#v", err)
 	}
-	if err := d.Set("regions", extractIdsFromRegion(vsphereAccount.EnabledRegions)); err != nil {
+	if err := d.Set("regions", extractIDsFromRegion(vsphereAccount.EnabledRegions)); err != nil {
 		return diag.Errorf("error setting cloud_account_vsphere regions - error: %#v", err)
 	}
 
@@ -281,11 +281,11 @@ func resourceCloudAccountVsphereStateRefreshFunc(apiClient client.API, id string
 		case models.RequestTrackerStatusINPROGRESS:
 			return [...]string{id}, *status, nil
 		case models.RequestTrackerStatusFINISHED:
-			cloudAccountIds := make([]string, len(ret.Payload.Resources))
+			cloudAccountIDs := make([]string, len(ret.Payload.Resources))
 			for i, r := range ret.Payload.Resources {
-				cloudAccountIds[i] = strings.TrimPrefix(r, "/iaas/api/cloud-accounts/")
+				cloudAccountIDs[i] = strings.TrimPrefix(r, "/iaas/api/cloud-accounts/")
 			}
-			return cloudAccountIds, *status, nil
+			return cloudAccountIDs, *status, nil
 		default:
 			return [...]string{id}, ret.Payload.Message, fmt.Errorf("resourceCloudAccountVsphereStateRefreshFunc: unknown status %v", *status)
 		}

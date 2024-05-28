@@ -6,6 +6,8 @@ description: A resource that can be used to create a vRealize Automation catalog
 
 # Resource: vra\_catalog\_source\_entitlement
 
+> **Note**:  Deprecated - please use `vra_content_sharing_policy` instead.
+
 This resource provides a way to create a catalog source entitlement in VMware vRealize Automation.
 
 ## Example Usages

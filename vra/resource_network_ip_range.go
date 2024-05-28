@@ -166,14 +166,14 @@ func resourceNetworkIPRangeRead(_ context.Context, d *schema.ResourceData, m int
 	d.Set("updated_at", networkIPRange.UpdatedAt)
 
 	if fabricNetworkLinks, ok := networkIPRange.Links["fabric-networks"]; ok {
-		fabricNetworkIds := make([]string, 0, len(fabricNetworkLinks.Hrefs))
+		fabricNetworkIDs := make([]string, 0, len(fabricNetworkLinks.Hrefs))
 		for _, fabricNetworkLink := range fabricNetworkLinks.Hrefs {
-			fabricNetworkIds = append(fabricNetworkIds, strings.TrimPrefix(fabricNetworkLink, "/iaas/api/fabric-networks/"))
+			fabricNetworkIDs = append(fabricNetworkIDs, strings.TrimPrefix(fabricNetworkLink, "/iaas/api/fabric-networks/"))
 		}
-		d.Set("fabric_network_ids", fabricNetworkIds)
+		d.Set("fabric_network_ids", fabricNetworkIDs)
 	} else if fabricNetworkLink, ok := networkIPRange.Links["fabric-network"]; ok {
-		fabricNetworkIds := []string{strings.TrimPrefix(fabricNetworkLink.Href, "/iaas/api/fabric-networks/")}
-		d.Set("fabric_network_ids", fabricNetworkIds)
+		fabricNetworkIDs := []string{strings.TrimPrefix(fabricNetworkLink.Href, "/iaas/api/fabric-networks/")}
+		d.Set("fabric_network_ids", fabricNetworkIDs)
 	}
 
 	if err := d.Set("links", flattenLinks(networkIPRange.Links)); err != nil {

@@ -6,7 +6,7 @@ require (
 	github.com/go-openapi/runtime v0.25.0
 	github.com/go-openapi/strfmt v0.21.3
 	github.com/hashicorp/terraform-plugin-sdk/v2 v2.25.0
-	github.com/vmware/vra-sdk-go v0.6.0
+	github.com/vmware/vra-sdk-go v0.6.1
 )
 
 require (

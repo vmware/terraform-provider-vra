@@ -302,8 +302,8 @@ github.com/vmihailenco/msgpack/v4 v4.3.12/go.mod h1:gborTTJjAo/GWTqqRjrLCn9pgNN+
 github.com/vmihailenco/tagparser v0.1.1/go.mod h1:OeAg3pn3UbLjkWt+rN9oFYB6u/cQgqMEUPoW2WPyhdI=
 github.com/vmihailenco/tagparser v0.1.2 h1:gnjoVuB/kljJ5wICEEOpx98oXMWPLj22G67Vbd1qPqc=
 github.com/vmihailenco/tagparser v0.1.2/go.mod h1:OeAg3pn3UbLjkWt+rN9oFYB6u/cQgqMEUPoW2WPyhdI=
-github.com/vmware/vra-sdk-go v0.6.0 h1:yQfF67UrFFWyHYcdLGK9Up710kGM57QXGLAM2j/tmtw=
-github.com/vmware/vra-sdk-go v0.6.0/go.mod h1:gUj5Z/+qvXEDk9+0NvW0ynDrMkTk3P5Bdt2JfN+AAC8=
+github.com/vmware/vra-sdk-go v0.6.1 h1:2DscXG18be7MknOX1zIZFekB/NQV3eJyH1dEkX1E0+4=
+github.com/vmware/vra-sdk-go v0.6.1/go.mod h1:gUj5Z/+qvXEDk9+0NvW0ynDrMkTk3P5Bdt2JfN+AAC8=
 github.com/xanzy/ssh-agent v0.3.0 h1:wUMzuKtKilRgBAD1sUb8gOwwRr2FGoBVumcjoOACClI=
 github.com/xanzy/ssh-agent v0.3.0/go.mod h1:3s9xbODqPuuhK9JV1R321M/FlMZSBvE5aY6eAcqrDh0=
 github.com/xdg-go/pbkdf2 v1.0.0/go.mod h1:jrpuAogTd400dnrH08LKmI/xc1MbPOebTwRqcT5RDeI=

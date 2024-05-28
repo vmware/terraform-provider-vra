@@ -4,24 +4,24 @@ import (
 	"github.com/vmware/vra-sdk-go/pkg/models"
 )
 
-func extractIdsFromRegion(regions []*models.Region) []string {
-	regionIds := []string{}
+func extractIDsFromRegion(regions []*models.Region) []string {
+	regionIDs := []string{}
 
 	for _, region := range regions {
-		regionIds = append(regionIds, *region.ExternalRegionID)
+		regionIDs = append(regionIDs, *region.ExternalRegionID)
 	}
 
-	return regionIds
+	return regionIDs
 }
 
-func extractIdsFromRegionSpecification(regions []*models.RegionSpecification) []string {
-	regionIds := []string{}
+func extractIDsFromRegionSpecification(regions []*models.RegionSpecification) []string {
+	regionIDs := []string{}
 
 	for _, region := range regions {
-		regionIds = append(regionIds, *region.ExternalRegionID)
+		regionIDs = append(regionIDs, *region.ExternalRegionID)
 	}
 
-	return regionIds
+	return regionIDs
 }
 
 func expandRegionSpecificationList(rList []interface{}) []*models.RegionSpecification {

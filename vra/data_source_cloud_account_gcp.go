@@ -140,7 +140,7 @@ func dataSourceCloudAccountGCPRead(d *schema.ResourceData, meta interface{}) err
 		return fmt.Errorf("error setting cloud_account_gcp links - error: %#v", err)
 	}
 
-	if err := d.Set("regions", extractIdsFromRegion(cloudAccountGcp.EnabledRegions)); err != nil {
+	if err := d.Set("regions", extractIDsFromRegion(cloudAccountGcp.EnabledRegions)); err != nil {
 		return fmt.Errorf("error setting cloud_account_gcp regions - error: %#v", err)
 	}
 

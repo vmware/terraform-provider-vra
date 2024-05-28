@@ -11,7 +11,8 @@ import (
 
 func dataSourceCatalogSourceEntitlement() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceCatalogSourceEntitlementRead,
+		DeprecationMessage: "'vra_catalog_source_entitlement' is deprecated. Use 'vra_content_sharing_policy' instead.",
+		Read:               dataSourceCatalogSourceEntitlementRead,
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},

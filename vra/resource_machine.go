@@ -151,7 +151,7 @@ func resourceMachine() *schema.Resource {
 			"name": {
 				Type:     schema.TypeString,
 				Required: true,
-				DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
+				DiffSuppressFunc: func(_, old, new string, _ *schema.ResourceData) bool {
 					return !strings.HasPrefix(new, old)
 				},
 			},
@@ -260,12 +260,12 @@ func resourceMachineCreate(ctx context.Context, d *schema.ResourceData, m interf
 		MinTimeout: 5 * time.Second,
 	}
 
-	resourceIds, err := stateChangeFunc.WaitForStateContext(ctx)
+	resourceIDs, err := stateChangeFunc.WaitForStateContext(ctx)
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
-	machineID := (resourceIds.([]string))[0]
+	machineID := (resourceIDs.([]string))[0]
 	d.SetId(machineID)
 	log.Printf("Finished to create vra_machine resource with name %s", d.Get("name"))
 
@@ -311,11 +311,11 @@ func machineStateRefreshFunc(apiClient client.API, id string) resource.StateRefr
 		case models.RequestTrackerStatusINPROGRESS:
 			return [...]string{id}, *status, nil
 		case models.RequestTrackerStatusFINISHED:
-			machineIds := make([]string, len(ret.Payload.Resources))
+			machineIDs := make([]string, len(ret.Payload.Resources))
 			for i, r := range ret.Payload.Resources {
-				machineIds[i] = strings.TrimPrefix(r, "/iaas/api/machines/")
+				machineIDs[i] = strings.TrimPrefix(r, "/iaas/api/machines/")
 			}
-			return machineIds, *status, nil
+			return machineIDs, *status, nil
 		default:
 			return [...]string{id}, ret.Payload.Message, fmt.Errorf("machineStateRefreshFunc: unknown status %v", *status)
 		}
@@ -464,13 +464,13 @@ func attachAndDetachDisks(ctx context.Context, d *schema.ResourceData, apiClient
 		return err
 	}
 
-	diskIds := make([]string, len(getMachineDisksOk.GetPayload().Content))
+	diskIDs := make([]string, len(getMachineDisksOk.GetPayload().Content))
 
 	for i, blockDevice := range getMachineDisksOk.GetPayload().Content {
-		diskIds[i] = *blockDevice.ID
+		diskIDs[i] = *blockDevice.ID
 	}
 
-	log.Printf("disks currently attached to machine %v: %v", id, diskIds)
+	log.Printf("disks currently attached to machine %v: %v", id, diskIDs)
 
 	// attach the disks one by one
 	for i, diskToAttach := range disksToAttach {
@@ -478,7 +478,7 @@ func attachAndDetachDisks(ctx context.Context, d *schema.ResourceData, apiClient
 		log.Printf("Attaching the disk %v of %v (disk id: %v) to vra_machine resource %v", i+1, len(diskToAttach), diskID, d.Get("name"))
 
 		// attach the disk if it's not already attached to machine
-		if index, _ := indexOf(diskID, diskIds); index == -1 {
+		if index, _ := indexOf(diskID, diskIDs); index == -1 {
 			diskAttachmentSpecification := models.DiskAttachmentSpecification{
 				BlockDeviceID: withString(diskID),
 				Description:   diskToAttach["description"].(string),
@@ -570,12 +570,12 @@ func resizeMachine(ctx context.Context, d *schema.ResourceData, apiClient *clien
 		Timeout:    d.Timeout(schema.TimeoutUpdate),
 		MinTimeout: 5 * time.Second,
 	}
-	resourceIds, err := stateChangeFunc.WaitForStateContext(ctx)
+	resourceIDs, err := stateChangeFunc.WaitForStateContext(ctx)
 	if err != nil {
 		return err
 	}
-	machineIds := resourceIds.([]string)
-	d.SetId(machineIds[0])
+	machineIDs := resourceIDs.([]string)
+	d.SetId(machineIDs[0])
 	log.Printf("Finished to resize vra_machine resource with name %s", d.Get("name"))
 	return nil
 }

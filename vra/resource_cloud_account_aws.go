@@ -125,11 +125,11 @@ func resourceCloudAccountAWSCreate(ctx context.Context, d *schema.ResourceData, 
 		MinTimeout: 5 * time.Second,
 	}
 
-	resourceIds, err := stateChangeFunc.WaitForStateContext(ctx)
+	resourceIDs, err := stateChangeFunc.WaitForStateContext(ctx)
 	if err != nil {
 		return diag.FromErr(err)
 	}
-	cloudAccountAWS := (resourceIds.([]string))[0]
+	cloudAccountAWS := (resourceIDs.([]string))[0]
 
 	d.SetId(cloudAccountAWS)
 
@@ -163,7 +163,7 @@ func resourceCloudAccountAWSRead(_ context.Context, d *schema.ResourceData, m in
 		return diag.Errorf("error setting cloud_account_aws links - error: %#v", err)
 	}
 
-	if err := d.Set("regions", extractIdsFromRegion(awsAccount.EnabledRegions)); err != nil {
+	if err := d.Set("regions", extractIDsFromRegion(awsAccount.EnabledRegions)); err != nil {
 		return diag.Errorf("error setting cloud_account_aws regions - error: %#v", err)
 	}
 
@@ -244,11 +244,11 @@ func resourceCloudAccountAWSStateRefreshFunc(apiClient client.API, id string) re
 		case models.RequestTrackerStatusINPROGRESS:
 			return [...]string{id}, *status, nil
 		case models.RequestTrackerStatusFINISHED:
-			cloudAccountIds := make([]string, len(ret.Payload.Resources))
+			cloudAccountIDs := make([]string, len(ret.Payload.Resources))
 			for i, r := range ret.Payload.Resources {
-				cloudAccountIds[i] = strings.TrimPrefix(r, "/iaas/api/cloud-accounts/")
+				cloudAccountIDs[i] = strings.TrimPrefix(r, "/iaas/api/cloud-accounts/")
 			}
-			return cloudAccountIds, *status, nil
+			return cloudAccountIDs, *status, nil
 		default:
 			return [...]string{id}, ret.Payload.Message, fmt.Errorf("resourceCloudAccountAWSStateRefreshFunc: unknown status %v", *status)
 		}

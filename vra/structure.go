@@ -68,8 +68,8 @@ func indexOf(value string, items []string) (int, error) {
 	return -1, fmt.Errorf("Could not find %s in item list %v", value, items)
 }
 
-// flattenAssociatedCloudAccountIds will return associated cloud account ids from the Href links in the order received
-func flattenAssociatedCloudAccountIds(links map[string]models.Href) []string {
+// flattenAssociatedCloudAccountIDs will return associated cloud account ids from the Href links in the order received
+func flattenAssociatedCloudAccountIDs(links map[string]models.Href) []string {
 	refStrings := links["associated-cloud-accounts"].Hrefs
 	m := make([]string, len(refStrings))
 	for i, r := range refStrings {

@@ -119,16 +119,16 @@ func resourceZoneCreate(ctx context.Context, d *schema.ResourceData, m interface
 	name := d.Get("name").(string)
 	regionID := d.Get("region_id").(string)
 
-	var computeIds []string
+	var computeIDs []string
 	if v, ok := d.GetOk("compute_ids"); ok {
 		if !compareUnique(v.(*schema.Set).List()) {
 			return diag.FromErr(errors.New("specified compute_ids are not unique"))
 		}
-		computeIds = expandStringList(v.(*schema.Set).List())
+		computeIDs = expandStringList(v.(*schema.Set).List())
 	}
 
 	createResp, err := apiClient.Location.CreateZone(location.NewCreateZoneParams().WithBody(&models.ZoneSpecification{
-		ComputeIds:       computeIds,
+		ComputeIds:       computeIDs,
 		CustomProperties: expandCustomProperties(d.Get("custom_properties").(map[string]interface{})),
 		Description:      d.Get("description").(string),
 		Folder:           d.Get("folder").(string),
@@ -192,11 +192,11 @@ func resourceZoneRead(_ context.Context, d *schema.ResourceData, m interface{}) 
 		return diag.Errorf("error getting zone computes - error: %v", err)
 	}
 
-	var computeIds []string
+	var computeIDs []string
 	for _, compute := range getComputesResp.Payload.Content {
-		computeIds = append(computeIds, *compute.ID)
+		computeIDs = append(computeIDs, *compute.ID)
 	}
-	d.Set("compute_ids", computeIds)
+	d.Set("compute_ids", computeIDs)
 
 	return nil
 }
@@ -208,16 +208,16 @@ func resourceZoneUpdate(ctx context.Context, d *schema.ResourceData, m interface
 	name := d.Get("name").(string)
 	regionID := d.Get("region_id").(string)
 
-	var computeIds []string
+	var computeIDs []string
 	if v, ok := d.GetOk("compute_ids"); ok {
 		if !compareUnique(v.(*schema.Set).List()) {
 			return diag.FromErr(errors.New("specified compute_ids are not unique"))
 		}
-		computeIds = expandStringList(v.(*schema.Set).List())
+		computeIDs = expandStringList(v.(*schema.Set).List())
 	}
 
 	if _, err := apiClient.Location.UpdateZone(location.NewUpdateZoneParams().WithID(id).WithBody(&models.ZoneSpecification{
-		ComputeIds:       computeIds,
+		ComputeIds:       computeIDs,
 		CustomProperties: expandCustomProperties(d.Get("custom_properties").(map[string]interface{})),
 		Description:      d.Get("description").(string),
 		Folder:           d.Get("folder").(string),

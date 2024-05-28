@@ -200,12 +200,12 @@ func resourceNetworkProfileRead(_ context.Context, d *schema.ResourceData, m int
 
 	if fabricNetworkLinks, ok := networkProfile.Links["fabric-networks"]; ok {
 		if len(fabricNetworkLinks.Hrefs) != 0 {
-			var networkIds []string
+			var networkIDs []string
 			for i, link := range fabricNetworkLinks.Hrefs {
-				networkIds = append(networkIds, strings.TrimPrefix(link, "/iaas/api/fabric-networks/"))
+				networkIDs = append(networkIDs, strings.TrimPrefix(link, "/iaas/api/fabric-networks/"))
 				log.Printf("Appending network profile link %s on index %d", link, i)
 			}
-			d.Set("fabric_network_ids", networkIds)
+			d.Set("fabric_network_ids", networkIDs)
 		}
 	}
 	log.Printf("Finished reading the vra_network_profile data source with filter %s", d.Get("filter"))

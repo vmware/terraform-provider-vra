@@ -163,11 +163,11 @@ func dataSourceZoneRead(d *schema.ResourceData, m interface{}) error {
 		return fmt.Errorf("error getting zone computes - error: %v", err)
 	}
 
-	var computeIds []string
+	var computeIDs []string
 	for _, compute := range getComputesResp.Payload.Content {
-		computeIds = append(computeIds, *compute.ID)
+		computeIDs = append(computeIDs, *compute.ID)
 	}
-	d.Set("compute_ids", computeIds)
+	d.Set("compute_ids", computeIDs)
 
 	return nil
 }

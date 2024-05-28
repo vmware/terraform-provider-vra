@@ -32,7 +32,7 @@ func resourceLoadBalancer() *schema.Resource {
 			"name": {
 				Type:     schema.TypeString,
 				Required: true,
-				DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
+				DiffSuppressFunc: func(_, old, new string, _ *schema.ResourceData) bool {
 					return !strings.HasPrefix(new, old)
 				},
 			},
