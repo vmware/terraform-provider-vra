@@ -79,29 +79,35 @@ data "vra_catalog_source_blueprint" "this" {
 }
 
 // Example to create a content sharing for a blueprint content source
-resource "vra_catalog_source_entitlement" "this" {
-  depends_on        = [vra_catalog_source_blueprint.this]
-  catalog_source_id = vra_catalog_source_blueprint.this.id
-  project_id        = vra_project.this.id
+resource "vra_content_sharing_policy" "catalog_source_entitlement" {
+  depends_on         = [vra_catalog_source_blueprint.this]
+  name               = vra_catalog_source_blueprint.this.name
+  project_id         = vra_project.this.id
+  catalog_source_ids = [vra_catalog_source_blueprint.this.id]
 }
 
-// Example to fetch a content sharing/entitlement by catalog_source_id and project_id
-data "vra_catalog_source_entitlement" "this" {
-  catalog_source_id = vra_catalog_source_entitlement.this.catalog_source_id
-  project_id        = vra_project.this.id
+// Example to fetch a content sharing/entitlement by id
+data "vra_content_sharing_policy" "this" {
+  id = vra_content_sharing_policy.catalog_source_entitlement.id
 }
 
-// Example fetch catalog item
+// Example to fetch a catalog item
 data "vra_catalog_item" "this" {
   depends_on      = [vra_catalog_source_blueprint.this, vra_catalog_source_entitlement.this]
   name            = vra_blueprint.this.name
   expand_versions = true
 }
 
-// Example catalog item entitlement
-resource "vra_catalog_item_entitlement" "this" {
-  catalog_item_id = data.vra_catalog_item.this.id
-  project_id = vra_project.this.id
+// Example to create a content sharing for a content item
+resource "vra_content_sharing_policy" "catalog_item_entitlement" {
+  name             = vra_catalog_item.this.name
+  project_id       = vra_project.this.id
+  catalog_item_ids = [data.vra_catalog_item.this.id]
+}
+
+// Example to fetch a content sharing/entitlement by name
+data "vra_content_sharing_policy" "this" {
+  name = vra_content_sharing_policy.catalog_item_entitlement.name
 }
 
 // Example to request a deployment from a catalog item
