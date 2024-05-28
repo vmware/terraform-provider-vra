@@ -133,7 +133,7 @@ func dataSourceCloudAccountVsphereRead(d *schema.ResourceData, meta interface{})
 	}
 
 	d.SetId(*cloudAccountVsphere.ID)
-	d.Set("associated_cloud_account_ids", flattenAssociatedCloudAccountIds(cloudAccountVsphere.Links))
+	d.Set("associated_cloud_account_ids", flattenAssociatedCloudAccountIDs(cloudAccountVsphere.Links))
 	d.Set("created_at", cloudAccountVsphere.CreatedAt)
 	d.Set("dc_id", cloudAccountVsphere.Dcid)
 	d.Set("description", cloudAccountVsphere.Description)
@@ -148,7 +148,7 @@ func dataSourceCloudAccountVsphereRead(d *schema.ResourceData, meta interface{})
 		return fmt.Errorf("error setting cloud_account_vsphere links - error: %#v", err)
 	}
 
-	if err := d.Set("regions", extractIdsFromRegion(cloudAccountVsphere.EnabledRegions)); err != nil {
+	if err := d.Set("regions", extractIDsFromRegion(cloudAccountVsphere.EnabledRegions)); err != nil {
 		return fmt.Errorf("error setting cloud_account_vsphere regions - error: %#v", err)
 	}
 

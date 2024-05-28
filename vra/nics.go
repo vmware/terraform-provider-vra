@@ -86,13 +86,13 @@ func expandNics(configNics []interface{}) []*models.NetworkInterfaceSpecificatio
 		}
 
 		if v, ok := nicMap["security_group_ids"].([]interface{}); ok && len(v) != 0 {
-			securityGroupIds := make([]string, 0)
+			securityGroupIDs := make([]string, 0)
 
 			for _, value := range v {
-				securityGroupIds = append(securityGroupIds, value.(string))
+				securityGroupIDs = append(securityGroupIDs, value.(string))
 			}
 
-			nic.SecurityGroupIds = securityGroupIds
+			nic.SecurityGroupIds = securityGroupIDs
 		}
 
 		nic.CustomProperties = expandCustomProperties(nicMap["custom_properties"].(map[string]interface{}))

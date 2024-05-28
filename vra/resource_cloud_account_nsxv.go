@@ -118,11 +118,11 @@ func resourceCloudAccountNSXVCreate(ctx context.Context, d *schema.ResourceData,
 		MinTimeout: 5 * time.Second,
 	}
 
-	resourceIds, err := stateChangeFunc.WaitForStateContext(ctx)
+	resourceIDs, err := stateChangeFunc.WaitForStateContext(ctx)
 	if err != nil {
 		return diag.FromErr(err)
 	}
-	cloudAccountNSXV := (resourceIds.([]string))[0]
+	cloudAccountNSXV := (resourceIDs.([]string))[0]
 
 	d.SetId(cloudAccountNSXV)
 
@@ -143,7 +143,7 @@ func resourceCloudAccountNSXVRead(_ context.Context, d *schema.ResourceData, m i
 		return diag.FromErr(err)
 	}
 	nsxvAccount := *ret.Payload
-	d.Set("associated_cloud_account_ids", flattenAssociatedCloudAccountIds(nsxvAccount.Links))
+	d.Set("associated_cloud_account_ids", flattenAssociatedCloudAccountIDs(nsxvAccount.Links))
 	d.Set("created_at", nsxvAccount.CreatedAt)
 	d.Set("dc_id", nsxvAccount.Dcid)
 	d.Set("description", nsxvAccount.Description)
@@ -222,11 +222,11 @@ func resourceCloudAccountNSXVStateRefreshFunc(apiClient client.API, id string) r
 		case models.RequestTrackerStatusINPROGRESS:
 			return [...]string{id}, *status, nil
 		case models.RequestTrackerStatusFINISHED:
-			cloudAccountIds := make([]string, len(ret.Payload.Resources))
+			cloudAccountIDs := make([]string, len(ret.Payload.Resources))
 			for i, r := range ret.Payload.Resources {
-				cloudAccountIds[i] = strings.TrimPrefix(r, "/iaas/api/cloud-accounts/")
+				cloudAccountIDs[i] = strings.TrimPrefix(r, "/iaas/api/cloud-accounts/")
 			}
-			return cloudAccountIds, *status, nil
+			return cloudAccountIDs, *status, nil
 		default:
 			return [...]string{id}, ret.Payload.Message, fmt.Errorf("resourceCloudAccountNSXVStateRefreshFunc: unknown status %v", *status)
 		}

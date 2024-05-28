@@ -138,7 +138,7 @@ func resourceFabricNetworkVsphereRead(_ context.Context, d *schema.ResourceData,
 	d.Set("created_at", VsphereFabricNetwork.CreatedAt)
 	d.Set("cloud_account_ids", VsphereFabricNetwork.CloudAccountIds)
 	d.Set("default_gateway", VsphereFabricNetwork.DefaultGateway)
-	d.Set("defulat_ipv6_gateway", VsphereFabricNetwork.DefaultIPV6Gateway)
+	d.Set("default_ipv6_gateway", VsphereFabricNetwork.DefaultIPV6Gateway)
 	d.Set("dns_search_domains", VsphereFabricNetwork.DNSSearchDomains)
 	d.Set("dns_server_addresses", VsphereFabricNetwork.DNSServerAddresses)
 	d.Set("domain", VsphereFabricNetwork.Domain)

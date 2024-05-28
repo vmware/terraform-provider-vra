@@ -156,13 +156,13 @@ func dataSourceNetworkProfileRead(d *schema.ResourceData, meta interface{}) erro
 
 	if fabricNetworkLinks, ok := networkProfile.Links["fabric-networks"]; ok {
 		if fabricNetworkLinks.Hrefs != nil {
-			fabricNetworkIds := make([]string, 0, len(fabricNetworkLinks.Hrefs))
+			fabricNetworkIDs := make([]string, 0, len(fabricNetworkLinks.Hrefs))
 
 			for _, link := range fabricNetworkLinks.Hrefs {
-				fabricNetworkIds = append(fabricNetworkIds, strings.TrimPrefix(link, "/iaas/api/fabric-networks/"))
+				fabricNetworkIDs = append(fabricNetworkIDs, strings.TrimPrefix(link, "/iaas/api/fabric-networks/"))
 			}
 
-			d.Set("fabric_network_ids", fabricNetworkIds)
+			d.Set("fabric_network_ids", fabricNetworkIDs)
 		}
 	}
 
@@ -180,13 +180,13 @@ func dataSourceNetworkProfileRead(d *schema.ResourceData, meta interface{}) erro
 
 	if securityGroupLinks, ok := networkProfile.Links["security-groups"]; ok {
 		if securityGroupLinks.Hrefs != nil {
-			securityGroupIds := make([]string, 0, len(securityGroupLinks.Hrefs))
+			securityGroupIDs := make([]string, 0, len(securityGroupLinks.Hrefs))
 
 			for _, link := range securityGroupLinks.Hrefs {
-				securityGroupIds = append(securityGroupIds, strings.TrimPrefix(link, "/iaas/api/security-groups/"))
+				securityGroupIDs = append(securityGroupIDs, strings.TrimPrefix(link, "/iaas/api/security-groups/"))
 			}
 
-			d.Set("security_group_ids", securityGroupIds)
+			d.Set("security_group_ids", securityGroupIDs)
 		}
 	}
 
@@ -198,12 +198,12 @@ func dataSourceNetworkProfileRead(d *schema.ResourceData, meta interface{}) erro
 
 	if fabricNetworkLinks, ok := networkProfile.Links["fabric-networks"]; ok {
 		if len(fabricNetworkLinks.Hrefs) != 0 {
-			var networkIds []string
+			var networkIDs []string
 			for i, link := range fabricNetworkLinks.Hrefs {
-				networkIds = append(networkIds, strings.TrimPrefix(link, "/iaas/api/fabric-networks/"))
+				networkIDs = append(networkIDs, strings.TrimPrefix(link, "/iaas/api/fabric-networks/"))
 				log.Printf("Appending network profile link %s on index %d", link, i)
 			}
-			d.Set("fabric_network_ids", networkIds)
+			d.Set("fabric_network_ids", networkIDs)
 		}
 	}
 	log.Printf("Finished reading the vra_network_profile data source with filter %s", d.Get("filter"))

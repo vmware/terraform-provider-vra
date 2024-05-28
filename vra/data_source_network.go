@@ -23,7 +23,7 @@ func dataSourceNetwork() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
-				DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
+				DiffSuppressFunc: func(_, old, new string, _ *schema.ResourceData) bool {
 					return !strings.HasPrefix(new, old)
 				},
 			},

@@ -86,11 +86,11 @@ func dataSourceRegionEnumerationRead(ctx context.Context, d *schema.ResourceData
 		MinTimeout: 5 * time.Second,
 	}
 
-	resourceIds, err := stateChangeFunc.WaitForStateContext(ctx)
+	resourceIDs, err := stateChangeFunc.WaitForStateContext(ctx)
 	if err != nil {
 		return diag.FromErr(err)
 	}
-	enumID := (resourceIds.([]string))[0]
+	enumID := (resourceIDs.([]string))[0]
 
 	getResp, err := apiClient.CloudAccount.GetRegionEnumerationResult(
 		cloud_account.NewGetRegionEnumerationResultParams().
@@ -100,7 +100,7 @@ func dataSourceRegionEnumerationRead(ctx context.Context, d *schema.ResourceData
 		return diag.FromErr(err)
 	}
 
-	d.Set("regions", extractIdsFromRegionSpecification(getResp.Payload.ExternalRegions))
+	d.Set("regions", extractIDsFromRegionSpecification(getResp.Payload.ExternalRegions))
 	d.SetId(d.Get("hostname").(string))
 
 	return nil
@@ -120,11 +120,11 @@ func dataSourceRegionEnumerationReadRefreshFunc(apiClient client.API, id string)
 		case models.RequestTrackerStatusINPROGRESS:
 			return [...]string{id}, *status, nil
 		case models.RequestTrackerStatusFINISHED:
-			regionEnumerationIds := make([]string, len(reqResp.Payload.Resources))
+			regionEnumerationIDs := make([]string, len(reqResp.Payload.Resources))
 			for i, r := range reqResp.Payload.Resources {
-				regionEnumerationIds[i] = strings.TrimPrefix(r, "/iaas/api/cloud-accounts/region-enumeration/")
+				regionEnumerationIDs[i] = strings.TrimPrefix(r, "/iaas/api/cloud-accounts/region-enumeration/")
 			}
-			return regionEnumerationIds, *status, nil
+			return regionEnumerationIDs, *status, nil
 		default:
 			return [...]string{id}, reqResp.Payload.Message, fmt.Errorf("dataSourceRegionEnumerationReadRefreshFunc: unknown status %v", *status)
 		}

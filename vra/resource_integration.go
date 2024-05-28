@@ -112,12 +112,12 @@ func resourceIntegration() *schema.Resource {
 func resourceIntegrationCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	apiClient := m.(*Client).apiClient
 
-	var associatedCloudAccountIds []string
+	var associatedCloudAccountIDs []string
 	if v, ok := d.GetOk("associated_cloud_account_ids"); ok {
 		if !compareUnique(v.(*schema.Set).List()) {
 			return diag.FromErr(errors.New("specified associated cloud account ids are not unique"))
 		}
-		associatedCloudAccountIds = expandStringList(v.(*schema.Set).List())
+		associatedCloudAccountIDs = expandStringList(v.(*schema.Set).List())
 	}
 
 	customProperties := expandCustomProperties(d.Get("custom_properties").(map[string]interface{}))
@@ -131,7 +131,7 @@ func resourceIntegrationCreate(ctx context.Context, d *schema.ResourceData, m in
 		integration.NewCreateIntegrationAsyncParams().
 			WithAPIVersion(IaaSAPIVersion).
 			WithBody(&models.IntegrationSpecification{
-				AssociatedCloudAccountIds: associatedCloudAccountIds,
+				AssociatedCloudAccountIds: associatedCloudAccountIDs,
 				CertificateInfo: &models.CertificateInfoSpecification{
 					Certificate: withString(d.Get("certificate").(string)),
 				},
@@ -157,11 +157,11 @@ func resourceIntegrationCreate(ctx context.Context, d *schema.ResourceData, m in
 		MinTimeout: 5 * time.Second,
 	}
 
-	resourceIds, err := stateChangeFunc.WaitForStateContext(ctx)
+	resourceIDs, err := stateChangeFunc.WaitForStateContext(ctx)
 	if err != nil {
 		return diag.FromErr(err)
 	}
-	integration := (resourceIds.([]string))[0]
+	integration := (resourceIDs.([]string))[0]
 
 	d.SetId(integration)
 
@@ -207,12 +207,12 @@ func resourceIntegrationRead(_ context.Context, d *schema.ResourceData, m interf
 func resourceIntegrationUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	apiClient := m.(*Client).apiClient
 
-	var associatedCloudAccountIds []string
+	var associatedCloudAccountIDs []string
 	if v, ok := d.GetOk("associated_cloud_account_ids"); ok {
 		if !compareUnique(v.(*schema.Set).List()) {
 			return diag.FromErr(errors.New("specified associated cloud account ids are not unique"))
 		}
-		associatedCloudAccountIds = expandStringList(v.(*schema.Set).List())
+		associatedCloudAccountIDs = expandStringList(v.(*schema.Set).List())
 	}
 
 	customProperties := expandCustomProperties(d.Get("custom_properties").(map[string]interface{}))
@@ -228,7 +228,7 @@ func resourceIntegrationUpdate(ctx context.Context, d *schema.ResourceData, m in
 			WithAPIVersion(IaaSAPIVersion).
 			WithID(id).
 			WithBody(&models.UpdateIntegrationSpecification{
-				AssociatedCloudAccountIds: associatedCloudAccountIds,
+				AssociatedCloudAccountIds: associatedCloudAccountIDs,
 				CertificateInfo: &models.CertificateInfoSpecification{
 					Certificate: withString(d.Get("certificate").(string)),
 				},
@@ -285,11 +285,11 @@ func resourceIntegrationStateRefreshFunc(apiClient client.API, id string) resour
 		case models.RequestTrackerStatusINPROGRESS:
 			return [...]string{id}, *status, nil
 		case models.RequestTrackerStatusFINISHED:
-			integrationIds := make([]string, len(ret.Payload.Resources))
+			integrationIDs := make([]string, len(ret.Payload.Resources))
 			for i, r := range ret.Payload.Resources {
-				integrationIds[i] = strings.TrimPrefix(r, "/iaas/api/integrations/")
+				integrationIDs[i] = strings.TrimPrefix(r, "/iaas/api/integrations/")
 			}
-			return integrationIds, *status, nil
+			return integrationIDs, *status, nil
 		default:
 			return [...]string{id}, ret.Payload.Message, fmt.Errorf("resourceIntegrationStateRefreshFunc: unknown status %v", *status)
 		}

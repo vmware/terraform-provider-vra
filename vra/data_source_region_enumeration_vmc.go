@@ -99,11 +99,11 @@ func dataSourceRegionEnumerationVMCRead(ctx context.Context, d *schema.ResourceD
 		MinTimeout: 5 * time.Second,
 	}
 
-	resourceIds, err := stateChangeFunc.WaitForStateContext(ctx)
+	resourceIDs, err := stateChangeFunc.WaitForStateContext(ctx)
 	if err != nil {
 		return diag.FromErr(err)
 	}
-	enumID := (resourceIds.([]string))[0]
+	enumID := (resourceIDs.([]string))[0]
 
 	getResp, err := apiClient.CloudAccount.GetRegionEnumerationResult(
 		cloud_account.NewGetRegionEnumerationResultParams().
@@ -113,7 +113,7 @@ func dataSourceRegionEnumerationVMCRead(ctx context.Context, d *schema.ResourceD
 		return diag.FromErr(err)
 	}
 
-	d.Set("regions", extractIdsFromRegionSpecification(getResp.Payload.ExternalRegions))
+	d.Set("regions", extractIDsFromRegionSpecification(getResp.Payload.ExternalRegions))
 	d.SetId(d.Get("vcenter_hostname").(string))
 
 	return nil
