@@ -191,8 +191,14 @@ func resourceCloudAccountNSXTUpdate(ctx context.Context, d *schema.ResourceData,
 			WithAPIVersion(IaaSAPIVersion).
 			WithID(id).
 			WithBody(&models.UpdateCloudAccountNsxTSpecification{
-				Description: d.Get("description").(string),
-				Tags:        expandTags(d.Get("tags").(*schema.Set).List()),
+				AcceptSelfSignedCertificate: d.Get("accept_self_signed_cert").(bool),
+				Dcid:                        withString(d.Get("dc_id").(string)),
+				Description:                 d.Get("description").(string),
+				HostName:                    withString(d.Get("hostname").(string)),
+				Name:                        d.Get("name").(string),
+				Password:                    withString(d.Get("password").(string)),
+				Tags:                        expandTags(d.Get("tags").(*schema.Set).List()),
+				Username:                    withString(d.Get("username").(string)),
 			}))
 	if err != nil {
 		return diag.FromErr(err)

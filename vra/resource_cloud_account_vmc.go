@@ -229,6 +229,7 @@ func resourceCloudAccountVMCUpdate(ctx context.Context, d *schema.ResourceData, 
 			WithBody(&models.UpdateCloudAccountSpecification{
 				CreateDefaultZones: false,
 				Description:        d.Get("description").(string),
+				Name:               d.Get("name").(string),
 				Regions:            regions,
 				Tags:               expandTags(d.Get("tags").(*schema.Set).List()),
 			}))
