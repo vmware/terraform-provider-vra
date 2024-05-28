@@ -213,9 +213,17 @@ func resourceCloudAccountVsphereRead(_ context.Context, d *schema.ResourceData, 
 }
 
 func resourceCloudAccountVsphereUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+	var associatedCloudAccountIDs []string
 	var regions []*models.RegionSpecification
 
 	apiClient := m.(*Client).apiClient
+
+	if v, ok := d.GetOk("associated_cloud_account_ids"); ok {
+		if !compareUnique(v.(*schema.Set).List()) {
+			return diag.FromErr(errors.New("specified associated cloud account ids are not unique"))
+		}
+		associatedCloudAccountIDs = expandStringList(v.(*schema.Set).List())
+	}
 
 	if v, ok := d.GetOk("regions"); ok {
 		if !compareUnique(v.(*schema.Set).List()) {
@@ -230,14 +238,16 @@ func resourceCloudAccountVsphereUpdate(ctx context.Context, d *schema.ResourceDa
 			WithAPIVersion(IaaSAPIVersion).
 			WithID(id).
 			WithBody(&models.UpdateCloudAccountVsphereSpecification{
-				CreateDefaultZones: false,
-				Description:        d.Get("description").(string),
-				HostName:           withString(d.Get("hostname").(string)),
-				Name:               d.Get("name").(string),
-				Password:           d.Get("password").(string),
-				Regions:            regions,
-				Tags:               expandTags(d.Get("tags").(*schema.Set).List()),
-				Username:           d.Get("username").(string),
+				AcceptSelfSignedCertificate: d.Get("accept_self_signed_cert").(bool),
+				AssociatedCloudAccountIds:   associatedCloudAccountIDs,
+				CreateDefaultZones:          false,
+				Description:                 d.Get("description").(string),
+				HostName:                    withString(d.Get("hostname").(string)),
+				Name:                        d.Get("name").(string),
+				Password:                    d.Get("password").(string),
+				Regions:                     regions,
+				Tags:                        expandTags(d.Get("tags").(*schema.Set).List()),
+				Username:                    d.Get("username").(string),
 			}))
 	if err != nil {
 		return diag.FromErr(err)
