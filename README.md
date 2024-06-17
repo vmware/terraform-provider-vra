@@ -2,8 +2,6 @@
 
 A self-contained deployable integration between Terraform and VMware vRealize Automation which allows Terraform users to request and provision IaaS resources such as machines, networks, load balancers, along with the configuration of cloud accounts, zones, and projects. This provider supports both vRealize Automation Cloud (SaaS) and vRealize Automation 8 (on-premises). 
 
-> Note: There is a separate provider available for [vRealize Automation 7.x](https://github.com/terraform-providers/terraform-provider-vra7).
-
 ## Requirements
 
 * [Terraform 0.12+](https://www.terraform.io/downloads.html)
