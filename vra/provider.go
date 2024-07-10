@@ -2,11 +2,13 @@ package vra
 
 import (
 	"errors"
+	"os"
 
+	"github.com/hashicorp/go-cty/cty"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-// Provider represents the VRA provider
 func Provider() *schema.Provider {
 	return &schema.Provider{
 		Schema: map[string]*schema.Schema{
@@ -32,15 +34,37 @@ func Provider() *schema.Provider {
 			},
 			"insecure": {
 				Type:        schema.TypeBool,
-				DefaultFunc: schema.EnvDefaultFunc("VRA7_INSECURE", nil),
+				DefaultFunc: schema.MultiEnvDefaultFunc([]string{"VRA_INSECURE", "VRA7_INSECURE"}, nil),
 				Optional:    true,
 				Description: "Specify whether to validate TLS certificates.",
+				ValidateDiagFunc: schema.SchemaValidateDiagFunc(func(_ interface{}, _ cty.Path) diag.Diagnostics {
+					var diags diag.Diagnostics
+					if envVar, ok := os.LookupEnv("VRA7_INSECURE"); ok && envVar != "" {
+						diags = append(diags, diag.Diagnostic{
+							Severity: diag.Warning,
+							Summary:  "Deprecated environment variable.",
+							Detail:   "'VRA7_INSECURE' is deprecated; use 'VRA_INSECURE'.",
+						})
+					}
+					return diags
+				}),
 			},
 			"reauthorize_timeout": {
 				Type:        schema.TypeString,
-				DefaultFunc: schema.EnvDefaultFunc("VRA7_REAUTHORIZE_TIMEOUT", nil),
+				DefaultFunc: schema.MultiEnvDefaultFunc([]string{"VRA_REAUTHORIZE_TIMEOUT", "VRA7_REAUTHORIZE_TIMEOUT"}, nil),
 				Optional:    true,
-				Description: "Specify timeout for how often to reauthorize the access token",
+				Description: "Specify timeout for how often to reauthorize the access token.",
+				ValidateDiagFunc: schema.SchemaValidateDiagFunc(func(_ interface{}, _ cty.Path) diag.Diagnostics {
+					var diags diag.Diagnostics
+					if envVar, ok := os.LookupEnv("VRA7_REAUTHORIZE_TIMEOUT"); ok && envVar != "" {
+						diags = append(diags, diag.Diagnostic{
+							Severity: diag.Warning,
+							Summary:  "Deprecated environment variable.",
+							Detail:   "'VRA7_REAUTHORIZE_TIMEOUT' is deprecated; use 'VRA_REAUTHORIZE_TIMEOUT'.",
+						})
+					}
+					return diags
+				}),
 			},
 			"api_timeout": {
 				Type:        schema.TypeInt,
