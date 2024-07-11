@@ -1,33 +1,38 @@
-# Terraform Provider for VMware vRealize Automation
+# Terraform Provider for VMware Aria Automation
 
-A self-contained deployable integration between Terraform and VMware vRealize Automation which allows Terraform users to request and provision IaaS resources such as machines, networks, load balancers, along with the configuration of cloud accounts, zones, and projects. This provider supports both vRealize Automation Cloud (SaaS) and vRealize Automation 8 (on-premises). 
+A self-contained deployable integration between Terraform and VMware Aria Automation which allows Terraform users to request and provision IaaS resources such as machines, networks, load balancers, along with the configuration of cloud accounts, zones, and projects.
+
+This provider supports VMware Aria Automation 8.
 
 ## Requirements
 
-* [Terraform 0.12+](https://www.terraform.io/downloads.html)
-* [Go 1.20](https://golang.org/dl/) (to build the provider plugin)
+- [Terraform 0.13+][terraform-install]
+
+  For general information about Terraform, visit [developer.hashicorp.com][terraform-install] and [the project][terraform-github] on GitHub.
+
+- [Go 1.20][golang-install]
+
+  Required if building the provider.
 
 ## Using the Provider
 
-The [Terraform Provider for VMware vRealize Automation](https://registry.terraform.io/providers/vmware/vra/latest) is a verified provider. Verified providers are owned and maintained by members of the HashiCorp Technology Partner Program. HashiCorp verifies the authenticity of the publisher and the providers are listed on the Terraform Registry with a verified tier label.
+The [Terraform Provider for VMware Aria Automation](https://registry.terraform.io/providers/vmware/vra/latest) is a partner provider. Partner providers are owned and maintained by members of the HashiCorp Technology Partner Program. HashiCorp verifies the authenticity of the publisher and the providers are listed on the Terraform Registry with a `Partner` label.
 
-To use a released version of the Terraform provider in your environment, run [`terraform init`](https://www.terraform.io/docs/commands/init.html) and Terraform will automatically install the provider from the Terraform Registry. 
+To use a released version of the Terraform provider in your environment, run [`terraform init`](https://www.terraform.io/docs/commands/init.html) and Terraform will automatically install the provider from the Terraform Registry.
 
-See [Installing the Terraform Provider for VMware vRealize Automation](docs/install_provider.md) for additional instructions on automated and manual installation methods and how to control the provider version.
+Refer to [Installing the Terraform Provider for VMware Aria Automation](docs/install_provider.md) for additional instructions on automated and manual installation methods and how to control the provider version.
 
 For either installation method, documentation about the provider configuration, resources, and data sources can be found on the [provider page](https://registry.terraform.io/providers/vmware/vra/latest/docs) on the Terraform Registry.
 
-The provider accepts either a `refresh_token` or an `access_token` to interact with the vRealize Automation API, but not both at the same time. 
+The provider accepts either a `refresh_token` or an `access_token` to interact with the product API, but not both at the same time.
 
-* For more information on obtaining a `refresh_token` for the provider configuration the provider, see [Get Your Refresh Token for the vRealize Automation API](docs/refresh_token.md).
+For more information on obtaining a `refresh_token` for the provider configuration the provider, refer [Get Your Refresh Token for the VMware Aria Automation API](docs/refresh_token.md).
 
-* For more information on obtaining an `access_token` for the provider configuration, see [Get Your Access Token for the vRealize Automation API](https://code.vmware.com/docs/14701/vrealize-automation-8-6-api-programming-guide/GUID-AC1E4407-6139-412A-B4AA-1F102942EA94.html) on VMware {code}.
-
-Examples on the use of the provider configuration, resources, and data sources can be found in the project's  `examples` directory.
+Examples on the use of the provider configuration, resources, and data sources can be found in the project's `examples` directory.
 
 ## Upgrading the Provider
 
-The provider does not upgrade automatically. After each new release, you can run the following command to upgrade the provider: 
+The provider does not upgrade automatically. After each new release, you can run the following command to upgrade the provider:
 
 ```bash
 terraform init -upgrade
@@ -35,8 +40,18 @@ terraform init -upgrade
 
 ## Contributing
 
-The project team welcomes contributions from the community. Before you start working with terraform-provider-vra, please read our [Developer Certificate of Origin](https://cla.vmware.com/dco). All contributions to this repository must be signed as described on that page. Your signature certifies that you wrote the patch or have the right to pass it on as an open-source patch. For more detailed information, refer to [CONTRIBUTING.md](CONTRIBUTING.md).
+The project team welcomes contributions from the community. Please read our [Developer Certificate of Origin](https://cla.vmware.com/dco). All contributions to this repository must be signed as described on that page. Your signature certifies that you wrote the patch or have the right to pass it on as an open-source patch.
+
+If you discover a bug or would like to suggest an enhancement, submit [an issue][provider-issues].
+
+If you would like to submit a pull request, please read the [contribution guidelines][provider-contributing] to get started. In case of enhancement or feature contribution, we kindly ask you to open an issue to discuss it beforehand.
 
 ## License
 
-The Terraform Provider for VMware vRealize Automation is available under the [Mozilla Public License, version 2.0 license](LICENSE).
+The Terraform Provider for VMware Aria Automation is available under the [Mozilla Public License, version 2.0 license](LICENSE).
+
+[golang-install]: https://golang.org/doc/install
+[provider-contributing]: CONTRIBUTING.md
+[provider-issues]: https://github.com/vmware/terraform-provider-vra/issues/new/choose
+[terraform-install]: https://developer.hashicorp.com/terraform/install
+[terraform-github]: https://github.com/hashicorp/terraform
