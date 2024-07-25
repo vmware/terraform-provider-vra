@@ -1,21 +1,19 @@
-# Get Your Refresh Token for the vRealize Automation API
+# Get Your Refresh Token for the VMware Aria Automation API
 
-Before making a call to vRealize Automation, you request an API token that authenticates you for authorized API connections. The API token is also known as a "refresh token".
+Before making a call to VMware Aria Automation, you request an API token that authenticates you for authorized API connections. The API token is also known as a "refresh token".
 
-The Terraform provider for VMware vRealize Automation accepts either a `refresh_token` or an `access_token`, but not both at the same time. 
+The Terraform provider for VMware Aria Automation accepts either a `refresh_token` or an `access_token`, but not both at the same time.
 
 * Refresh token are valid for **90 days**, when using the API.
 * Access tokens are valid for **8 hours**, but times out after **25 minutes** of inactivity.
 
-  For more information on obtaining an `access_token`, see [Get Your Access Token for the vRealize Automation API](https://code.vmware.com/docs/14701/vrealize-automation-8-6-api-programming-guide/GUID-AC1E4407-6139-412A-B4AA-1F102942EA94.html) on VMware {code}.
+## Procedures
 
-# Procedures
+### UI Procedure
 
-## UI Procedure
+The following procedure is only applicable to VMware Aria Automation Cloud.
 
-The following procedure is only applicable to vRealize Automation Cloud.
-
-1. Login to the VMware Cloud Services console using your credentials at https://console.cloud.vmware.com.
+1. Login to the VMware Cloud Services console using your credentials at <https://console.cloud.vmware.com>.
 
 2. Once logged in, click the drop-down arrow by your name and select **My Account**.
 
@@ -24,14 +22,14 @@ The following procedure is only applicable to vRealize Automation Cloud.
 4. In the `API Tokens` section, click **Generate Token**.
 
     a. On the `Generate a New API Token` page, enter a **Token Name**.
-    
-    b. Select a **Token TTL** (Time to Line). The default is 6 months in the UI.
-    
-    c. Under the `Define Scopes` section select the **Organization Owner** for the **Organization Roles**.
-    
-    d. Under the `Define Scopes` section expand **VMware Cloud Assembly** and select the **Cloud Assembly Administrator** in for the **Service Roles**. 
 
-    e. Under the `Define Scopes` section expand **VMware Service Broker** and select the **Service Broker Administrator** in for the **Service Roles**. 
+    b. Select a **Token TTL** (Time to Line). The default is 6 months in the UI.
+
+    c. Under the `Define Scopes` section select the **Organization Owner** for the **Organization Roles**.
+
+    d. Under the `Define Scopes` section expand **VMware Cloud Assembly** and select the **Cloud Assembly Administrator** in for the **Service Roles**.
+
+    e. Under the `Define Scopes` section expand **VMware Service Broker** and select the **Service Broker Administrator** in for the **Service Roles**.
 
     f. (Optional) Under the `Email Preferences` section check the option to send expiration reminders.
 
@@ -41,8 +39,8 @@ The following procedure is only applicable to vRealize Automation Cloud.
 
 5. Click **COPY**.
 
-    Clicking **COPY** ensures that you capture the exact string. 
-    
+    Clicking **COPY** ensures that you capture the exact string.
+
     > Note: Once you click **Continue**, you will not be able to retrieve this token again.
 
 6. Use the `refresh_token` in the Terraform provider configuration. For example:
@@ -55,19 +53,19 @@ The following procedure is only applicable to vRealize Automation Cloud.
     }
     ```
 
-## API Procedure
-
-The following procedure is applicable to both vRealize Automation Cloud and vRealize Automation.
+### API Procedure
 
 To request a `refresh_token` using the API, you will need your user credentials:
 
-  * username
-  * password
-  * domain (optional)
+* `username`
+* `password`
+* `domain` (optional)
 
-In addition, you will need the fully qualified domain name (FQDN) of the endpoint associated with the identity access service. 
+In addition, you will need the fully qualified domain name (FQDN) of the endpoint associated with the identity access service.
 
-* vRealize Automation Cloud is available in multiple global regions. When making a API request to the service hosted in the United States, use `api.mgmt.cloud.vmware.com`. For organizations located outside of the United States, prefix the URL with the country abbreviation for your API endpoint as shown in the following:
+* For VMware Aria Automation, this will be the fully qualified domain name of the VMware Aria Automation cluster VIP or appliance. For example, `cloud.example.com`.
+
+* For VMware Aria Automation (SaaS) is available in multiple global regions. When making a API request to the service hosted in the United States, use `api.mgmt.cloud.vmware.com`. For organizations located outside of the United States, prefix the URL with the country abbreviation for your API endpoint as shown in the following:
 
   * Australia: `au.api.mgmt.cloud.vmware.com`
   * Brazil: `br.api.mgmt.cloud.vmware.com`
@@ -77,11 +75,10 @@ In addition, you will need the fully qualified domain name (FQDN) of the endpoin
   * Singapore: `sg.api.mgmt.cloud.vmware.com`
   * United Kingdom: `uk.api.mgmt.cloud.vmware.com`
 
-* For vRealize Automation 8, this will be the fully qualified domain name of the vRealize Automation cluster VIP or appliance. For example, `cloud.example.com`.
-
 You then pass a JSON body containing the credentials to the API.
 
   **Example**: JSON body with domain.
+
   ```json
   {
     "username":"john.doe",
@@ -89,7 +86,9 @@ You then pass a JSON body containing the credentials to the API.
     "domain":"example.com"
   }
   ```
+
   **Example**: JSON body without domain.
+
   ```json
   {
     "username":"john.doe",
@@ -117,7 +116,7 @@ If successful, a JSON response will be returned with the value for the `refresh_
 
     $vraBody="{""username"":""$vraUsername"",""password"":""$vraPassword"",""domain"":""$vraDomain""}"
     ```
-    
+
 2. `POST` request to the API:
 
     ```powershell
@@ -129,6 +128,7 @@ If successful, a JSON response will be returned with the value for the `refresh_
     ```powershell
     $vraResponse.refresh_token
     ```
+
     The `refresh_token` is returned.
 
     ```powershell
@@ -153,13 +153,13 @@ If successful, a JSON response will be returned with the value for the `refresh_
     vraFqdn=cloud@example.com
 
     vraUsername=john.doe
-    
+
     vraPassword=VMw@re1!
-    
+
     vraDomain=example.com
-  
+
     vraUrl="https://"$vraFqdn"/csp/gateway/am/api/login?access_token"
-    
+
     vraBody="{\"username\":\"$vraUsername\",\"password\":\"$vraPassword\",\"domain\":\"$vraDomain\"}"
     ```
 
@@ -168,6 +168,7 @@ If successful, a JSON response will be returned with the value for the `refresh_
     ```shell
     curl -k -X POST $vraUrl -H "Accept: application/json" -H "Content-Type: application/json" -s -d $vraBody
     ```
+
     The `refresh_token` is returned.
 
     ```shell
@@ -186,7 +187,7 @@ If successful, a JSON response will be returned with the value for the `refresh_
 
 ## Scripts
 
-Scripts for both PowerShell and Bash are included in the project repository in the `docs` directory. These scripts will prompt you for the values and return the `refresh_token`.  
+Scripts for both PowerShell and Bash are included in the project repository in the `docs` directory. These scripts will prompt you for the values and return the `refresh_token`.
 
 * PowerShell Script: [`get_token.ps1`](./get_token.ps1)
 * Bash Script: [`get_token.sh`](./get_token.sh)
@@ -196,15 +197,15 @@ Scripts for both PowerShell and Bash are included in the project repository in t
 ```powershell
 > ./get_token.ps1
 
-Enter the FQDN for the vRealize Automation services: cloud.rainpole.io
+Enter the FQDN for the VMware Aria Automation: cloud.example.com
 
-Enter the username to authenticate with vRealize Automation: john.doe
+Enter the username to authenticate with VMware Aria Automation: john.doe
 
-Enter the password to authenticate with vRealize Automation: ********
+Enter the password to authenticate with VMware Aria Automation: ********
 
 Enter the domain or press enter to skip: example.com
 
-Successfully connected to the endpoint for vRealize Automation services: cloud.rainpole.io
+Successfully connected to the endpoint for VMware Aria Automation services: cloud.example.com
 
 Generating Refresh Token...
 
@@ -223,13 +224,13 @@ VRA_REFRESH_TOKEN = mx7w9**********************zB3UC
 ```shell
 $ ./get_token.sh
 
-Enter the FQDN for the vRealize Automation services:
-cloud.rainpole.io
+Enter the FQDN for the VMware Aria Automation:
+cloud.example.com
 
-Enter the username to authenticate with vRealize Automation:
+Enter the username to authenticate with VMware Aria Automation:
 john.doe
 
-Enter the password to authenticate with vRealize Automation:
+Enter the password to authenticate with VMware Aria Automation:
 ********
 
 Enter the domain or press enter to skip:
