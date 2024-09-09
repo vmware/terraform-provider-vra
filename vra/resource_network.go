@@ -11,7 +11,7 @@ import (
 	"github.com/vmware/vra-sdk-go/pkg/client/network"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/vmware/vra-sdk-go/pkg/client"
 	"github.com/vmware/vra-sdk-go/pkg/client/request"
@@ -133,7 +133,7 @@ func resourceNetworkCreate(ctx context.Context, d *schema.ResourceData, m interf
 	if err != nil {
 		return diag.FromErr(err)
 	}
-	stateChangeFunc := resource.StateChangeConf{
+	stateChangeFunc := retry.StateChangeConf{
 		Delay:      5 * time.Second,
 		Pending:    []string{models.RequestTrackerStatusINPROGRESS},
 		Refresh:    networkStateRefreshFunc(*apiClient, *createNetworkCreated.Payload.ID),
@@ -155,7 +155,7 @@ func resourceNetworkCreate(ctx context.Context, d *schema.ResourceData, m interf
 	return resourceNetworkRead(ctx, d, m)
 }
 
-func networkStateRefreshFunc(apiClient client.API, id string) resource.StateRefreshFunc {
+func networkStateRefreshFunc(apiClient client.API, id string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		ret, err := apiClient.Request.GetRequestTracker(request.NewGetRequestTrackerParams().WithID(id))
 		if err != nil {
@@ -165,7 +165,7 @@ func networkStateRefreshFunc(apiClient client.API, id string) resource.StateRefr
 		status := ret.Payload.Status
 		switch *status {
 		case models.RequestTrackerStatusFAILED:
-			return []string{""}, *status, fmt.Errorf(ret.Payload.Message)
+			return []string{""}, *status, errors.New(ret.Payload.Message)
 		case models.RequestTrackerStatusINPROGRESS:
 			return [...]string{id}, *status, nil
 		case models.RequestTrackerStatusFINISHED:
@@ -233,7 +233,7 @@ func resourceNetworkDelete(ctx context.Context, d *schema.ResourceData, m interf
 	if err != nil {
 		return diag.FromErr(err)
 	}
-	stateChangeFunc := resource.StateChangeConf{
+	stateChangeFunc := retry.StateChangeConf{
 		Delay:      5 * time.Second,
 		Pending:    []string{models.RequestTrackerStatusINPROGRESS},
 		Refresh:    networkStateRefreshFunc(*apiClient, *deleteNetworkAccepted.Payload.ID),

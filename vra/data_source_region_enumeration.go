@@ -2,12 +2,13 @@ package vra
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"strings"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/vmware/vra-sdk-go/pkg/client"
 	"github.com/vmware/vra-sdk-go/pkg/client/cloud_account"
@@ -77,7 +78,7 @@ func dataSourceRegionEnumerationRead(ctx context.Context, d *schema.ResourceData
 		return diag.FromErr(err)
 	}
 
-	stateChangeFunc := resource.StateChangeConf{
+	stateChangeFunc := retry.StateChangeConf{
 		Delay:      5 * time.Second,
 		Pending:    []string{models.RequestTrackerStatusINPROGRESS},
 		Refresh:    dataSourceRegionEnumerationReadRefreshFunc(*apiClient, *enumResp.Payload.ID),
@@ -106,7 +107,7 @@ func dataSourceRegionEnumerationRead(ctx context.Context, d *schema.ResourceData
 	return nil
 }
 
-func dataSourceRegionEnumerationReadRefreshFunc(apiClient client.API, id string) resource.StateRefreshFunc {
+func dataSourceRegionEnumerationReadRefreshFunc(apiClient client.API, id string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		reqResp, err := apiClient.Request.GetRequestTracker(request.NewGetRequestTrackerParams().WithID(id))
 		if err != nil {
@@ -116,7 +117,7 @@ func dataSourceRegionEnumerationReadRefreshFunc(apiClient client.API, id string)
 		status := reqResp.Payload.Status
 		switch *status {
 		case models.RequestTrackerStatusFAILED:
-			return []string{""}, *status, fmt.Errorf(reqResp.Payload.Message)
+			return []string{""}, *status, errors.New(reqResp.Payload.Message)
 		case models.RequestTrackerStatusINPROGRESS:
 			return [...]string{id}, *status, nil
 		case models.RequestTrackerStatusFINISHED:

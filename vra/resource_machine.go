@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/vmware/vra-sdk-go/pkg/client"
 	"github.com/vmware/vra-sdk-go/pkg/client/compute"
 	"github.com/vmware/vra-sdk-go/pkg/client/disk"
@@ -251,7 +251,7 @@ func resourceMachineCreate(ctx context.Context, d *schema.ResourceData, m interf
 		return diag.FromErr(err)
 	}
 
-	stateChangeFunc := resource.StateChangeConf{
+	stateChangeFunc := retry.StateChangeConf{
 		Delay:      5 * time.Second,
 		Pending:    []string{models.RequestTrackerStatusINPROGRESS},
 		Refresh:    machineStateRefreshFunc(*apiClient, *createMachineCreated.Payload.ID),
@@ -280,7 +280,7 @@ func resourceMachineCreate(ctx context.Context, d *schema.ResourceData, m interf
 			return diag.FromErr(err)
 		}
 
-		stateChangeFunc := resource.StateChangeConf{
+		stateChangeFunc := retry.StateChangeConf{
 			Delay:      5 * time.Second,
 			Pending:    []string{models.RequestTrackerStatusINPROGRESS},
 			Refresh:    machineStateRefreshFunc(*apiClient, *attachMachineDiskOk.Payload.ID),
@@ -297,7 +297,7 @@ func resourceMachineCreate(ctx context.Context, d *schema.ResourceData, m interf
 	return resourceMachineRead(ctx, d, m)
 }
 
-func machineStateRefreshFunc(apiClient client.API, id string) resource.StateRefreshFunc {
+func machineStateRefreshFunc(apiClient client.API, id string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		ret, err := apiClient.Request.GetRequestTracker(request.NewGetRequestTrackerParams().WithID(id))
 		if err != nil {
@@ -307,7 +307,7 @@ func machineStateRefreshFunc(apiClient client.API, id string) resource.StateRefr
 		status := ret.Payload.Status
 		switch *status {
 		case models.RequestTrackerStatusFAILED:
-			return []string{""}, *status, fmt.Errorf(ret.Payload.Message)
+			return []string{""}, *status, errors.New(ret.Payload.Message)
 		case models.RequestTrackerStatusINPROGRESS:
 			return [...]string{id}, *status, nil
 		case models.RequestTrackerStatusFINISHED:
@@ -444,7 +444,7 @@ func attachAndDetachDisks(ctx context.Context, d *schema.ResourceData, apiClient
 			return err
 		}
 
-		stateChangeFunc := resource.StateChangeConf{
+		stateChangeFunc := retry.StateChangeConf{
 			Delay:      5 * time.Second,
 			Pending:    []string{models.RequestTrackerStatusINPROGRESS},
 			Refresh:    machineStateRefreshFunc(*apiClient, *deleteMachineDiskAccepted.Payload.ID),
@@ -491,7 +491,7 @@ func attachAndDetachDisks(ctx context.Context, d *schema.ResourceData, apiClient
 				return err
 			}
 
-			stateChangeFunc := resource.StateChangeConf{
+			stateChangeFunc := retry.StateChangeConf{
 				Delay:      5 * time.Second,
 				Pending:    []string{models.RequestTrackerStatusINPROGRESS},
 				Refresh:    machineStateRefreshFunc(*apiClient, *attachMachineDiskOk.Payload.ID),
@@ -562,7 +562,7 @@ func resizeMachine(ctx context.Context, d *schema.ResourceData, apiClient *clien
 	if err != nil {
 		return err
 	}
-	stateChangeFunc := resource.StateChangeConf{
+	stateChangeFunc := retry.StateChangeConf{
 		Delay:      5 * time.Second,
 		Pending:    []string{models.RequestTrackerStatusINPROGRESS},
 		Refresh:    machineStateRefreshFunc(*apiClient, *resizeMachine.Payload.ID),
@@ -590,7 +590,7 @@ func resourceMachineDelete(ctx context.Context, d *schema.ResourceData, m interf
 		return diag.FromErr(err)
 	}
 
-	stateChangeFunc := resource.StateChangeConf{
+	stateChangeFunc := retry.StateChangeConf{
 		Delay:      5 * time.Second,
 		Pending:    []string{models.RequestTrackerStatusINPROGRESS},
 		Refresh:    machineStateRefreshFunc(*apiClient, *deleteMachine.Payload.ID),

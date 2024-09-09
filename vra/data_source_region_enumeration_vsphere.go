@@ -8,7 +8,7 @@ import (
 	"github.com/vmware/vra-sdk-go/pkg/models"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -73,7 +73,7 @@ func dataSourceRegionEnumerationVsphereRead(ctx context.Context, d *schema.Resou
 		return diag.FromErr(err)
 	}
 
-	stateChangeFunc := resource.StateChangeConf{
+	stateChangeFunc := retry.StateChangeConf{
 		Delay:      5 * time.Second,
 		Pending:    []string{models.RequestTrackerStatusINPROGRESS},
 		Refresh:    dataSourceRegionEnumerationReadRefreshFunc(*apiClient, *enumResp.Payload.ID),

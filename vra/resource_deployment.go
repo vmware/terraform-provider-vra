@@ -13,7 +13,7 @@ import (
 
 	"github.com/go-openapi/strfmt"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/vmware/vra-sdk-go/pkg/client"
 	"github.com/vmware/vra-sdk-go/pkg/client/blueprint"
@@ -342,7 +342,7 @@ func resourceDeploymentCreate(ctx context.Context, d *schema.ResourceData, m int
 		log.Printf("Finished requesting vra_deployment '%s' from blueprint %s", d.Get("name"), blueprintID)
 	}
 
-	stateChangeFunc := resource.StateChangeConf{
+	stateChangeFunc := retry.StateChangeConf{
 		Delay:      5 * time.Second,
 		Pending:    []string{models.DeploymentStatusCREATEINPROGRESS, models.DeploymentStatusUPDATEINPROGRESS},
 		Refresh:    deploymentStatusRefreshFunc(*apiClient, d.Id()),
@@ -483,7 +483,7 @@ func resourceDeploymentUpdate(ctx context.Context, d *schema.ResourceData, m int
 			}
 		}
 
-		stateChangeFunc := resource.StateChangeConf{
+		stateChangeFunc := retry.StateChangeConf{
 			Delay:      5 * time.Second,
 			Pending:    []string{models.DeploymentStatusCREATEINPROGRESS, models.DeploymentStatusUPDATEINPROGRESS},
 			Refresh:    deploymentStatusRefreshFunc(*apiClient, d.Id()),
@@ -525,7 +525,7 @@ func resourceDeploymentDelete(ctx context.Context, d *schema.ResourceData, m int
 
 	log.Printf("Requested for deleting the vra_deployment resource with name %s", d.Get("name"))
 
-	stateChangeFunc := resource.StateChangeConf{
+	stateChangeFunc := retry.StateChangeConf{
 		Delay:      5 * time.Second,
 		Pending:    []string{reflect.TypeOf((*deployments.GetDeploymentByIDV3UsingGETOK)(nil)).String()},
 		Refresh:    deploymentDeleteStatusRefreshFunc(*apiClient, d.Id()),
@@ -690,7 +690,7 @@ func getBlueprintSchema(apiClient *client.API, blueprintID string, blueprintVers
 	return blueprintInputsSchema, nil
 }
 
-func deploymentStatusRefreshFunc(apiClient client.API, id string) resource.StateRefreshFunc {
+func deploymentStatusRefreshFunc(apiClient client.API, id string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		ret, err := apiClient.Deployments.GetDeploymentByIDV3UsingGET(
 			deployments.NewGetDeploymentByIDV3UsingGETParams().
@@ -709,7 +709,7 @@ func deploymentStatusRefreshFunc(apiClient client.API, id string) resource.State
 			deploymentID := ret.Payload.ID
 			return deploymentID.String(), status, nil
 		case models.DeploymentStatusCREATEFAILED, models.DeploymentStatusUPDATEFAILED:
-			return ret.Payload.ID.String(), status, fmt.Errorf(ret.Payload.LastRequest.Details)
+			return ret.Payload.ID.String(), status, errors.New(ret.Payload.LastRequest.Details)
 		default:
 			return [...]string{id}, ret.Error(), fmt.Errorf("deploymentStatusRefreshFunc: unknown status %v", status)
 		}
@@ -809,7 +809,7 @@ func updateDeploymentWithNewBlueprint(ctx context.Context, d *schema.ResourceDat
 		return diag.Errorf("failed to request update to existing deployment. status: %v, message: %v", status, failureMessage)
 	}
 
-	stateChangeFunc := resource.StateChangeConf{
+	stateChangeFunc := retry.StateChangeConf{
 		Delay:      5 * time.Second,
 		Pending:    []string{models.DeploymentStatusCREATEINPROGRESS, models.DeploymentStatusUPDATEINPROGRESS},
 		Refresh:    deploymentStatusRefreshFunc(*apiClient, deploymentID),
@@ -1144,7 +1144,7 @@ func runAction(ctx context.Context, d *schema.ResourceData, apiClient *client.AP
 
 	requestID := resp.GetPayload().ID
 
-	stateChangeFunc := resource.StateChangeConf{
+	stateChangeFunc := retry.StateChangeConf{
 		Delay:      5 * time.Second,
 		Pending:    []string{models.RequestStatusPENDING, models.RequestStatusINITIALIZATION, models.RequestStatusCHECKINGAPPROVAL, models.RequestStatusAPPROVALPENDING, models.RequestStatusINPROGRESS},
 		Refresh:    deploymentActionStatusRefreshFunc(*apiClient, deploymentUUID, requestID),
@@ -1158,7 +1158,7 @@ func runAction(ctx context.Context, d *schema.ResourceData, apiClient *client.AP
 	return nil
 }
 
-func deploymentActionStatusRefreshFunc(apiClient client.API, deploymentUUID strfmt.UUID, _ strfmt.UUID) resource.StateRefreshFunc {
+func deploymentActionStatusRefreshFunc(apiClient client.API, deploymentUUID strfmt.UUID, _ strfmt.UUID) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		ret, err := apiClient.Deployments.GetDeploymentByIDV3UsingGET(
 			deployments.NewGetDeploymentByIDV3UsingGETParams().
@@ -1174,9 +1174,9 @@ func deploymentActionStatusRefreshFunc(apiClient client.API, deploymentUUID strf
 		case models.RequestStatusPENDING, models.RequestStatusINITIALIZATION, models.RequestStatusCHECKINGAPPROVAL, models.RequestStatusAPPROVALPENDING, models.RequestStatusINPROGRESS, models.RequestStatusCOMPLETION:
 			return [...]string{deploymentUUID.String()}, status, nil
 		case models.RequestStatusAPPROVALREJECTED, models.RequestStatusABORTED:
-			return []string{""}, status, fmt.Errorf(ret.Error())
+			return []string{""}, status, errors.New(ret.Error())
 		case models.RequestStatusFAILED:
-			return [...]string{deploymentUUID.String()}, status, fmt.Errorf(ret.Payload.LastRequest.Details)
+			return [...]string{deploymentUUID.String()}, status, errors.New(ret.Payload.LastRequest.Details)
 		case models.RequestStatusSUCCESSFUL:
 			deploymentID := ret.Payload.ID
 			return deploymentID.String(), status, nil
@@ -1186,7 +1186,7 @@ func deploymentActionStatusRefreshFunc(apiClient client.API, deploymentUUID strf
 	}
 }
 
-func deploymentDeleteStatusRefreshFunc(apiClient client.API, id string) resource.StateRefreshFunc {
+func deploymentDeleteStatusRefreshFunc(apiClient client.API, id string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		ret, err := apiClient.Deployments.GetDeploymentByIDV3UsingGET(
 			deployments.NewGetDeploymentByIDV3UsingGETParams().
@@ -1198,7 +1198,7 @@ func deploymentDeleteStatusRefreshFunc(apiClient client.API, id string) resource
 			case *deployments.GetDeploymentByIDV3UsingGETNotFound:
 				return "", reflect.TypeOf(err).String(), nil
 			default:
-				return [...]string{id}, reflect.TypeOf(err).String(), fmt.Errorf(ret.Error())
+				return [...]string{id}, reflect.TypeOf(err).String(), errors.New(ret.Error())
 			}
 		}
 
@@ -1209,7 +1209,7 @@ func deploymentDeleteStatusRefreshFunc(apiClient client.API, id string) resource
 		case models.DeploymentStatusDELETESUCCESSFUL:
 			return [...]string{id}, reflect.TypeOf(ret).String(), nil
 		case models.DeploymentStatusDELETEFAILED:
-			return [...]string{id}, reflect.TypeOf(ret).String(), fmt.Errorf(ret.Payload.LastRequest.Details)
+			return [...]string{id}, reflect.TypeOf(ret).String(), errors.New(ret.Payload.LastRequest.Details)
 		default:
 			return [...]string{id}, reflect.TypeOf(ret).String(), fmt.Errorf("deploymentStatusRefreshFunc: unknown status %v", status)
 		}
