@@ -2,6 +2,7 @@ package vra
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log"
 	"strings"
@@ -13,7 +14,7 @@ import (
 	"github.com/vmware/vra-sdk-go/pkg/models"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -202,7 +203,7 @@ func resourceBlockDeviceCreate(ctx context.Context, d *schema.ResourceData, m in
 		return diag.FromErr(err)
 	}
 
-	stateChangeFunc := resource.StateChangeConf{
+	stateChangeFunc := retry.StateChangeConf{
 		Delay:      5 * time.Second,
 		Pending:    []string{models.RequestTrackerStatusINPROGRESS},
 		Refresh:    blockDeviceStateRefreshFunc(*apiClient, *createBlockDeviceCreated.Payload.ID),
@@ -225,7 +226,7 @@ func resourceBlockDeviceCreate(ctx context.Context, d *schema.ResourceData, m in
 	return resourceBlockDeviceRead(ctx, d, m)
 }
 
-func blockDeviceStateRefreshFunc(apiClient client.API, id string) resource.StateRefreshFunc {
+func blockDeviceStateRefreshFunc(apiClient client.API, id string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		ret, err := apiClient.Request.GetRequestTracker(request.NewGetRequestTrackerParams().WithID(id))
 		if err != nil {
@@ -235,7 +236,7 @@ func blockDeviceStateRefreshFunc(apiClient client.API, id string) resource.State
 		status := ret.Payload.Status
 		switch *status {
 		case models.RequestTrackerStatusFAILED:
-			return []string{""}, *status, fmt.Errorf(ret.Payload.Message)
+			return []string{""}, *status, errors.New(ret.Payload.Message)
 		case models.RequestTrackerStatusINPROGRESS:
 			return [...]string{id}, *status, nil
 		case models.RequestTrackerStatusFINISHED:
@@ -337,7 +338,7 @@ func resizeDisk(ctx context.Context, d *schema.ResourceData, apiClient *client.A
 		return nil
 	}
 
-	stateChangeFunc := resource.StateChangeConf{
+	stateChangeFunc := retry.StateChangeConf{
 		Delay:      5 * time.Second,
 		Pending:    []string{models.RequestTrackerStatusINPROGRESS},
 		Refresh:    blockDeviceStateRefreshFunc(*apiClient, *resizeBlockDeviceAccepted.Payload.ID),
@@ -386,7 +387,7 @@ func resourceBlockDeviceDelete(ctx context.Context, d *schema.ResourceData, m in
 		return nil
 	}
 
-	stateChangeFunc := resource.StateChangeConf{
+	stateChangeFunc := retry.StateChangeConf{
 		Delay:      5 * time.Second,
 		Pending:    []string{models.RequestTrackerStatusINPROGRESS},
 		Refresh:    blockDeviceStateRefreshFunc(*apiClient, *deleteBlockDeviceAccepted.Payload.ID),

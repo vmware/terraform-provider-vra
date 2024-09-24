@@ -2,6 +2,7 @@ package vra
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"strings"
 	"time"
@@ -12,7 +13,7 @@ import (
 	"github.com/vmware/vra-sdk-go/pkg/models"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -109,7 +110,7 @@ func resourceCloudAccountNSXVCreate(ctx context.Context, d *schema.ResourceData,
 		return diag.FromErr(err)
 	}
 
-	stateChangeFunc := resource.StateChangeConf{
+	stateChangeFunc := retry.StateChangeConf{
 		Delay:      5 * time.Second,
 		Pending:    []string{models.RequestTrackerStatusINPROGRESS},
 		Refresh:    resourceCloudAccountNSXVStateRefreshFunc(*apiClient, *createResp.Payload.ID),
@@ -184,7 +185,7 @@ func resourceCloudAccountNSXVUpdate(ctx context.Context, d *schema.ResourceData,
 		return diag.FromErr(err)
 	}
 
-	stateChangeFunc := resource.StateChangeConf{
+	stateChangeFunc := retry.StateChangeConf{
 		Delay:      5 * time.Second,
 		Pending:    []string{models.RequestTrackerStatusINPROGRESS},
 		Refresh:    resourceCloudAccountNSXVStateRefreshFunc(*apiClient, *updateResp.Payload.ID),
@@ -212,7 +213,7 @@ func resourceCloudAccountNSXVDelete(_ context.Context, d *schema.ResourceData, m
 	return nil
 }
 
-func resourceCloudAccountNSXVStateRefreshFunc(apiClient client.API, id string) resource.StateRefreshFunc {
+func resourceCloudAccountNSXVStateRefreshFunc(apiClient client.API, id string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		ret, err := apiClient.Request.GetRequestTracker(request.NewGetRequestTrackerParams().WithID(id))
 		if err != nil {
@@ -222,7 +223,7 @@ func resourceCloudAccountNSXVStateRefreshFunc(apiClient client.API, id string) r
 		status := ret.Payload.Status
 		switch *status {
 		case models.RequestTrackerStatusFAILED:
-			return []string{""}, *status, fmt.Errorf(ret.Payload.Message)
+			return []string{""}, *status, errors.New(ret.Payload.Message)
 		case models.RequestTrackerStatusINPROGRESS:
 			return [...]string{id}, *status, nil
 		case models.RequestTrackerStatusFINISHED:
