@@ -92,6 +92,16 @@ func resourceMachine() *schema.Resource {
 							Required:    true,
 							Description: "The id of the existing block device.",
 						},
+						"scsi_controller": {
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: "The id of the scsi controller. Example: SCSI_Controller_0",
+						},
+						"unit_number": {
+							Type:        schema.TypeInt,
+							Required:    true,
+							Description: "The unit number of the scsi controller. Example: 2",
+						},
 					},
 				},
 			},
@@ -115,6 +125,16 @@ func resourceMachine() *schema.Resource {
 							Type:        schema.TypeString,
 							Required:    true,
 							Description: "The id of the existing block device.",
+						},
+						"scsi_controller": {
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: "The id of the scsi controller. Example: SCSI_Controller_0",
+						},
+						"unit_number": {
+							Type:        schema.TypeInt,
+							Required:    true,
+							Description: "The unit number of the scsi controller. Example: 2",
 						},
 					},
 				},
@@ -480,9 +500,10 @@ func attachAndDetachDisks(ctx context.Context, d *schema.ResourceData, apiClient
 		// attach the disk if it's not already attached to machine
 		if index, _ := indexOf(diskID, diskIDs); index == -1 {
 			diskAttachmentSpecification := models.DiskAttachmentSpecification{
-				BlockDeviceID: withString(diskID),
-				Description:   diskToAttach["description"].(string),
-				Name:          diskToAttach["name"].(string),
+				BlockDeviceID:            withString(diskID),
+				Description:              diskToAttach["description"].(string),
+				Name:                     diskToAttach["name"].(string),
+				DiskAttachmentProperties: map[string]string{"scsiController": diskToAttach["scsi_controller"].(string), "unitNumber": fmt.Sprint(diskToAttach["unit_number"])},
 			}
 
 			attachMachineDiskOk, err := apiClient.Disk.AttachMachineDisk(disk.NewAttachMachineDiskParams().WithID(id).WithBody(&diskAttachmentSpecification))
