@@ -94,12 +94,12 @@ func resourceMachine() *schema.Resource {
 						},
 						"scsi_controller": {
 							Type:        schema.TypeString,
-							Required:    true,
+							Optional:    true,
 							Description: "The id of the scsi controller. Example: SCSI_Controller_0",
 						},
 						"unit_number": {
 							Type:        schema.TypeInt,
-							Required:    true,
+							Optional:    true,
 							Description: "The unit number of the scsi controller. Example: 2",
 						},
 					},
@@ -128,12 +128,12 @@ func resourceMachine() *schema.Resource {
 						},
 						"scsi_controller": {
 							Type:        schema.TypeString,
-							Required:    true,
+							Optional:    true,
 							Description: "The id of the scsi controller. Example: SCSI_Controller_0",
 						},
 						"unit_number": {
 							Type:        schema.TypeInt,
-							Required:    true,
+							Optional:    true,
 							Description: "The unit number of the scsi controller. Example: 2",
 						},
 					},
@@ -500,10 +500,15 @@ func attachAndDetachDisks(ctx context.Context, d *schema.ResourceData, apiClient
 		// attach the disk if it's not already attached to machine
 		if index, _ := indexOf(diskID, diskIDs); index == -1 {
 			diskAttachmentSpecification := models.DiskAttachmentSpecification{
-				BlockDeviceID:            withString(diskID),
-				Description:              diskToAttach["description"].(string),
-				Name:                     diskToAttach["name"].(string),
-				DiskAttachmentProperties: map[string]string{"scsiController": diskToAttach["scsi_controller"].(string), "unitNumber": fmt.Sprint(diskToAttach["unit_number"])},
+				BlockDeviceID: withString(diskID),
+				Description:   diskToAttach["description"].(string),
+				Name:          diskToAttach["name"].(string),
+			}
+
+			if v_scsi_controller, ok_scsi_controller := diskToAttach["scsi_controller"].(string); ok_scsi_controller && v_scsi_controller != "" {
+				if v_unit_number, ok_unit_number := diskToAttach["unit_number"].(int); ok_unit_number && v_unit_number != 0 {
+					diskAttachmentSpecification.DiskAttachmentProperties = map[string]string{"scsiController": diskToAttach["scsi_controller"].(string), "unitNumber": fmt.Sprint(diskToAttach["unit_number"])}
+				}
 			}
 
 			attachMachineDiskOk, err := apiClient.Disk.AttachMachineDisk(disk.NewAttachMachineDiskParams().WithID(id).WithBody(&diskAttachmentSpecification))
@@ -639,6 +644,12 @@ func expandDisks(configDisks []interface{}) []*models.DiskAttachmentSpecificatio
 			BlockDeviceID: withString(diskMap["block_device_id"].(string)),
 		}
 
+		if v_scsi_controller, ok_scsi_controller := diskMap["scsi_controller"].(string); ok_scsi_controller && v_scsi_controller != "" {
+			if v_unit_number, ok_unit_number := diskMap["unit_number"].(int); ok_unit_number && v_unit_number != 0 {
+				disk.DiskAttachmentProperties = map[string]string{"scsiController": diskMap["scsi_controller"].(string), "unitNumber": fmt.Sprint(diskMap["unit_number"])}
+			}
+		}
+
 		if v, ok := diskMap["name"].(string); ok && v != "" {
 			disk.Name = v
 		}
@@ -694,6 +705,14 @@ func filterDisks(disksConfig []interface{}, blockDevices []*models.BlockDevice) 
 
 				if diskConfigMap["description"].(string) != "" {
 					helper["description"] = blockDevice.Description
+				}
+
+				if diskConfigMap["scsi_controller"].(string) != "" {
+					helper["scsi_controller"] = diskConfigMap["scsi_controller"]
+				}
+
+				if diskConfigMap["unit_number"].(int) != 0 {
+					helper["unit_number"] = diskConfigMap["unit_number"]
 				}
 
 				disks = append(disks, helper)
