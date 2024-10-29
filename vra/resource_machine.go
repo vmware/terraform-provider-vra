@@ -71,6 +71,11 @@ func resourceMachine() *schema.Resource {
 				Computed:    true,
 				Description: "The id of the deployment that is associated with this resource.",
 			},
+			"attach_disks_before_boot": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: "By default disks are attached after the VM has been built ss FCDs cannot be attached to machine as day 0",
+			},
 			"disks": {
 				Type:        schema.TypeSet,
 				Optional:    true,
@@ -232,6 +237,10 @@ func resourceMachineCreate(ctx context.Context, d *schema.ResourceData, m interf
 		ImageDiskConstraints: imageDiskConstraints,
 	}
 
+	if v, ok := d.GetOk("attach_disks_before_boot"); ok && v == true {
+		machineSpecification.Disks = disks
+	}
+
 	image, imageRef := "", ""
 	if v, ok := d.GetOk("image"); ok {
 		image = v.(string)
@@ -291,26 +300,28 @@ func resourceMachineCreate(ctx context.Context, d *schema.ResourceData, m interf
 
 	// As FCDs cannot be attached to machine as day 0, the machine is first provisioned without requested disks attached.
 	// Once the machine provisioning is complete, disks are attached one by one as day-2 action.
-	for i, diskAttachmentSpecification := range disks {
-		log.Printf("Attaching the disk %v of %v (disk id: %v) to vra_machine resource %v", i+1, len(disks), diskAttachmentSpecification.BlockDeviceID, d.Get("name"))
+	if v, ok := d.GetOk("attach_disks_before_boot"); !ok || v != true {
+		for i, diskAttachmentSpecification := range disks {
+			log.Printf("Attaching the disk %v of %v (disk id: %v) to vra_machine resource %v", i+1, len(disks), diskAttachmentSpecification.BlockDeviceID, d.Get("name"))
 
-		attachMachineDiskOk, err := apiClient.Disk.AttachMachineDisk(disk.NewAttachMachineDiskParams().WithID(machineID).WithBody(diskAttachmentSpecification))
+			attachMachineDiskOk, err := apiClient.Disk.AttachMachineDisk(disk.NewAttachMachineDiskParams().WithID(machineID).WithBody(diskAttachmentSpecification))
 
-		if err != nil {
-			return diag.FromErr(err)
-		}
+			if err != nil {
+				return diag.FromErr(err)
+			}
 
-		stateChangeFunc := retry.StateChangeConf{
-			Delay:      5 * time.Second,
-			Pending:    []string{models.RequestTrackerStatusINPROGRESS},
-			Refresh:    machineStateRefreshFunc(*apiClient, *attachMachineDiskOk.Payload.ID),
-			Target:     []string{models.RequestTrackerStatusFINISHED},
-			Timeout:    d.Timeout(schema.TimeoutCreate),
-			MinTimeout: 5 * time.Second,
-		}
+			stateChangeFunc := retry.StateChangeConf{
+				Delay:      5 * time.Second,
+				Pending:    []string{models.RequestTrackerStatusINPROGRESS},
+				Refresh:    machineStateRefreshFunc(*apiClient, *attachMachineDiskOk.Payload.ID),
+				Target:     []string{models.RequestTrackerStatusFINISHED},
+				Timeout:    d.Timeout(schema.TimeoutCreate),
+				MinTimeout: 5 * time.Second,
+			}
 
-		if _, err := stateChangeFunc.WaitForStateContext(ctx); err != nil {
-			return diag.FromErr(err)
+			if _, err := stateChangeFunc.WaitForStateContext(ctx); err != nil {
+				return diag.FromErr(err)
+			}
 		}
 	}
 
