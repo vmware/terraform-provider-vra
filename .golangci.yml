@@ -1,6 +1,21 @@
+# © Broadcom. All Rights Reserved.
+# The term “Broadcom” refers to Broadcom Inc. and/or its subsidiaries.
+# SPDX-License-Identifier: MPL-2.0
+
+# For more information about the golangci-lint configuration file, refer to:
+# https://golangci-lint.run/usage/configuration/
+
 issues:
   max-per-linter: 0
   max-same-issues: 0
+  exclude-rules:
+    # Exclude errcheck for some rules.
+  - linters: [errcheck]
+    text: "Error return value of `d.Set` is not checked"
+    # Exclude revive for some rules.
+  - linters:
+    - revive
+    text: 'redefines-builtin-id: redefinition of the built-in'
 
 run:
   deadline: 5m
@@ -28,4 +43,7 @@ linters:
 
 linters-settings:
   errcheck:
-    ignore: github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema:ForceNew|Set,fmt:.*,io:Close
+    exclude-functions:
+      - "github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema:ForceNew|Set"
+      - "fmt:.*"
+      - "io:Close"
