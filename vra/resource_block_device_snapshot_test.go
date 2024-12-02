@@ -1,3 +1,7 @@
+// © Broadcom. All Rights Reserved.
+// The term “Broadcom” refers to Broadcom Inc. and/or its subsidiaries.
+// SPDX-License-Identifier: MPL-2.0
+
 package vra
 
 import (
@@ -88,7 +92,7 @@ func testAccCheckVRABlockDeviceBasicConfig(rInt int) string {
 		cloud_account_id = data.vra_cloud_account_vsphere.this.id
 		region = "%s"
 	}
-	
+
 	data "vra_project" "this" {
 		name = "%s"
 	 }
@@ -97,28 +101,28 @@ func testAccCheckVRABlockDeviceBasicConfig(rInt int) string {
 	data "vra_fabric_datastore_vsphere" "this" {
 	  filter = "name eq '%s' and cloudAccountId eq '${data.vra_cloud_account_vsphere.this.id}'"
 	}
-	
+
 	# Lookup vSphere fabric storage policy using its name
 	data "vra_fabric_storage_policy_vsphere" "this" {
 	  filter = "name eq '%s' and cloudAccountId eq '${data.vra_cloud_account_vsphere.this.id}'"
 	}
-	
+
 	resource "vra_storage_profile" "this" {
 	  name         = "vSphere-first-class-disk"
 	  description  = "vSphere Storage Profile with first class disk."
 	  region_id    = data.vra_region.this.id
 	  default_item = true
-	
+
 	  disk_properties = {
 		diskType         = "firstClass"
 		provisioningType = "thin" // Supported values: "thin", "thick", "eagerZeroedThick"
 	  }
-	
+
 	  disk_target_properties = {
 		datastoreId     = data.vra_fabric_datastore_vsphere.this.id
 		storagePolicyId = data.vra_fabric_storage_policy_vsphere.this.id
 	  }
-	
+
 	  tags {
 		key   = "foo"
 		value = "bar"
@@ -133,7 +137,7 @@ func testAccCheckVRABlockDeviceBasicConfig(rInt int) string {
       depends_on = [vra_storage_profile.this]
       persistent = true
       purge = true
-	
+
 	  constraints {
 		mandatory  = true
 		expression = "foo:bar"

@@ -1,3 +1,7 @@
+// © Broadcom. All Rights Reserved.
+// The term “Broadcom” refers to Broadcom Inc. and/or its subsidiaries.
+// SPDX-License-Identifier: MPL-2.0
+
 package vra
 
 import (
@@ -72,7 +76,7 @@ func testAccCheckVRAFabricNetworkVsphereConfig() string {
 		cidr = "%s"
 		default_gateway = "%s"
 		domain = "%s"
-	}	  
-	 
+	}
+
 `, CIDR, gateway, domain)
 }

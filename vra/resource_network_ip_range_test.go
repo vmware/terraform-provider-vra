@@ -1,3 +1,7 @@
+// © Broadcom. All Rights Reserved.
+// The term “Broadcom” refers to Broadcom Inc. and/or its subsidiaries.
+// SPDX-License-Identifier: MPL-2.0
+
 package vra
 
 import (
@@ -93,14 +97,14 @@ func testAccCheckVRANetworkIPRangeConfig(rInt int) string {
 	data "vra_fabric_network" "this" {
 		filter = "name eq '%s'"
 	}
-	  
+
 	resource "vra_network_ip_range" "this" {
 		name               = "my-vra-network-range-%d"
 		start_ip_address   = "%s"
 		end_ip_address     = "%s"
 		ip_version         = "%s"
 		fabric_network_ids = [data.vra_fabric_network.this.id]
-	}	  
-	 
+	}
+
 `, rInt, id, secret, fabricNetworkName, rInt, startIP, endIP, ipVersion)
 }
