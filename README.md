@@ -1,3 +1,11 @@
+<!--
+© Broadcom. All Rights Reserved.
+The term “Broadcom” refers to Broadcom Inc. and/or its subsidiaries.
+SPDX-License-Identifier: BSD-2
+-->
+
+<!-- markdownlint-disable first-line-h1 no-inline-html -->
+
 # Terraform Provider for VMware Aria Automation
 
 A self-contained deployable integration between Terraform and VMware Aria Automation which allows Terraform users to request and provision IaaS resources such as machines, networks, load balancers, along with the configuration of cloud accounts, zones, and projects.
@@ -10,7 +18,7 @@ This provider supports VMware Aria Automation 8.
 
   For general information about Terraform, visit [developer.hashicorp.com][terraform-install] and [the project][terraform-github] on GitHub.
 
-- [Go 1.20][golang-install]
+- [Go 1.23.2][golang-install]
 
   Required if building the provider.
 
@@ -40,7 +48,7 @@ terraform init -upgrade
 
 ## Contributing
 
-The project team welcomes contributions from the community. Please read our [Developer Certificate of Origin](https://cla.vmware.com/dco). All contributions to this repository must be signed as described on that page. Your signature certifies that you wrote the patch or have the right to pass it on as an open-source patch.
+The Terraform Provider for VMware Cloud Foundation is the work of many contributors and the project team appreciates your help!
 
 If you discover a bug or would like to suggest an enhancement, submit [an issue][provider-issues].
 
@@ -48,10 +56,14 @@ If you would like to submit a pull request, please read the [contribution guidel
 
 ## License
 
-The Terraform Provider for VMware Aria Automation is available under the [Mozilla Public License, version 2.0 license](LICENSE).
+© Broadcom. All Rights Reserved.
+The term “Broadcom” refers to Broadcom Inc. and/or its subsidiaries.
+
+The Terraform Provider for VMware Aria Automation is available under the [Mozilla Public License, version 2.0][provider-license] license.
 
 [golang-install]: https://golang.org/doc/install
 [provider-contributing]: CONTRIBUTING.md
 [provider-issues]: https://github.com/vmware/terraform-provider-vra/issues/new/choose
+[provider-license]: LICENSE
 [terraform-install]: https://developer.hashicorp.com/terraform/install
 [terraform-github]: https://github.com/hashicorp/terraform
