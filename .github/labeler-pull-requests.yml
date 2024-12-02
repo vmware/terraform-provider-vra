@@ -1,0 +1,37 @@
+---
+chore:
+  - changed-files:
+      - any-glob-to-any-file:
+          - ".github/**/*"
+          - ".gitignore"
+          - "scripts/**/*"
+          - "go.mod"
+          - "go.sum"
+dependencies:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "go.mod"
+          - "go.sum"
+documentation:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "**/*.md"
+          - "examples/**/*"
+          - "docs/**/*"
+          - "website/**/*"
+github-actions:
+  - changed-files:
+      - any-glob-to-any-file:
+          - ".github/workflows/**/*"
+needs-review:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "**"
+provider:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "vra/**/*"
+          - "GNUmakefile"
+          - "go.mod"
+          - "go.sum"
+          - "main.go"
