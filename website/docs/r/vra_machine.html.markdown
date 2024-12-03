@@ -142,7 +142,7 @@ Example: `[{"mandatory" : "true", "expression": "environment":"prod"}, {"mandato
 
     * `scsi_controller` - The id of the SCSI controller (_e.g_., `SCSI_Controller_0`.)
 
-    * `unit_number` - The unit number of the scsi controller. Example: 2
+    * `unit_number` - The unit number of the SCSI controller (_e.g_., `2`.)
 
 * `external_id` - External entity ID on the provider side.
 
