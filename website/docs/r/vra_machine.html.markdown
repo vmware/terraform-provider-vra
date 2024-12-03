@@ -130,6 +130,8 @@ Example: `[{"mandatory" : "true", "expression": "environment":"prod"}, {"mandato
 
 * `created_at` - Date when the entity was created. Date and time format is ISO 8601 and UTC.
 
+* `attach_disks_before_boot` - By default, disks are attached after the VM has been built as FCDs cannot be attached to machine as day 0.
+
 * `disks_list` - List of all disks attached to a machine including boot disk, and additional block devices attached using the disks attribute.
 
     * `block_device_id` - ID of existing block device.
@@ -137,6 +139,10 @@ Example: `[{"mandatory" : "true", "expression": "environment":"prod"}, {"mandato
     * `description` - Human-friendly description.
 
     * `name` - Human-friendly block-device name used as an identifier in APIs that support this option.
+
+    * `scsi_controller` - The id of the SCSI controller (_e.g_., `SCSI_Controller_0`.)
+
+    * `unit_number` - The unit number of the SCSI controller (_e.g_., `2`.)
 
 * `external_id` - External entity ID on the provider side.
 
