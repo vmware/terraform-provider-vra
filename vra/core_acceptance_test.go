@@ -1,3 +1,7 @@
+// © Broadcom. All Rights Reserved.
+// The term “Broadcom” refers to Broadcom Inc. and/or its subsidiaries.
+// SPDX-License-Identifier: MPL-2.0
+
 package vra
 
 import (
@@ -118,14 +122,14 @@ resource "vra_network" "network" {
 
 resource "vra_machine" "mysql" {
 	name = "terraform_vra_mysql-%d"
-	
+
 	image = "ubuntu"
-	flavor = "small"	
+	flavor = "small"
 
 	nics {
         network_id = "${vra_network.network.id}"
 	}
-	
+
 	boot_config {
         content = <<EOF
 #cloud-config
@@ -146,14 +150,14 @@ EOF
 
 resource "vra_machine" "wordpress" {
 	name = "terraform_vra_wordpress-%d"
-	
+
 	image = "ubuntu"
-	flavor = "small"	
+	flavor = "small"
 
 	nics {
         network_id = "${vra_network.network.id}"
 	}
-	
+
 	boot_config {
         content = <<EOF
 #cloud-config

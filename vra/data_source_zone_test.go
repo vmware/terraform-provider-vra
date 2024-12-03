@@ -1,3 +1,7 @@
+// © Broadcom. All Rights Reserved.
+// The term “Broadcom” refers to Broadcom Inc. and/or its subsidiaries.
+// SPDX-License-Identifier: MPL-2.0
+
 package vra
 
 import (
@@ -51,7 +55,7 @@ func testAccDataSourceVRAZone(rInt int) string {
 		secret_key = "%s"
 		regions = ["us-east-1"]
 	 }
-	
+
 	 resource "vra_zone" "my-zone" {
 		name = "my-vra-zone-%d"
 		description = "description my-vra-zone"

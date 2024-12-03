@@ -1,3 +1,7 @@
+// © Broadcom. All Rights Reserved.
+// The term “Broadcom” refers to Broadcom Inc. and/or its subsidiaries.
+// SPDX-License-Identifier: MPL-2.0
+
 package vra
 
 import (
@@ -43,7 +47,7 @@ func testAccDataSourceVRACloudAccountAWS(rInt int) string {
 		secret_key = "%s"
 		regions = ["us-east-1"]
 	 }
-	 
+
 	 data "vra_cloud_account_aws" "test-cloud-account" {
      name = "${vra_cloud_account_aws.my-cloud-account.name}"
 	 }`, rInt, id, secret)

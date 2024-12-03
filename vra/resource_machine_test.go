@@ -1,3 +1,7 @@
+// © Broadcom. All Rights Reserved.
+// The term “Broadcom” refers to Broadcom Inc. and/or its subsidiaries.
+// SPDX-License-Identifier: MPL-2.0
+
 package vra
 
 import (
@@ -149,7 +153,7 @@ resource "vra_machine" "my_machine" {
 	description = "test machine"
 	project_id  = vra_project.my-project.id
 	flavor      = "flavor"
-  
+
 	tags {
 	  key   = "foo"
 	  value = "bar"
@@ -247,7 +251,7 @@ resource "vra_image_profile" "this" {
 	name        = "my-image-profile-%d"
 	description = "test image profile"
 	region_id = data.vra_region.my-region.id
-  
+
 	image_mapping {
 	  name       = "image_name1"
 	  image_name = "%s"

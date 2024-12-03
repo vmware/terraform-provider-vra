@@ -1,3 +1,7 @@
+// © Broadcom. All Rights Reserved.
+// The term “Broadcom” refers to Broadcom Inc. and/or its subsidiaries.
+// SPDX-License-Identifier: MPL-2.0
+
 package vra
 
 import (
@@ -175,7 +179,7 @@ resource "vra_image_profile" "my-image-profile" {
 	name        = "my-image-profile-%d"
 	description = "test image profile"
 	region_id = data.vra_region.my-region.id
-  
+
 	image_mapping {
 	  name       = "image"
 	  image_name = "%s"
@@ -198,7 +202,7 @@ resource "vra_machine" "my-machine" {
 	project_id  = vra_project.my-project.id
 	image       = "image"
 	flavor      = "flavor"
-  
+
 	tags {
 	  key   = "foo"
 	  value = "bar"
@@ -251,15 +255,15 @@ func testAccCheckVRALoadBalancerConfig(rInt int) string {
 		name = "my-lb-%d"
 		project_id = vra_project.my-project.id
 		description = "load balancer description"
-		
+
 		targets {
 			machine_id = vra_machine.my_machine.id
 		}
-	
+
 		nics {
 			network_id = data.vra_network.my-network.id
 		}
-	
+
 		routes {
 			protocol = "TCP"
 			port = "80"
