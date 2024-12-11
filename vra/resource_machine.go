@@ -75,6 +75,11 @@ func resourceMachine() *schema.Resource {
 				Computed:    true,
 				Description: "The id of the deployment that is associated with this resource.",
 			},
+			"attach_disks_before_boot": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: "By default, disks are attached after the machine has been built. FCDs cannot be attached to machine as a day 0 task.",
+			},
 			"disks": {
 				Type:        schema.TypeSet,
 				Optional:    true,
@@ -95,6 +100,16 @@ func resourceMachine() *schema.Resource {
 							Type:        schema.TypeString,
 							Required:    true,
 							Description: "The id of the existing block device.",
+						},
+						"scsi_controller": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: "The id of the SCSI controller. Example: SCSI_Controller_0",
+						},
+						"unit_number": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: "The unit number of the SCSI controller. Example: 2",
 						},
 					},
 				},
@@ -119,6 +134,16 @@ func resourceMachine() *schema.Resource {
 							Type:        schema.TypeString,
 							Required:    true,
 							Description: "The id of the existing block device.",
+						},
+						"scsi_controller": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: "The id of the SCSI controller. Example: SCSI_Controller_0",
+						},
+						"unit_number": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: "The unit number of the SCSI controller. Example: 2",
 						},
 					},
 				},
@@ -216,6 +241,10 @@ func resourceMachineCreate(ctx context.Context, d *schema.ResourceData, m interf
 		ImageDiskConstraints: imageDiskConstraints,
 	}
 
+	if v, ok := d.GetOk("attach_disks_before_boot"); ok && v == true {
+		machineSpecification.Disks = disks
+	}
+
 	image, imageRef := "", ""
 	if v, ok := d.GetOk("image"); ok {
 		image = v.(string)
@@ -275,26 +304,28 @@ func resourceMachineCreate(ctx context.Context, d *schema.ResourceData, m interf
 
 	// As FCDs cannot be attached to machine as day 0, the machine is first provisioned without requested disks attached.
 	// Once the machine provisioning is complete, disks are attached one by one as day-2 action.
-	for i, diskAttachmentSpecification := range disks {
-		log.Printf("Attaching the disk %v of %v (disk id: %v) to vra_machine resource %v", i+1, len(disks), diskAttachmentSpecification.BlockDeviceID, d.Get("name"))
+	if v, ok := d.GetOk("attach_disks_before_boot"); !ok || v != true {
+		for i, diskAttachmentSpecification := range disks {
+			log.Printf("Attaching the disk %v of %v (disk id: %v) to vra_machine resource %v", i+1, len(disks), diskAttachmentSpecification.BlockDeviceID, d.Get("name"))
 
-		attachMachineDiskOk, err := apiClient.Disk.AttachMachineDisk(disk.NewAttachMachineDiskParams().WithID(machineID).WithBody(diskAttachmentSpecification))
+			attachMachineDiskOk, err := apiClient.Disk.AttachMachineDisk(disk.NewAttachMachineDiskParams().WithID(machineID).WithBody(diskAttachmentSpecification))
 
-		if err != nil {
-			return diag.FromErr(err)
-		}
+			if err != nil {
+				return diag.FromErr(err)
+			}
 
-		stateChangeFunc := retry.StateChangeConf{
-			Delay:      5 * time.Second,
-			Pending:    []string{models.RequestTrackerStatusINPROGRESS},
-			Refresh:    machineStateRefreshFunc(*apiClient, *attachMachineDiskOk.Payload.ID),
-			Target:     []string{models.RequestTrackerStatusFINISHED},
-			Timeout:    d.Timeout(schema.TimeoutCreate),
-			MinTimeout: 5 * time.Second,
-		}
+			stateChangeFunc := retry.StateChangeConf{
+				Delay:      5 * time.Second,
+				Pending:    []string{models.RequestTrackerStatusINPROGRESS},
+				Refresh:    machineStateRefreshFunc(*apiClient, *attachMachineDiskOk.Payload.ID),
+				Target:     []string{models.RequestTrackerStatusFINISHED},
+				Timeout:    d.Timeout(schema.TimeoutCreate),
+				MinTimeout: 5 * time.Second,
+			}
 
-		if _, err := stateChangeFunc.WaitForStateContext(ctx); err != nil {
-			return diag.FromErr(err)
+			if _, err := stateChangeFunc.WaitForStateContext(ctx); err != nil {
+				return diag.FromErr(err)
+			}
 		}
 	}
 
@@ -489,6 +520,12 @@ func attachAndDetachDisks(ctx context.Context, d *schema.ResourceData, apiClient
 				Name:          diskToAttach["name"].(string),
 			}
 
+			if vScsiController, okScsiController := diskToAttach["scsi_controller"].(string); okScsiController && vScsiController != "" {
+				if vUnitNumber, okUnitNumber := diskToAttach["unit_number"].(string); okUnitNumber && vUnitNumber != "" {
+					diskAttachmentSpecification.DiskAttachmentProperties = map[string]string{"scsiController": diskToAttach["scsi_controller"].(string), "unitNumber": diskToAttach["unit_number"].(string)}
+				}
+			}
+
 			attachMachineDiskOk, err := apiClient.Disk.AttachMachineDisk(disk.NewAttachMachineDiskParams().WithID(id).WithBody(&diskAttachmentSpecification))
 
 			if err != nil {
@@ -622,6 +659,12 @@ func expandDisks(configDisks []interface{}) []*models.DiskAttachmentSpecificatio
 			BlockDeviceID: withString(diskMap["block_device_id"].(string)),
 		}
 
+		if vScsiController, okScsiController := diskMap["scsi_controller"].(string); okScsiController && vScsiController != "" {
+			if vUnitNumber, okUnitNumber := diskMap["unit_number"].(string); okUnitNumber && vUnitNumber != "" {
+				disk.DiskAttachmentProperties = map[string]string{"scsiController": diskMap["scsi_controller"].(string), "unitNumber": diskMap["unit_number"].(string)}
+			}
+		}
+
 		if v, ok := diskMap["name"].(string); ok && v != "" {
 			disk.Name = v
 		}
@@ -677,6 +720,14 @@ func filterDisks(disksConfig []interface{}, blockDevices []*models.BlockDevice) 
 
 				if diskConfigMap["description"].(string) != "" {
 					helper["description"] = blockDevice.Description
+				}
+
+				if diskConfigMap["scsi_controller"].(string) != "" {
+					helper["scsi_controller"] = diskConfigMap["scsi_controller"]
+				}
+
+				if diskConfigMap["unit_number"].(string) != "" {
+					helper["unit_number"] = diskConfigMap["unit_number"]
 				}
 
 				disks = append(disks, helper)
