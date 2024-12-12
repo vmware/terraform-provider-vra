@@ -5,10 +5,15 @@
 package vra
 
 import (
+	"encoding/base64"
+	"encoding/json"
+	"errors"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
 	neturl "net/url"
+	"regexp"
 	"strings"
 	"sync"
 	"time"
@@ -16,6 +21,7 @@ import (
 	"github.com/go-openapi/runtime"
 	httptransport "github.com/go-openapi/runtime/client"
 	"github.com/go-openapi/strfmt"
+	"github.com/hashicorp/go-version"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/logging"
 	"github.com/vmware/vra-sdk-go/pkg/client"
 	"github.com/vmware/vra-sdk-go/pkg/client/login"
@@ -69,6 +75,7 @@ func (t *ReauthTimeout) ShouldReload() bool {
 type ReauthorizeRuntime struct {
 	origClient   httptransport.Runtime
 	url          string
+	organization string
 	refreshToken string
 	insecure     bool
 	reauthtimer  *ReauthTimeout
@@ -78,7 +85,7 @@ type ReauthorizeRuntime struct {
 func (r *ReauthorizeRuntime) Submit(operation *runtime.ClientOperation) (interface{}, error) {
 	if r.reauthtimer.ShouldReload() {
 		log.Printf("Reauthorize timer expired, generating a new access token")
-		token, tokenErr := getToken(r.url, r.refreshToken, r.insecure)
+		token, tokenErr := getToken(r.url, r.organization, r.refreshToken, r.insecure)
 		if tokenErr != nil {
 			return nil, tokenErr
 		}
@@ -99,7 +106,7 @@ func (r *ReauthorizeRuntime) Submit(operation *runtime.ClientOperation) (interfa
 
 	// We have a 401 with a refresh token, let's try refreshing once and try again
 	log.Printf("Response back was a 401, trying again with new access token")
-	token, tokenErr := getToken(r.url, r.refreshToken, r.insecure)
+	token, tokenErr := getToken(r.url, r.organization, r.refreshToken, r.insecure)
 	if tokenErr != nil {
 		return result, err
 	}
@@ -117,8 +124,8 @@ type Client struct {
 }
 
 // NewClientFromRefreshToken configures and returns a VRA "Client" struct using "refresh_token" from provider config
-func NewClientFromRefreshToken(url, refreshToken string, insecure bool, reauth string, apiTimeout int) (interface{}, error) {
-	token, err := getToken(url, refreshToken, insecure)
+func NewClientFromRefreshToken(url, organization, refreshToken string, insecure bool, reauth string, apiTimeout int) (interface{}, error) {
+	token, err := getToken(url, organization, refreshToken, insecure)
 	if err != nil {
 		return "", err
 	}
@@ -133,7 +140,7 @@ func NewClientFromRefreshToken(url, refreshToken string, insecure bool, reauth s
 	if err != nil {
 		return "", err
 	}
-	apiClient.SetTransport(&ReauthorizeRuntime{*t, url, refreshToken, insecure, InitializeTimeout(reautDuration)})
+	apiClient.SetTransport(&ReauthorizeRuntime{*t, url, organization, refreshToken, insecure, InitializeTimeout(reautDuration)})
 
 	return &Client{url, apiClient}, nil
 }
@@ -147,7 +154,75 @@ func NewClientFromAccessToken(url, accessToken string, insecure bool, apiTimeout
 	return &Client{url, apiClient}, nil
 }
 
-func getToken(url, refreshToken string, insecure bool) (string, error) {
+func getToken(url, organization, refreshToken string, insecure bool) (string, error) {
+	isVCFA, err := isVCFA(url, insecure)
+	if err != nil {
+		return "", fmt.Errorf("error determining whether vRA or VCFA: %s", err)
+	}
+	if isVCFA {
+		if organization == "" {
+			return "", errors.New("organization is required for VCFA")
+		} else if organization == "system" {
+			return "", errors.New("system organization is not allowed")
+		}
+		return getVCFAToken(url, organization, refreshToken, insecure)
+	}
+	return getVRAToken(url, refreshToken, insecure)
+}
+
+func isVCFA(url string, insecure bool) (bool, error) {
+	parsedURL, err := neturl.Parse(url)
+	if err != nil {
+		return false, fmt.Errorf("error parsing the URL %s: %s", url, err)
+	}
+	transport, err := createTransport(insecure)
+	if err != nil {
+		return false, fmt.Errorf("error creating an http transport: %s", err)
+	}
+	client := &http.Client{Transport: transport}
+	response, err := client.Get(fmt.Sprintf("%s://%s/config.json", parsedURL.Scheme, parsedURL.Host))
+	if err != nil {
+		return false, fmt.Errorf("error retrieving the configuration from url %s: %s", url, err)
+	}
+	if response.StatusCode != http.StatusOK {
+		if response.StatusCode == http.StatusNotFound {
+			return false, nil
+		}
+		return false, fmt.Errorf("error retrieving the configuration from url %s, http response code is %d", url, response.StatusCode)
+	}
+	defer response.Body.Close()
+	body, err := io.ReadAll(response.Body)
+	if err != nil {
+		return false, fmt.Errorf("error reading the http response body from url %s: %s", url, err)
+	}
+	var config map[string]interface{}
+	if err := json.Unmarshal(body, &config); err != nil {
+		return false, fmt.Errorf("error unmarshalling the configuration from url %s: %s", url, err)
+	}
+	applicationVersion, ok := config["applicationVersion"]
+	if ok {
+		productName, err := base64.StdEncoding.DecodeString(applicationVersion.(string))
+		if err != nil {
+			return false, fmt.Errorf("error decoding the application version %s: %s", applicationVersion, err)
+		}
+		re := regexp.MustCompile(`v?(\d+\.\d+\.\d+\.\d+)`)
+		match := re.FindStringSubmatch(string(productName))
+		if match != nil {
+			productVersion, err := version.NewVersion(match[1])
+			if err != nil {
+				return false, fmt.Errorf("error parsing the application version %s: %s", match[1], err)
+			}
+			vcfaVersion, _ := version.NewVersion("9.0.0.0")
+			if productVersion.GreaterThanOrEqual(vcfaVersion) {
+				return true, nil
+			}
+		}
+	}
+	return false, nil
+}
+
+// Retrieve the access token for vRA 8.x instances
+func getVRAToken(url, refreshToken string, insecure bool) (string, error) {
 	parsedURL, err := neturl.Parse(url)
 	if err != nil {
 		return "", err
@@ -171,6 +246,49 @@ func getToken(url, refreshToken string, insecure bool) (string, error) {
 	}
 
 	return *authTokenResponse.Payload.Token, nil
+}
+
+// Retrieve the access token for VCFA 9.x instances
+func getVCFAToken(url, org string, refreshToken string, insecure bool) (string, error) {
+	parsedURL, err := neturl.Parse(url)
+	if err != nil {
+		return "", fmt.Errorf("error parsing the URL %s: %s", url, err)
+	}
+	transport, err := createTransport(insecure)
+	if err != nil {
+		return "", fmt.Errorf("error creating an http transport: %s", err)
+	}
+	client := &http.Client{Transport: transport}
+
+	data := neturl.Values{}
+	data.Set("grant_type", "refresh_token")
+	data.Set("refresh_token", refreshToken)
+
+	tenant := "tenant/" + org
+	if strings.EqualFold(org, "system") {
+		tenant = "provider"
+	}
+	response, err := client.Post(fmt.Sprintf("%s://%s/tm/oauth/%s/token", parsedURL.Scheme, parsedURL.Host, tenant), "application/x-www-form-urlencoded", strings.NewReader(data.Encode()))
+	if err != nil {
+		return "", fmt.Errorf("error retrieving the auth token: %s", err)
+	}
+	if response.StatusCode != http.StatusOK {
+		return "", fmt.Errorf("error retrieving the auth token, http response code is %d", response.StatusCode)
+	}
+	defer response.Body.Close()
+	body, err := io.ReadAll(response.Body)
+	if err != nil {
+		return "", fmt.Errorf("error reading the http response body: %s", err)
+	}
+	var tokenData map[string]interface{}
+	if err := json.Unmarshal(body, &tokenData); err != nil {
+		return "", fmt.Errorf("error unmarshalling the token data: %s", err)
+	}
+	accessToken, ok := tokenData["access_token"]
+	if ok {
+		return accessToken.(string), nil
+	}
+	return "", errors.New("Unable to obtain an access token")
 }
 
 // SwaggerLogger is the interface into the swagger logging facility which logs http traffic

@@ -66,6 +66,7 @@ Note that in all of the examples you will need to update attributes - such as `u
 The following arguments are used to configure the Terraform Provider for VMware Aria Automation:
 
 - `url` - (Required) This is the URL to the VMware Aria Automation endpoint. Can also be specified with the `VRA_URL` environment variable.
+- `organization` - (Optional) The name of the organization. Required when using VCF Automation, otherwise, this parameter is ignored. Can also be specified with the `VCFA_ORGANIZATION` environment variable.
 - `access_token` - (Optional) This is the access token used to create an API refresh token. Can also be specified with the `VRA_ACCESS_TOKEN` environment variable.
 - `refresh_token` - (Optional) This is a refresh token used for API access that has been pre-generated. One of `access_token` or `refresh_token` is required. Can also be specified with the `VRA_REFRESH_TOKEN` environment variable.
 - `insecure` - (Optional) This specifies whether if the TLS certificates are validated. Can also be specified with the `VRA_INSECURE` environment variable.
