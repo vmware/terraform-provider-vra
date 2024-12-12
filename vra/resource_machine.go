@@ -78,7 +78,7 @@ func resourceMachine() *schema.Resource {
 			"attach_disks_before_boot": {
 				Type:        schema.TypeBool,
 				Optional:    true,
-				Description: "By default, disks are attached after the machine has been built. FCDs cannot be attached to machine as a day 0 task.",
+				Description: "By default, disks are attached after the VM has been built as FCDs cannot be attached to machine as day 0",
 			},
 			"disks": {
 				Type:        schema.TypeSet,
