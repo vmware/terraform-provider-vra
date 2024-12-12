@@ -140,7 +140,7 @@ Example: `[{"mandatory" : "true", "expression": "environment":"prod"}, {"mandato
 
     * `name` - Human-friendly block-device name used as an identifier in APIs that support this option.
 
-    * `scsi_controller` - The id of the SCSI controller (_e.g_., `SCSI_Controller_0`.)
+    * `scsi_controller` - The id of the scsi controller. Example: SCSI_Controller_0
 
     * `unit_number` - The unit number of the scsi controller. Example: 2
 
