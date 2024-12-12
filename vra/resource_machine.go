@@ -138,7 +138,7 @@ func resourceMachine() *schema.Resource {
 						"scsi_controller": {
 							Type:        schema.TypeString,
 							Optional:    true,
-							Description: "The id of the SCSI controller. Example: SCSI_Controller_0",
+							Description: "The id of the scsi controller. Example: SCSI_Controller_0",
 						},
 						"unit_number": {
 							Type:        schema.TypeString,
