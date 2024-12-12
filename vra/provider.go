@@ -22,6 +22,12 @@ func Provider() *schema.Provider {
 				DefaultFunc: schema.EnvDefaultFunc("VRA_URL", nil),
 				Description: "The base url for API operations.",
 			},
+			"organization": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				DefaultFunc: schema.EnvDefaultFunc("VCFA_ORGANIZATION", nil),
+				Description: "Organization name (required for VCF Automation).",
+			},
 			"refresh_token": {
 				Type:          schema.TypeString,
 				Optional:      true,
@@ -167,10 +173,15 @@ func Provider() *schema.Provider {
 
 func configureProvider(d *schema.ResourceData) (interface{}, error) {
 	url := d.Get("url").(string)
+	organization := ""
 	refreshToken := ""
 	accessToken := ""
 	reauth := "0"
 	apiTimeout := 0
+
+	if v, ok := d.GetOk("organization"); ok {
+		organization = v.(string)
+	}
 
 	if v, ok := d.GetOk("refresh_token"); ok {
 		refreshToken = v.(string)
@@ -198,5 +209,5 @@ func configureProvider(d *schema.ResourceData) (interface{}, error) {
 		return NewClientFromAccessToken(url, accessToken, insecure, apiTimeout)
 	}
 
-	return NewClientFromRefreshToken(url, refreshToken, insecure, reauth, apiTimeout)
+	return NewClientFromRefreshToken(url, organization, refreshToken, insecure, reauth, apiTimeout)
 }

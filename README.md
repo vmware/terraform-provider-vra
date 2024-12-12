@@ -48,7 +48,7 @@ terraform init -upgrade
 
 ## Contributing
 
-The Terraform Provider for VMware Cloud Foundation is the work of many contributors and the project team appreciates your help!
+The Terraform Provider for VMware Aria Automation is the work of many contributors and the project team appreciates your help!
 
 If you discover a bug or would like to suggest an enhancement, submit [an issue][provider-issues].
 
