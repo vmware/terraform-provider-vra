@@ -78,7 +78,7 @@ func resourceMachine() *schema.Resource {
 			"attach_disks_before_boot": {
 				Type:        schema.TypeBool,
 				Optional:    true,
-				Description: "By default, disks are attached after the VM has been built as FCDs cannot be attached to machine as day 0",
+				Description: "By default, disks are attached after the machine has been built. FCDs cannot be attached to machine as a day 0 task.",
 			},
 			"disks": {
 				Type:        schema.TypeSet,
@@ -104,12 +104,12 @@ func resourceMachine() *schema.Resource {
 						"scsi_controller": {
 							Type:        schema.TypeString,
 							Optional:    true,
-							Description: "The id of the scsi controller. Example: SCSI_Controller_0",
+							Description: "The id of the SCSI controller. Example: SCSI_Controller_0",
 						},
 						"unit_number": {
 							Type:        schema.TypeString,
 							Optional:    true,
-							Description: "The unit number of the scsi controller. Example: 2",
+							Description: "The unit number of the SCSI controller. Example: 2",
 						},
 					},
 				},
@@ -138,12 +138,12 @@ func resourceMachine() *schema.Resource {
 						"scsi_controller": {
 							Type:        schema.TypeString,
 							Optional:    true,
-							Description: "The id of the scsi controller. Example: SCSI_Controller_0",
+							Description: "The id of the SCSI controller. Example: SCSI_Controller_0",
 						},
 						"unit_number": {
 							Type:        schema.TypeString,
 							Optional:    true,
-							Description: "The unit number of the scsi controller. Example: 2",
+							Description: "The unit number of the SCSI controller. Example: 2",
 						},
 					},
 				},
@@ -520,8 +520,8 @@ func attachAndDetachDisks(ctx context.Context, d *schema.ResourceData, apiClient
 				Name:          diskToAttach["name"].(string),
 			}
 
-			if v_scsi_controller, ok_scsi_controller := diskToAttach["scsi_controller"].(string); ok_scsi_controller && v_scsi_controller != "" {
-				if v_unit_number, ok_unit_number := diskToAttach["unit_number"].(string); ok_unit_number && v_unit_number != "" {
+			if vScsiController, okScsiController := diskToAttach["scsi_controller"].(string); okScsiController && vScsiController != "" {
+				if vUnitNumber, okUnitNumber := diskToAttach["unit_number"].(string); okUnitNumber && vUnitNumber != "" {
 					diskAttachmentSpecification.DiskAttachmentProperties = map[string]string{"scsiController": diskToAttach["scsi_controller"].(string), "unitNumber": diskToAttach["unit_number"].(string)}
 				}
 			}
@@ -659,8 +659,8 @@ func expandDisks(configDisks []interface{}) []*models.DiskAttachmentSpecificatio
 			BlockDeviceID: withString(diskMap["block_device_id"].(string)),
 		}
 
-		if v_scsi_controller, ok_scsi_controller := diskMap["scsi_controller"].(string); ok_scsi_controller && v_scsi_controller != "" {
-			if v_unit_number, ok_unit_number := diskMap["unit_number"].(string); ok_unit_number && v_unit_number != "" {
+		if vScsiController, okScsiController := diskMap["scsi_controller"].(string); okScsiController && vScsiController != "" {
+			if vUnitNumber, okUnitNumber := diskMap["unit_number"].(string); okUnitNumber && vUnitNumber != "" {
 				disk.DiskAttachmentProperties = map[string]string{"scsiController": diskMap["scsi_controller"].(string), "unitNumber": diskMap["unit_number"].(string)}
 			}
 		}
