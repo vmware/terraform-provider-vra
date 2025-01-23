@@ -180,7 +180,7 @@ func isVCFA(url string, insecure bool) (bool, error) {
 		return false, fmt.Errorf("error creating an http transport: %s", err)
 	}
 	client := &http.Client{Transport: transport}
-	response, err := client.Get(fmt.Sprintf("%s://%s/config.json", parsedURL.Scheme, parsedURL.Host))
+	response, err := client.Get(fmt.Sprintf("%s://%s/automation/config.json", parsedURL.Scheme, parsedURL.Host))
 	if err != nil {
 		return false, fmt.Errorf("error retrieving the configuration from url %s: %s", url, err)
 	}
