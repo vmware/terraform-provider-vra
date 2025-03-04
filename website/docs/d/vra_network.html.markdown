@@ -9,25 +9,43 @@ description: |-
 
 This is an example of how to read a network data source.
 
-```hcl
+**Network data source by id:**
 
+```hcl
+data "vra_network" "test-network" {
+  id = var.network_id
+}
+```
+
+**Network data source by name:**
+
+```hcl
 data "vra_network" "test-network" {
   name = var.network_name
 }
+```
 
+**Network data source by filter:**
+
+```hcl
+data "vra_network" "test-network" {
+  filter = "name eq '${var.network_name}'"
+}
 ```
 
 ## Argument Reference
 
-* `id` - (Optional) The id of the image profile instance.
+* `id` - (Optional) The id of the network instance. Only one of 'id', 'name' or 'filter' must be specified.
 
-* `name` - (Optional) A human-friendly name used as an identifier in APIs that support this option.
+* `name` - (Optional) The human-friendly name of the network instance. Only one of 'id', 'name' or 'filter' must be specified.
+
+* `filter` - (Optional) The search criteria to narrow down the network instance. Only one of 'id', 'name' or 'filter' must be specified.
 
 ## Attribute Reference
 
 * `cidr` - IPv4 address range of the network in CIDR format.
 
-* `constraints` - List of storage, network and extensibility constraints to be applied when provisioning through this project.
+* `cloud_account_ids` - Set of ids of the cloud accounts this resource belongs to.
 
 * `custom_properties` - Additional properties that may be used to extend the base resource.
 
@@ -37,19 +55,17 @@ data "vra_network" "test-network" {
 
 * `external_id` - External entity Id on the provider side.
 
+* `external_region_id` - The external regionId of the resource.
+
 * `external_zone_id` - The external zoneId of the resource.
 
 * `links` - HATEOAS of the entity
 
 * `organization_id` - The id of the organization this entity belongs to.
 
-* `outbound_access` - Flag to indicate if the network needs to have outbound access or not. Default is true. This field will be ignored if there is proper input for networkType customProperty
-
-* `owner` - Email of the user that owns the entity.
+* `owner` - Email of the user or display name of the group that owns the entity.
 
 * `project_id` - The id of the project this resource belongs to.
-
-* `self_link` - Self link of this request.
 
 * `tags` - A set of tag keys and optional values that were set on this resource.
            example: `[ { "key" : "ownedBy", "value": "Rainpole" } ]`
