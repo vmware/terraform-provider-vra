@@ -5,8 +5,8 @@
 package vra
 
 import (
+	"errors"
 	"fmt"
-	"strings"
 
 	"github.com/vmware/vra-sdk-go/pkg/client/network"
 	"github.com/vmware/vra-sdk-go/pkg/models"
@@ -19,69 +19,90 @@ func dataSourceNetwork() *schema.Resource {
 		Read: dataSourceNetworkRead,
 		Schema: map[string]*schema.Schema{
 			"id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Type:          schema.TypeString,
+				ConflictsWith: []string{"name", "filter"},
+				Optional:      true,
+				Computed:      true,
+				Description:   "The id of the network instance",
 			},
 			"name": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				DiffSuppressFunc: func(_, old, new string, _ *schema.ResourceData) bool {
-					return !strings.HasPrefix(new, old)
-				},
+				Type:          schema.TypeString,
+				ConflictsWith: []string{"id", "filter"},
+				Optional:      true,
+				Computed:      true,
+				Description:   "The human-friendly name of the network instance",
+			},
+			"filter": {
+				Type:          schema.TypeString,
+				ConflictsWith: []string{"id", "name"},
+				Optional:      true,
+				Description:   "The search criteria to narrow down the network instance",
 			},
 			"cidr": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "IPv4 address range of the network in CIDR format",
 			},
-			"description": {
-				Type:     schema.TypeString,
+			"cloud_account_ids": {
+				Type:     schema.TypeSet,
 				Computed: true,
-			},
-			"deployment_id": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"project_id": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+				Description: "Set of ids of the cloud accounts this resource belongs to",
 			},
 			"custom_properties": {
-				Type:     schema.TypeMap,
-				Computed: true,
+				Type:        schema.TypeMap,
+				Computed:    true,
+				Description: "Additional properties that may be used to extend the base resource",
 			},
-			"constraints": constraintsSchema(),
-			"tags":        tagsSchema(),
-			"outbound_access": {
-				Type:     schema.TypeBool,
-				Computed: true,
+			"deployment_id": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "Deployment id that is associated with this resource",
 			},
-			"external_zone_id": {
-				Type:     schema.TypeString,
-				Computed: true,
+			"description": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "A human-friendly description",
 			},
 			"external_id": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "External entity Id on the provider side",
 			},
-			"self_link": {
-				Type:     schema.TypeString,
-				Computed: true,
+			"external_region_id": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "The external regionId of the resource",
 			},
-			"updated_at": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"owner": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"organization_id": {
-				Type:     schema.TypeString,
-				Computed: true,
+			"external_zone_id": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "The external zoneId of the resource",
 			},
 			"links": linksSchema(),
+			"organization_id": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "The id of the organization this entity belongs to",
+			},
+			"owner": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "Email of the user or display name of the group that owns the entity",
+			},
+			"project_id": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "The id of the project this resource belongs to",
+			},
+			"tags": tagsSchema(),
+			"updated_at": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "Date when the entity was last updated. The date is ISO 8601 and UTC",
+			},
 		},
 	}
 }
@@ -91,41 +112,73 @@ func dataSourceNetworkRead(d *schema.ResourceData, meta interface{}) error {
 
 	id, idOk := d.GetOk("id")
 	name, nameOk := d.GetOk("name")
+	filter, filterOK := d.GetOk("filter")
 
-	if !idOk && !nameOk {
-		return fmt.Errorf("One of id or name must be assigned")
+	if !idOk && !nameOk && !filterOK {
+		return errors.New("one of id, name or filter must be assigned")
 	}
 
-	getResp, err := apiClient.Network.GetNetworks(network.NewGetNetworksParams())
-	if err != nil {
-		return err
-	}
-
-	setFields := func(network *models.Network) {
-		d.SetId(*network.ID)
-		d.Set("cidr", network.Cidr)
-		d.Set("custom_properties", network.CustomProperties)
-		d.Set("description", network.Description)
-		d.Set("deployment_id", network.DeploymentID)
-		d.Set("external_id", network.ExternalID)
-		d.Set("external_zone_id", network.ExternalZoneID)
-		d.Set("name", network.Name)
-		d.Set("organization_id", network.OrgID)
-		d.Set("owner", network.Owner)
-		d.Set("project_id", network.ProjectID)
-		d.Set("tags", network.Tags)
-		d.Set("updated_at", network.UpdatedAt)
-	}
-	for _, network := range getResp.Payload.Content {
-		if idOk && network.ID == id {
-			setFields(network)
-			return nil
+	var net *models.Network
+	if idOk {
+		getResp, err := apiClient.Network.GetNetwork(network.NewGetNetworkParams().WithID(id.(string)))
+		if err != nil {
+			switch err.(type) {
+			case *network.GetNetworkNotFound:
+				return fmt.Errorf("network with id '%s' not found", id)
+			default:
+				// nop
+			}
+			return err
 		}
-		if nameOk && network.Name == name {
-			setFields(network)
-			return nil
+
+		net = getResp.GetPayload()
+	} else {
+		var filterParam string
+		if nameOk {
+			filterParam = fmt.Sprintf("name eq '%s'", name.(string))
+		} else {
+			filterParam = filter.(string)
 		}
+		getResp, err := apiClient.Network.GetNetworks(network.NewGetNetworksParams().WithDollarFilter(&filterParam))
+		if err != nil {
+			return err
+		}
+		networks := getResp.GetPayload()
+		if len(networks.Content) > 1 {
+			if nameOk {
+				return fmt.Errorf("there are more than one network with name '%s'", name)
+			}
+			return errors.New("must filter to one network")
+		}
+		if len(networks.Content) == 0 {
+			if nameOk {
+				return fmt.Errorf("network with name '%s' not found", name)
+			}
+			return fmt.Errorf("filter doesn't match to any network")
+		}
+		net = networks.Content[0]
 	}
 
-	return fmt.Errorf("network %s not found", name)
+	d.SetId(*net.ID)
+	d.Set("cidr", net.Cidr)
+	d.Set("cloud_account_ids", net.CloudAccountIds)
+	d.Set("created_at", net.CreatedAt)
+	d.Set("custom_properties", net.CustomProperties)
+	d.Set("deployment_id", net.DeploymentID)
+	d.Set("description", net.Description)
+	d.Set("external_id", net.ExternalID)
+	d.Set("external_region_id", net.ExternalRegionID)
+	d.Set("external_zone_id", net.ExternalZoneID)
+	d.Set("name", net.Name)
+	d.Set("organization_id", net.OrgID)
+	d.Set("owner", net.Owner)
+	d.Set("project_id", net.ProjectID)
+	d.Set("tags", net.Tags)
+	d.Set("updated_at", net.UpdatedAt)
+
+	if err := d.Set("links", flattenLinks(net.Links)); err != nil {
+		return fmt.Errorf("error setting network links - error: %#v", err)
+	}
+
+	return nil
 }
