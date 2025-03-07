@@ -95,50 +95,64 @@ func dataSourceCloudAccountNSXT() *schema.Resource {
 func dataSourceCloudAccountNSXTRead(d *schema.ResourceData, meta interface{}) error {
 	apiClient := meta.(*Client).apiClient
 
-	id, idOk := d.GetOk("id")
-	name, nameOk := d.GetOk("name")
+	id := d.Get("id").(string)
+	name := d.Get("name").(string)
 
-	if !idOk && !nameOk {
-		return fmt.Errorf("one of 'id' or 'name' must be assigned")
+	if id == "" && name == "" {
+		return fmt.Errorf("one of 'id' or 'name' must be set")
 	}
 
-	getResp, err := apiClient.CloudAccount.GetNsxTCloudAccounts(cloud_account.NewGetNsxTCloudAccountsParams())
-	if err != nil {
-		return err
-	}
-
-	setFields := func(account *models.CloudAccountNsxT) error {
-		d.SetId(*account.ID)
-		d.Set("associated_cloud_account_ids", flattenAssociatedCloudAccountIDs(account.Links))
-		d.Set("created_at", account.CreatedAt)
-		d.Set("dc_id", account.Dcid)
-		d.Set("description", account.Description)
-		d.Set("hostname", account.HostName)
-		d.Set("manager_mode", account.ManagerMode)
-		d.Set("name", account.Name)
-		d.Set("org_id", account.OrgID)
-		d.Set("owner", account.Owner)
-		d.Set("updated_at", account.UpdatedAt)
-		d.Set("username", account.Username)
-
-		if err := d.Set("links", flattenLinks(account.Links)); err != nil {
-			return fmt.Errorf("error setting cloud_account_nsxt links - error: %#v", err)
+	var cloudAccountNsxT *models.CloudAccountNsxT
+	if id != "" {
+		getResp, err := apiClient.CloudAccount.GetNsxTCloudAccount(cloud_account.NewGetNsxTCloudAccountParams().WithID(id))
+		if err != nil {
+			switch err.(type) {
+			case *cloud_account.GetNsxTCloudAccountNotFound:
+				return fmt.Errorf("nsxt cloud account with id '%s' not found", id)
+			default:
+				// nop
+			}
+			return err
 		}
 
-		if err := d.Set("tags", flattenTags(account.Tags)); err != nil {
-			return fmt.Errorf("error setting cloud_account_nsxt tags - error: %#v", err)
+		cloudAccountNsxT = getResp.GetPayload()
+	} else {
+		getResp, err := apiClient.CloudAccount.GetNsxTCloudAccounts(cloud_account.NewGetNsxTCloudAccountsParams())
+		if err != nil {
+			return err
 		}
 
-		return nil
-	}
-	for _, account := range getResp.Payload.Content {
-		if idOk && account.ID == id {
-			return setFields(account)
+		for _, account := range getResp.Payload.Content {
+			if account.Name == name {
+				cloudAccountNsxT = account
+			}
 		}
-		if nameOk && account.Name == name {
-			return setFields(account)
+
+		if cloudAccountNsxT == nil {
+			return fmt.Errorf("nsxt cloud account with name '%s' not found", name)
 		}
 	}
 
-	return fmt.Errorf("cloud account %s not found", name)
+	d.SetId(*cloudAccountNsxT.ID)
+	d.Set("associated_cloud_account_ids", flattenAssociatedCloudAccountIDs(cloudAccountNsxT.Links))
+	d.Set("created_at", cloudAccountNsxT.CreatedAt)
+	d.Set("dc_id", cloudAccountNsxT.Dcid)
+	d.Set("description", cloudAccountNsxT.Description)
+	d.Set("hostname", cloudAccountNsxT.HostName)
+	d.Set("manager_mode", cloudAccountNsxT.ManagerMode)
+	d.Set("name", cloudAccountNsxT.Name)
+	d.Set("org_id", cloudAccountNsxT.OrgID)
+	d.Set("owner", cloudAccountNsxT.Owner)
+	d.Set("updated_at", cloudAccountNsxT.UpdatedAt)
+	d.Set("username", cloudAccountNsxT.Username)
+
+	if err := d.Set("links", flattenLinks(cloudAccountNsxT.Links)); err != nil {
+		return fmt.Errorf("error setting cloud_account_nsxt links - error: %#v", err)
+	}
+
+	if err := d.Set("tags", flattenTags(cloudAccountNsxT.Tags)); err != nil {
+		return fmt.Errorf("error setting cloud_account_nsxt tags - error: %#v", err)
+	}
+
+	return nil
 }
