@@ -172,7 +172,7 @@ func TestAccVRAZoneInvalidPlacementPolicy(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config:      testAccCheckVRAZoneConfigInvalidPlacementPolicy(),
-				ExpectError: regexp.MustCompile("\"placement_policy\" must be one of 'DEFAULT', 'SPREAD', 'BINPACK'"),
+				ExpectError: regexp.MustCompile("\"placement_policy\" must be one of 'DEFAULT', 'BINPACK', 'SPREAD', 'SPREAD_MEMORY'"),
 			},
 		},
 	})
