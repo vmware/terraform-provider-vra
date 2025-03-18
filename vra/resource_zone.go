@@ -8,12 +8,27 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"strings"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/vmware/vra-sdk-go/pkg/client/location"
 	"github.com/vmware/vra-sdk-go/pkg/models"
 )
+
+const (
+	PlacementPolicyDefault      = "DEFAULT"
+	PlacementPolicyBinpack      = "BINPACK"
+	PlacementPolicySpread       = "SPREAD"
+	PlacementPolicySpreadMemory = "SPREAD_MEMORY"
+)
+
+var AllowedPlacementPolicies = []string{
+	PlacementPolicyDefault,
+	PlacementPolicyBinpack,
+	PlacementPolicySpread,
+	PlacementPolicySpreadMemory,
+}
 
 func resourceZone() *schema.Resource {
 	return &schema.Resource{
@@ -67,14 +82,17 @@ func resourceZone() *schema.Resource {
 			"placement_policy": {
 				Type:        schema.TypeString,
 				Default:     "DEFAULT",
-				Description: "The placement policy for the zone. One of DEFAULT, SPREAD or BINPACK.",
+				Description: fmt.Sprintf("The placement policy for the zone. One of %v.", AllowedPlacementPolicies),
 				Optional:    true,
 				ValidateFunc: func(v interface{}, k string) (ws []string, errors []error) {
 					value := v.(string)
-					if value != "DEFAULT" && value != "SPREAD" && value != "BINPACK" {
-						errors = append(errors, fmt.Errorf(
-							"%q must be one of 'DEFAULT', 'SPREAD', 'BINPACK'", k))
+					for _, validValue := range AllowedPlacementPolicies {
+						if value == validValue {
+							return
+						}
 					}
+					errors = append(errors, fmt.Errorf(
+						"%q must be one of %s", k, strings.Join(AllowedPlacementPolicies, ", ")))
 					return
 				},
 			},

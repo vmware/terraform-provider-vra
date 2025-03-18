@@ -43,7 +43,7 @@ A zone resource supports the following arguments:
 
 * `name` - (Required) A human-friendly name used as an identifier for the zone resource instance.
 
-* `placement_policy` - (Optional) The placement policy for the zone. One of `DEFAULT`, `SPREAD` or `BINPACK`. Default is `DEFAULT`.
+* `placement_policy` - (Optional) The placement policy for the zone. One of `DEFAULT`, `BINPACK`, `SPREAD` or `SPREAD_MEMORY`. Default is `DEFAULT`.
 
 * `region_id` - (Required) The id of the region for which this zone is created.
 

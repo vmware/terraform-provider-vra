@@ -47,7 +47,7 @@ A zone data source supports the following arguments:
 
 * `owner` - Email of the user that owns the entity.
 
-* `placement_policy` - The placement policy for the zone. One of `DEFAULT`, `SPREAD` or `BINPACK`.
+* `placement_policy` - The placement policy for the zone. One of `DEFAULT`, `BINPACK`, `SPREAD` or `SPREAD_MEMORY`.
 
 * `tags` - A set of tag keys and optional values that were set on this resource:
   * `key` - Tag’s key.
