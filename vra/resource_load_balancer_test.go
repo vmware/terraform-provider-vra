@@ -252,8 +252,8 @@ func testAccCheckVRALoadBalancerConfig(rInt int) string {
 
 	return testAccCheckVRALoadBalancer(rInt) + fmt.Sprintf(`
 	resource "vra_load_balancer" "my_load_balancer" {
-		name = "my-lb-%d"
-		project_id = vra_project.my-project.id
+		name        = "my-lb-%d"
+		project_id  = vra_project.my-project.id
 		description = "load balancer description"
 
 		targets {
@@ -265,17 +265,17 @@ func testAccCheckVRALoadBalancerConfig(rInt int) string {
 		}
 
 		routes {
-			protocol = "TCP"
-			port = "80"
+			protocol        = "TCP"
+			port            = "80"
 			member_protocol = "TCP"
-			member_port = "80"
+			member_port     = "80"
 			health_check_configuration = {
-				protocol = "TCP"
-				port = "80"
-				interval_seconds = 30
-				timeout_seconds = 10
+				protocol            = "TCP"
+				port                = "80"
+				interval_seconds    = 30
+				timeout_seconds     = 10
 				unhealthy_threshold = 2
-				healthy_threshold = 10
+				healthy_threshold   = 10
 			}
 		}
 		}`, rInt)
