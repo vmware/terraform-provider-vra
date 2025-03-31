@@ -1,11 +1,12 @@
 ---
 layout: "vra"
-page_title: "VMware vRealize Automation: vra_network"
+page_title: "VMware Aria Automation: vra_network"
 description: |-
-  Provides a VMware vRA vra_network resource.
+  Provides a vra_network resource.
 ---
 
 # Resource: vra_network
+
 ## Example Usages
 
 This is an example of how to create a network resource.
@@ -15,15 +16,16 @@ resource "vra_network" "my_network" {
   name = "terraform_vra_network-%d"
   outbound_access = false
   tags {
-	key = "foo"
+    key = "foo"
     value = "bar"
   }
   constraints {
-	  mandatory = true
-	  expression = "pci"
+   mandatory = true
+   expression = "pci"
   }
 }
 ```
+
 A network resource supports the following resource:
 
 ## Argument Reference
@@ -50,7 +52,7 @@ A network resource supports the following resource:
 
 * `external_zone_id` - The external zoneId of the resource.
 
-* `links` - HATEOAS of the entity
+* `links` - Hypermedia as the Engine of Application State (HATEOAS) of the entity.
 
 * `organization_id` - The id of the organization this entity belongs to.
 
@@ -58,7 +60,6 @@ A network resource supports the following resource:
 
 * `self_link` - Self link of this request.
 
-* `tags` - A set of tag keys and optional values that were set on this resource.
-           example: `[ { "key" : "ownedBy", "value": "Rainpole" } ]`
+* `tags` - A set of tag keys and optional values that were set on this resource. Example: `[ { "key" : "ownedBy", "value": "Rainpole" } ]`
 
 * `update_at` - Date when the entity was last updated. The date is ISO 8601 and UTC.

@@ -1,12 +1,12 @@
 ---
 layout: "vra"
-page_title: "VMware vRealize Automation: Resource vra_blueprint_version"
-description: A resource that can be used to create a vRealize Automation cloud template version.
+page_title: "VMware Aria Automation: Resource vra_blueprint_version"
+description: A resource that can be used to create a VMware Aria Automation cloud template version.
 ---
 
-# Resource: vra\_blueprint\_version
+# Resource: vra_blueprint_version
 
-Creates a VMware vRealize Automation cloud template (blueprint) version resource.
+Creates a VMware Aria Automation cloud template (blueprint) version resource.
 
 ## Example Usages
 
@@ -16,7 +16,7 @@ The following example shows how to create a cloud template (blueprint) version r
 resource "vra_blueprint_version" "this" {
   blueprint_id = var.vra_blueprint_id
   change_log   = "First version"
-  description  = "Released from vRA terraform provider"
+  description  = "Released from VMware Aria Automation terraform provider"
   release      = true
   version      = (random_integer.suffix.result / random_integer.suffix.result)
 }
@@ -30,12 +30,11 @@ Create your cloud template (blueprint) version resource with the following argum
 
 * `change_log` - (Optional) Cloud template  (blueprint) version log.
 
-* `description` - (Optional) Human-friendly description for the cloud template  (blueprint) version. 
- 
+* `description` - (Optional) Human-friendly description for the cloud template  (blueprint) version.
+
 * `release` - (Optional) Flag to indicate whether to release the version.
 
 * `version` - (Required) Cloud template  (blueprint) version.
-
 
 ## Attribute Reference
 

@@ -1,15 +1,17 @@
 ---
 layout: "vra"
-page_title: "VMware vRealize Automation: vra_storage_profile"
+page_title: "VMware Aria Automation: vra_storage_profile"
 description: |-
   Provides a data lookup for vra_storage_profile.
 ---
 
 # Resource: vra_storage_profile
+
 ## Example Usages
+
 This is an example of how to create a storage profile resource.
 
-**Vra storage profile:**
+**storage profile:**
 
 ```hcl
 # vSphere storage profile using generic vra_storage_profile resource.
@@ -87,7 +89,7 @@ A storage profile resource supports the following arguments:
 
 * `disk_target_properties` - (Optional) Map of storage placements to know where the disk is provisioned.
 
-* `region_id` - (Required) The id of the region for which this profile is defined as in vRealize Automation(vRA).
+* `region_id` - (Required) The id of the region for which this profile is defined as in VMware Aria Automation.
 
 * `supports_encryption` - (Optional) Indicates whether this storage profile supports encryption or not.
 
@@ -101,7 +103,7 @@ A storage profile resource supports the following arguments:
 
 * `default_item` - Indicates if this storage profile is a default profile.
 
-* `links` - HATEOAS of the entity
+* `links` - Hypermedia as the Engine of Application State (HATEOAS) of the entity.
 
 * `name` - A human-friendly name used as an identifier in APIs that support this option.
 
@@ -109,7 +111,6 @@ A storage profile resource supports the following arguments:
 
 * `owner` - Email of the user that owns the entity.
 
-* `tags` - A set of tag keys and optional values that were set on this Network Profile.
-           example: `[ { "key" : "ownedBy", "value": "Rainpole" } ]`
+* `tags` - A set of tag keys and optional values that were set on this Network Profile. Example: `[ { "key" : "ownedBy", "value": "Rainpole" } ]`
 
 * `updated_at` - Date when the entity was last updated. The date is ISO 8601 and UTC.

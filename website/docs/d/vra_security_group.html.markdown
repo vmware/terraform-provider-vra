@@ -1,12 +1,14 @@
 ---
 layout: "vra"
-page_title: "VMware vRealize Automation: vra_security_group"
+page_title: "VMware Aria Automation: vra_security_group"
 description: |-
   Provides a data lookup for security groups.
 ---
 
 # Data Source: vra_security_group
+
 ## Example Usages
+
 This is an example of how to lookup security groups.
 
 **Security groups by filter query:**
@@ -21,7 +23,8 @@ data "vra_security_group" "this" {
 A Security group supports the following arguments:
 
 ## Argument Reference
-* `filter` - (Required) Search criteria to narrow down the Security groups. 
+
+* `filter` - (Required) Search criteria to narrow down the Security groups.
 
 ## Attribute Reference
 
@@ -35,7 +38,7 @@ A Security group supports the following arguments:
 
 * `id` - ID of the security group.
 
-* `links` - HATEOAS of the entity
+* `links` - Hypermedia as the Engine of Application State (HATEOAS) of the entity.
 
 * `name` - Name of the security group.
 

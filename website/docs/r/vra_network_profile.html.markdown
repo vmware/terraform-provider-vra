@@ -1,12 +1,14 @@
 ---
 layout: "vra"
-page_title: "VMware vRealize Automation: vra_network_profile"
+page_title: "VMware Aria Automation: vra_network_profile"
 description: |-
   Provides a data lookup for vra_network_profile.
 ---
 
 # Resource: vra_network_profile
+
 ## Example Usages
+
 This is an example of how to create a network profile resource.
 
 **Network profile:**
@@ -40,13 +42,13 @@ A network profile resource supports the following arguments:
 * `description` - (Optional) A human-friendly description.
 
 * `fabric_network_ids` - (Optional) A list of fabric network Ids which are assigned to the network profile.
-                         example: `[ "6543" ]`
+                         Example: `[ "6543" ]`
 
 * `isolated_external_fabric_network_id` - (Optional) The id of the fabric network used for outbound access.
 
 * `name` - (Required) A human-friendly name used as an identifier in APIs that support this option.
 
-* `region_id` - (Required) The id of the region for which this profile is defined as in vRealize Automation(vRA).
+* `region_id` - (Required) The id of the region for which this profile is defined as in VMware Aria Automation.
 
 ## Attributes Reference
 
@@ -64,7 +66,7 @@ A network profile resource supports the following arguments:
 
 * `isolation_type` - Specifies the isolation type e.g. none, subnet or security group
 
-* `links` - HATEOAS of the entity
+* `links` - Hypermedia as the Engine of Application State (HATEOAS) of the entity.
 
 * `org_id` - ID of organization that entity belongs to.
 
@@ -73,9 +75,8 @@ A network profile resource supports the following arguments:
 * `owner` - Email of the user that owns the entity.
 
 * `security_group_ids` - A list of security group Ids which are assigned to the network profile.
-                         example: `[ "6545" ]`
+                         Example: `[ "6545" ]`
 
-* `tags` - A set of tag keys and optional values that were set on this Network Profile.
-           example: `[ { "key" : "ownedBy", "value": "Rainpole" } ]`
+* `tags` - A set of tag keys and optional values that were set on this Network Profile. Example: `[ { "key" : "ownedBy", "value": "Rainpole" } ]`
 
 * `updated_at` - Date when the entity was last updated. The date is ISO 8601 and UTC.

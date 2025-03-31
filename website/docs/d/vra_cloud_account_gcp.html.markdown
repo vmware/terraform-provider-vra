@@ -1,13 +1,13 @@
 ---
 layout: "vra"
-page_title: "VMware vRealize Automation: vra_cloud_account_gcp"
+page_title: "VMware Aria Automation: vra_cloud_account_gcp"
 description: |-
     Provides a data lookup for vra_cloud_account_gcp.
 ---
 
-# Data Source: vra\_cloud\_account\_gcp
+# Data Source: vra_cloud_account_gcp
 
-Provides a VMware vRA vra_cloud_account_gcp data source.
+Provides a vra_cloud_account_gcp data source.
 
 ## Example Usages
 
@@ -20,7 +20,6 @@ This is an example of how to create an GCP cloud account resource and read it as
 data "vra_cloud_account_gcp" "this" {
   id = var.vra_cloud_account_gcp_id
 }
-
 ```
 
 **GCP cloud account data source by its name:**
@@ -32,10 +31,7 @@ This is an example of how to read the cloud account data source using its name.
 data "vra_cloud_account_gcp" "this" {
   name = var.vra_cloud_account_gcp_name
 }
-
 ```
-
-
 
 ## Argument Reference
 
@@ -53,7 +49,7 @@ The following arguments are supported for an GCP cloud account data source:
 
 * `description` - A human-friendly description.
 
-* `links` - HATEOAS of the entity.
+* `links` - Hypermedia as the Engine of Application State (HATEOAS) of the entity.
 
 * `org_id` - The id of the organization this entity belongs to.
 
@@ -65,9 +61,10 @@ The following arguments are supported for an GCP cloud account data source:
 
 * `regions` - A set of region names that are enabled for this account.
 
-* `tags` - A set of tag keys and optional values that were set on this resource.
-example: `[ { "key" : "vmware", "value": "provider" } ]`
+* `tags` - A set of tag keys and optional values that were set on this resource. Example: `[ { "key" : "vmware", "value": "provider" } ]`
+
   * `key` - Tag’s key.
+
   * `value` - Tag’s value.
 
 * `updated_at` - Date when the entity was last updated. The date is ISO 8601 and UTC.

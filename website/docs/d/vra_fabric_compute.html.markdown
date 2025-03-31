@@ -1,8 +1,8 @@
 ---
 layout: "vra"
-page_title: "VMware vRealize Automation: vra_fabric_compute"
+page_title: "VMware Aria Automation: vra_fabric_compute"
 description: |-
-  Provides a data lookup for vRA fabric computes.
+  Provides a data lookup for VMware Aria Automation fabric computes.
 ---
 
 # Data Source: vra_fabric_compute
@@ -33,9 +33,9 @@ A fabric compute data source supports the following arguments:
 
 ## Argument Reference
 
-* `id` - (Optional) The id of the fabric compute resource instance. Only one of 'id' or 'filter' must be specified.
+* `id` - (Optional) The id of the fabric compute resource instance. Only one of `id` or `filter` must be specified.
 
-* `filter` - (Optional) Search criteria to narrow down the fabric compute resource instance. Only one of 'id' or 'filter' must be specified.
+* `filter` - (Optional) Search criteria to narrow down the fabric compute resource instance. Only one of `id` or `filter` must be specified.
 
 ## Attribute Reference
 
@@ -53,7 +53,7 @@ A fabric compute data source supports the following arguments:
 
 * `lifecycle_state` - Lifecycle status of the compute instance.
 
-* `links` - HATEOAS of the entity.
+* `links` - Hypermedia as the Engine of Application State (HATEOAS) of the entity.
 
 * `name` - A human-friendly name used as an identifier for the fabric compute resource instance.
 
@@ -64,7 +64,9 @@ A fabric compute data source supports the following arguments:
 * `power_state` - Power state of fabric compute instance.
 
 * `tags` -  A set of tag keys and optional values that were set on this resource:
+
   * `key` - Tag’s key.
+
   * `value` - Tag’s value.
 
 * `type` - Type of the fabric compute instance.

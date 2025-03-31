@@ -1,12 +1,14 @@
 ---
 layout: "vra"
-page_title: "VMware vRealize Automation: vra_storage_profile_azure"
+page_title: "VMware Aria Automation: vra_storage_profile_azure"
 description: |-
   Provides a data lookup for vra_storage_profile_azure.
 ---
 
 # Resource: vra_storage_profile_azure
+
 ## Example Usages
+
 This is an example of how to create a storage profile azure resource.
 
 **Storage profile azure data source by its id:**
@@ -17,7 +19,7 @@ data "vra_storage_profile_azure" "this" {
 }
 ```
 
-**Vra storage profile data source filter by external region id:**
+**storage profile data source filter by external region id:**
 
 ```hcl
 data "vra_storage_profile_azure" "this" {
@@ -29,7 +31,7 @@ A storage profile azure data source supports the following arguments:
 
 ## Argument Reference
 
-* `filter` - (Optional) Filter query string that is supported by vRA multi-cloud IaaS API. Example: `regionId eq '<regionId>' and cloudAccountId eq '<cloudAccountId>'`.
+* `filter` - (Optional) Filter query string that is supported by VMware Aria Automation multi-cloud IaaS API. Example: `regionId eq '<regionId>' and cloudAccountId eq '<cloudAccountId>'`.
 
 * `id` - (Optional) The id of the image profile instance.
 
@@ -47,7 +49,7 @@ A storage profile azure data source supports the following arguments:
 
 * `external_region_id` - The id of the region as seen in the cloud provider for which this profile is defined.
 
-* `links` - HATEOAS of the entity
+* `links` - Hypermedia as the Engine of Application State (HATEOAS) of the entity.
 
 * `name` - A human-friendly name used as an identifier in APIs that support this option.
 
@@ -63,7 +65,6 @@ A storage profile azure data source supports the following arguments:
 
 * `region_id` - A link to the region that is associated with the storage profile.
 
-* `tags` - A set of tag keys and optional values that were set on this Network Profile.
-                      example: `[ { "key" : "ownedBy", "value": "Rainpole" } ]`
+* `tags` - A set of tag keys and optional values that were set on this Network Profile. Example: `[ { "key" : "ownedBy", "value": "Rainpole" } ]`
 
 * `updated_at` - Date when the entity was last updated. The date is ISO 8601 and UTC.

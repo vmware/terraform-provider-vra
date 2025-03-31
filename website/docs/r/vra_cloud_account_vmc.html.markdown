@@ -1,13 +1,13 @@
 ---
 layout: "vra"
-page_title: "VMware vRealize Automation: vra_cloud_account_vmc"
+page_title: "VMware Aria Automation: vra_cloud_account_vmc"
 description: |-
     Creates a vra_cloud_account_vmc resource.
 ---
 
-# Resource: vra\_cloud\_account\_vmc
+# Resource: vra_cloud_account_vmc
 
-Creates a VMware vRealize Automation VMC cloud account resource.
+Creates a VMware Aria Automation VMC cloud account resource.
 
 ## Example Usages
 
@@ -26,7 +26,7 @@ resource "vra_cloud_account_vmc" "this" {
   vcenter_password = var.vcenter_password
   vcenter_username = var.vcenter_username
   nsx_hostname     = var.nsx_hostname
-  dc_id            = var.data_collector_id  // Required for vRA Cloud, Optional for vRA on-prem
+  dc_id            = var.data_collector_id  // Required for VMware Aria Automation Cloud, Optional for VMware Aria Automation on-prem
   regions                 = var.regions
 
   accept_self_signed_cert = true
@@ -58,8 +58,7 @@ Create your VMC cloud account resource with the following arguments:
 
 * `sddc_name` - (Required) Identifier of the on-premise SDDC to be used by the cloud account. Note that NSX-V SDDCs are not supported.
 
-* `tags` - (Optional) Set of tag keys and values to apply to the cloud account.
-Example: `[ { "key" : "vmware", "value": "provider" } ]`
+* `tags` - (Optional) Set of tag keys and values to apply to the cloud account. Example: `[ { "key" : "vmware", "value": "provider" } ]`
 
 * `vcenter_hostname` - (Required) IP address or FQDN of the vCenter Server in the specified SDDC. The cloud proxy belongs on this vCenter.
 
@@ -73,14 +72,13 @@ Example: `[ { "key" : "vmware", "value": "provider" } ]`
 
 * `id` - ID of the VMC cloud account.
 
-* `links` - HATEOAS of entity.
+* `links` - Hypermedia as the Engine of Application State (HATEOAS) of entity.
 
 * `org_id` - ID of organization that entity belongs to.
 
 * `owner` - Email of entity owner.
 
 * `updated_at` - Date when the entity was last updated. Date and time format is ISO 8601 and UTC.
-
 
 ## Import
 

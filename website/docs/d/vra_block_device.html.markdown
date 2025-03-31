@@ -1,5 +1,6 @@
----layout: "vra"
-page_title: "VMware vRealize Automation: vra_block_device"
+---
+layout: "vra"
+page_title: "VMware Aria Automation: vra_block_device"
 description: |-
   Provides a data lookup for vra_block_device.
 ---
@@ -18,7 +19,6 @@ This is an example of how to read a block device data source using its ID.
 data "vra_block_device" "this" {
   id = var.block_device_id
 }
-
 ```
 
 **Block device data source filter by name:**
@@ -29,7 +29,6 @@ This is an example of how to read a block device data source using its name.
 data "vra_block_device" "this" {
   filter = "name eq '${var.block_device_name}'"
 }
-
 ```
 
 ## Argument Reference
@@ -74,17 +73,14 @@ A block device data source supports the following attributes:
 
 * `persistent` - Indicates whether the block device survives a delete action.
 
-* `links` - HATEOAS of the entity.
+* `links` - Hypermedia as the Engine of Application State (HATEOAS) of the entity.
 
 * `status` - Status of the block device.
 
-* `tags` - A set of tag keys and optional values that were set on this resource instance.
-example: `[ { "key" : "vmware.enumeration.type", "value": "nebs_block" } ]`
+* `tags` - A set of tag keys and optional values that were set on this resource instance. Example: `[ { "key" : "vmware.enumeration.type", "value": "nebs_block" } ]`
+
   * `key` - Tag’s key.
+
   * `value` - Tag’s value.
 
 * `updated_at` - Date when the entity was last updated. The date is ISO 8601 and UTC.
-
-
-
-

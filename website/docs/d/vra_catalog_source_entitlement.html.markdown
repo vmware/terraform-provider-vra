@@ -1,18 +1,18 @@
 ---
 layout: "vra"
-page_title: "VMware vRealize Automation: vra_catalog_source_entitlement"
+page_title: "VMware Aria Automation: vra_catalog_source_entitlement"
 description: A data source for catalog source entitlement.
 ---
 
-# Data Source: vra\_catalog\_source\_entitlement
+# Data Source: vra_catalog_source_entitlement
 
 > **Note**:  Deprecated - please use `vra_content_sharing_policy` instead.
 
-This data source provides information about a catalog source entitlement in vRA.
+This data source provides information about a catalog source entitlement.
 
 ## Example Usages
 
-This is an example of how to get a vRA catalog source entitlement by its id:
+This is an example of how to get a catalog source entitlement by its id:
 
 ```hcl
 data "vra_catalog_source_entitlement" "this" {
@@ -21,7 +21,7 @@ data "vra_catalog_source_entitlement" "this" {
 }
 ```
 
-This is an example of how to get a vRA catalog source entitlement by its catalog source id:
+This is an example of how to get a catalog source entitlement by its catalog source id:
 
 ```hcl
 data "vra_catalog_source_entitlement" "this" {
@@ -42,18 +42,18 @@ data "vra_catalog_source_entitlement" "this" {
 
 * `definition` - Represents a catalog source that is linked to a project via an entitlement.
 
-    * `description` - Description of the catalog source.
+  * `description` - Description of the catalog source.
 
-    * `icon_id` - Icon id of associated catalog source.
+  * `icon_id` - Icon id of associated catalog source.
 
-    * `id` - Id of the catalog source.
+  * `id` - Id of the catalog source.
 
-    * `name` - Name of the catalog source.
+  * `name` - Name of the catalog source.
 
-    * `number_of_items` - Number of items in the associated catalog source.
+  * `number_of_items` - Number of items in the associated catalog source.
 
-    * `source_name` - Catalog source name.
+  * `source_name` - Catalog source name.
 
-    * `source_type` - Catalog source type.
+  * `source_type` - Catalog source type.
 
-    * `type` - Content definition type.
+  * `type` - Content definition type.

@@ -1,8 +1,8 @@
 ---
 layout: "vra"
-page_title: "VMware vRealize Automation: vra_zone"
+page_title: "VMware Aria Automation: vra_zone"
 description: |-
-  Provides a VMware vRA vra_zone resource.
+  Provides a vra_zone resource.
 ---
 
 # Resource: vra_zone
@@ -48,13 +48,16 @@ A zone resource supports the following arguments:
 * `region_id` - (Required) The id of the region for which this zone is created.
 
 * `tags` - (Optional) A set of tag keys and optional values that were set on this resource:
+
   * `key` - Tag’s key.
+
   * `value` - Tag’s value.
 
 * `tags_to_match` - (Optional) A set of tag keys and optional values for compute resource filtering:
-  * `key` - Tag’s key.
-  * `value` - Tag’s value.
 
+  * `key` - Tag’s key.
+
+  * `value` - Tag’s value.
 
 ## Attribute Reference
 
@@ -64,7 +67,7 @@ A zone resource supports the following arguments:
 
 * `external_region_id` - The id of the region for which this zone is defined.
 
-* `links` - HATEOAS of entity.
+* `links` - Hypermedia as the Engine of Application State (HATEOAS) of entity.
 
 * `org_id` - The id of the organization this entity belongs to.
 

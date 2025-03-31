@@ -1,6 +1,6 @@
 ---
 layout: "vra"
-page_title: "VMware vRealize Automation: vra_project"
+page_title: "VMware Aria Automation: vra_project"
 description: |-
   Provides a data lookup for vra_project.
 ---
@@ -8,6 +8,7 @@ description: |-
 # Data Source: vra_project
 
 ## Example Usages
+
 This is an example of how to create a project data source.
 
 **Project data source by its id:**
@@ -30,11 +31,11 @@ A project data source supports the following arguments:
 
 ## Argument Reference
 
-* `administrators` - (Optional) A list of administrator users associated with the project. Only administrators can manage project's configuration. 
+* `administrators` - (Optional) A list of administrator users associated with the project. Only administrators can manage project's configuration.
 
   > **Note**:  Deprecated - please use `administrator_roles` instead.
 
-* `administrator_roles` - (Optional) Administrator users or groups associated with the project. Only administrators can manage project's configuration. 
+* `administrator_roles` - (Optional) Administrator users or groups associated with the project. Only administrators can manage project's configuration.
 
 * `constraints` - (Optional) A list of storage, network and extensibility constraints to be applied when provisioning through this project.
 
@@ -46,11 +47,11 @@ A project data source supports the following arguments:
 
 * `machine_naming_template` - (Optional) The naming template to be used for resources provisioned in this project.
 
-* `members` - (Optional) A list of member users associated with the project. 
-  
+* `members` - (Optional) A list of member users associated with the project.
+
   > **Note**:  Deprecated - please use `member_roles` instead.
 
-* `member_roles` - (Optional) Member users or groups associated with the project. 
+* `member_roles` - (Optional) Member users or groups associated with the project.
 
 * `name` - (Optional) A human-friendly name used as an identifier in APIs that support this option.
 
@@ -66,8 +67,8 @@ A project data source supports the following arguments:
 
 * `supervisor_roles` - (Optional) Supervisor users or groups associated with the project.d
 
-* `viewers` - (Optional) A list of viewer users associated with the project. 
+* `viewers` - (Optional) A list of viewer users associated with the project.
 
   > **Note**:  Deprecated - please use `viewer_roles` instead.
 
-* `viewer_roles` - (Optional) Viewer users or groups associated with the project. 
+* `viewer_roles` - (Optional) Viewer users or groups associated with the project.

@@ -1,12 +1,14 @@
 ---
 layout: "vra"
-page_title: "VMware vRealize Automation: vra_network_domain"
+page_title: "VMware Aria Automation: vra_network_domain"
 description: |-
   Provides a data lookup for Network domain objects.
 ---
 
 # Data Source: vra_network_domain
+
 ## Example Usages
+
 This is an example of how to lookup Network domain objects.
 
 **Network Domain by filter query:**
@@ -21,9 +23,11 @@ data "vra_network_domain" "this" {
 A network domain object supports the following arguments:
 
 ## Argument Reference
+
 * `filter` - (Required) Search criteria to narrow down the network domain objects.
 
 ## Attribute Reference
+
 * `cloud_account_ids` - Set of ids of the cloud accounts this entity belongs to.
 
 * `created_at` - Date when the entity was created. The date is in ISO 6801 and UTC.
@@ -36,7 +40,7 @@ A network domain object supports the following arguments:
 
 * `id` - ID of the fabric network domain object.
 
-* `links` - HATEOAS of the entity
+* `links` - Hypermedia as the Engine of Application State (HATEOAS) of the entity.
 
 * `name` - Name of the network domain.
 

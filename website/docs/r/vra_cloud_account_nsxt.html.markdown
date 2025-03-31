@@ -1,13 +1,13 @@
 ---
 layout: "vra"
-page_title: "VMware vRealize Automation: vra_cloud_account_nsxt"
+page_title: "VMware Aria Automation: vra_cloud_account_nsxt"
 description: |-
     Creates a vra_cloud_account_nsxt resource.
 ---
 
-# Resource: vra\_cloud\_account\_nsxt
+# Resource: vra_cloud_account_nsxt
 
-Creates a VMware vRealize Automation NSX-T cloud account resource.
+Creates a VMware Aria Automation NSX-T cloud account resource.
 
 ## Example Usages
 
@@ -47,8 +47,7 @@ Create your NSX-T cloud account resource with the following arguments:
 
 * `password` - (Required) Password used to authenticate to the cloud Account.
 
-* `tags` - (Optional) Set of tag keys and values to apply to the cloud account.
-Example: `[ { "key" : "vmware", "value": "provider" } ]`
+* `tags` - (Optional) Set of tag keys and values to apply to the cloud account. Example: `[ { "key" : "vmware", "value": "provider" } ]`
 
 * `username` - (Required) Username used to authenticate to the cloud account.
 
@@ -60,14 +59,13 @@ Example: `[ { "key" : "vmware", "value": "provider" } ]`
 
 * `id` - ID of NSX-T cloud account.
 
-* `links` - HATEOAS of entity.
+* `links` - Hypermedia as the Engine of Application State (HATEOAS) of entity.
 
 * `org_id` - ID of organization that entity belongs to.
 
 * `owner` - Email of entity owner.
 
 * `updated_at` - Date when entity was last updated. Date and time format is ISO 8601 and UTC.
-
 
 ## Import
 

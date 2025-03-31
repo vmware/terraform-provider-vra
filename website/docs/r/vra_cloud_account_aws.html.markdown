@@ -1,13 +1,13 @@
 ---
 layout: "vra"
-page_title: "VMware vRealize Automation: vra_cloud_account_aws"
+page_title: "VMware Aria Automation: vra_cloud_account_aws"
 description: |-
   Creates a vra_cloud_account_aws resource.
 ---
 
-# Resource: vra\_cloud\_account\_aws
+# Resource: vra_cloud_account_aws
 
-Creates a VMware vRealize Automation AWS cloud account resource.
+Creates a VMware Aria Automation AWS cloud account resource.
 
 ## Example Usages
 
@@ -42,10 +42,7 @@ Create your AWS cloud account resource with the following arguments:
 
 * `secret_key` - (Required) AWS Secret Access Key
 
-* `tags` - (Optional) Set of tag keys and values to apply to the cloud account.
-Example: `[ { "key" : "vmware", "value": "provider" } ]`
-
-
+* `tags` - (Optional) Set of tag keys and values to apply to the cloud account. Example: `[ { "key" : "vmware", "value": "provider" } ]`
 
 ## Attribute Reference
 
@@ -53,14 +50,13 @@ Example: `[ { "key" : "vmware", "value": "provider" } ]`
 
 * `id` - ID of AWS cloud account.
 
-* `links` - HATEOAS of entity.
+* `links` - Hypermedia as the Engine of Application State (HATEOAS) of entity.
 
 * `org_id` - ID of organization that entity belongs to.
 
 * `owner` - Email of entity owner.
 
 * `updated_at` - Date when entity was last updated. Date and time format is ISO 8601 and UTC.
-
 
 ## Import
 

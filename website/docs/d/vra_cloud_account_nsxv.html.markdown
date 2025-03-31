@@ -1,13 +1,13 @@
 ---
 layout: "vra"
-page_title: "VMware vRealize Automation: vra_cloud_account_nsxv"
+page_title: "VMware Aria Automation: vra_cloud_account_nsxv"
 description: |-
     Provides a data lookup for vra_cloud_account_nsxv.
 ---
 
-# Data Source: vra\_cloud\_account\_nsxv
+# Data Source: vra_cloud_account_nsxv
 
-Provides a VMware vRA vra_cloud_account_nsxv data source.
+Provides a vra_cloud_account_nsxv data source.
 
 ## Example Usages
 
@@ -20,7 +20,6 @@ This is an example of how to read the cloud account data source using its id.
 data "vra_cloud_account_nsxv" "this" {
   id = var.vra_cloud_account_nsxv_id
 }
-
 ```
 
 **NSX-V cloud account data source by its name:**
@@ -32,10 +31,7 @@ This is an example of how to read the cloud account data source using its name.
 data "vra_cloud_account_nsxv" "this" {
   name = var.vra_cloud_account_nsxv_name
 }
-
 ```
-
-
 
 ## Argument Reference
 
@@ -57,15 +53,16 @@ The following arguments are supported for an NSX-V cloud account data source:
 
 * `hostname` - Host name for the NSX-V cloud account.
 
-* `links` - HATEOAS of the entity.
+* `links` - Hypermedia as the Engine of Application State (HATEOAS) of the entity.
 
 * `org_id` - The id of the organization this entity belongs to.
 
 * `owner` - Email of the user that owns the entity.
 
-* `tags` - A set of tag keys and optional values that were set on this resource.
-example: `[ { "key" : "vmware", "value": "provider" } ]`
+* `tags` - A set of tag keys and optional values that were set on this resource. Example: `[ { "key" : "vmware", "value": "provider" } ]`
+
   * `key` - Tag’s key.
+
   * `value` - Tag’s value.
 
 * `updated_at` - Date when the entity was last updated. The date is ISO 8601 and UTC.

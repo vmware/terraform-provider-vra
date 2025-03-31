@@ -1,15 +1,17 @@
 ---
 layout: "vra"
-page_title: "VMware vRealize Automation: vra_storage_profile_vsphere"
+page_title: "VMware Aria Automation: vra_storage_profile_vsphere"
 description: |-
   Provides a data lookup for vra_storage_profile_vsphere.
 ---
 
 # Resource: vra_storage_profile_vsphere
+
 ## Example Usages
+
 This is an example of how to create a storage profile vsphere resource.
 
-**Vra storage profile vsphere:**
+**storage profile vsphere:**
 
 ```hcl
 # vSphere storage profile using generic vra_storage_profile resource.
@@ -72,14 +74,12 @@ A storage profile vsphere resource supports the following arguments:
 
 * `external_region_id` - The id of the region as seen in the cloud provider for which this profile is defined.
 
-* `links` - HATEOAS of the entity
+* `links` - Hypermedia as the Engine of Application State (HATEOAS) of the entity.
 
 * `org_id` - The id of the organization this entity belongs to.
 
 * `owner` - Email of the user that owns the entity.
 
-
-* `tags` - A set of tag keys and optional values that were set on this Network Profile.
-                      example: `[ { "key" : "ownedBy", "value": "Rainpole" } ]`
+* `tags` - A set of tag keys and optional values that were set on this Network Profile. Example: `[ { "key" : "ownedBy", "value": "Rainpole" } ]`
 
 * `updated_at` - Date when the entity was last updated. The date is ISO 8601 and UTC.

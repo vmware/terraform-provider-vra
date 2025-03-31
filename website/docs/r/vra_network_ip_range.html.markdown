@@ -1,22 +1,21 @@
 ---
 layout: "vra"
-page_title: "VMware vRealize Automation: vra_network_ip_range"
+page_title: "VMware Aria Automation: vra_network_ip_range"
 description: |-
   Creates a network_ip_range resource.
 ---
 
 # Resource: vra_network_ip_range
 
-Creates a VMware vRealize Automation network_ip_range resource.
+Creates a VMware Aria Automation network_ip_range resource.
 
 ## Example Usages
 
-**Create vRA Network IP range resource:**
+**Create VMware Aria Automation Network IP range resource:**
 
-This is an example of how to create a vRA Network IP range resource.
+This is an example of how to create  Network IP range resource.
 
 ```hcl
-
 resource "vra_network_ip_range" "this" {
   name               = "example-ip-range"
   description        = "Internal Network IP Range Example"
@@ -30,13 +29,11 @@ resource "vra_network_ip_range" "this" {
     value = "bar"
   }
 }
-
 ```
-
 
 ## Argument Reference
 
-The following arguments are supported for a vRA Network IP range resource:
+The following arguments are supported for  Network IP range resource:
 
 * `description` - (Optional) A human-friendly description.
 
@@ -61,7 +58,7 @@ The following arguments are supported for a vRA Network IP range resource:
 
 * `id` - ID of the network IP range
 
-* `links` - HATEOAS of the entity
+* `links` - Hypermedia as the Engine of Application State (HATEOAS) of the entity.
 
 * `org_id` - The id of the organization this entity belongs to.
 
@@ -71,6 +68,6 @@ The following arguments are supported for a vRA Network IP range resource:
 
 ## Import
 
-To import the vRA Network IP range, use the ID as in the following example:
+To import the VMware Aria Automation Network IP range, use the ID as in the following example:
 
 `$ terraform import network_ip_range.new_ip_range 05956583-6488-4e7d-84c9-92a7b7219a15`

@@ -1,13 +1,13 @@
 ---
 layout: "vra"
-page_title: "VMware vRealize Automation: vra_cloud_account_gcp"
+page_title: "VMware Aria Automation: vra_cloud_account_gcp"
 description: |-
     Creates a vra_cloud_account_gcp resource.
 ---
 
-# Resource: vra\_cloud\_account\_gcp
+# Resource: vra_cloud_account_gcp
 
-Creates a VMware vRealize Automation GCP cloud account resource.
+Creates a VMware Aria Automation GCP cloud account resource.
 
 ## Example Usages
 
@@ -48,8 +48,7 @@ Create your GCP cloud account resource with the following arguments:
 
 * `project_id` - (Required) GCP Project ID.
 
-* `tags` - (Optional) Set of tag keys and values to apply to the cloud account.
-Example: `[ { "key" : "vmware", "value": "provider" } ]`
+* `tags` - (Optional) Set of tag keys and values to apply to the cloud account. Example: `[ { "key" : "vmware", "value": "provider" } ]`
 
 ## Attribute Reference
 
@@ -57,14 +56,13 @@ Example: `[ { "key" : "vmware", "value": "provider" } ]`
 
 * `id` - ID of GCP cloud account.
 
-* `links` - HATEOAS of entity.
+* `links` - Hypermedia as the Engine of Application State (HATEOAS) of entity.
 
 * `org_id` - ID of organization that entity belongs to.
 
 * `owner` - Email of entity owner.
 
 * `updated_at` - Date when entity was last updated. Date and time format is ISO 8601 and UTC.
-
 
 ## Import
 

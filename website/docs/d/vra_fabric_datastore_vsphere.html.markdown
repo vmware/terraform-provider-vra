@@ -1,6 +1,6 @@
 ---
 layout: "vra"
-page_title: "VMware vRealize Automation: vra_fabric_datastore_vsphere"
+page_title: "VMware Aria Automation: vra_fabric_datastore_vsphere"
 description: |-
   Provides a data lookup for vSphere fabric datastores.
 ---
@@ -8,6 +8,7 @@ description: |-
 # Data Source: vra_fabric_datastore_vsphere
 
 ## Example Usages
+
 This is an example of how to lookup vSphere fabric datastores.
 
 **vSphere fabric datastore data source by Id:**
@@ -32,9 +33,9 @@ A vSphere fabric datastore data source supports the following arguments:
 
 ## Argument Reference
 
-* `id` - (Optional) The id of the vSphere fabric datastore resource instance. Only one of 'id' or 'filter' must be specified.
+* `id` - (Optional) The id of the vSphere fabric datastore resource instance. Only one of `id` or `filter` must be specified.
 
-* `filter` - (Optional) Search criteria to narrow down the vSphere fabric datastore resource instance. Only one of 'id' or 'filter' must be specified.
+* `filter` - (Optional) Search criteria to narrow down the vSphere fabric datastore resource instance. Only one of `id` or `filter` must be specified.
 
 ## Attribute Reference
 
@@ -50,7 +51,7 @@ A vSphere fabric datastore data source supports the following arguments:
 
 * `free_size_gb` - Indicates free size available in datastore.
 
-* `links` - HATEOAS of the entity
+* `links` - Hypermedia as the Engine of Application State (HATEOAS) of the entity.
 
 * `name` - A human-friendly name used as an identifier for the vSphere fabric datastore resource instance.
 
@@ -59,7 +60,9 @@ A vSphere fabric datastore data source supports the following arguments:
 * `owner` - Email of the user that owns the entity.
 
 * `tags` -  A set of tag keys and optional values that were set on this resource:
+
   * `key` - Tag’s key.
+
   * `value` - Tag’s value.
 
 * `type` - Type of datastore.

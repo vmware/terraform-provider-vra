@@ -1,10 +1,10 @@
 ---
 layout: "vra"
-page_title: "VMware vRealize Automation: vra_content_sharing_policy"
+page_title: "VMware Aria Automation: vra_content_sharing_policy"
 description: A data source for content sharing policy.
 ---
 
-# Data Source: vra\_content\_sharing\_policy
+# Data Source: vra_content_sharing_policy
 
 This is an example of how to lookup a content sharing policy data source:
 

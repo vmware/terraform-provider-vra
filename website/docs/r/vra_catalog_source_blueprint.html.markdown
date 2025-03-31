@@ -1,16 +1,16 @@
 ---
 layout: "vra"
-page_title: "VMware vRealize Automation: Resource vra_catalog_source_blueprint"
-description: A resource that can be used to create a vRealize Automation catalog source of type cloud template (blueprint).
+page_title: "VMware Aria Automation: Resource vra_catalog_source_blueprint"
+description: A resource that can be used to create a catalog source of type cloud template (blueprint).
 ---
 
-# Resource: vra\_catalog\_source\_blueprint
+# Resource: vra_catalog_source_blueprint
 
-Creates a VMware vRealize Automation catalog source resource of type cloud template, formerly known as a blueprint.
+Creates a catalog source resource of type cloud template (blueprint).
 
 ## Example Usages
 
-The following example shows how to create a catalog source resource. 
+The following example shows how to create a catalog source resource.
 
 ```hcl
 resource "vra_catalog_source_blueprint" "this" {
@@ -18,7 +18,6 @@ resource "vra_catalog_source_blueprint" "this" {
   project_id = var.vra_project_id
 }
 ```
-
 
 ## Argument Reference
 
@@ -30,10 +29,9 @@ Create your catalog resource with the following arguments:
 
 * `name` - (Required) Human-friendly name used as an identifier in APIs that support this option.
 
-* `project_id` - (Required) ID of the project this entity belongs to. 
+* `project_id` - (Required) ID of the project this entity belongs to.
 
-
-## Attribute Reference 
+## Attribute Reference
 
 * `created_at` - Date when entity was created. Date and time format is ISO 8601 and UTC.
 
@@ -53,10 +51,9 @@ Create your catalog resource with the following arguments:
 
 * `last_import_started_at` - Time at which the last import started.
 
-* `last_updated_by` - User who last updated the catalog source. 
+* `last_updated_by` - User who last updated the catalog source.
 
 * `type_id` - Type of catalog source. Example: `blueprint`, `CFT`, etc.
-
 
 ## Import
 

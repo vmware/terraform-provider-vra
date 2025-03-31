@@ -1,13 +1,13 @@
 ---
 layout: "vra"
-page_title: "VMware vRealize Automation: vra_fabric_datastore_vsphere"
+page_title: "VMware Aria Automation: vra_fabric_datastore_vsphere"
 description: |-
   Updates a fabric_datastore_vsphere resource.
 ---
 
 # Resource: vra_fabric_datastore_vsphere
 
-Updates a VMware vRealize Automation fabric_datastore_vsphere resource.
+Updates a VMware Aria Automation fabric_datastore_vsphere resource.
 
 ## Example Usages
 
@@ -23,10 +23,13 @@ resource "vra_fabric_datastore_vsphere" "this" {
   }
 }
 ```
+
 ## Argument Reference
 
 * `tags` -  A set of tag keys and optional values that were set on this resource:
+
   * `key` - Tag’s key.
+
   * `value` - Tag’s value.
 
 ## Attribute Reference
@@ -43,7 +46,7 @@ resource "vra_fabric_datastore_vsphere" "this" {
 
 * `free_size_gb` - Indicates free size available in datastore.
 
-* `links` - HATEOAS of the entity
+* `links` - Hypermedia as the Engine of Application State (HATEOAS) of the entity.
 
 * `name` - A human-friendly name used as an identifier for the vSphere fabric datastore resource instance.
 
@@ -52,7 +55,9 @@ resource "vra_fabric_datastore_vsphere" "this" {
 * `owner` - Email of the user that owns the entity.
 
 * `tags` -  A set of tag keys and optional values that were set on this resource:
+
   * `key` - Tag’s key.
+
   * `value` - Tag’s value.
 
 * `type` - Type of datastore.
@@ -63,4 +68,4 @@ resource "vra_fabric_datastore_vsphere" "this" {
 
 To import the fabric datastore vSphere resource, use the ID as in the following example:
 
-`$ terraform import vra_fabric_datastore_vsphere.this 8e0c9a4c-3ab8-48e8-b9d5-0751c871e282
+`$ terraform import vra_fabric_datastore_vsphere.this 8e0c9a4c-3ab8-48e8-b9d5-0751c871e282`

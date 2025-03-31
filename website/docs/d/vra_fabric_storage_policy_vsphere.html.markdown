@@ -1,12 +1,14 @@
 ---
 layout: "vra"
-page_title: "VMware vRealize Automation: vra_fabric_storage_policy_vsphere"
+page_title: "VMware Aria Automation: vra_fabric_storage_policy_vsphere"
 description: |-
   Provides a data lookup for fabric vSphere storage policy.
 ---
 
 # Data Source: vra_fabric_storage_policy_vsphere
+
 ## Example Usages
+
 This is an example of how to lookup fabric vSphere storage policies.
 
 **Fabric vSphere storage policy by Id:**
@@ -30,11 +32,13 @@ data "vra_fabric_storage_policy_vsphere" "this" {
 A fabric vSphere storage policy supports the following arguments:
 
 ## Argument Reference
-* `filter` - Search criteria to narrow down the fabric vSphere storage policy. Only one of 'filter' or 'id' must be specified.
 
-* `id` - The id of the fabric vSphere storage policy. Only one of 'filter' or 'id' must be specified.
+* `filter` - Search criteria to narrow down the fabric vSphere storage policy. Only one of `filter` or `id` must be specified.
+
+* `id` - The id of the fabric vSphere storage policy. Only one of `filter` or `id` must be specified.
 
 ## Attribute Reference
+
 * `cloud_account_ids` - Set of ids of the cloud accounts this entity belongs to.
 
 * `created_at` - Date when the entity was created. The date is in ISO 6801 and UTC.
@@ -45,9 +49,9 @@ A fabric vSphere storage policy supports the following arguments:
 
 * `external_region_id` - The id of the region for which this entity is defined.
 
-* `links` - HATEOAS of the entity
+* `links` - Hypermedia as the Engine of Application State (HATEOAS) of the entity.
 
-* `name` - A human-friendly name used as an identifier in APIs that support this option.  Only one of 'filter', 'id', 'name' or 'region_id' must be specified.
+* `name` - A human-friendly name used as an identifier in APIs that support this option.  Only one of `filter`, `id`, `name`, or `region_id` must be specified.
 
 * `org_id` - The id of the organization this entity belongs to.
 

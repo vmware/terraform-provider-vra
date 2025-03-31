@@ -1,12 +1,12 @@
 ---
 layout: "vra"
-page_title: "VMware vRealize Automation: Resource vra_blueprint"
-description: A resource that can be used to create a vRealize Automation cloud template, formerly know as blueprint.
+page_title: "VMware Aria Automation: Resource vra_blueprint"
+description: A resource that can be used to create a VMware Aria Automation cloud template (blueprint).
 ---
 
-# Resource: vra\_blueprint
+# Resource: vra_blueprint
 
-Creates a VMware vRealize Automation (vRA) cloud template resource, formerly known as a blueprint.
+Creates a cloud template (blueprint) resource.
 
 ## Example Usage
 
@@ -15,7 +15,7 @@ The following example shows how to create a blueprint resource.
 ```hcl
 resource "vra_blueprint" "this" {
   name        = var.blueprint_name
-  description = "Created by vRA terraform provider"
+  description = "Created by VMware Aria Automation terraform provider"
 
   project_id = vra_project.this.id
 
@@ -48,14 +48,13 @@ Create your blueprint resource with the following arguments:
 
 * `name` - (Required) Human-friendly name used as an identifier in APIs that support this option.
 
-* `project_id` - (Required) ID of project that entity belongs to. 
+* `project_id` - (Required) ID of project that entity belongs to.
 
 * `request_scope_org` - (Optional) Flag to indicate whether blueprint can be requested from any project in the organization that entity belongs to.
 
-
 ## Attribute Reference
 
-* `content_source_id` - ID of content source. 
+* `content_source_id` - ID of content source.
 
 * `content_source_path` - Content source path.
 
@@ -77,11 +76,11 @@ Create your blueprint resource with the following arguments:
 
 * `project_name` - Name of project that entity belongs to.
 
-* `self_link` - HATEOAS of entity.
+* `self_link` - Hypermedia as the Engine of Application State (HATEOAS) of entity.
 
 * `status` - Status of cloud template. Supported values: `DRAFT`, `VERSIONED`, `RELEASED`.
 
-* `total_released_versions` - Total number of released versions. 
+* `total_released_versions` - Total number of released versions.
 
 * `total_versions` - Total number of versions.
 
@@ -92,16 +91,16 @@ Create your blueprint resource with the following arguments:
 * `valid` - Flag to indicate if the current content of the cloud template/blueprint is valid.
 
 * `validation_messages` - List of validations messages.
-    * message - Validation message.
-    
-    * metadata - Validation metadata.
-    
-    * path - Validation path.
-    
-    * resource_name - Name of resource.
-    
-    * type - Message type. Supported values: `INFO`, `WARNING`, `ERROR`.
 
+  * `message` - Validation message.
+
+  * `metadata` - Validation metadata.
+
+  * `path` - Validation path.
+
+  * `resource_name` - Name of resource.
+
+  * `type` - Message type. Supported values: `INFO`, `WARNING`, `ERROR`.
 
 ## Import
 

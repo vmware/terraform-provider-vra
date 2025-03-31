@@ -1,10 +1,12 @@
----layout: "vra"
-page_title: "VMware vRealize Automation: vra_network"
+---
+layout: "vra"
+page_title: "VMware Aria Automation: vra_network"
 description: |-
   Provides a data lookup for vra_network.
 ---
 
 # Data Source: vra_network
+
 ## Example Usages
 
 This is an example of how to read a network data source.
@@ -35,11 +37,11 @@ data "vra_network" "test-network" {
 
 ## Argument Reference
 
-* `id` - (Optional) The id of the network instance. Only one of 'id', 'name' or 'filter' must be specified.
+* `id` - (Optional) The id of the network instance. Only one of `id`, `name`, or `filter` must be specified.
 
-* `name` - (Optional) The human-friendly name of the network instance. Only one of 'id', 'name' or 'filter' must be specified.
+* `name` - (Optional) The human-friendly name of the network instance. Only one of `id`, `name`, or `filter` must be specified.
 
-* `filter` - (Optional) The search criteria to narrow down the network instance. Only one of 'id', 'name' or 'filter' must be specified.
+* `filter` - (Optional) The search criteria to narrow down the network instance. Only one of `id`, `name`, or `filter` must be specified.
 
 ## Attribute Reference
 
@@ -59,7 +61,7 @@ data "vra_network" "test-network" {
 
 * `external_zone_id` - The external zoneId of the resource.
 
-* `links` - HATEOAS of the entity
+* `links` - Hypermedia as the Engine of Application State (HATEOAS) of the entity.
 
 * `organization_id` - The id of the organization this entity belongs to.
 
@@ -67,7 +69,6 @@ data "vra_network" "test-network" {
 
 * `project_id` - The id of the project this resource belongs to.
 
-* `tags` - A set of tag keys and optional values that were set on this resource.
-           example: `[ { "key" : "ownedBy", "value": "Rainpole" } ]`
+* `tags` - A set of tag keys and optional values that were set on this resource. Example: `[ { "key" : "ownedBy", "value": "Rainpole" } ]`
 
 * `update_at` - Date when the entity was last updated. The date is ISO 8601 and UTC.
