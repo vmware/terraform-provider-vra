@@ -34,6 +34,21 @@ const (
 	UpdateDeploymentActionName      = "update"
 )
 
+// parse timestamp in API response. Helper for resourceDeployment
+func getParsedTime(d *schema.ResourceDiff, key string) (time.Time, bool) {
+	timeStr, ok := d.GetOk(key)
+	if !ok {
+		log.Printf("[INFO] Missing or invalid time string for key %s: %#v", key, timeStr)
+		return time.Time{}, false
+	}
+	parsedTime, err := strfmt.ParseDateTime(timeStr.(string))
+	if err != nil {
+		log.Printf("[INFO] Failed to parse DateTime for key %s: %#v", key, timeStr)
+		return time.Time{}, false
+	}
+	return time.Time(parsedTime), true
+}
+
 func resourceDeployment() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceDeploymentCreate,
@@ -43,26 +58,18 @@ func resourceDeployment() *schema.Resource {
 
 		CustomizeDiff: customdiff.ForceNewIf(
 			"recreate_if_expired_at",
-			func(ctx context.Context, d *schema.ResourceDiff, meta interface{}) bool {
-				planTimeStr, ok := d.GetOk("recreate_if_expired_at")
-				if !ok {
-					log.Printf("[DEBUG] Don't special-handle expired deployment, recreate_if_expired_at = %#v", planTimeStr)
-					return false // don't check expiration
-				}
-				planTime, err := strfmt.ParseDateTime(planTimeStr.(string))
-				if err != nil {
-					log.Printf("[DEBUG] Failed to parse DateTime variable recreate_if_expired_at: %#v", planTime)
+			func(_ context.Context, d *schema.ResourceDiff, _ interface{}) bool {
+				planTime, valid := getParsedTime(d, "recreate_if_expired_at")
+				if !valid {
 					return false
 				}
-				expirationTimeStr := d.Get("lease_expire_at")
-				expirationTime, err := strfmt.ParseDateTime(expirationTimeStr.(string))
-				if err != nil {
-					log.Printf("[DEBUG] Failed to parse DateTime attribute lease_expire_at: %#v", expirationTimeStr)
+				expirationTime, valid := getParsedTime(d, "lease_expire_at")
+				if !valid {
 					return false
 				}
-				log.Printf("checking if expirationTime %s < planTime %s", expirationTime, planTime)
-				return time.Time(expirationTime).Before(time.Time(planTime))
-			}),
+				return expirationTime.Before(planTime)
+			},
+		),
 
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
