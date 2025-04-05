@@ -8,7 +8,7 @@ description: |-
 # Resource: vra_load_balancer
 
 Creates a VMware vRealize Automation load balancer resource.
-
+x
 ## Example Usages
 
 The following example shows how to create a load balancer resource.
