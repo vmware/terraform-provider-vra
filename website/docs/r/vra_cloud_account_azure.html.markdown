@@ -1,13 +1,13 @@
 ---
 layout: "vra"
-page_title: "VMware vRealize Automation: vra_cloud_account_azure"
+page_title: "VMware Aria Automation: vra_cloud_account_azure"
 description: |-
   Creates a vra_cloud_account_azure resource.
 ---
 
-# Resource: vra\_cloud\_account\_azure
+# Resource: vra_cloud_account_azure
 
-Creates a VMware vRealize Automation Azure cloud account resource.
+Creates a VMware Aria Automation Azure cloud account resource.
 
 ## Example Usages
 
@@ -41,8 +41,7 @@ Create your Azure cloud account resource with the following arguments:
 
 * `subscription_id` - (Required) Azure Subscription ID.
 
-* `tags` - (Optional) Set of tag keys and values to apply to the cloud account.
-Example: `[ { "key" : "vmware", "value": "provider" } ]`
+* `tags` - (Optional) Set of tag keys and values to apply to the cloud account. Example: `[ { "key" : "vmware", "value": "provider" } ]`
 
 * `tenant_id` - (Required) Azure Tenant ID.
 
@@ -50,7 +49,7 @@ Example: `[ { "key" : "vmware", "value": "provider" } ]`
 
 * `created_at` - Date when entity was created. Date and time format is ISO 8601 and UTC.
 
-* `links` - HATEOAS of entity.
+* `links` - Hypermedia as the Engine of Application State (HATEOAS) of entity.
 
 * `org_id` - ID of organization that entity belongs to.
 

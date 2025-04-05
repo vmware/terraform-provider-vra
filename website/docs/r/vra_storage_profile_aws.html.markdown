@@ -1,15 +1,17 @@
 ---
 layout: "vra"
-page_title: "VMware vRealize Automation: vra_storage_profile_aws"
+page_title: "VMware Aria Automation: vra_storage_profile_aws"
 description: |-
   Provides a data lookup for vra_storage_profile_aws.
 ---
 
 # Resource: vra_storage_profile_aws
+
 ## Example Usages
+
 This is an example of how to create a storage profile aws resource.
 
-**Vra storage profile aws:**
+**storage profile aws:**
 
 ```hcl
 # AWS storage profile using vra_storage_profile_aws resource and EBS disk type.
@@ -46,7 +48,6 @@ resource "vra_storage_profile_aws" "this" {
     value = "bar"
   }
 }
-
 ```
 
 A storage profile aws resource supports the following arguments:
@@ -67,8 +68,7 @@ A storage profile aws resource supports the following arguments:
 
 * `supports_encryption` - (Optional) Indicates whether this storage profile supports encryption or not.
 
-* `tags` - (Optional) A set of tag keys and optional values that were set on this Network Profile.
-           example: `[ { "key" : "ownedBy", "value": "Rainpole" } ]`
+* `tags` - (Optional) A set of tag keys and optional values that were set on this Network Profile. Example: `[ { "key" : "ownedBy", "value": "Rainpole" } ]`
 
 * `volume_type` - (Optional) Indicates the type of volume associated with type of storage.
 
@@ -78,7 +78,7 @@ A storage profile aws resource supports the following arguments:
 
 * `external_region_id` - The id of the region as seen in the cloud provider for which this profile is defined.
 
-* `links` - HATEOAS of the entity
+* `links` - Hypermedia as the Engine of Application State (HATEOAS) of the entity.
 
 * `organization_id` - The id of the organization this entity belongs to.
 

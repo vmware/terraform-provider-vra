@@ -1,16 +1,16 @@
 ---
 layout: "vra"
-page_title: "VMware vRealize Automation: Data source vra_catalog_item"
+page_title: "VMware Aria Automation: Data source vra_catalog_item"
 description: A data source for a catalog item.
 ---
 
-# Data Source: vra\_catalog\_item
+# Data Source: vra_catalog_item
 
-This data source provides information about a catalog item in vRA.
+This data source provides information about a catalog item.
 
 ## Example Usages
 
-This is an example of how to get a vRA catalog item by its name.
+This is an example of how to get a catalog item by its name.
 
 ```hcl
 data "vra_catalog_item" "this" {
@@ -19,7 +19,7 @@ data "vra_catalog_item" "this" {
 }
 ```
 
-This is an example of how to get a vRA catalog item by its id.
+This is an example of how to get a catalog item by its id.
 
 ```hcl
 data "vra_catalog_item" "this" {
@@ -27,7 +27,6 @@ data "vra_catalog_item" "this" {
   expand_versions = true
 }
 ```
-
 
 ## Argument Reference
 
@@ -61,34 +60,34 @@ data "vra_catalog_item" "this" {
 
 * `projects` - List of associated projects that can be used for requesting this catalog item.
 
-    * `description` - A human friendly description.
-    
-    * `id` - Id of the entity.
-    
-    * `name` - Name of the entity.
-    
-    * `version` - Version of the entity, if applicable.
+  * `description` - A human friendly description.
 
-* `schema` - Json schema describing request parameters, a simplified version of http://json-schema.org/latest/json-schema-validation.html#rfc.section.5
+  * `id` - Id of the entity.
+
+  * `name` - Name of the entity.
+
+  * `version` - Version of the entity, if applicable.
+
+* `schema` - JSON schema describing request parameters, a simplified version of <http://json-schema.org/latest/json-schema-validation.html#rfc.section.5>
 
 * `source_id` - LibraryItem source ID.
 
 * `source_name` - LibraryItem source name.
 
-* `type` - 
+* `type` -
 
-    * `description` - A human friendly description.
-        
-    * `id` - Id of the entity.
-        
-    * `name` - Name of the entity.
-        
-    * `version` - Version of the entity, if applicable.
+  * `description` - A human friendly description.
+
+  * `id` - Id of the entity.
+
+  * `name` - Name of the entity.
+
+  * `version` - Version of the entity, if applicable.
 
 * `versions` - Catalog item versions.
 
-    * `created_at` - Date-time when catalog item version was created at.
-    
-    * `description` - A human-friendly description.
-    
-    * `id` - Id of the catalog item version.
+  * `created_at` - Date-time when catalog item version was created at.
+
+  * `description` - A human-friendly description.
+
+  * `id` - Id of the catalog item version.

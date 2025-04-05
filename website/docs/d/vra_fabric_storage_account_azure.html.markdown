@@ -1,12 +1,14 @@
 ---
 layout: "vra"
-page_title: "VMware vRealize Automation: vra_fabric_storage_account_azure"
+page_title: "VMware Aria Automation: vra_fabric_storage_account_azure"
 description: |-
   Provides a data lookup for fabric Azure storage account.
 ---
 
 # Data Source: vra_fabric_storage_account_azure
+
 ## Example Usages
+
 This is an example of how to lookup fabric Azure storage account.
 
 **Fabric Azure storage account by Id:**
@@ -30,11 +32,13 @@ data "vra_fabric_storage_account_azure" "this" {
 A fabric Azure storage account supports the following arguments:
 
 ## Argument Reference
-* `filter` - Search criteria to narrow down the fabric Azure storage accounts. Only one of 'filter' or 'id' must be specified.
 
-* `id` - The id of the fabric Azure storage account. Only one of 'filter' or 'id' must be specified.
+* `filter` - Search criteria to narrow down the fabric Azure storage accounts. Only one of `filter` or `id` must be specified.
+
+* `id` - The id of the fabric Azure storage account. Only one of `filter` or `id` must be specified.
 
 ## Attribute Reference
+
 * `cloud_account_ids` - Set of ids of the cloud accounts this entity belongs to.
 
 * `created_at` - Date when the entity was created. The date is in ISO 6801 and UTC.
@@ -45,7 +49,7 @@ A fabric Azure storage account supports the following arguments:
 
 * `external_region_id` - The id of the region for which this entity is defined.
 
-* `links` - HATEOAS of the entity
+* `links` - Hypermedia as the Engine of Application State (HATEOAS) of the entity.
 
 * `name` - A human-friendly name used as an identifier in APIs that support this option.
 
@@ -53,8 +57,7 @@ A fabric Azure storage account supports the following arguments:
 
 * `owner` - Email of the user that owns the entity.
 
-* `tags` -  A set of tag keys and optional values that were set on this resource.
-                       example: `[ { "key" : "ownedBy", "value": "Rainpole" } ]`
+* `tags` -  A set of tag keys and optional values that were set on this resource. Example: `[ { "key" : "ownedBy", "value": "Rainpole" } ]`
 
 * `type` -  Indicates the performance tier for the storage type. Premium disks are SSD backed and Standard disks are HDD backed. example: `Standard_LRS / Premium_LRS`
 

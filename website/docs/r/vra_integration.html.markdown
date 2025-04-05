@@ -1,13 +1,13 @@
 ---
 layout: "vra"
-page_title: "VMware vRealize Automation: vra_integration"
+page_title: "VMware Aria Automation: vra_integration"
 description: |-
     Creates a vra_integration resource.
 ---
 
-# Resource: vra\_integration
+# Resource: vra_integration
 
-Creates a VMware vRealize Automation Integration resource.
+Creates a VMware Aria Automation Integration resource.
 
 ## Example Usages
 
@@ -61,14 +61,13 @@ Create your integration resource with the following arguments:
 
 * `id` - (Optional) The id of the integration.
 
-* `links` - HATEOAS of entity.
+* `links` - Hypermedia as the Engine of Application State (HATEOAS) of entity.
 
 * `org_id` - The id of the organization this entity belongs to.
 
 * `owner` - Email of the user that owns the entity.
 
 * `updated_at` - Date when the entity was last updated. The date is ISO 8601 and UTC.
-
 
 ## Import
 

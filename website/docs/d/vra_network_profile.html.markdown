@@ -1,12 +1,14 @@
 ---
 layout: "vra"
-page_title: "VMware vRealize Automation: vra_network_profile"
+page_title: "VMware Aria Automation: vra_network_profile"
 description: |-
   Provides a data lookup for vra_network_profile.
 ---
 
 # Data Source: vra_network_profile
+
 ## Example Usages
+
 This is an example of how to create a network profile resource.
 
 **Network profile data source by its id:**
@@ -17,7 +19,7 @@ data "vra_network_profile" "this" {
 }
 ```
 
-**Vra network profile data source filter by region id:**
+**network profile data source filter by region id:**
 
 ```hcl
 data "vra_network_profile" "this" {
@@ -29,7 +31,7 @@ A network profile data source supports the following arguments:
 
 ## Argument Reference
 
-* `filter` - (Optional) Filter query string that is supported by vRA multi-cloud IaaS API. Example: `regionId eq '<regionId>' and cloudAccountId eq '<cloudAccountId>'`.
+* `filter` - (Optional) Filter query string that is supported by VMware Aria Automation multi-cloud IaaS API. Example: `regionId eq '<regionId>' and cloudAccountId eq '<cloudAccountId>'`.
 
 * `id` - (Optional) The id of the image profile instance.
 
@@ -46,14 +48,14 @@ A network profile data source supports the following arguments:
 * `external_region_id` - The external regionId of the resource.
 
 * `fabric_network_ids` - A list of fabric network Ids which are assigned to the network profile.
-                         example: `[ "6543" ]`
+                         Example: `[ "6543" ]`
 * `isolated_network_cidr_prefix` - The CIDR prefix length to be used for the isolated networks that are created with the network profile.
 
 * `isolated_network_domain_cidr` - CIDR of the isolation network domain.
 
 * `isolation_type` - Specifies the isolation type e.g. none, subnet or security group
 
-* `links` - HATEOAS of the entity
+* `links` - Hypermedia as the Engine of Application State (HATEOAS) of the entity.
 
 * `name` - A human-friendly name used as an identifier in APIs that support this option.
 
@@ -61,12 +63,11 @@ A network profile data source supports the following arguments:
 
 * `owner` - Email of the user that owns the entity.
 
-* `region_id` - The id of the region for which this profile is defined as in vRealize Automation(vRA).
+* `region_id` - The id of the region for which this profile is defined as in VMware Aria Automation.
 
 * `security_group_ids` - A list of security group Ids which are assigned to the network profile.
-                         example: `[ "6545" ]`
+                         Example: `[ "6545" ]`
 
-* `tags` - A set of tag keys and optional values that were set on this Network Profile.
-           example: `[ { "key" : "ownedBy", "value": "Rainpole" } ]`
+* `tags` - A set of tag keys and optional values that were set on this Network Profile. Example: `[ { "key" : "ownedBy", "value": "Rainpole" } ]`
 
 * `updated_at` - Date when the entity was last updated. The date is ISO 8601 and UTC.

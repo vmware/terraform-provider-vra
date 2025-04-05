@@ -1,34 +1,35 @@
----layout: "vra"
-page_title: "VMware vRealize Automation: vra_machine"
+---
+layout: "vra"
+page_title: "VMware Aria Automation: vra_machine"
 description: |-
   Provides a data lookup for vra_machine.
 ---
 
 # Data Source: vra_machine
+
 ## Example Usages
 
 This is an example of how to read a machine data source.
 
 ```hcl
-
 data "vra_machine" "this" {
   id = var.my_machine_id
 }
-
 ```
 
 **Machine data source filter by name:**
-```hcl
 
+```hcl
 data "vra_machine" "this" {
   filter = "name eq '${var.machine_name}'"
 }
-
 ```
+
 ## Argument Reference
+
 * `description` - (Optional) A human-friendly description.
 
-* `filter` - (Optional) Filter query string that is supported by vRA multi-cloud IaaS API. Example: `regionId eq '<regionId>' and cloudAccountId eq '<cloudAccountId>'`.
+* `filter` - (Optional) Filter query string that is supported by VMware Aria Automation multi-cloud IaaS API. Example: `regionId eq '<regionId>' and cloudAccountId eq '<cloudAccountId>'`.
 
 * `id` - (Optional) The id of the image profile instance.
 
@@ -50,7 +51,7 @@ data "vra_machine" "this" {
 
 * `external_zone_id` - The external zoneId of the resource.
 
-* `links` - HATEOAS of the entity
+* `links` - Hypermedia as the Engine of Application State (HATEOAS) of the entity.
 
 * `name` - A human-friendly name used as an identifier in APIs that support this option.
 
@@ -62,7 +63,6 @@ data "vra_machine" "this" {
 
 * `project_id` - The id of the project this resource belongs to.
 
-* `tags` - A set of tag keys and optional values that were set on this resource.
-           example: `[ { "key" : "ownedBy", "value": "Rainpole" } ]`
+* `tags` - A set of tag keys and optional values that were set on this resource. Example: `[ { "key" : "ownedBy", "value": "Rainpole" } ]`
 
 * `update_at` - Date when the entity was last updated. The date is ISO 8601 and UTC.

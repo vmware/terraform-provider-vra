@@ -1,13 +1,13 @@
 ---
 layout: "vra"
-page_title: "VMware vRealize Automation: vra_cloud_account_vsphere"
+page_title: "VMware Aria Automation: vra_cloud_account_vsphere"
 description: |-
     Creates a vra_cloud_account_vsphere resource.
 ---
 
-# Resource: vra\_cloud\_account\_vsphere
+# Resource: vra_cloud_account_vsphere
 
-Creates a VMware vRealize Automation vSphere cloud account resource.
+Creates a VMware Aria Automation vSphere cloud account resource.
 
 ## Example Usages
 
@@ -20,7 +20,7 @@ resource "vra_cloud_account_vsphere" "this" {
   username    = var.username
   password    = var.password
   hostname    = var.hostname
-  dc_id       = var.vra_data_collector_id // Required for vRA Cloud, Optional for vRA 8.X
+  dc_id       = var.vra_data_collector_id // Required for VMware Aria Automation Cloud, Optional for VMware Aria Automation 8.X
   regions                      = var.regions
   associated_cloud_account_ids = [var.vra_cloud_account_nsxt_id]
 
@@ -51,8 +51,7 @@ Create your vSphere cloud account resource with the following arguments:
 
 * `regions` - (Required) A set of region names that are enabled for the cloud account.
 
-* `tags` - (Optional) A set of tag keys and optional values to apply to the cloud account.
-Example: `[ { "key" : "vmware", "value": "provider" } ]`
+* `tags` - (Optional) A set of tag keys and optional values to apply to the cloud account. Example: `[ { "key" : "vmware", "value": "provider" } ]`
 
 * `username` - (Required) vSphere username used to authenticate to the cloud account.
 
@@ -64,14 +63,13 @@ Example: `[ { "key" : "vmware", "value": "provider" } ]`
 
 * `id` - (Optional) ID of the vSphere cloud account.
 
-* `links` - HATEOAS of entity.
+* `links` - Hypermedia as the Engine of Application State (HATEOAS) of entity.
 
 * `org_id` - ID of organization that entity belongs to.
 
 * `owner` - Email of entity owner.
 
 * `updated_at` - Date when the entity was last updated. Date and time format is ISO 8601 and UTC.
-
 
 ## Import
 

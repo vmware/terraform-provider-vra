@@ -1,16 +1,16 @@
 ---
 layout: "vra"
-page_title: "VMware vRealize Automation: vra_content_sharing_policy"
+page_title: "VMware Aria Automation: vra_content_sharing_policy"
 description: Creates a vra_content_sharing_policy resource.
 ---
 
-# Resource: vra\_content\_sharing\_policy
+# Resource: vra_content_sharing_policy
 
-Creates a VMware vRealize Automation Content Sharing Policy resource.
+Creates a VMware Aria Automation content sharing policy resource.
 
 ## Example Usages
 
-The following example shows how to create a Content Sharing Policy resource:
+The following example shows how to create a content sharing policy resource:
 
 ```hcl
 resource "vra_content_sharing_policy" "this" {

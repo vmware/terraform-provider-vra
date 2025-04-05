@@ -1,12 +1,12 @@
 ---
 layout: "vra"
-page_title: "VMware vRealize Automation: Data source vra_blueprint_version"
+page_title: "VMware Aria Automation: Data source vra_blueprint_version"
 description: A blueprint version data source.
 ---
 
-# Data Source: vra\_blueprint\_version
+# Data Source: vra_blueprint_version
 
-This data source provides information about a cloud template (blueprint) version in vRA.
+This data source provides information about a cloud template (blueprint) version.
 
 ## Example Usages
 
@@ -22,7 +22,6 @@ data "vra_blueprint_version" "this" {
 * `blueprint_id` - (Required) Name of the cloud template. One of `id` or `name` must be provided.
 
 * `id` - (Required) The id of the cloud template version.
-
 
 ## Attribute Reference
 

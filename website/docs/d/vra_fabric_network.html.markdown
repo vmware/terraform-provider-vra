@@ -1,23 +1,25 @@
 ---
 layout: "vra"
-page_title: "VMware vRealize Automation: vra_fabric_network"
+page_title: "VMware Aria Automation: vra_fabric_network"
 description: |-
-  Provides a data lookup for vRA fabric networks.
+  Provides a data lookup for VMware Aria Automation fabric networks.
 ---
 
 # Data Source: vra_fabric_network
+
 ## Example Usages
+
 This is an example of how to lookup fabric networks.
 
 **Fabric network by filter query:**
 
 ```hcl
-# Lookup vRA fabric network using its name
+# Lookup VMware Aria Automation fabric network using its name
 data "vra_fabric_network" "this" {
   filter = "name eq '${var.name}'"
 }
 
-# Lookup vRA fabric network using its name and regionId
+# Lookup VMware Aria Automation fabric network using its name and regionId
 data "vra_fabric_network" "this" {
   filter = "name eq '${var.name}' and externalRegionId eq '${var.external_region_id}'"
 }
@@ -26,16 +28,18 @@ data "vra_fabric_network" "this" {
 A fabric network data source supports the following arguments:
 
 ## Argument Reference
-* `filter` - (Required) Filter query string that is supported by vRA multi-cloud IaaS API.
+
+* `filter` - (Required) Filter query string that is supported by VMware Aria Automation multi-cloud IaaS API.
 
 ## Attribute Reference
+
 * `cloud_account_ids` - Set of ids of the cloud accounts this entity belongs to.
 
 * `created_at` - Date when the entity was created. The date is in ISO 6801 and UTC.
 
 * `cidr` - Network CIDR to be used.
 
-* `id` - ID of the vRA fabric network.
+* `id` - ID of the VMware Aria Automation fabric network.
 
 * `is_public` - Indicates whether the sub-network supports public IP assignment.
 
@@ -47,7 +51,7 @@ A fabric network data source supports the following arguments:
 
 * `external_region_id` - The id of the region for which this network is defined.
 
-* `links` - HATEOAS of the entity
+* `links` - Hypermedia as the Engine of Application State (HATEOAS) of the entity.
 
 * `name` - Name of the fabric network.
 

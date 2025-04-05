@@ -1,10 +1,11 @@
 ---
 layout: "vra"
-page_title: "VMware vRealize Automation: vra_project"
+page_title: "VMware Aria Automation: vra_project"
 description: |-
-  Provides a VMware vRealize Automation vra_project resource.
+  Provides a VMware Aria Automation vra_project resource.
 ---
-# Resource: vra\_project
+
+# Resource: vra_project
 
 ## Example Usages
 
@@ -150,7 +151,7 @@ A project resource supports the following arguments:
 
 * `zone_assignments` - (Optional) A list of configurations for zone assignment to a project.
 
-**Due to the design of the vRealize Automation IaaS API to update a project, it's not able to add and remove user or group at the same time. Please execute `terraform apply` twice.**
+> **Note**: Due to the design of the VMware Aria Automation IaaS API to update a project, it's not able to add and remove user or group at the same time. Please execute `terraform apply` twice.
 
 Initially, we have `jason` and `tony` configured as administrator. The initial the configuration:
 
@@ -181,4 +182,3 @@ Next, we want to add `bob` as a new administrator and remove `jason`. The modifi
 ```
 
 To complete the whole operation, it requires running `terraform apply` twice.
-

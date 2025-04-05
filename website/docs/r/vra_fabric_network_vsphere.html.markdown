@@ -1,13 +1,13 @@
 ---
 layout: "vra"
-page_title: "VMware vRealize Automation: vra_fabric_network_vsphere"
+page_title: "VMware Aria Automation: vra_fabric_network_vsphere"
 description: |-
   Updates a fabric_network_vsphere resource.
 ---
 
 # Resource: vra_fabric_network_vsphere
 
-Updates a VMware vRealize Automation fabric_network_vsphere resource.
+Updates a VMware Aria Automation fabric_network_vsphere resource.
 
 ## Example Usages
 
@@ -15,7 +15,6 @@ You cannot create a vSphere fabric network resource, however you can import usin
 Once a resource is imported, you can update it as shown below:
 
 ```hcl
-
 resource "vra_fabric_network_vsphere" "simple" {
   cidr            = var.cidr
   default_gateway = var.gateway
@@ -25,8 +24,8 @@ resource "vra_fabric_network_vsphere" "simple" {
     value = "bar"
   }
 }
-
 ```
+
 ## Argument Reference
 
 * `cidr` - Network CIDR to be used.
@@ -48,6 +47,7 @@ resource "vra_fabric_network_vsphere" "simple" {
 * `is_public` - Indicates whether the sub-network supports public IP assignment.
 
 ## Attribute Reference
+
 * `cloud_account_ids` - Set of ids of the cloud accounts this entity belongs to.
 
 * `created_at` - Date when the entity was created. The date is in ISO 6801 and UTC.
@@ -56,9 +56,9 @@ resource "vra_fabric_network_vsphere" "simple" {
 
 * `external_region_id` - The id of the region for which this network is defined.
 
-* `id` - ID of the vRA fabric network.
+* `id` - ID of the VMware Aria Automation fabric network.
 
-* `links` - HATEOAS of the entity
+* `links` - Hypermedia as the Engine of Application State (HATEOAS) of the entity.
 
 * `name` - A human-friendly name used as an identifier in APIs that support this option.
 
@@ -68,7 +68,6 @@ resource "vra_fabric_network_vsphere" "simple" {
             Example: `[ { "key" : "vmware", "value": "provider" } ]`
 
 * `updated_at` - Date when the entity was last updated. The date is ISO 8601 and UTC.
-
 
 ## Import
 

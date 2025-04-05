@@ -1,6 +1,6 @@
 ---
 layout: "vra"
-page_title: "VMware vRealize Automation: vra_zone"
+page_title: "VMware Aria Automation: vra_zone"
 description: |-
   Provides a data lookup for vra_zone.
 ---
@@ -41,7 +41,7 @@ A zone data source supports the following arguments:
 
 * `folder` - The folder relative path to the datacenter where resources are deployed to (only applicable for vSphere cloud zones).
 
-* `links` - HATEOAS of the entity.
+* `links` - Hypermedia as the Engine of Application State (HATEOAS) of the entity.
 
 * `org_id` - The id of the organization this entity belongs to.
 
@@ -50,11 +50,15 @@ A zone data source supports the following arguments:
 * `placement_policy` - The placement policy for the zone. One of `DEFAULT`, `BINPACK`, `SPREAD` or `SPREAD_MEMORY`.
 
 * `tags` - A set of tag keys and optional values that were set on this resource:
+
   * `key` - Tag’s key.
+
   * `value` - Tag’s value.
 
 * `tags_to_match` - A set of tag keys and optional values for compute resource filtering:
+
   * `key` - Tag’s key.
+
   * `value` - Tag’s value.
 
 * `updated_at` - Date when the entity was last updated. The date is ISO 8601 and UTC.

@@ -1,18 +1,18 @@
 ---
 layout: "vra"
-page_title: "VMware vRealize Automation: vra_catalog_item_entitlement"
+page_title: "VMware Aria Automation: vra_catalog_item_entitlement"
 description: A data source for catalog item entitlement.
 ---
 
-# Data Source: vra\_catalog\_item\_entitlement
+# Data Source: vra_catalog_item_entitlement
 
 > **Note**:  Deprecated - please use `vra_content_sharing_policy` instead.
 
-This data source provides information about a catalog item entitlement in vRA.
+This data source provides information about a catalog item entitlement.
 
 ## Example Usages
 
-This is an example of how to get a vRA catalog item entitlement by its id:
+This is an example of how to get a catalog item entitlement by its id:
 
 ```hcl
 data "vra_catalog_item_entitlement" "this" {
@@ -21,7 +21,7 @@ data "vra_catalog_item_entitlement" "this" {
 }
 ```
 
-This is an example of how to get a vRA catalog item entitlement by its catalog item id:
+This is an example of how to get a catalog item entitlement by its catalog item id:
 
 ```hcl
 data "vra_catalog_item_entitlement" "this" {
@@ -42,18 +42,18 @@ data "vra_catalog_item_entitlement" "this" {
 
 * `definition` - Represents a catalog item that is linked to a project via an entitlement.
 
-    * `description` - Description of the catalog item.
+  * `description` - Description of the catalog item.
 
-    * `icon_id` - Icon id of associated catalog item.
+  * `icon_id` - Icon id of associated catalog item.
 
-    * `id` - Id of the catalog item.
+  * `id` - Id of the catalog item.
 
-    * `name` - Name of the catalog item.
+  * `name` - Name of the catalog item.
 
-    * `number_of_items` - Number of items in the associated catalog source.
+  * `number_of_items` - Number of items in the associated catalog source.
 
-    * `source_name` - Catalog source name.
+  * `source_name` - Catalog source name.
 
-    * `source_type` - Catalog source type.
+  * `source_type` - Catalog source type.
 
-    * `type` - Content definition type.
+  * `type` - Content definition type.

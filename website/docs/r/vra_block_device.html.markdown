@@ -1,6 +1,6 @@
 ---
 layout: "vra"
-page_title: "VMware vRealize Automation: vra_block_device"
+page_title: "VMware Aria Automation: vra_block_device"
 sidebar_current: "docs-vra-resource-block-device"
 description: |-
   Creates a vra_block_device resource.
@@ -8,7 +8,7 @@ description: |-
 
 # Resource: vra_block_device
 
-Creates a VMware vRealize Automation block device resource.
+Creates a VMware Aria Automation block device resource.
 
 ## Example Usages
 
@@ -50,6 +50,7 @@ Create your block device resource with the following arguments:
 * `source_reference` - (Optional) URI to use for block device. Example: `ami-0d4cfd66`
 
 ## Attribute Reference
+
 * `created_at` - Date when entity was created. Date and time format is ISO 8601 and UTC.
 
 * `custom_properties` - Additional custom properties that may be used to extend the machine.
@@ -66,37 +67,37 @@ Create your block device resource with the following arguments:
 
 * `owner` - Email of entity owner.
 
-* `links` - HATEOAS of entity.
+* `links` - Hypermedia as the Engine of Application State (HATEOAS) of entity.
 
 * `snapshots` - Represents a machine snapshot.
 
-    * `created_at` - Date when entity was created. Date and time format is ISO 8601 and UTC.
+  * `created_at` - Date when entity was created. Date and time format is ISO 8601 and UTC.
 
-    * `description` - Describes machine within the scope of your organization and is not propagated to the cloud.
+  * `description` - Describes machine within the scope of your organization and is not propagated to the cloud.
 
-    * `id` - ID of the block device snapshot.
+  * `id` - ID of the block device snapshot.
 
-    * `is_current` - Indicates whether snapshot on block device is current.
+  * `is_current` - Indicates whether snapshot on block device is current.
 
-    * `links` - HATEOAS of the entity
+  * `links` - Hypermedia as the Engine of Application State (HATEOAS) of the entity.
 
-        * `rel`
+    * `rel`
 
-        * `href`
+    * `href`
 
-        * `hrefs`
+    * `hrefs`
 
-    * `name` - Human-friendly name for block device snapshot.
+  * `name` - Human-friendly name for block device snapshot.
 
-    * `org_id` - ID of organization that block device snapshot belongs to.
+  * `org_id` - ID of organization that block device snapshot belongs to.
 
-    * `owner` - Email of block device snapshot owner.
+  * `owner` - Email of block device snapshot owner.
 
-    * `updated_at` - Date when entity was last updated. Date and time format is ISO 8601 and UTC.
+  * `updated_at` - Date when entity was last updated. Date and time format is ISO 8601 and UTC.
 
 * `status` - Status of block device.
 
 * `tags` - Set of tag keys and values to apply to the resource instance.
-Example: `[ { "key" : "vmware.enumeration.type", "value": "nebs_block" } ]`
+           Example: `[ { "key" : "vmware.enumeration.type", "value": "nebs_block" } ]`
 
 * `updated_at` - Date when entity was last updated. Date and time format is ISO 8601 and UTC.

@@ -1,12 +1,12 @@
 ---
 layout: "vra"
-page_title: "VMware vRealize Automation: vra_region"
+page_title: "VMware Aria Automation: vra_region"
 sidebar_current: "docs-vra-datasource-vra-region"
 description: |-
   Provides a data lookup for vra_region.
 ---
 
-# Data Source: vra\_region
+# Data Source: vra_region
 
 This is an example of how to lookup a region data source:
 
@@ -47,7 +47,7 @@ The following arguments are supported:
 
 * `region` - (Optional) The specific region associated with the cloud account. On vSphere, this is the external ID.
 
--> **Note:** One of `id`, `filter` or` cloud_account_id` and `region` must be specified.
+-> **Note:** One of `id`, `filter` or`cloud_account_id` and `region` must be specified.
 
 ## Attribute Reference
 

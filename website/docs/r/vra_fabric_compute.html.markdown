@@ -1,13 +1,13 @@
 ---
 layout: "vra"
-page_title: "VMware vRealize Automation: vra_fabric_compute"
+page_title: "VMware Aria Automation: vra_fabric_compute"
 description: |-
   Updates a fabric_compute resource.
 ---
 
 # Resource: vra_fabric_compute
 
-Updates a VMware vRealize Automation fabric_compute resource.
+Updates a VMware Aria Automation fabric_compute resource.
 
 ## Example Usages
 
@@ -23,10 +23,13 @@ resource "vra_fabric_compute" "this" {
   }
 }
 ```
+
 ## Argument Reference
 
 * `tags` -  A set of tag keys and optional values that were set on this resource:
+
   * `key` - Tag’s key.
+
   * `value` - Tag’s value.
 
 ## Attribute Reference
@@ -45,7 +48,7 @@ resource "vra_fabric_compute" "this" {
 
 * `lifecycle_state` - Lifecycle status of the compute instance.
 
-* `links` - HATEOAS of the entity.
+* `links` - Hypermedia as the Engine of Application State (HATEOAS) of the entity.
 
 * `name` - A human-friendly name used as an identifier for the fabric compute resource instance.
 

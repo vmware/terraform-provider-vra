@@ -1,13 +1,13 @@
 ---
 layout: "vra"
-page_title: "VMware vRealize Automation: vra_cloud_account_vsphere"
+page_title: "VMware Aria Automation: vra_cloud_account_vsphere"
 description: |-
     Provides a data lookup for vra_cloud_account_vsphere.
 ---
 
-# Data Source: vra\_cloud\_account\_vsphere
+# Data Source: vra_cloud_account_vsphere
 
-Provides a VMware vRA vra_cloud_account_vsphere data source.
+Provides a vra_cloud_account_vsphere data source.
 
 ## Example Usages
 
@@ -20,7 +20,6 @@ This is an example of how to read the cloud account data source using its id.
 data "vra_cloud_account_vsphere" "this" {
   id = var.vra_cloud_account_vsphere_id
 }
-
 ```
 
 **vSphere cloud account data source by its name:**
@@ -32,10 +31,7 @@ This is an example of how to read the cloud account data source using its name.
 data "vra_cloud_account_vsphere" "this" {
   name = var.vra_cloud_account_vsphere_name
 }
-
 ```
-
-
 
 ## Argument Reference
 
@@ -65,12 +61,12 @@ The following arguments are supported for an vSphere cloud account data source:
 
 * `owner` - Email of the user that owns the entity.
 
-* `tags` - A set of tag keys and optional values that were set on this resource.
-example: `[ { "key" : "vmware", "value": "provider" } ]`
+* `tags` - A set of tag keys and optional values that were set on this resource. Example: `[ { "key" : "vmware", "value": "provider" } ]`
+
   * `key` - Tag’s key.
+
   * `value` - Tag’s value.
 
 * `updated_at` - Date when the entity was last updated. The date is ISO 8601 and UTC.
 
 * `username` - The vSphere username to authenticate the vsphere account.
-

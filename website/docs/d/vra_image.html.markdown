@@ -1,11 +1,11 @@
 ---
 layout: "vra"
-page_title: "VMware vRealize Automation: vra_image"
+page_title: "VMware Aria Automation: vra_image"
 description: |-
-  Provides a data source for vRealize Automation images.
+  Provides a data source for VMware Aria Automation images.
 ---
 
-# Data Source: vra\_image
+# Data Source: vra_image
 
 The `vra_image` data source can be used to discover the lookup machine images with cloud accounts. This can then be used with resource that require an image. For example, to create an image profile using the `vra_image_profile` resource.
 
@@ -33,8 +33,8 @@ data "vra_image" "this" {
 
 ## Argument Reference
 
-* `id` - (Optional) The id of the image resource instance. Only one of 'id' or 'filter' must be specified.
-* `filter` - (Optional) Search criteria to narrow down the image resource instance. Only one of 'id' or 'filter' must be specified.
+* `id` - (Optional) The id of the image resource instance. Only one of `id` or `filter` must be specified.
+* `filter` - (Optional) Search criteria to narrow down the image resource instance. Only one of `id` or `filter` must be specified.
 
 ## Attribute Reference
 
@@ -42,8 +42,8 @@ data "vra_image" "this" {
 * `custom_properties` - A list of key value pair of custom properties for the image resource.
 * `description` - A human-friendly description.
 * `external_id` - External entity Id on the provider side.
-* `links` - HATEOAS of the entity.
-* `name` - A human-friendly name used as an identifier for the image resource instance. 
+* `links` - Hypermedia as the Engine of Application State (HATEOAS) of the entity.
+* `name` - A human-friendly name used as an identifier for the image resource instance.
 * `org_id` - The id of the organization this entity belongs to.
 * `os_family` - Operating System family of the image.
 * `owner` - Email of the user that owns the entity.

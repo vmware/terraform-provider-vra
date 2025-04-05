@@ -1,13 +1,13 @@
 ---
 layout: "vra"
-page_title: "VMware vRealize Automation: vra_cloud_account_azure"
+page_title: "VMware Aria Automation: vra_cloud_account_azure"
 description: |-
     Provides a data lookup for vra_cloud_account_azure.
 ---
 
-# Data Source: vra\_cloud\_account\_azure
+# Data Source: vra_cloud_account_azure
 
-Provides a VMware vRA vra_cloud_account_azure data source.
+Provides a vra_cloud_account_azure data source.
 
 ## Example Usages
 
@@ -20,7 +20,6 @@ This is an example of how to read the cloud account data source using its id.
 data "vra_cloud_account_azure" "this" {
   id = var.vra_cloud_account_azure_id
 }
-
 ```
 
 **Azure cloud account data source by its name:**
@@ -32,10 +31,7 @@ This is an example of how to read the cloud account data source using its name.
 data "vra_cloud_account_azure" "this" {
   name = var.vra_cloud_account_azure_name
 }
-
 ```
-
-
 
 ## Argument Reference
 
@@ -53,7 +49,7 @@ The following arguments are supported for an Azure cloud account data source:
 
 * `description` - A human-friendly description.
 
-* `links` - HATEOAS of the entity.
+* `links` - Hypermedia as the Engine of Application State (HATEOAS) of the entity.
 
 * `org_id` - The id of the organization this entity belongs to.
 
@@ -63,9 +59,10 @@ The following arguments are supported for an Azure cloud account data source:
 
 * `subscription_id` - Azure Subscription ID.
 
-* `tags` - A set of tag keys and optional values that were set on this resource.
-example: `[ { "key" : "vmware", "value": "provider" } ]`
+* `tags` - A set of tag keys and optional values that were set on this resource. Example: `[ { "key" : "vmware", "value": "provider" } ]`
+
   * `key` - Tag’s key.
+
   * `value` - Tag’s value.
 
 * `tenant_id` - Azure Tenant ID.

@@ -1,15 +1,17 @@
 ---
 layout: "vra"
-page_title: "VMware vRealize Automation: vra_storage_profile_azure"
+page_title: "VMware Aria Automation: vra_storage_profile_azure"
 description: |-
   Provides a data lookup for vra_storage_profile_azure.
 ---
 
 # Resource: vra_storage_profile_azure
+
 ## Example Usages
+
 This is an example of how to create a storage profile azure resource.
 
-**Vra storage profile azure:**
+**storage profile azure:**
 
 ```hcl
 # Azure storage profile using vra_storage_profile_azure resource with managed disk.
@@ -76,13 +78,12 @@ A storage profile azure resource supports the following arguments:
 
 * `external_region_id` - The id of the region as seen in the cloud provider for which this profile is defined.
 
-* `links` - HATEOAS of the entity
+* `links` - Hypermedia as the Engine of Application State (HATEOAS) of the entity.
 
 * `organization_id` - The id of the organization this entity belongs to.
 
 * `owner` - Email of the user that owns the entity.
 
-* `tags` - A set of tag keys and optional values that were set on this Network Profile.
-                      example: `[ { "key" : "ownedBy", "value": "Rainpole" } ]`
+* `tags` - A set of tag keys and optional values that were set on this Network Profile. Example: `[ { "key" : "ownedBy", "value": "Rainpole" } ]`
 
 * `updated_at` - Date when the entity was last updated. The date is ISO 8601 and UTC.
