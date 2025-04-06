@@ -28,7 +28,7 @@ The [Terraform Provider for VMware Aria Automation](https://registry.terraform.i
 
 To use a released version of the Terraform provider in your environment, run [`terraform init`](https://www.terraform.io/docs/commands/init.html) and Terraform will automatically install the provider from the Terraform Registry.
 
-Refer to [Installing the Terraform Provider for VMware Aria Automation](docs/install_provider.md) for additional instructions on automated and manual installation methods and how to control the provider version.
+Refer to [Installing the Terraform Provider for VMware Aria Automation](docs/install.md) for additional instructions on automated and manual installation methods and how to control the provider version.
 
 For either installation method, documentation about the provider configuration, resources, and data sources can be found on the [provider page](https://registry.terraform.io/providers/vmware/vra/latest/docs) on the Terraform Registry.
 
