@@ -117,7 +117,7 @@ func resourceContentSharingPolicyCreate(ctx context.Context, d *schema.ResourceD
 		ProjectID:       d.Get("project_id").(string),
 		TypeID:          withString(CatalogEntitlementTypeID),
 	}
-	_, createResp, err := apiClient.Policies.DryRunPolicyUsingPOST2(policies.NewDryRunPolicyUsingPOST2Params().WithPolicy(&policy))
+	_, createResp, err := apiClient.Policies.CreatePolicyUsingPOST1(policies.NewCreatePolicyUsingPOST1Params().WithPolicy(&policy))
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -202,7 +202,7 @@ func resourceContentSharingPolicyUpdate(ctx context.Context, d *schema.ResourceD
 		ProjectID:       d.Get("project_id").(string),
 		TypeID:          withString(CatalogEntitlementTypeID),
 	}
-	if _, _, err := apiClient.Policies.DryRunPolicyUsingPOST2(policies.NewDryRunPolicyUsingPOST2Params().WithPolicy(&policy)); err != nil {
+	if _, _, err := apiClient.Policies.CreatePolicyUsingPOST1(policies.NewCreatePolicyUsingPOST1Params().WithPolicy(&policy)); err != nil {
 		return diag.FromErr(err)
 	}
 
