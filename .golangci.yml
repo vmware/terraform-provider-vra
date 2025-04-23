@@ -1,33 +1,11 @@
-# © Broadcom. All Rights Reserved.
-# The term “Broadcom” refers to Broadcom Inc. and/or its subsidiaries.
-# SPDX-License-Identifier: MPL-2.0
-
-# For more information about the golangci-lint configuration file, refer to:
-# https://golangci-lint.run/usage/configuration/
-
-issues:
-  max-per-linter: 0
-  max-same-issues: 0
-  exclude-rules:
-    # Exclude errcheck for some rules.
-  - linters: [errcheck]
-    text: "Error return value of `d.Set` is not checked"
-    # Exclude revive for some rules.
-  - linters:
-    - revive
-    text: 'redefines-builtin-id: redefinition of the built-in'
-
-run:
-  deadline: 5m
+---
+version: "2"
 
 linters:
-  disable-all: true
+  default: none
   enable:
     - durationcheck
     - errcheck
-    - gofmt
-    - goimports
-    - gosimple
     - govet
     - ineffassign
     - makezero
@@ -35,15 +13,59 @@ linters:
     - nakedret
     - revive
     - staticcheck
-    - tenv
-    - typecheck
     - unconvert
     - unused
-    - govet
+  settings:
+    errcheck:
+      exclude-functions:
+        - github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema:ForceNew|Set
+        - fmt:.*
+        - io:Close
+  exclusions:
+    generated: lax
+    presets:
+      - comments
+      - common-false-positives
+      - legacy
+      - std-error-handling
+    rules:
+      - linters:
+          - errcheck
+        text: Error return value of `d.Set` is not checked
+      - linters:
+          - revive
+        text: 'redefines-builtin-id: redefinition of the built-in'
+      # TODO: Setting temporary exclusions.
+      - linters:
+          - staticcheck
+        text: QF1001
+      - linters:
+          - staticcheck
+        text: QF1003
+      - linters:
+          - staticcheck
+        text: ST1005
+      - linters:
+          - staticcheck
+        text: QF1004
+      - linters:
+          - staticcheck
+        text: QF1011
+    paths:
+      - third_party$
+      - builtin$
+      - examples$
 
-linters-settings:
-  errcheck:
-    exclude-functions:
-      - "github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema:ForceNew|Set"
-      - "fmt:.*"
-      - "io:Close"
+issues:
+  max-same-issues: 0
+
+formatters:
+  enable:
+    - gofmt
+    - goimports
+  exclusions:
+    generated: lax
+    paths:
+      - third_party$
+      - builtin$
+      - examples$
