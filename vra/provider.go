@@ -110,6 +110,7 @@ func Provider() *schema.Provider {
 			"vra_fabric_storage_policy_vsphere": dataSourceFabricStoragePolicyVsphere(),
 			"vra_image":                         dataSourceImage(),
 			"vra_image_profile":                 dataSourceImageProfile(),
+			"vra_load_balancer":                 dataSourceLoadBalancer(),
 			"vra_machine":                       dataSourceMachine(),
 			"vra_network":                       dataSourceNetwork(),
 			"vra_network_domain":                dataSourceNetworkDomain(),
