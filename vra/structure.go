@@ -20,6 +20,10 @@ func withBool(b bool) *bool {
 	return &b
 }
 
+func withInt(i int) *int {
+	return &i
+}
+
 func withInt32(i int32) *int32 {
 	return &i
 }
