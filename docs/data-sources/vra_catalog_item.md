@@ -41,17 +41,19 @@ data "vra_catalog_item" "this" {
 
 ## Attribute Reference
 
-* `created_at` - Date-time when the entity was created.
+* `created_at` - Date when the entity was created. The date is in ISO 8601 and UTC.
 
 * `created_by` - The user the entity was created by.
 
-* `description` - Catalog item description.
+* `description` - A human-friendly description for the catalog item.
 
-* `form_id` - Form ID.
+* `form_id` - ID of the form associated with this catalog item.
 
-* `icon_id` - Icon ID.
+* `global` - Whether to allow this catalog to be shared with multiple projects or to restrict it to the specified project.
 
-* `last_updated_at` - Date-time when the entity was last updated.
+* `icon_id` - ID of the icon associated with this catalog item.
+
+* `last_updated_at` - Date when the entity was last updated. The date is ISO 8601 and UTC.
 
 * `last_updated_by` - The user the entity was last updated by.
 
@@ -72,6 +74,8 @@ data "vra_catalog_item" "this" {
 * `source_id` - LibraryItem source ID.
 
 * `source_name` - LibraryItem source name.
+
+* `source_project_id` - Project ID with which the catalog item was associated when created.
 
 * `type` -
 
