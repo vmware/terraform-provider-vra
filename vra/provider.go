@@ -141,6 +141,8 @@ func Provider() *schema.Provider {
 			"vra_blueprint":                  resourceBlueprint(),
 			"vra_blueprint_version":          resourceBlueprintVersion(),
 			"vra_catalog_item_entitlement":   resourceCatalogItemEntitlement(),
+			"vra_catalog_item_vm_image":      resourceCatalogItemVMImage(),
+			"vra_catalog_item_vro_workflow":  resourceCatalogItemVroWorkflow(),
 			"vra_catalog_source_blueprint":   resourceCatalogSourceBlueprint(),
 			"vra_catalog_source_entitlement": resourceCatalogSourceEntitlement(),
 			"vra_cloud_account_aws":          resourceCloudAccountAWS(),
