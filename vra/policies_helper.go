@@ -13,10 +13,17 @@ import (
 )
 
 const (
-	PolicyApprovalTypeID     string = "com.vmware.policy.approval"
-	PolicyDay2ActionTypeID   string = "com.vmware.policy.deployment.action"
-	PolicyIaaSResourceTypeID string = "com.vmware.policy.supervisor.iaas"
-	PolicyLeaseTypeID        string = "com.vmware.policy.deployment.lease"
+	CatalogItemIdentifier   string = "CATALOG_ITEM_IDENTIFIER"
+	CatalogSourceIdentifier string = "CATALOG_SOURCE_IDENTIFIER"
+
+	EnforcementTypeHard string = "HARD"
+	EnforcementTypeSoft string = "SOFT"
+
+	PolicyApprovalTypeID           string = "com.vmware.policy.approval"
+	PolicyCatalogEntitlementTypeID string = "com.vmware.policy.catalog.entitlement"
+	PolicyDay2ActionTypeID         string = "com.vmware.policy.deployment.action"
+	PolicyIaaSResourceTypeID       string = "com.vmware.policy.supervisor.iaas"
+	PolicyLeaseTypeID              string = "com.vmware.policy.deployment.lease"
 )
 
 type PolicyApprovalDefinition struct {
@@ -36,6 +43,26 @@ type PolicyDay2ActionDefinition struct {
 type PolicyDay2ActionAllowedAction struct {
 	Actions     []string `json:"actions"`
 	Authorities []string `json:"authorities"`
+}
+
+type PolicyContentSharingDefinition struct {
+	EntitledUsers []PolicyContentSharingEntitledUser `json:"entitledUsers,omitempty"`
+}
+
+type PolicyContentSharingEntitledUser struct {
+	UserType   string                          `json:"userType,omitempty"`
+	Items      []PolicyContentSharingItem      `json:"items,omitempty"`
+	Principals []PolicyContentSharingPrincipal `json:"principals,omitempty"`
+}
+
+type PolicyContentSharingItem struct {
+	ID   string `json:"id,omitempty"`
+	Type string `json:"type,omitempty"`
+}
+
+type PolicyContentSharingPrincipal struct {
+	ReferenceID string `json:"referenceId,omitempty"`
+	Type        string `json:"type,omitempty"`
 }
 
 type PolicyIaaSResourceDefinition struct {
@@ -101,6 +128,22 @@ func policyDefinitionConvert(genericDefinition any, castedDefinition any) error 
 	}
 
 	return nil
+}
+
+func expandPolicyContentSharingPrincipal(principalsMap []any) []PolicyContentSharingPrincipal {
+	principals := make([]PolicyContentSharingPrincipal, 0, len(principalsMap))
+
+	for _, principal := range principalsMap {
+		principalMap := principal.(map[string]interface{})
+		helper := PolicyContentSharingPrincipal{
+			ReferenceID: principalMap["reference_id"].(string),
+			Type:        principalMap["type"].(string),
+		}
+
+		principals = append(principals, helper)
+	}
+
+	return principals
 }
 
 func expandPolicyIaaSResourceAutomationPolicyMatchConditions(matchConditionsMap []any) []*PolicyIaaSResourceAutomationPolicyMatchConditions {
