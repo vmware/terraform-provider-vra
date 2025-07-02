@@ -83,6 +83,11 @@ resource "vra_content_sharing_policy" "catalog_source_entitlement" {
   depends_on         = [vra_catalog_source_blueprint.this]
   name               = vra_catalog_source_blueprint.this.name
   project_id         = vra_project.this.id
+  entitlement_type   = "USER"
+  principals {
+    reference_id     = ""
+    type             = "PROJECT"
+  }
   catalog_source_ids = [vra_catalog_source_blueprint.this.id]
 }
 
@@ -102,6 +107,11 @@ data "vra_catalog_item" "this" {
 resource "vra_content_sharing_policy" "catalog_item_entitlement" {
   name             = vra_catalog_item.this.name
   project_id       = vra_project.this.id
+  entitlement_type = "USER"
+  principals {
+    reference_id   = ""
+    type           = "PROJECT"
+  }
   catalog_item_ids = [data.vra_catalog_item.this.id]
 }
 

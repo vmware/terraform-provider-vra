@@ -27,9 +27,9 @@ data "vra_content_sharing_policy" "this" {
 
 The following arguments are supported:
 
-* `id` - (Optional) The policy ID.
+* `id` - (Optional) The id of the policy instance.
 
-* `name` - (Optional) The policy name.
+* `name` - (Optional) The name of the policy instance.
 
 -> **Note:** One of `id` or `name` must be specified.
 
@@ -41,16 +41,28 @@ In addition to all arguments above, the following attributes are exported:
 
 * `catalog_source_ids` - List of catalog source ids to share.
 
-* `created_at` - Policy creation timestamp.
+* `created_at` - Date when the entity was created. The date is in ISO 8601 and UTC.
 
-* `created_by` - Policy author.
+* `created_by` - The user the entity was created by.
 
-* `description` - The policy description.
+* `description` - A human-friendly description for the policy instance.
 
-* `last_updated_at` - Most recent policy update timestamp.
+* `enforcement_type` - The type of enforcement for the policy.
 
-* `last_updated_by` - Most recent policy editor.
+* `entitlement_type` - Entitlement type.
 
-* `org_id` - The ID of the organization to which the policy belongs.
+* `last_updated_at` - Date when the entity was last updated. The date is ISO 8601 and UTC.
 
-* `project_id` - The ID of the project to which the policy belongs.
+* `last_updated_by` - The user the entity was last updated by.
+
+* `org_id` - The id of the organization this entity belongs to.
+
+* `principals` - List of users or roles that can share content:
+
+  * `reference_id` - The reference ID of the principal.
+
+  * `type` - The type of the principal.
+
+* `project_criteria` - The project based criteria.
+
+* `project_id` - The id of the project this entity belongs to.
