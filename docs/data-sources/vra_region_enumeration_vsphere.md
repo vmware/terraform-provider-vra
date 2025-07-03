@@ -30,7 +30,7 @@ The region enumeration data source for vSphere cloud account supports the follow
 
 * `accept_self_signed_cert` - (Optional) Accept self signed certificate when connecting to vSphere. Example: `false`
 
-* `dc_id` - (Required) ID of a data collector vm deployed in the on premise infrastructure. Example: `d5316b00-f3b8-4895-9e9a-c4b98649c2ca`
+* `dc_id` - (Optional) ID of a data collector vm deployed in the on premise infrastructure. Example: `d5316b00-f3b8-4895-9e9a-c4b98649c2ca`
 
 * `hostname` - (Required) Host name for the cloud account endpoint. Example: `dc1-lnd.example.com`
 
@@ -40,4 +40,10 @@ The region enumeration data source for vSphere cloud account supports the follow
 
 ## Attribute Reference
 
-* `regions` - A set of datacenter managed object reference identifiers to enable provisioning on. Example: `["Datacenter:datacenter-2"]`
+* `external_regions` - A set of regions that can be enabled for this cloud account.
+
+  * `external_region_id` - Unique identifier of the region on the provider side. Example: `Datacenter:datacenter-2`
+
+  * `name` - Name of the region on the provider side. Example: `vcfcons-mgmt-vc01`
+
+* `regions` - A set of region ids that can be enabled for this cloud account. Example: `["Datacenter:datacenter-2"]`

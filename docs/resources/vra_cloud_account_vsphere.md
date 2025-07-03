@@ -20,10 +20,13 @@ resource "vra_cloud_account_vsphere" "this" {
   password                     = var.password
   hostname                     = var.hostname
   dc_id                        = var.vra_data_collector_id // Required for VMware Aria Automation Cloud, Optional for VMware Aria Automation 8.X
-  regions                      = var.regions
   associated_cloud_account_ids = [var.vra_cloud_account_nsxt_id]
+  accept_self_signed_cert      = true
 
-  accept_self_signed_cert = true
+  enabled_regions  {
+    external_region_id = var.region_external_id
+    name               = var.region_name
+  }
 
   tags {
     key   = "foo"
@@ -42,6 +45,12 @@ Create your vSphere cloud account resource with the following arguments:
 
 * `description` - (Optional) Human-friendly description.
 
+* `enabled_regions` - (Required) A set of region names that are enabled for the cloud account.
+
+  * `external_region_id` - Unique identifier of the region on the provider side.
+
+  * `name` - Name of the region on the provider side.
+
 * `hostname` - (Required) IP address or FQDN of the vCenter Server. The cloud proxy belongs on this vCenter.
 
 * `name` - (Optional) Name of the vSphere cloud account.
@@ -49,6 +58,8 @@ Create your vSphere cloud account resource with the following arguments:
 * `password` - (Required) Password used to authenticate to the cloud account.
 
 * `regions` - (Required) A set of region names that are enabled for the cloud account.
+
+  > **Note**:  Deprecated - please use `enabled_regions` instead.
 
 * `tags` - (Optional) A set of tag keys and optional values to apply to the cloud account. Example: `[ { "key" : "vmware", "value": "provider" } ]`
 

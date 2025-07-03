@@ -52,13 +52,21 @@ The following arguments are supported for an vSphere cloud account data source:
 
 * `description` - A human-friendly description.
 
-* `regions` - A set of region IDs that are enabled for this account.
+* `enabled_regions` - A set of regions that are enabled for this cloud account.
+
+  * `external_region_id` - Unique identifier of the region on the provider side. Example: `Datacenter:datacenter-2`
+
+  * `id` - Unique identifier of the region. Example: `6196725b-6f5d-497c-8777-abe7814ee5ec`
+
+  * `name` - Name of the region on the provider side. Example: `vcfcons-mgmt-vc01`
 
 * `hostname` - The IP address or FQDN of the vCenter Server. The cloud proxy belongs on this vCenter.
 
 * `org_id` - The id of the organization this entity belongs to.
 
 * `owner` - Email of the user that owns the entity.
+
+* `regions` - A set of region IDs that are enabled for this account.
 
 * `tags` - A set of tag keys and optional values that were set on this resource. Example: `[ { "key" : "vmware", "value": "provider" } ]`
 
