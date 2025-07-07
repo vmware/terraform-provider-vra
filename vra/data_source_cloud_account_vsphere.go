@@ -80,6 +80,30 @@ func dataSourceCloudAccountVsphere() *schema.Resource {
 					Type: schema.TypeString,
 				},
 			},
+			"enabled_regions": {
+				Type:        schema.TypeSet,
+				Computed:    true,
+				Description: "The set of regions that are enabled for this cloud account.",
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"external_region_id": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "Unique identifier of the region on the provider side.",
+						},
+						"id": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "Unique identifier of the region.",
+						},
+						"name": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "Name of the region on the provider side.",
+						},
+					},
+				},
+			},
 			"tags": tagsSchema(),
 			"updated_at": {
 				Type:        schema.TypeString,
@@ -150,6 +174,10 @@ func dataSourceCloudAccountVsphereRead(d *schema.ResourceData, meta interface{})
 
 	if err := d.Set("links", flattenLinks(cloudAccountVsphere.Links)); err != nil {
 		return fmt.Errorf("error setting cloud_account_vsphere links - error: %#v", err)
+	}
+
+	if err := d.Set("enabled_regions", flattenEnabledRegions(cloudAccountVsphere.EnabledRegions)); err != nil {
+		return fmt.Errorf("error setting cloud_account_vsphere enabled_regions - error: %#v", err)
 	}
 
 	if err := d.Set("regions", extractIDsFromRegion(cloudAccountVsphere.EnabledRegions)); err != nil {

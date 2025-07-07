@@ -28,7 +28,7 @@ func extractIDsFromRegionSpecification(regions []*models.RegionSpecification) []
 	return regionIDs
 }
 
-func expandRegionSpecificationList(rList []interface{}) []*models.RegionSpecification {
+func expandRegionSpecificationList(rList []any) []*models.RegionSpecification {
 	rsList := make([]*models.RegionSpecification, 0, len(rList))
 
 	for _, r := range rList {
@@ -40,4 +40,56 @@ func expandRegionSpecificationList(rList []interface{}) []*models.RegionSpecific
 	}
 
 	return rsList
+}
+
+func expandEnabledRegions(enabledRegionsMap []any) []*models.RegionSpecification {
+	rsList := make([]*models.RegionSpecification, 0, len(enabledRegionsMap))
+
+	for _, region := range enabledRegionsMap {
+		regionMap := region.(map[string]interface{})
+		helper := models.RegionSpecification{
+			ExternalRegionID: withString(regionMap["external_region_id"].(string)),
+			Name:             withString(regionMap["name"].(string)),
+		}
+		rsList = append(rsList, &helper)
+	}
+
+	return rsList
+}
+
+func flattenEnabledRegions(regions []*models.Region) []any {
+	if len(regions) == 0 {
+		return make([]any, 0)
+	}
+
+	regionsMap := make([]any, 0, len(regions))
+
+	for _, region := range regions {
+		helper := make(map[string]any)
+		helper["external_region_id"] = region.ExternalRegionID
+		helper["id"] = region.ID
+		helper["name"] = region.Name
+
+		regionsMap = append(regionsMap, helper)
+	}
+
+	return regionsMap
+}
+
+func flattenExternalRegions(regions []*models.RegionSpecification) []any {
+	if len(regions) == 0 {
+		return make([]any, 0)
+	}
+
+	regionsMap := make([]any, 0, len(regions))
+
+	for _, region := range regions {
+		helper := make(map[string]any)
+		helper["external_region_id"] = region.ExternalRegionID
+		helper["name"] = region.Name
+
+		regionsMap = append(regionsMap, helper)
+	}
+
+	return regionsMap
 }

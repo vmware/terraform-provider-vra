@@ -21,17 +21,7 @@ func dataSourceRegionEnumerationVsphere() *schema.Resource {
 		ReadContext: dataSourceRegionEnumerationVsphereRead,
 
 		Schema: map[string]*schema.Schema{
-			"accept_self_signed_cert": {
-				Type:        schema.TypeBool,
-				Optional:    true,
-				Default:     false,
-				Description: "Whether to accept self signed certificate when connecting to the vCenter Server.",
-			},
-			"dc_id": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Description: "Identifier of a data collector vm deployed in the on premise infrastructure.",
-			},
+			// Required arguments
 			"hostname": {
 				Type:        schema.TypeString,
 				Required:    true,
@@ -47,6 +37,40 @@ func dataSourceRegionEnumerationVsphere() *schema.Resource {
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: "Username of the vCenter Server.",
+			},
+
+			// Optional arguments
+			"accept_self_signed_cert": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Default:     false,
+				Description: "Whether to accept self signed certificate when connecting to the vCenter Server.",
+			},
+			"dc_id": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "Identifier of a data collector vm deployed in the on premise infrastructure.",
+			},
+
+			// Computed attributes
+			"external_regions": {
+				Type:        schema.TypeSet,
+				Computed:    true,
+				Description: "A set of regions that can be enabled for this cloud account.",
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"external_region_id": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "Unique identifier of the region on the provider side.",
+						},
+						"name": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "Name of the region on the provider side.",
+						},
+					},
+				},
 			},
 			"regions": {
 				Type:        schema.TypeSet,
@@ -100,7 +124,14 @@ func dataSourceRegionEnumerationVsphereRead(ctx context.Context, d *schema.Resou
 		return diag.FromErr(err)
 	}
 
-	d.Set("regions", extractIDsFromRegionSpecification(getResp.Payload.ExternalRegions))
+	if err := d.Set("external_regions", flattenExternalRegions(getResp.Payload.ExternalRegions)); err != nil {
+		return diag.Errorf("error setting region_enumeration_vsphere enabled external_regions - error: %#v", err)
+	}
+
+	if err := d.Set("regions", extractIDsFromRegionSpecification(getResp.Payload.ExternalRegions)); err != nil {
+		return diag.Errorf("error setting region_enumeration_vsphere regions - error: %#v", err)
+	}
+
 	d.SetId(d.Get("hostname").(string))
 
 	return nil

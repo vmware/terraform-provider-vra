@@ -35,16 +35,25 @@ data "vra_region_enumeration_vsphere" "this" {
 }
 
 resource "vra_cloud_account_vsphere" "this" {
-  name        = "tf-vsphere-account"
-  description = "foobar"
-  username    = var.username
-  password    = var.password
-  hostname    = var.hostname
-  dc_id       = var.datacollector != "" ? data.vra_data_collector.dc[0].id : "" // Required for vRA Cloud, Optional for vRA 8.X
-
-  regions                      = data.vra_region_enumeration_vsphere.this.regions
+  name                         = "tf-vsphere-account"
+  description                  = "foobar"
+  username                     = var.username
+  password                     = var.password
+  hostname                     = var.hostname
+  dc_id                        = var.datacollector != "" ? data.vra_data_collector.dc[0].id : "" // Required for vRA Cloud, Optional for vRA 8.X
   associated_cloud_account_ids = [vra_cloud_account_nsxt.this.id]
   accept_self_signed_cert      = true
+
+  dynamic "enabled_regions" {
+    for_each = data.vra_region_enumeration_vsphere.this.external_regions
+    iterator = region
+
+    content {
+      external_region_id = region.value["external_region_id"]
+      name = region.value["name"]
+    }
+  }
+
 
   tags {
     key   = "foo"

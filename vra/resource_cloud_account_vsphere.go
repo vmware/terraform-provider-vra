@@ -49,18 +49,49 @@ func resourceCloudAccountVsphere() *schema.Resource {
 				Sensitive:   true,
 				Description: "Password of the vCenter Server.",
 			},
-			"regions": {
-				Type:        schema.TypeSet,
-				Required:    true,
-				Description: "The set of region ids that will be enabled for this cloud account.",
-				Elem: &schema.Schema{
-					Type: schema.TypeString,
-				},
-			},
 			"username": {
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: "Username of the vCenter Server.",
+			},
+			"regions": {
+				Type:          schema.TypeSet,
+				Optional:      true,
+				Computed:      true,
+				Deprecated:    "Use `enabled_regions` instead.",
+				Description:   "The set of region ids that will be enabled for this cloud account.",
+				AtLeastOneOf:  []string{"enabled_regions"},
+				ConflictsWith: []string{"enabled_regions"},
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			},
+			"enabled_regions": {
+				Type:          schema.TypeSet,
+				Optional:      true,
+				Computed:      true,
+				Description:   "The set of regions that will be enabled for this cloud account.",
+				AtLeastOneOf:  []string{"regions"},
+				ConflictsWith: []string{"regions"},
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"external_region_id": {
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: "Unique identifier of the region on the provider side.",
+						},
+						"id": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "Unique identifier of the region.",
+						},
+						"name": {
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: "Name of the region on the provider side.",
+						},
+					},
+				},
 			},
 
 			// Optional arguments
@@ -129,11 +160,15 @@ func resourceCloudAccountVsphereCreate(ctx context.Context, d *schema.ResourceDa
 		associatedCloudAccountIDs = expandStringList(v.(*schema.Set).List())
 	}
 
-	if v, ok := d.GetOk("regions"); ok {
+	if v, ok := d.GetOk("enabled_regions"); ok {
+		regions = expandEnabledRegions(v.(*schema.Set).List())
+	} else if v, ok := d.GetOk("regions"); ok {
 		if !compareUnique(v.(*schema.Set).List()) {
 			return diag.FromErr(errors.New("specified regions are not unique"))
 		}
 		regions = expandRegionSpecificationList(v.(*schema.Set).List())
+	} else {
+		return diag.FromErr(errors.New("one of `regions` or `enable_regions` must be specified"))
 	}
 
 	createResp, err := apiClient.CloudAccount.CreateVSphereCloudAccountAsync(
@@ -205,6 +240,11 @@ func resourceCloudAccountVsphereRead(_ context.Context, d *schema.ResourceData, 
 	if err := d.Set("links", flattenLinks(vsphereAccount.Links)); err != nil {
 		return diag.Errorf("error setting cloud_account_vsphere links - error: %#v", err)
 	}
+
+	if err := d.Set("enabled_regions", flattenEnabledRegions(vsphereAccount.EnabledRegions)); err != nil {
+		return diag.Errorf("error setting cloud_account_vsphere enabled_regions - error: %#v", err)
+	}
+
 	if err := d.Set("regions", extractIDsFromRegion(vsphereAccount.EnabledRegions)); err != nil {
 		return diag.Errorf("error setting cloud_account_vsphere regions - error: %#v", err)
 	}
@@ -229,11 +269,15 @@ func resourceCloudAccountVsphereUpdate(ctx context.Context, d *schema.ResourceDa
 		associatedCloudAccountIDs = expandStringList(v.(*schema.Set).List())
 	}
 
-	if v, ok := d.GetOk("regions"); ok {
+	if v, ok := d.GetOk("enabled_regions"); ok {
+		regions = expandEnabledRegions(v.(*schema.Set).List())
+	} else if v, ok := d.GetOk("regions"); ok {
 		if !compareUnique(v.(*schema.Set).List()) {
 			return diag.FromErr(errors.New("specified regions are not unique"))
 		}
 		regions = expandRegionSpecificationList(v.(*schema.Set).List())
+	} else {
+		return diag.FromErr(errors.New("one of `regions` or `enable_regions` must be specified"))
 	}
 
 	id := d.Id()
