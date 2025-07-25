@@ -101,6 +101,7 @@ func Provider() *schema.Provider {
 			"vra_cloud_account_vmc":             dataSourceCloudAccountVMC(),
 			"vra_cloud_account_vsphere":         dataSourceCloudAccountVsphere(),
 			"vra_content_sharing_policy":        dataSourceContentSharingPolicy(),
+			"vra_content_source":                dataSourceContentSource(),
 			"vra_data_collector":                dataSourceDataCollector(),
 			"vra_deployment":                    dataSourceDeployment(),
 			"vra_fabric_compute":                dataSourceFabricCompute(),
