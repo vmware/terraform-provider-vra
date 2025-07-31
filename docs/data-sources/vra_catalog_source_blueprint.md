@@ -35,34 +35,38 @@ data "vra_catalog_source_blueprint" "this" {
 
 ## Argument Reference
 
-* `id` - (Optional) The id of catalog source. One of `id`, `name` or `project_id`  must be provided.
+* `id` - (Optional) The id of the blueprint content source instance.
 
-* `name` - (Optional) Name of the catalog source. One of `id`, `name` or `project_id` must be provided.
+* `name` - (Optional) The name of the blueprint content source instance.
 
-* `project_id` - (Optional) The id of the project.  One of `id`, `name` or `project_id` must be provided.
+* `project_id` - (Optional) The id of the project the blueprint content source instance belongs to.
+
+-> **Note:** One of `id`, `name` or `project_id`  must be provided.
 
 ## Attribute Reference
 
-* `config` - Custom configuration of the catalog source as a map of key values.
+* `config` - The content source custom configuration.
 
-* `created_at` - Date when the entity was created. The date is in ISO 6801 and UTC.
+* `created_at` - Date when the entity was created. The date is in ISO 8601 and UTC.
 
 * `created_by` - The user the entity was created by.
 
-* `description` - Catalog source description.
+* `description` - A human-friendly description for the blueprint content source instance.
 
-* `global` - A flag indicating that all the items can be requested across all projects.
+* `global` - Global flag indicating that all the items can be requested across all projects.
 
-* `items_found` - Number of items found in the catalog source.
+* `icon_id` - Default Icon Identifier.
 
-* `items_imported` - Number of items imported from the catalog source.
+* `items_found` - Number of items found.
 
-* `last_import_completed_at` - Time at which the last import was completed at.
+* `items_imported` - Number of items imported.
 
-* `last_import_errors` - A list of errors seen at last time the catalog source is imported.
+* `last_import_completed_at` - Date when the last import was completed. The date is in ISO 8601 and UTC.
 
-* `last_import_started_at` - Time at which the last import was started at.
+* `last_import_errors` - A list of errors seen at last time the content source is imported.
 
-* `last_updated_by` - The user that last updated the catalog source.
+* `last_import_started_at` - Date when the last import was started. The date is in ISO 8601 and UTC.
 
-* `type_id` - Type of catalog source. Example: `blueprint`, `CFT`, etc.
+* `last_updated_by` - Date when the entity was last updated. The date is ISO 8601 and UTC.
+
+* `type_id` - The type of this content source. Example: `blueprint`, `CFT`, etc.
