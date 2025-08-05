@@ -80,7 +80,7 @@ func dataSourceRegionEnumerationAWSRead(ctx context.Context, d *schema.ResourceD
 		return diag.FromErr(err)
 	}
 
-	d.Set("regions", extractIDsFromRegionSpecification(getResp.Payload.ExternalRegions))
+	_ = d.Set("regions", extractIDsFromRegionSpecification(getResp.Payload.ExternalRegions))
 	d.SetId(d.Get("access_key").(string))
 
 	return nil

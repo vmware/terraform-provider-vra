@@ -187,15 +187,15 @@ func resourceIntegrationRead(_ context.Context, d *schema.ResourceData, m interf
 	}
 
 	integration := *ret.Payload
-	d.Set("created_at", integration.CreatedAt)
-	d.Set("custom_properties", integration.CustomProperties)
-	d.Set("description", integration.Description)
-	d.Set("integration_properties", integration.IntegrationProperties)
-	d.Set("integration_type", integration.IntegrationType)
-	d.Set("name", integration.Name)
-	d.Set("org_id", integration.OrgID)
-	d.Set("owner", integration.Owner)
-	d.Set("updated_at", integration.UpdatedAt)
+	_ = d.Set("created_at", integration.CreatedAt)
+	_ = d.Set("custom_properties", integration.CustomProperties)
+	_ = d.Set("description", integration.Description)
+	_ = d.Set("integration_properties", integration.IntegrationProperties)
+	_ = d.Set("integration_type", integration.IntegrationType)
+	_ = d.Set("name", integration.Name)
+	_ = d.Set("org_id", integration.OrgID)
+	_ = d.Set("owner", integration.Owner)
+	_ = d.Set("updated_at", integration.UpdatedAt)
 
 	if err := d.Set("links", flattenLinks(integration.Links)); err != nil {
 		return diag.Errorf("error setting integration links - error: %#v", err)

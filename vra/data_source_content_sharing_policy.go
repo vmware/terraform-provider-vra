@@ -175,22 +175,22 @@ func dataSourceContentSharingPolicyRead(_ context.Context, d *schema.ResourceDat
 	}
 
 	d.SetId(policy.ID.String())
-	d.Set("created_at", policy.CreatedAt.String())
-	d.Set("created_by", policy.CreatedBy)
-	d.Set("enforcement_type", policy.EnforcementType)
-	d.Set("last_updated_at", policy.LastUpdatedAt.String())
-	d.Set("last_updated_by", policy.LastUpdatedBy)
-	d.Set("name", policy.Name)
-	d.Set("org_id", policy.OrgID)
+	_ = d.Set("created_at", policy.CreatedAt.String())
+	_ = d.Set("created_by", policy.CreatedBy)
+	_ = d.Set("enforcement_type", policy.EnforcementType)
+	_ = d.Set("last_updated_at", policy.LastUpdatedAt.String())
+	_ = d.Set("last_updated_by", policy.LastUpdatedBy)
+	_ = d.Set("name", policy.Name)
+	_ = d.Set("org_id", policy.OrgID)
 
 	if policy.Description != "" {
-		d.Set("description", policy.Description)
+		_ = d.Set("description", policy.Description)
 	}
 	if policy.ScopeCriteria != nil {
-		d.Set("project_criteria", flattenPolicyCriteria(*policy.ScopeCriteria))
+		_ = d.Set("project_criteria", flattenPolicyCriteria(*policy.ScopeCriteria))
 	}
 	if policy.ProjectID != "" {
-		d.Set("project_id", policy.ProjectID)
+		_ = d.Set("project_id", policy.ProjectID)
 	}
 
 	var definition PolicyContentSharingDefinition
@@ -202,7 +202,7 @@ func dataSourceContentSharingPolicyRead(_ context.Context, d *schema.ResourceDat
 	catalogSourceIDs := make([]string, 0)
 	principalsMap := make([]any, 0)
 	for _, entitledUser := range definition.EntitledUsers {
-		d.Set("entitlement_type", entitledUser.UserType)
+		_ = d.Set("entitlement_type", entitledUser.UserType)
 
 		for _, item := range entitledUser.Items {
 			if item.Type == CatalogItemIdentifier {

@@ -97,13 +97,13 @@ func dataSourceRegionRead(d *schema.ResourceData, meta interface{}) error {
 
 	setFields := func(region *models.Region) {
 		d.SetId(*region.ID)
-		d.Set("cloud_account_id", region.CloudAccountID)
-		d.Set("created_at", region.CreatedAt)
-		d.Set("external_region_id", region.ExternalRegionID)
-		d.Set("name", region.Name)
-		d.Set("org_id", region.OrgID)
-		d.Set("owner", region.Owner)
-		d.Set("updated_at", region.UpdatedAt)
+		_ = d.Set("cloud_account_id", region.CloudAccountID)
+		_ = d.Set("created_at", region.CreatedAt)
+		_ = d.Set("external_region_id", region.ExternalRegionID)
+		_ = d.Set("name", region.Name)
+		_ = d.Set("org_id", region.OrgID)
+		_ = d.Set("owner", region.Owner)
+		_ = d.Set("updated_at", region.UpdatedAt)
 	}
 
 	if idOk {

@@ -165,16 +165,16 @@ func resourceCloudAccountNSXTRead(_ context.Context, d *schema.ResourceData, m i
 		return diag.FromErr(err)
 	}
 	nsxtAccount := *ret.Payload
-	d.Set("associated_cloud_account_ids", flattenAssociatedCloudAccountIDs(nsxtAccount.Links))
-	d.Set("created_at", nsxtAccount.CreatedAt)
-	d.Set("dc_id", nsxtAccount.Dcid)
-	d.Set("description", nsxtAccount.Description)
-	d.Set("manager_mode", nsxtAccount.ManagerMode)
-	d.Set("name", nsxtAccount.Name)
-	d.Set("org_id", nsxtAccount.OrgID)
-	d.Set("owner", nsxtAccount.Owner)
-	d.Set("updated_at", nsxtAccount.UpdatedAt)
-	d.Set("username", nsxtAccount.Username)
+	_ = d.Set("associated_cloud_account_ids", flattenAssociatedCloudAccountIDs(nsxtAccount.Links))
+	_ = d.Set("created_at", nsxtAccount.CreatedAt)
+	_ = d.Set("dc_id", nsxtAccount.Dcid)
+	_ = d.Set("description", nsxtAccount.Description)
+	_ = d.Set("manager_mode", nsxtAccount.ManagerMode)
+	_ = d.Set("name", nsxtAccount.Name)
+	_ = d.Set("org_id", nsxtAccount.OrgID)
+	_ = d.Set("owner", nsxtAccount.Owner)
+	_ = d.Set("updated_at", nsxtAccount.UpdatedAt)
+	_ = d.Set("username", nsxtAccount.Username)
 
 	if err := d.Set("links", flattenLinks(nsxtAccount.Links)); err != nil {
 		return diag.Errorf("error setting cloud_account_nsxt links - error: %#v", err)

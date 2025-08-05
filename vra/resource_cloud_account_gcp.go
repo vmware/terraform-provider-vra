@@ -167,15 +167,15 @@ func resourceCloudAccountGCPRead(_ context.Context, d *schema.ResourceData, m in
 	}
 
 	gcpAccount := *ret.Payload
-	d.Set("client_email", gcpAccount.ClientEmail)
-	d.Set("created_at", gcpAccount.CreatedAt)
-	d.Set("description", gcpAccount.Description)
-	d.Set("name", gcpAccount.Name)
-	d.Set("org_id", gcpAccount.OrgID)
-	d.Set("owner", gcpAccount.Owner)
-	d.Set("private_key_id", gcpAccount.PrivateKeyID)
-	d.Set("project_id", gcpAccount.ProjectID)
-	d.Set("updated_at", gcpAccount.UpdatedAt)
+	_ = d.Set("client_email", gcpAccount.ClientEmail)
+	_ = d.Set("created_at", gcpAccount.CreatedAt)
+	_ = d.Set("description", gcpAccount.Description)
+	_ = d.Set("name", gcpAccount.Name)
+	_ = d.Set("org_id", gcpAccount.OrgID)
+	_ = d.Set("owner", gcpAccount.Owner)
+	_ = d.Set("private_key_id", gcpAccount.PrivateKeyID)
+	_ = d.Set("project_id", gcpAccount.ProjectID)
+	_ = d.Set("updated_at", gcpAccount.UpdatedAt)
 
 	if err := d.Set("links", flattenLinks(gcpAccount.Links)); err != nil {
 		return diag.Errorf("error setting cloud_account_gcp links - error: %#v", err)

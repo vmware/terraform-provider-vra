@@ -130,15 +130,15 @@ func dataSourceCloudAccountGCPRead(d *schema.ResourceData, meta interface{}) err
 	}
 
 	d.SetId(*cloudAccountGcp.ID)
-	d.Set("client_email", cloudAccountGcp.ClientEmail)
-	d.Set("created_at", cloudAccountGcp.CreatedAt)
-	d.Set("description", cloudAccountGcp.Description)
-	d.Set("name", cloudAccountGcp.Name)
-	d.Set("org_id", cloudAccountGcp.OrgID)
-	d.Set("owner", cloudAccountGcp.Owner)
-	d.Set("private_key_id", cloudAccountGcp.PrivateKeyID)
-	d.Set("project_id", cloudAccountGcp.ProjectID)
-	d.Set("updated_at", cloudAccountGcp.UpdatedAt)
+	_ = d.Set("client_email", cloudAccountGcp.ClientEmail)
+	_ = d.Set("created_at", cloudAccountGcp.CreatedAt)
+	_ = d.Set("description", cloudAccountGcp.Description)
+	_ = d.Set("name", cloudAccountGcp.Name)
+	_ = d.Set("org_id", cloudAccountGcp.OrgID)
+	_ = d.Set("owner", cloudAccountGcp.Owner)
+	_ = d.Set("private_key_id", cloudAccountGcp.PrivateKeyID)
+	_ = d.Set("project_id", cloudAccountGcp.ProjectID)
+	_ = d.Set("updated_at", cloudAccountGcp.UpdatedAt)
 
 	if err := d.Set("links", flattenLinks(cloudAccountGcp.Links)); err != nil {
 		return fmt.Errorf("error setting cloud_account_gcp links - error: %#v", err)

@@ -112,9 +112,9 @@ func dataSourceCatalogSourceEntitlementRead(d *schema.ResourceData, m interface{
 
 	setFields := func(entitlement *models.Entitlement) {
 		d.SetId(entitlement.ID.String())
-		d.Set("project_id", entitlement.ProjectID)
-		d.Set("catalog_source_id", entitlement.Definition.ID)
-		d.Set("definition", flattenContentDefinition(entitlement.Definition))
+		_ = d.Set("project_id", entitlement.ProjectID)
+		_ = d.Set("catalog_source_id", entitlement.Definition.ID)
+		_ = d.Set("definition", flattenContentDefinition(entitlement.Definition))
 	}
 
 	if len(resp.Payload) > 0 {

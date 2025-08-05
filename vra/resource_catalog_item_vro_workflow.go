@@ -133,22 +133,22 @@ func resourceCatalogItemVroWorkflowRead(_ context.Context, d *schema.ResourceDat
 	}
 
 	d.SetId(catalogItem.ID.String())
-	d.Set("created_at", catalogItem.CreatedAt.String())
-	d.Set("created_by", catalogItem.CreatedBy)
-	d.Set("description", catalogItem.Description)
-	d.Set("icon_id", catalogItem.IconID)
-	d.Set("global", catalogItem.Global)
-	d.Set("last_updated_at", catalogItem.LastUpdatedAt.String())
-	d.Set("last_updated_by", catalogItem.LastUpdatedBy)
-	d.Set("name", catalogItem.Name)
-	d.Set("project_id", catalogItem.SourceProjectID)
+	_ = d.Set("created_at", catalogItem.CreatedAt.String())
+	_ = d.Set("created_by", catalogItem.CreatedBy)
+	_ = d.Set("description", catalogItem.Description)
+	_ = d.Set("icon_id", catalogItem.IconID)
+	_ = d.Set("global", catalogItem.Global)
+	_ = d.Set("last_updated_at", catalogItem.LastUpdatedAt.String())
+	_ = d.Set("last_updated_by", catalogItem.LastUpdatedBy)
+	_ = d.Set("name", catalogItem.Name)
+	_ = d.Set("project_id", catalogItem.SourceProjectID)
 
 	var spec CatalogItemVroWorkflowPublishSpec
 	if err := catalogItemSpecConvert(catalogItem.Spec, &spec); err != nil {
 		return diag.FromErr(err)
 	}
 
-	d.Set("workflow_id", spec.WorkflowID)
+	_ = d.Set("workflow_id", spec.WorkflowID)
 
 	return nil
 }

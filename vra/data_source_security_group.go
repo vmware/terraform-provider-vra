@@ -82,15 +82,15 @@ func dataSourceSecurityGroupRead(d *schema.ResourceData, meta interface{}) error
 
 	securityGroup := securityGroups.Content[0]
 	d.SetId(*securityGroup.ID)
-	d.Set("created_at", securityGroup.CreatedAt)
-	d.Set("description", securityGroup.Description)
-	d.Set("external_id", securityGroup.ExternalID)
-	d.Set("external_region_id", securityGroup.ExternalRegionID)
-	d.Set("name", securityGroup.Name)
-	d.Set("organization_id", securityGroup.OrgID)
-	d.Set("owner", securityGroup.Owner)
-	d.Set("rules", securityGroup.Rules)
-	d.Set("updated_at", securityGroup.UpdatedAt)
+	_ = d.Set("created_at", securityGroup.CreatedAt)
+	_ = d.Set("description", securityGroup.Description)
+	_ = d.Set("external_id", securityGroup.ExternalID)
+	_ = d.Set("external_region_id", securityGroup.ExternalRegionID)
+	_ = d.Set("name", securityGroup.Name)
+	_ = d.Set("organization_id", securityGroup.OrgID)
+	_ = d.Set("owner", securityGroup.Owner)
+	_ = d.Set("rules", securityGroup.Rules)
+	_ = d.Set("updated_at", securityGroup.UpdatedAt)
 
 	return nil
 }

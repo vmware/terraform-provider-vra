@@ -322,25 +322,25 @@ func dataSourcePolicyIaaSResourceRead(_ context.Context, d *schema.ResourceData,
 	}
 
 	d.SetId(policy.ID.String())
-	d.Set("created_at", policy.CreatedAt.String())
-	d.Set("created_by", policy.CreatedBy)
-	d.Set("enforcement_type", policy.EnforcementType)
-	d.Set("last_updated_at", policy.LastUpdatedAt.String())
-	d.Set("last_updated_by", policy.LastUpdatedBy)
-	d.Set("name", policy.Name)
-	d.Set("org_id", policy.OrgID)
+	_ = d.Set("created_at", policy.CreatedAt.String())
+	_ = d.Set("created_by", policy.CreatedBy)
+	_ = d.Set("enforcement_type", policy.EnforcementType)
+	_ = d.Set("last_updated_at", policy.LastUpdatedAt.String())
+	_ = d.Set("last_updated_by", policy.LastUpdatedBy)
+	_ = d.Set("name", policy.Name)
+	_ = d.Set("org_id", policy.OrgID)
 
 	if policy.Criteria != nil {
-		d.Set("criteria", flattenPolicyCriteria(*policy.Criteria))
+		_ = d.Set("criteria", flattenPolicyCriteria(*policy.Criteria))
 	}
 	if policy.Description != "" {
-		d.Set("description", policy.Description)
+		_ = d.Set("description", policy.Description)
 	}
 	if policy.ScopeCriteria != nil {
-		d.Set("project_criteria", flattenPolicyCriteria(*policy.ScopeCriteria))
+		_ = d.Set("project_criteria", flattenPolicyCriteria(*policy.ScopeCriteria))
 	}
 	if policy.ProjectID != "" {
-		d.Set("project_id", policy.ProjectID)
+		_ = d.Set("project_id", policy.ProjectID)
 	}
 
 	var definition PolicyIaaSResourceDefinition
@@ -349,24 +349,24 @@ func dataSourcePolicyIaaSResourceRead(_ context.Context, d *schema.ResourceData,
 	}
 
 	if definition.AutomationPolicy.MatchConstraints.ExcludeResourceRules != nil {
-		d.Set("exclude_resource_rules", flattenPolicyIaaSResourceAutomationPolicyExcludeResourceRule(definition.AutomationPolicy.MatchConstraints.ExcludeResourceRules))
+		_ = d.Set("exclude_resource_rules", flattenPolicyIaaSResourceAutomationPolicyExcludeResourceRule(definition.AutomationPolicy.MatchConstraints.ExcludeResourceRules))
 	}
-	d.Set("failure_policy", definition.AutomationPolicy.FailurePolicy)
+	_ = d.Set("failure_policy", definition.AutomationPolicy.FailurePolicy)
 	if len(definition.AutomationPolicy.MatchConditions) > 0 {
-		d.Set("match_conditions", flattenPolicyIaaSResourceAutomationPolicyMatchConditions(definition.AutomationPolicy.MatchConditions))
+		_ = d.Set("match_conditions", flattenPolicyIaaSResourceAutomationPolicyMatchConditions(definition.AutomationPolicy.MatchConditions))
 	}
 	if definition.AutomationPolicy.MatchConstraints.ObjectSelector != nil && definition.AutomationPolicy.MatchConstraints.ObjectSelector.MatchExpressions != nil {
-		d.Set("match_expressions", flattenPolicyIaaSResourceAutomationPolicyObjectSelectorMatchExpressions(definition.AutomationPolicy.MatchConstraints.ObjectSelector.MatchExpressions))
+		_ = d.Set("match_expressions", flattenPolicyIaaSResourceAutomationPolicyObjectSelectorMatchExpressions(definition.AutomationPolicy.MatchConstraints.ObjectSelector.MatchExpressions))
 	}
 	if definition.AutomationPolicy.MatchConstraints.ObjectSelector != nil && definition.AutomationPolicy.MatchConstraints.ObjectSelector.MatchLabels != nil {
-		d.Set("match_labels", definition.AutomationPolicy.MatchConstraints.ObjectSelector.MatchLabels)
+		_ = d.Set("match_labels", definition.AutomationPolicy.MatchConstraints.ObjectSelector.MatchLabels)
 	}
 	if definition.AutomationPolicy.MatchConstraints.MatchPolicy != nil {
-		d.Set("match_policy", *definition.AutomationPolicy.MatchConstraints.MatchPolicy)
+		_ = d.Set("match_policy", *definition.AutomationPolicy.MatchConstraints.MatchPolicy)
 	}
-	d.Set("resource_rules", flattenPolicyIaaSResourceAutomationPolicyResourceRule(definition.AutomationPolicy.MatchConstraints.ResourceRules))
-	d.Set("validation_actions", definition.AutomationPolicy.ValidationActions)
-	d.Set("validations", flattenPolicyIaaSResourceAutomationPolicyValidations(definition.AutomationPolicy.Validations))
+	_ = d.Set("resource_rules", flattenPolicyIaaSResourceAutomationPolicyResourceRule(definition.AutomationPolicy.MatchConstraints.ResourceRules))
+	_ = d.Set("validation_actions", definition.AutomationPolicy.ValidationActions)
+	_ = d.Set("validations", flattenPolicyIaaSResourceAutomationPolicyValidations(definition.AutomationPolicy.Validations))
 
 	return nil
 }

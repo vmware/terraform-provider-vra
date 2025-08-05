@@ -400,13 +400,13 @@ func resourceDeploymentRead(_ context.Context, d *schema.ResourceData, m interfa
 	}
 
 	deployment := *resp.Payload
-	d.Set("blueprint_id", deployment.BlueprintID)
-	d.Set("blueprint_version", deployment.BlueprintVersion)
-	d.Set("catalog_item_id", deployment.CatalogItemID)
-	d.Set("catalog_item_version", deployment.CatalogItemVersion)
-	d.Set("created_at", deployment.CreatedAt.String())
-	d.Set("created_by", deployment.CreatedBy)
-	d.Set("description", deployment.Description)
+	_ = d.Set("blueprint_id", deployment.BlueprintID)
+	_ = d.Set("blueprint_version", deployment.BlueprintVersion)
+	_ = d.Set("catalog_item_id", deployment.CatalogItemID)
+	_ = d.Set("catalog_item_version", deployment.CatalogItemVersion)
+	_ = d.Set("created_at", deployment.CreatedAt.String())
+	_ = d.Set("created_by", deployment.CreatedBy)
+	_ = d.Set("description", deployment.Description)
 
 	if err := d.Set("expense", flattenExpense(deployment.Expense)); err != nil {
 		return diag.Errorf("error setting deployment expense - error: %#v", err)
@@ -428,18 +428,18 @@ func resourceDeploymentRead(_ context.Context, d *schema.ResourceData, m interfa
 		return diag.Errorf("error setting deployment last_request - error: %#v", err)
 	}
 
-	d.Set("last_updated_at", deployment.LastUpdatedAt.String())
-	d.Set("last_updated_by", deployment.LastUpdatedBy)
-	d.Set("lease_expire_at", deployment.LeaseExpireAt.String())
-	d.Set("name", deployment.Name)
-	d.Set("org_id", deployment.OrgID)
-	d.Set("owner", deployment.OwnedBy)
+	_ = d.Set("last_updated_at", deployment.LastUpdatedAt.String())
+	_ = d.Set("last_updated_by", deployment.LastUpdatedBy)
+	_ = d.Set("lease_expire_at", deployment.LeaseExpireAt.String())
+	_ = d.Set("name", deployment.Name)
+	_ = d.Set("org_id", deployment.OrgID)
+	_ = d.Set("owner", deployment.OwnedBy)
 
 	if err := d.Set("project", flattenResourceReference(deployment.Project)); err != nil {
 		return diag.Errorf("error setting project in deployment - error: %#v", err)
 	}
 
-	d.Set("project_id", deployment.ProjectID)
+	_ = d.Set("project_id", deployment.ProjectID)
 
 	getResourcesResp, err := apiClient.Deployments.GetDeploymentResourcesUsingGET2(
 		deployments.NewGetDeploymentResourcesUsingGET2Params().
@@ -455,7 +455,7 @@ func resourceDeploymentRead(_ context.Context, d *schema.ResourceData, m interfa
 		return diag.Errorf("error setting resources in deployment - error: %#v", err)
 	}
 
-	d.Set("status", deployment.Status)
+	_ = d.Set("status", deployment.Status)
 
 	log.Printf("Finished reading the vra_deployment resource with name '%s'. Current status: '%s'", d.Get("name"), d.Get("status"))
 	return nil

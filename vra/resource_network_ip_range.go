@@ -158,26 +158,26 @@ func resourceNetworkIPRangeRead(_ context.Context, d *schema.ResourceData, m int
 	}
 
 	networkIPRange := *resp.Payload
-	d.Set("created_at", networkIPRange.CreatedAt)
-	d.Set("description", networkIPRange.Description)
-	d.Set("end_ip_address", networkIPRange.EndIPAddress)
-	d.Set("external_id", networkIPRange.ExternalID)
-	d.Set("ip_version", networkIPRange.IPVersion)
-	d.Set("name", networkIPRange.Name)
-	d.Set("org_id", networkIPRange.OrgID)
-	d.Set("owner", networkIPRange.Owner)
-	d.Set("start_ip_address", networkIPRange.StartIPAddress)
-	d.Set("updated_at", networkIPRange.UpdatedAt)
+	_ = d.Set("created_at", networkIPRange.CreatedAt)
+	_ = d.Set("description", networkIPRange.Description)
+	_ = d.Set("end_ip_address", networkIPRange.EndIPAddress)
+	_ = d.Set("external_id", networkIPRange.ExternalID)
+	_ = d.Set("ip_version", networkIPRange.IPVersion)
+	_ = d.Set("name", networkIPRange.Name)
+	_ = d.Set("org_id", networkIPRange.OrgID)
+	_ = d.Set("owner", networkIPRange.Owner)
+	_ = d.Set("start_ip_address", networkIPRange.StartIPAddress)
+	_ = d.Set("updated_at", networkIPRange.UpdatedAt)
 
 	if fabricNetworkLinks, ok := networkIPRange.Links["fabric-networks"]; ok {
 		fabricNetworkIDs := make([]string, 0, len(fabricNetworkLinks.Hrefs))
 		for _, fabricNetworkLink := range fabricNetworkLinks.Hrefs {
 			fabricNetworkIDs = append(fabricNetworkIDs, strings.TrimPrefix(fabricNetworkLink, "/iaas/api/fabric-networks/"))
 		}
-		d.Set("fabric_network_ids", fabricNetworkIDs)
+		_ = d.Set("fabric_network_ids", fabricNetworkIDs)
 	} else if fabricNetworkLink, ok := networkIPRange.Links["fabric-network"]; ok {
 		fabricNetworkIDs := []string{strings.TrimPrefix(fabricNetworkLink.Href, "/iaas/api/fabric-networks/")}
-		d.Set("fabric_network_ids", fabricNetworkIDs)
+		_ = d.Set("fabric_network_ids", fabricNetworkIDs)
 	}
 
 	if err := d.Set("links", flattenLinks(networkIPRange.Links)); err != nil {

@@ -226,16 +226,16 @@ func resourceCloudAccountVsphereRead(_ context.Context, d *schema.ResourceData, 
 	}
 
 	vsphereAccount := *ret.Payload
-	d.Set("associated_cloud_account_ids", flattenAssociatedCloudAccountIDs(vsphereAccount.Links))
-	d.Set("created_at", vsphereAccount.CreatedAt)
-	d.Set("dc_id", vsphereAccount.Dcid)
-	d.Set("description", vsphereAccount.Description)
-	d.Set("hostname", vsphereAccount.HostName)
-	d.Set("name", vsphereAccount.Name)
-	d.Set("org_id", vsphereAccount.OrgID)
-	d.Set("owner", vsphereAccount.Owner)
-	d.Set("updated_at", vsphereAccount.UpdatedAt)
-	d.Set("username", vsphereAccount.Username)
+	_ = d.Set("associated_cloud_account_ids", flattenAssociatedCloudAccountIDs(vsphereAccount.Links))
+	_ = d.Set("created_at", vsphereAccount.CreatedAt)
+	_ = d.Set("dc_id", vsphereAccount.Dcid)
+	_ = d.Set("description", vsphereAccount.Description)
+	_ = d.Set("hostname", vsphereAccount.HostName)
+	_ = d.Set("name", vsphereAccount.Name)
+	_ = d.Set("org_id", vsphereAccount.OrgID)
+	_ = d.Set("owner", vsphereAccount.Owner)
+	_ = d.Set("updated_at", vsphereAccount.UpdatedAt)
+	_ = d.Set("username", vsphereAccount.Username)
 
 	if err := d.Set("links", flattenLinks(vsphereAccount.Links)); err != nil {
 		return diag.Errorf("error setting cloud_account_vsphere links - error: %#v", err)

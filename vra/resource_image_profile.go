@@ -101,16 +101,16 @@ func resourceImageProfileRead(_ context.Context, d *schema.ResourceData, m inter
 		return diag.FromErr(err)
 	}
 	imageProfile := *ret.Payload
-	d.Set("created_at", imageProfile.CreatedAt)
-	d.Set("description", imageProfile.Description)
-	d.Set("external_region_id", imageProfile.ExternalRegionID)
-	d.Set("name", imageProfile.Name)
-	d.Set("owner", imageProfile.Owner)
-	d.Set("updated_at", imageProfile.UpdatedAt)
+	_ = d.Set("created_at", imageProfile.CreatedAt)
+	_ = d.Set("description", imageProfile.Description)
+	_ = d.Set("external_region_id", imageProfile.ExternalRegionID)
+	_ = d.Set("name", imageProfile.Name)
+	_ = d.Set("owner", imageProfile.Owner)
+	_ = d.Set("updated_at", imageProfile.UpdatedAt)
 
 	if regionLink, ok := imageProfile.Links["region"]; ok {
 		if regionLink.Href != "" {
-			d.Set("region_id", strings.TrimPrefix(regionLink.Href, "/iaas/api/regions/"))
+			_ = d.Set("region_id", strings.TrimPrefix(regionLink.Href, "/iaas/api/regions/"))
 		}
 	}
 

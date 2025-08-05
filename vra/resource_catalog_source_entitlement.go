@@ -134,8 +134,8 @@ func resourceCatalogSourceEntitlementRead(_ context.Context, d *schema.ResourceD
 
 	setFields := func(entitlement *models.Entitlement) {
 		d.SetId(entitlement.ID.String())
-		d.Set("project_id", entitlement.ProjectID)
-		d.Set("definition", flattenContentDefinition(entitlement.Definition))
+		_ = d.Set("project_id", entitlement.ProjectID)
+		_ = d.Set("definition", flattenContentDefinition(entitlement.Definition))
 	}
 
 	if len(resp.Payload) > 0 {

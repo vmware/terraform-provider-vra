@@ -110,9 +110,9 @@ func dataSourceCatalogItemEntitlementRead(d *schema.ResourceData, m interface{})
 		for _, entitlement := range resp.Payload {
 			if (idOk && entitlement.ID.String() == id.(string)) || (catalogItemIDOk && entitlement.Definition.ID.String() == catalogItemID.(string)) {
 				d.SetId(entitlement.ID.String())
-				d.Set("catalog_item_id", entitlement.Definition.ID)
-				d.Set("definition", flattenContentDefinition(entitlement.Definition))
-				d.Set("project_id", entitlement.ProjectID)
+				_ = d.Set("catalog_item_id", entitlement.Definition.ID)
+				_ = d.Set("definition", flattenContentDefinition(entitlement.Definition))
+				_ = d.Set("project_id", entitlement.ProjectID)
 				return nil
 			}
 		}

@@ -148,15 +148,15 @@ func resourceCloudAccountNSXVRead(_ context.Context, d *schema.ResourceData, m i
 		return diag.FromErr(err)
 	}
 	nsxvAccount := *ret.Payload
-	d.Set("associated_cloud_account_ids", flattenAssociatedCloudAccountIDs(nsxvAccount.Links))
-	d.Set("created_at", nsxvAccount.CreatedAt)
-	d.Set("dc_id", nsxvAccount.Dcid)
-	d.Set("description", nsxvAccount.Description)
-	d.Set("name", nsxvAccount.Name)
-	d.Set("org_id", nsxvAccount.OrgID)
-	d.Set("owner", nsxvAccount.Owner)
-	d.Set("updated_at", nsxvAccount.UpdatedAt)
-	d.Set("username", nsxvAccount.Username)
+	_ = d.Set("associated_cloud_account_ids", flattenAssociatedCloudAccountIDs(nsxvAccount.Links))
+	_ = d.Set("created_at", nsxvAccount.CreatedAt)
+	_ = d.Set("dc_id", nsxvAccount.Dcid)
+	_ = d.Set("description", nsxvAccount.Description)
+	_ = d.Set("name", nsxvAccount.Name)
+	_ = d.Set("org_id", nsxvAccount.OrgID)
+	_ = d.Set("owner", nsxvAccount.Owner)
+	_ = d.Set("updated_at", nsxvAccount.UpdatedAt)
+	_ = d.Set("username", nsxvAccount.Username)
 
 	if err := d.Set("links", flattenLinks(nsxvAccount.Links)); err != nil {
 		return diag.Errorf("error setting cloud_account_nsxv links - error: %#v", err)

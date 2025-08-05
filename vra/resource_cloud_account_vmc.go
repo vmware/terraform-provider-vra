@@ -186,17 +186,17 @@ func resourceCloudAccountVMCRead(_ context.Context, d *schema.ResourceData, m in
 	}
 
 	vmcAccount := *ret.Payload
-	d.Set("created_at", vmcAccount.CreatedAt)
-	d.Set("dc_id", vmcAccount.CloudAccountProperties["dcId"])
-	d.Set("description", vmcAccount.Description)
-	d.Set("name", vmcAccount.Name)
-	d.Set("nsx_hostname", vmcAccount.CloudAccountProperties["nsxHostName"])
-	d.Set("org_id", vmcAccount.OrgID)
-	d.Set("owner", vmcAccount.Owner)
-	d.Set("sddc_name", vmcAccount.CloudAccountProperties["sddcId"])
-	d.Set("updated_at", vmcAccount.UpdatedAt)
-	d.Set("vcenter_hostname", vmcAccount.CloudAccountProperties["hostName"])
-	d.Set("vcenter_username", vmcAccount.CloudAccountProperties["privateKeyId"])
+	_ = d.Set("created_at", vmcAccount.CreatedAt)
+	_ = d.Set("dc_id", vmcAccount.CloudAccountProperties["dcId"])
+	_ = d.Set("description", vmcAccount.Description)
+	_ = d.Set("name", vmcAccount.Name)
+	_ = d.Set("nsx_hostname", vmcAccount.CloudAccountProperties["nsxHostName"])
+	_ = d.Set("org_id", vmcAccount.OrgID)
+	_ = d.Set("owner", vmcAccount.Owner)
+	_ = d.Set("sddc_name", vmcAccount.CloudAccountProperties["sddcId"])
+	_ = d.Set("updated_at", vmcAccount.UpdatedAt)
+	_ = d.Set("vcenter_hostname", vmcAccount.CloudAccountProperties["hostName"])
+	_ = d.Set("vcenter_username", vmcAccount.CloudAccountProperties["privateKeyId"])
 
 	if err := d.Set("links", flattenLinks(vmcAccount.Links)); err != nil {
 		return diag.Errorf("error setting cloud_account_vmc links - error: %#v", err)

@@ -373,27 +373,27 @@ func resourceMachineRead(_ context.Context, d *schema.ResourceData, m interface{
 	}
 
 	machine := *resp.Payload
-	d.Set("name", machine.Name)
-	d.Set("description", machine.Description)
-	d.Set("deployment_id", machine.DeploymentID)
-	d.Set("power_state", machine.PowerState)
-	d.Set("address", machine.Address)
-	d.Set("project_id", machine.ProjectID)
-	d.Set("external_zone_id", machine.ExternalZoneID)
-	d.Set("external_region_id", machine.ExternalRegionID)
-	d.Set("external_id", machine.ExternalID)
-	d.Set("created_at", machine.CreatedAt)
-	d.Set("updated_at", machine.UpdatedAt)
-	d.Set("owner", machine.Owner)
-	d.Set("organization_id", machine.OrgID)
-	d.Set("custom_properties", machine.CustomProperties)
+	_ = d.Set("name", machine.Name)
+	_ = d.Set("description", machine.Description)
+	_ = d.Set("deployment_id", machine.DeploymentID)
+	_ = d.Set("power_state", machine.PowerState)
+	_ = d.Set("address", machine.Address)
+	_ = d.Set("project_id", machine.ProjectID)
+	_ = d.Set("external_zone_id", machine.ExternalZoneID)
+	_ = d.Set("external_region_id", machine.ExternalRegionID)
+	_ = d.Set("external_id", machine.ExternalID)
+	_ = d.Set("created_at", machine.CreatedAt)
+	_ = d.Set("updated_at", machine.UpdatedAt)
+	_ = d.Set("owner", machine.Owner)
+	_ = d.Set("organization_id", machine.OrgID)
+	_ = d.Set("custom_properties", machine.CustomProperties)
 
 	if image, found := machine.CustomProperties["image"]; found {
-		d.Set("image", image)
+		_ = d.Set("image", image)
 	}
 
 	if imageRef, found := machine.CustomProperties["imageRef"]; found {
-		d.Set("imageRef", imageRef)
+		_ = d.Set("imageRef", imageRef)
 	}
 
 	if err := d.Set("tags", flattenTags(machine.Tags)); err != nil {

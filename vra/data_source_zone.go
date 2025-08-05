@@ -138,17 +138,17 @@ func dataSourceZoneRead(d *schema.ResourceData, m interface{}) error {
 	}
 
 	d.SetId(*zone.ID)
-	d.Set("name", zone.Name)
-	d.Set("cloud_account_id", zone.CloudAccountID)
-	d.Set("created_at", zone.CreatedAt)
-	d.Set("custom_properties", zone.CustomProperties)
-	d.Set("description", zone.Description)
-	d.Set("external_region_id", zone.ExternalRegionID)
-	d.Set("folder", zone.Folder)
-	d.Set("org_id", zone.OrgID)
-	d.Set("owner", zone.Owner)
-	d.Set("placement_policy", zone.PlacementPolicy)
-	d.Set("updated_at", zone.UpdatedAt)
+	_ = d.Set("name", zone.Name)
+	_ = d.Set("cloud_account_id", zone.CloudAccountID)
+	_ = d.Set("created_at", zone.CreatedAt)
+	_ = d.Set("custom_properties", zone.CustomProperties)
+	_ = d.Set("description", zone.Description)
+	_ = d.Set("external_region_id", zone.ExternalRegionID)
+	_ = d.Set("folder", zone.Folder)
+	_ = d.Set("org_id", zone.OrgID)
+	_ = d.Set("owner", zone.Owner)
+	_ = d.Set("placement_policy", zone.PlacementPolicy)
+	_ = d.Set("updated_at", zone.UpdatedAt)
 
 	if err := d.Set("links", flattenLinks(zone.Links)); err != nil {
 		return fmt.Errorf("error setting zone links - error: %#v", err)
@@ -171,7 +171,7 @@ func dataSourceZoneRead(d *schema.ResourceData, m interface{}) error {
 	for _, compute := range getComputesResp.Payload.Content {
 		computeIDs = append(computeIDs, *compute.ID)
 	}
-	d.Set("compute_ids", computeIDs)
+	_ = d.Set("compute_ids", computeIDs)
 
 	return nil
 }

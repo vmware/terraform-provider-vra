@@ -143,17 +143,17 @@ func resourceStorageProfileRead(_ context.Context, d *schema.ResourceData, m int
 	}
 
 	storageProfile := *resp.Payload
-	d.Set("cloud_account_id", storageProfile.CloudAccountID)
-	d.Set("created_at", storageProfile.CreatedAt)
-	d.Set("default_item", storageProfile.DefaultItem)
-	d.Set("description", storageProfile.Description)
-	d.Set("disk_properties", storageProfile.DiskProperties)
-	d.Set("external_region_id", storageProfile.ExternalRegionID)
-	d.Set("name", storageProfile.Name)
-	d.Set("org_id", storageProfile.OrgID)
-	d.Set("owner", storageProfile.Owner)
-	d.Set("supports_encryption", storageProfile.SupportsEncryption)
-	d.Set("updated_at", storageProfile.UpdatedAt)
+	_ = d.Set("cloud_account_id", storageProfile.CloudAccountID)
+	_ = d.Set("created_at", storageProfile.CreatedAt)
+	_ = d.Set("default_item", storageProfile.DefaultItem)
+	_ = d.Set("description", storageProfile.Description)
+	_ = d.Set("disk_properties", storageProfile.DiskProperties)
+	_ = d.Set("external_region_id", storageProfile.ExternalRegionID)
+	_ = d.Set("name", storageProfile.Name)
+	_ = d.Set("org_id", storageProfile.OrgID)
+	_ = d.Set("owner", storageProfile.Owner)
+	_ = d.Set("supports_encryption", storageProfile.SupportsEncryption)
+	_ = d.Set("updated_at", storageProfile.UpdatedAt)
 
 	if err := d.Set("tags", flattenTags(storageProfile.Tags)); err != nil {
 		return diag.Errorf("error setting storage profile tags - error: %v", err)

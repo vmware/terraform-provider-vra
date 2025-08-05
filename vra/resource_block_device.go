@@ -271,20 +271,20 @@ func resourceBlockDeviceRead(_ context.Context, d *schema.ResourceData, m interf
 	}
 
 	blockDevice := *resp.Payload
-	d.Set("capacity_in_gb", blockDevice.CapacityInGB)
-	d.Set("created_at", blockDevice.CreatedAt)
-	d.Set("custom_properties", blockDevice.CustomProperties)
-	d.Set("description", blockDevice.Description)
-	d.Set("deployment_id", blockDevice.DeploymentID)
-	d.Set("external_id", blockDevice.ExternalID)
-	d.Set("external_region_id", blockDevice.ExternalRegionID)
-	d.Set("external_zone_id", blockDevice.ExternalZoneID)
-	d.Set("name", blockDevice.Name)
-	d.Set("org_id", blockDevice.OrgID)
-	d.Set("owner", blockDevice.Owner)
-	d.Set("persistent", blockDevice.Persistent)
-	d.Set("status", blockDevice.Status)
-	d.Set("updated_at", blockDevice.UpdatedAt)
+	_ = d.Set("capacity_in_gb", blockDevice.CapacityInGB)
+	_ = d.Set("created_at", blockDevice.CreatedAt)
+	_ = d.Set("custom_properties", blockDevice.CustomProperties)
+	_ = d.Set("description", blockDevice.Description)
+	_ = d.Set("deployment_id", blockDevice.DeploymentID)
+	_ = d.Set("external_id", blockDevice.ExternalID)
+	_ = d.Set("external_region_id", blockDevice.ExternalRegionID)
+	_ = d.Set("external_zone_id", blockDevice.ExternalZoneID)
+	_ = d.Set("name", blockDevice.Name)
+	_ = d.Set("org_id", blockDevice.OrgID)
+	_ = d.Set("owner", blockDevice.Owner)
+	_ = d.Set("persistent", blockDevice.Persistent)
+	_ = d.Set("status", blockDevice.Status)
+	_ = d.Set("updated_at", blockDevice.UpdatedAt)
 
 	if err := d.Set("tags", flattenTags(blockDevice.Tags)); err != nil {
 		return diag.Errorf("error setting block device tags - error: %v", err)
@@ -305,7 +305,7 @@ func resourceBlockDeviceRead(_ context.Context, d *schema.ResourceData, m interf
 			return diag.Errorf("error setting block device snapshots - error: %#v", err)
 		}
 	} else {
-		d.Set("snapshots", make([]map[string]interface{}, 0))
+		_ = d.Set("snapshots", make([]map[string]interface{}, 0))
 	}
 
 	log.Printf("Finished reading the vra_block_device resource with name %s", d.Get("name"))

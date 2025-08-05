@@ -158,22 +158,22 @@ func resourceCatalogSourceBlueprintRead(_ context.Context, d *schema.ResourceDat
 	}
 
 	catalogSource := *resp.Payload
-	d.Set("config", expandCatalogSourceConfig(catalogSource.Config))
-	d.Set("created_at", catalogSource.CreatedAt.String())
-	d.Set("created_by", catalogSource.CreatedBy)
-	d.Set("description", catalogSource.Description)
-	d.Set("global", catalogSource.Global)
-	d.Set("icon_id", catalogSource.IconID)
-	d.Set("items_found", catalogSource.ItemsFound)
-	d.Set("items_imported", catalogSource.ItemsImported)
-	d.Set("last_import_completed_at", catalogSource.LastImportCompletedAt.String())
-	d.Set("last_import_errors", catalogSource.LastImportErrors)
-	d.Set("last_import_started_at", catalogSource.LastImportStartedAt.String())
-	d.Set("last_updated_at", catalogSource.LastUpdatedAt.String())
-	d.Set("last_updated_by", catalogSource.LastUpdatedBy)
-	d.Set("name", catalogSource.Name)
-	d.Set("project_id", catalogSource.ProjectID)
-	d.Set("type_id", catalogSource.TypeID)
+	_ = d.Set("config", expandCatalogSourceConfig(catalogSource.Config))
+	_ = d.Set("created_at", catalogSource.CreatedAt.String())
+	_ = d.Set("created_by", catalogSource.CreatedBy)
+	_ = d.Set("description", catalogSource.Description)
+	_ = d.Set("global", catalogSource.Global)
+	_ = d.Set("icon_id", catalogSource.IconID)
+	_ = d.Set("items_found", catalogSource.ItemsFound)
+	_ = d.Set("items_imported", catalogSource.ItemsImported)
+	_ = d.Set("last_import_completed_at", catalogSource.LastImportCompletedAt.String())
+	_ = d.Set("last_import_errors", catalogSource.LastImportErrors)
+	_ = d.Set("last_import_started_at", catalogSource.LastImportStartedAt.String())
+	_ = d.Set("last_updated_at", catalogSource.LastUpdatedAt.String())
+	_ = d.Set("last_updated_by", catalogSource.LastUpdatedBy)
+	_ = d.Set("name", catalogSource.Name)
+	_ = d.Set("project_id", catalogSource.ProjectID)
+	_ = d.Set("type_id", catalogSource.TypeID)
 
 	return nil
 }

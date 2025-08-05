@@ -135,18 +135,18 @@ func resourceStorageProfileAwsRead(_ context.Context, d *schema.ResourceData, m 
 	}
 
 	awsStorageProfile := *resp.Payload
-	d.Set("created_at", awsStorageProfile.CreatedAt)
-	d.Set("default_item", awsStorageProfile.DefaultItem)
-	d.Set("description", awsStorageProfile.Description)
-	d.Set("device_type", awsStorageProfile.DeviceType)
-	d.Set("external_region_id", awsStorageProfile.ExternalRegionID)
-	d.Set("iops", awsStorageProfile.Iops)
-	d.Set("name", awsStorageProfile.Name)
-	d.Set("organization_id", awsStorageProfile.OrgID)
-	d.Set("owner", awsStorageProfile.Owner)
-	d.Set("supports_encryption", awsStorageProfile.SupportsEncryption)
-	d.Set("updated_at", awsStorageProfile.UpdatedAt)
-	d.Set("volume_type", awsStorageProfile.VolumeType)
+	_ = d.Set("created_at", awsStorageProfile.CreatedAt)
+	_ = d.Set("default_item", awsStorageProfile.DefaultItem)
+	_ = d.Set("description", awsStorageProfile.Description)
+	_ = d.Set("device_type", awsStorageProfile.DeviceType)
+	_ = d.Set("external_region_id", awsStorageProfile.ExternalRegionID)
+	_ = d.Set("iops", awsStorageProfile.Iops)
+	_ = d.Set("name", awsStorageProfile.Name)
+	_ = d.Set("organization_id", awsStorageProfile.OrgID)
+	_ = d.Set("owner", awsStorageProfile.Owner)
+	_ = d.Set("supports_encryption", awsStorageProfile.SupportsEncryption)
+	_ = d.Set("updated_at", awsStorageProfile.UpdatedAt)
+	_ = d.Set("volume_type", awsStorageProfile.VolumeType)
 
 	if err := d.Set("tags", flattenTags(awsStorageProfile.Tags)); err != nil {
 		return diag.Errorf("error setting swa storage profile tags - error: %v", err)

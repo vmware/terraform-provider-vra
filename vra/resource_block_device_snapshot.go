@@ -183,16 +183,16 @@ func resourceBlockDeviceSnapshotRead(_ context.Context, d *schema.ResourceData, 
 	diskSnapshot := resp.Payload
 
 	d.SetId(*diskSnapshot.ID)
-	d.Set("created_at", diskSnapshot.CreatedAt)
-	d.Set("description", diskSnapshot.Desc)
-	d.Set("name", diskSnapshot.Name)
-	d.Set("org_id", diskSnapshot.OrgID)
-	d.Set("owner", diskSnapshot.Owner)
-	d.Set("updated_at", diskSnapshot.UpdatedAt)
+	_ = d.Set("created_at", diskSnapshot.CreatedAt)
+	_ = d.Set("description", diskSnapshot.Desc)
+	_ = d.Set("name", diskSnapshot.Name)
+	_ = d.Set("org_id", diskSnapshot.OrgID)
+	_ = d.Set("owner", diskSnapshot.Owner)
+	_ = d.Set("updated_at", diskSnapshot.UpdatedAt)
 
-	d.Set("is_current", false)
+	_ = d.Set("is_current", false)
 	if isCurrent, ok := diskSnapshot.SnapshotProperties["isCurrent"]; ok && isCurrent == "true" {
-		d.Set("is_current", true)
+		_ = d.Set("is_current", true)
 	}
 	if err := d.Set("links", flattenLinks(diskSnapshot.Links)); err != nil {
 		return diag.Errorf("error setting vra_block_device_snapshot links - error: %#v", err)

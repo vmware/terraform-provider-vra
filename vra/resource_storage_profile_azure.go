@@ -140,18 +140,18 @@ func resourceStorageProfileAzureRead(_ context.Context, d *schema.ResourceData, 
 	}
 
 	AzureStorageProfile := *resp.Payload
-	d.Set("created_at", AzureStorageProfile.CreatedAt)
-	d.Set("default_item", AzureStorageProfile.DefaultItem)
-	d.Set("description", AzureStorageProfile.Description)
-	d.Set("disk_type", AzureStorageProfile.DiskType)
-	d.Set("data_disk_caching", AzureStorageProfile.DataDiskCaching)
-	d.Set("external_region_id", AzureStorageProfile.ExternalRegionID)
-	d.Set("name", AzureStorageProfile.Name)
-	d.Set("organization_id", AzureStorageProfile.OrgID)
-	d.Set("os_disk_caching", AzureStorageProfile.OsDiskCaching)
-	d.Set("owner", AzureStorageProfile.Owner)
-	d.Set("supports_encryption", AzureStorageProfile.SupportsEncryption)
-	d.Set("updated_at", AzureStorageProfile.UpdatedAt)
+	_ = d.Set("created_at", AzureStorageProfile.CreatedAt)
+	_ = d.Set("default_item", AzureStorageProfile.DefaultItem)
+	_ = d.Set("description", AzureStorageProfile.Description)
+	_ = d.Set("disk_type", AzureStorageProfile.DiskType)
+	_ = d.Set("data_disk_caching", AzureStorageProfile.DataDiskCaching)
+	_ = d.Set("external_region_id", AzureStorageProfile.ExternalRegionID)
+	_ = d.Set("name", AzureStorageProfile.Name)
+	_ = d.Set("organization_id", AzureStorageProfile.OrgID)
+	_ = d.Set("os_disk_caching", AzureStorageProfile.OsDiskCaching)
+	_ = d.Set("owner", AzureStorageProfile.Owner)
+	_ = d.Set("supports_encryption", AzureStorageProfile.SupportsEncryption)
+	_ = d.Set("updated_at", AzureStorageProfile.UpdatedAt)
 
 	if err := d.Set("tags", flattenTags(AzureStorageProfile.Tags)); err != nil {
 		return diag.Errorf("error setting azure storage profile tags - error: %v", err)

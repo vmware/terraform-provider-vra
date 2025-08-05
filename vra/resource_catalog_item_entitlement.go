@@ -127,8 +127,8 @@ func resourceCatalogItemEntitlementRead(_ context.Context, d *schema.ResourceDat
 	if len(resp.Payload) > 0 {
 		for _, entitlement := range resp.Payload {
 			if entitlement.ID.String() == id {
-				d.Set("project_id", entitlement.ProjectID)
-				d.Set("definition", flattenContentDefinition(entitlement.Definition))
+				_ = d.Set("project_id", entitlement.ProjectID)
+				_ = d.Set("definition", flattenContentDefinition(entitlement.Definition))
 				return nil
 			}
 		}

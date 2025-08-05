@@ -105,7 +105,7 @@ func dataSourceRegionEnumerationRead(ctx context.Context, d *schema.ResourceData
 		return diag.FromErr(err)
 	}
 
-	d.Set("regions", extractIDsFromRegionSpecification(getResp.Payload.ExternalRegions))
+	_ = d.Set("regions", extractIDsFromRegionSpecification(getResp.Payload.ExternalRegions))
 	d.SetId(d.Get("hostname").(string))
 
 	return nil

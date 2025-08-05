@@ -128,16 +128,16 @@ func resourceFabricStorageAccountAzureRead(d *schema.ResourceData, meta interfac
 	}
 
 	d.SetId(*fabricAzureStorageAccount.ID)
-	d.Set("cloud_account_ids", fabricAzureStorageAccount.CloudAccountIds)
-	d.Set("created_at", fabricAzureStorageAccount.CreatedAt)
-	d.Set("description", fabricAzureStorageAccount.Description)
-	d.Set("external_id", fabricAzureStorageAccount.ExternalID)
-	d.Set("external_region_id", fabricAzureStorageAccount.ExternalRegionID)
-	d.Set("name", fabricAzureStorageAccount.Name)
-	d.Set("org_id", fabricAzureStorageAccount.OrgID)
-	d.Set("owner", fabricAzureStorageAccount.Owner)
-	d.Set("type", fabricAzureStorageAccount.Type)
-	d.Set("updated_at", fabricAzureStorageAccount.UpdatedAt)
+	_ = d.Set("cloud_account_ids", fabricAzureStorageAccount.CloudAccountIds)
+	_ = d.Set("created_at", fabricAzureStorageAccount.CreatedAt)
+	_ = d.Set("description", fabricAzureStorageAccount.Description)
+	_ = d.Set("external_id", fabricAzureStorageAccount.ExternalID)
+	_ = d.Set("external_region_id", fabricAzureStorageAccount.ExternalRegionID)
+	_ = d.Set("name", fabricAzureStorageAccount.Name)
+	_ = d.Set("org_id", fabricAzureStorageAccount.OrgID)
+	_ = d.Set("owner", fabricAzureStorageAccount.Owner)
+	_ = d.Set("type", fabricAzureStorageAccount.Type)
+	_ = d.Set("updated_at", fabricAzureStorageAccount.UpdatedAt)
 
 	if err := d.Set("links", flattenLinks(fabricAzureStorageAccount.Links)); err != nil {
 		return fmt.Errorf("error getting fabric Azure storage account links - error: %#v", err)

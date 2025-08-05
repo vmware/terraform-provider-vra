@@ -150,15 +150,15 @@ func resourceCatalogItemVMImageRead(_ context.Context, d *schema.ResourceData, m
 	}
 
 	d.SetId(catalogItem.ID.String())
-	d.Set("created_at", catalogItem.CreatedAt.String())
-	d.Set("created_by", catalogItem.CreatedBy)
-	d.Set("description", catalogItem.Description)
-	d.Set("icon_id", catalogItem.IconID)
-	d.Set("global", catalogItem.Global)
-	d.Set("last_updated_at", catalogItem.LastUpdatedAt.String())
-	d.Set("last_updated_by", catalogItem.LastUpdatedBy)
-	d.Set("name", catalogItem.Name)
-	d.Set("project_id", catalogItem.SourceProjectID)
+	_ = d.Set("created_at", catalogItem.CreatedAt.String())
+	_ = d.Set("created_by", catalogItem.CreatedBy)
+	_ = d.Set("description", catalogItem.Description)
+	_ = d.Set("icon_id", catalogItem.IconID)
+	_ = d.Set("global", catalogItem.Global)
+	_ = d.Set("last_updated_at", catalogItem.LastUpdatedAt.String())
+	_ = d.Set("last_updated_by", catalogItem.LastUpdatedBy)
+	_ = d.Set("name", catalogItem.Name)
+	_ = d.Set("project_id", catalogItem.SourceProjectID)
 
 	var spec CatalogItemVMImagePublishSpec
 	if err := catalogItemSpecConvert(catalogItem.Spec, &spec); err != nil {
@@ -166,11 +166,11 @@ func resourceCatalogItemVMImageRead(_ context.Context, d *schema.ResourceData, m
 	}
 
 	if spec.CloudConfig != nil {
-		d.Set("cloud_config", spec.CloudConfig)
+		_ = d.Set("cloud_config", spec.CloudConfig)
 	}
-	d.Set("image_name", spec.ImageName)
+	_ = d.Set("image_name", spec.ImageName)
 	if spec.SelectZone != nil {
-		d.Set("select_zone", spec.SelectZone)
+		_ = d.Set("select_zone", spec.SelectZone)
 	}
 
 	return nil

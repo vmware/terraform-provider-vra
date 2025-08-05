@@ -104,16 +104,16 @@ func dataSourceCloudAccountNSXVRead(d *schema.ResourceData, meta interface{}) er
 
 	setFields := func(account *models.CloudAccountNsxV) error {
 		d.SetId(*account.ID)
-		d.Set("associated_cloud_account_ids", flattenAssociatedCloudAccountIDs(account.Links))
-		d.Set("created_at", account.CreatedAt)
-		d.Set("dc_id", account.Dcid)
-		d.Set("description", account.Description)
-		d.Set("hostname", account.HostName)
-		d.Set("name", account.Name)
-		d.Set("org_id", account.OrgID)
-		d.Set("owner", account.Owner)
-		d.Set("updated_at", account.UpdatedAt)
-		d.Set("username", account.Username)
+		_ = d.Set("associated_cloud_account_ids", flattenAssociatedCloudAccountIDs(account.Links))
+		_ = d.Set("created_at", account.CreatedAt)
+		_ = d.Set("dc_id", account.Dcid)
+		_ = d.Set("description", account.Description)
+		_ = d.Set("hostname", account.HostName)
+		_ = d.Set("name", account.Name)
+		_ = d.Set("org_id", account.OrgID)
+		_ = d.Set("owner", account.Owner)
+		_ = d.Set("updated_at", account.UpdatedAt)
+		_ = d.Set("username", account.Username)
 
 		if err := d.Set("links", flattenLinks(account.Links)); err != nil {
 			return fmt.Errorf("error setting cloud_account_nsxv links - error: %#v", err)

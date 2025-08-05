@@ -131,15 +131,15 @@ func dataSourceCloudAccountAzureRead(d *schema.ResourceData, meta interface{}) e
 	}
 
 	d.SetId(*cloudAccountAzure.ID)
-	d.Set("application_id", cloudAccountAzure.ClientApplicationID)
-	d.Set("created_at", cloudAccountAzure.CreatedAt)
-	d.Set("description", cloudAccountAzure.Description)
-	d.Set("name", cloudAccountAzure.Name)
-	d.Set("org_id", cloudAccountAzure.OrgID)
-	d.Set("owner", cloudAccountAzure.Owner)
-	d.Set("subscription_id", cloudAccountAzure.SubscriptionID)
-	d.Set("tenant_id", cloudAccountAzure.TenantID)
-	d.Set("updated_at", cloudAccountAzure.UpdatedAt)
+	_ = d.Set("application_id", cloudAccountAzure.ClientApplicationID)
+	_ = d.Set("created_at", cloudAccountAzure.CreatedAt)
+	_ = d.Set("description", cloudAccountAzure.Description)
+	_ = d.Set("name", cloudAccountAzure.Name)
+	_ = d.Set("org_id", cloudAccountAzure.OrgID)
+	_ = d.Set("owner", cloudAccountAzure.Owner)
+	_ = d.Set("subscription_id", cloudAccountAzure.SubscriptionID)
+	_ = d.Set("tenant_id", cloudAccountAzure.TenantID)
+	_ = d.Set("updated_at", cloudAccountAzure.UpdatedAt)
 
 	if err := d.Set("links", flattenLinks(cloudAccountAzure.Links)); err != nil {
 		return fmt.Errorf("error setting cloud_account_azure links - error: %#v", err)

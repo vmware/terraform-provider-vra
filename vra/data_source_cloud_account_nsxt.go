@@ -134,17 +134,17 @@ func dataSourceCloudAccountNSXTRead(d *schema.ResourceData, meta interface{}) er
 	}
 
 	d.SetId(*cloudAccountNsxT.ID)
-	d.Set("associated_cloud_account_ids", flattenAssociatedCloudAccountIDs(cloudAccountNsxT.Links))
-	d.Set("created_at", cloudAccountNsxT.CreatedAt)
-	d.Set("dc_id", cloudAccountNsxT.Dcid)
-	d.Set("description", cloudAccountNsxT.Description)
-	d.Set("hostname", cloudAccountNsxT.HostName)
-	d.Set("manager_mode", cloudAccountNsxT.ManagerMode)
-	d.Set("name", cloudAccountNsxT.Name)
-	d.Set("org_id", cloudAccountNsxT.OrgID)
-	d.Set("owner", cloudAccountNsxT.Owner)
-	d.Set("updated_at", cloudAccountNsxT.UpdatedAt)
-	d.Set("username", cloudAccountNsxT.Username)
+	_ = d.Set("associated_cloud_account_ids", flattenAssociatedCloudAccountIDs(cloudAccountNsxT.Links))
+	_ = d.Set("created_at", cloudAccountNsxT.CreatedAt)
+	_ = d.Set("dc_id", cloudAccountNsxT.Dcid)
+	_ = d.Set("description", cloudAccountNsxT.Description)
+	_ = d.Set("hostname", cloudAccountNsxT.HostName)
+	_ = d.Set("manager_mode", cloudAccountNsxT.ManagerMode)
+	_ = d.Set("name", cloudAccountNsxT.Name)
+	_ = d.Set("org_id", cloudAccountNsxT.OrgID)
+	_ = d.Set("owner", cloudAccountNsxT.Owner)
+	_ = d.Set("updated_at", cloudAccountNsxT.UpdatedAt)
+	_ = d.Set("username", cloudAccountNsxT.Username)
 
 	if err := d.Set("links", flattenLinks(cloudAccountNsxT.Links)); err != nil {
 		return fmt.Errorf("error setting cloud_account_nsxt links - error: %#v", err)

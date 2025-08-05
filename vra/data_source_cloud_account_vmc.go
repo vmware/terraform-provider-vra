@@ -142,17 +142,17 @@ func dataSourceCloudAccountVMCRead(d *schema.ResourceData, meta interface{}) err
 	cloudAccountProperties := cloudAccount.CloudAccountProperties
 
 	d.SetId(*cloudAccount.ID)
-	d.Set("created_at", cloudAccount.CreatedAt)
-	d.Set("dc_id", cloudAccountProperties["dcId"])
-	d.Set("description", cloudAccount.Description)
-	d.Set("name", cloudAccount.Name)
-	d.Set("nsx_hostname", cloudAccountProperties["nsxHostName"])
-	d.Set("org_id", cloudAccount.OrgID)
-	d.Set("owner", cloudAccount.Owner)
-	d.Set("sddc_name", cloudAccountProperties["sddcId"])
-	d.Set("updated_at", cloudAccount.UpdatedAt)
-	d.Set("vcenter_hostname", cloudAccountProperties["hostName"])
-	d.Set("vcenter_username", cloudAccountProperties["privateKeyId"])
+	_ = d.Set("created_at", cloudAccount.CreatedAt)
+	_ = d.Set("dc_id", cloudAccountProperties["dcId"])
+	_ = d.Set("description", cloudAccount.Description)
+	_ = d.Set("name", cloudAccount.Name)
+	_ = d.Set("nsx_hostname", cloudAccountProperties["nsxHostName"])
+	_ = d.Set("org_id", cloudAccount.OrgID)
+	_ = d.Set("owner", cloudAccount.Owner)
+	_ = d.Set("sddc_name", cloudAccountProperties["sddcId"])
+	_ = d.Set("updated_at", cloudAccount.UpdatedAt)
+	_ = d.Set("vcenter_hostname", cloudAccountProperties["hostName"])
+	_ = d.Set("vcenter_username", cloudAccountProperties["privateKeyId"])
 
 	if err := d.Set("links", flattenLinks(cloudAccount.Links)); err != nil {
 		return fmt.Errorf("error setting cloud_account_vmc links - error: %#v", err)

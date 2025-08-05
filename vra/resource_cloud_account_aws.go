@@ -155,13 +155,13 @@ func resourceCloudAccountAWSRead(_ context.Context, d *schema.ResourceData, m in
 	}
 
 	awsAccount := *ret.Payload
-	d.Set("access_key", awsAccount.AccessKeyID)
-	d.Set("created_at", awsAccount.CreatedAt)
-	d.Set("description", awsAccount.Description)
-	d.Set("name", awsAccount.Name)
-	d.Set("org_id", awsAccount.OrgID)
-	d.Set("owner", awsAccount.Owner)
-	d.Set("updated_at", awsAccount.UpdatedAt)
+	_ = d.Set("access_key", awsAccount.AccessKeyID)
+	_ = d.Set("created_at", awsAccount.CreatedAt)
+	_ = d.Set("description", awsAccount.Description)
+	_ = d.Set("name", awsAccount.Name)
+	_ = d.Set("org_id", awsAccount.OrgID)
+	_ = d.Set("owner", awsAccount.Owner)
+	_ = d.Set("updated_at", awsAccount.UpdatedAt)
 
 	if err := d.Set("links", flattenLinks(awsAccount.Links)); err != nil {
 		return diag.Errorf("error setting cloud_account_aws links - error: %#v", err)

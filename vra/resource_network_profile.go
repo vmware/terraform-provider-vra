@@ -174,19 +174,19 @@ func resourceNetworkProfileRead(_ context.Context, d *schema.ResourceData, m int
 	}
 
 	networkProfile := *resp.Payload
-	d.Set("cloud_account_id", networkProfile.CloudAccountID)
-	d.Set("created_at", networkProfile.CreatedAt)
-	d.Set("custom_properties", networkProfile.CustomProperties)
-	d.Set("description", networkProfile.Description)
-	d.Set("external_region_id", networkProfile.ExternalRegionID)
-	d.Set("isolation_type", networkProfile.IsolationType)
-	d.Set("isolated_network_domain_cidr", networkProfile.IsolationNetworkDomainCIDR)
-	d.Set("isolated_network_cidr_prefix", networkProfile.IsolatedNetworkCIDRPrefix)
-	d.Set("name", networkProfile.Name)
-	d.Set("org_id", networkProfile.OrgID)
-	d.Set("organization_id", networkProfile.OrgID)
-	d.Set("owner", networkProfile.Owner)
-	d.Set("updated_at", networkProfile.UpdatedAt)
+	_ = d.Set("cloud_account_id", networkProfile.CloudAccountID)
+	_ = d.Set("created_at", networkProfile.CreatedAt)
+	_ = d.Set("custom_properties", networkProfile.CustomProperties)
+	_ = d.Set("description", networkProfile.Description)
+	_ = d.Set("external_region_id", networkProfile.ExternalRegionID)
+	_ = d.Set("isolation_type", networkProfile.IsolationType)
+	_ = d.Set("isolated_network_domain_cidr", networkProfile.IsolationNetworkDomainCIDR)
+	_ = d.Set("isolated_network_cidr_prefix", networkProfile.IsolatedNetworkCIDRPrefix)
+	_ = d.Set("name", networkProfile.Name)
+	_ = d.Set("org_id", networkProfile.OrgID)
+	_ = d.Set("organization_id", networkProfile.OrgID)
+	_ = d.Set("owner", networkProfile.Owner)
+	_ = d.Set("updated_at", networkProfile.UpdatedAt)
 
 	if err := d.Set("tags", flattenTags(networkProfile.Tags)); err != nil {
 		return diag.Errorf("error setting network profile tags - error: %v", err)
@@ -198,7 +198,7 @@ func resourceNetworkProfileRead(_ context.Context, d *schema.ResourceData, m int
 
 	if regionLink, ok := networkProfile.Links["region"]; ok {
 		if regionLink.Href != "" {
-			d.Set("region_id", strings.TrimPrefix(regionLink.Href, "/iaas/api/regions/"))
+			_ = d.Set("region_id", strings.TrimPrefix(regionLink.Href, "/iaas/api/regions/"))
 		}
 	}
 
@@ -209,7 +209,7 @@ func resourceNetworkProfileRead(_ context.Context, d *schema.ResourceData, m int
 				networkIDs = append(networkIDs, strings.TrimPrefix(link, "/iaas/api/fabric-networks/"))
 				log.Printf("Appending network profile link %s on index %d", link, i)
 			}
-			d.Set("fabric_network_ids", networkIDs)
+			_ = d.Set("fabric_network_ids", networkIDs)
 		}
 	}
 	log.Printf("Finished reading the vra_network_profile data source with filter %s", d.Get("filter"))

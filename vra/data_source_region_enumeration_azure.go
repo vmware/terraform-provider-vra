@@ -92,7 +92,7 @@ func dataSourceRegionEnumerationAzureRead(ctx context.Context, d *schema.Resourc
 		return diag.FromErr(err)
 	}
 
-	d.Set("regions", extractIDsFromRegionSpecification(getResp.Payload.ExternalRegions))
+	_ = d.Set("regions", extractIDsFromRegionSpecification(getResp.Payload.ExternalRegions))
 	d.SetId(d.Get("application_id").(string))
 
 	return nil

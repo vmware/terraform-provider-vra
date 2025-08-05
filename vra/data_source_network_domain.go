@@ -95,17 +95,17 @@ func resourceNetworkDomainRead(d *schema.ResourceData, meta interface{}) error {
 
 	NetworkDomain := NetworkDomains.Content[0]
 	d.SetId(*NetworkDomain.ID)
-	d.Set("cidr", NetworkDomain.Cidr)
-	d.Set("cloud_account_ids", NetworkDomain.CloudAccountIds)
-	d.Set("created_at", NetworkDomain.CreatedAt)
-	d.Set("description", NetworkDomain.Description)
-	d.Set("external_id", NetworkDomain.ExternalID)
-	d.Set("external_region_id", NetworkDomain.ExternalRegionID)
-	d.Set("custom_properties", NetworkDomain.CustomProperties)
-	d.Set("name", NetworkDomain.Name)
-	d.Set("organization_id", NetworkDomain.OrgID)
-	d.Set("owner", NetworkDomain.Owner)
-	d.Set("updated_at", NetworkDomain.UpdatedAt)
+	_ = d.Set("cidr", NetworkDomain.Cidr)
+	_ = d.Set("cloud_account_ids", NetworkDomain.CloudAccountIds)
+	_ = d.Set("created_at", NetworkDomain.CreatedAt)
+	_ = d.Set("description", NetworkDomain.Description)
+	_ = d.Set("external_id", NetworkDomain.ExternalID)
+	_ = d.Set("external_region_id", NetworkDomain.ExternalRegionID)
+	_ = d.Set("custom_properties", NetworkDomain.CustomProperties)
+	_ = d.Set("name", NetworkDomain.Name)
+	_ = d.Set("organization_id", NetworkDomain.OrgID)
+	_ = d.Set("owner", NetworkDomain.Owner)
+	_ = d.Set("updated_at", NetworkDomain.UpdatedAt)
 
 	if err := d.Set("tags", flattenTags(NetworkDomain.Tags)); err != nil {
 		return fmt.Errorf("error getting network domain tags - error: %v", err)

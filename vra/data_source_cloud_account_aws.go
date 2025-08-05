@@ -120,13 +120,13 @@ func dataSourceCloudAccountAWSRead(d *schema.ResourceData, meta interface{}) err
 	}
 
 	d.SetId(*cloudAccountAws.ID)
-	d.Set("access_key", cloudAccountAws.AccessKeyID)
-	d.Set("created_at", cloudAccountAws.CreatedAt)
-	d.Set("description", cloudAccountAws.Description)
-	d.Set("name", cloudAccountAws.Name)
-	d.Set("org_id", cloudAccountAws.OrgID)
-	d.Set("owner", cloudAccountAws.Owner)
-	d.Set("updated_at", cloudAccountAws.UpdatedAt)
+	_ = d.Set("access_key", cloudAccountAws.AccessKeyID)
+	_ = d.Set("created_at", cloudAccountAws.CreatedAt)
+	_ = d.Set("description", cloudAccountAws.Description)
+	_ = d.Set("name", cloudAccountAws.Name)
+	_ = d.Set("org_id", cloudAccountAws.OrgID)
+	_ = d.Set("owner", cloudAccountAws.Owner)
+	_ = d.Set("updated_at", cloudAccountAws.UpdatedAt)
 
 	if err := d.Set("links", flattenLinks(cloudAccountAws.Links)); err != nil {
 		return fmt.Errorf("error setting cloud_account_aws links - error: %#v", err)

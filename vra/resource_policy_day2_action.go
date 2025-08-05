@@ -182,25 +182,25 @@ func resourcePolicyDay2ActionRead(_ context.Context, d *schema.ResourceData, m a
 	}
 
 	d.SetId(policy.ID.String())
-	d.Set("created_at", policy.CreatedAt.String())
-	d.Set("created_by", policy.CreatedBy)
-	d.Set("enforcement_type", policy.EnforcementType)
-	d.Set("last_updated_at", policy.LastUpdatedAt.String())
-	d.Set("last_updated_by", policy.LastUpdatedBy)
-	d.Set("name", policy.Name)
-	d.Set("org_id", policy.OrgID)
+	_ = d.Set("created_at", policy.CreatedAt.String())
+	_ = d.Set("created_by", policy.CreatedBy)
+	_ = d.Set("enforcement_type", policy.EnforcementType)
+	_ = d.Set("last_updated_at", policy.LastUpdatedAt.String())
+	_ = d.Set("last_updated_by", policy.LastUpdatedBy)
+	_ = d.Set("name", policy.Name)
+	_ = d.Set("org_id", policy.OrgID)
 
 	if policy.Criteria != nil {
-		d.Set("criteria", flattenPolicyCriteria(*policy.Criteria))
+		_ = d.Set("criteria", flattenPolicyCriteria(*policy.Criteria))
 	}
 	if policy.Description != "" {
-		d.Set("description", policy.Description)
+		_ = d.Set("description", policy.Description)
 	}
 	if policy.ScopeCriteria != nil {
-		d.Set("project_criteria", flattenPolicyCriteria(*policy.ScopeCriteria))
+		_ = d.Set("project_criteria", flattenPolicyCriteria(*policy.ScopeCriteria))
 	}
 	if policy.ProjectID != "" {
-		d.Set("project_id", policy.ProjectID)
+		_ = d.Set("project_id", policy.ProjectID)
 	}
 
 	var definition PolicyDay2ActionDefinition
@@ -210,9 +210,9 @@ func resourcePolicyDay2ActionRead(_ context.Context, d *schema.ResourceData, m a
 
 	if len(definition.AllowedActions) > 0 {
 		if len(definition.AllowedActions[0].Actions) > 0 {
-			d.Set("actions", definition.AllowedActions[0].Actions)
+			_ = d.Set("actions", definition.AllowedActions[0].Actions)
 		}
-		d.Set("authorities", definition.AllowedActions[0].Authorities)
+		_ = d.Set("authorities", definition.AllowedActions[0].Authorities)
 	}
 
 	return nil

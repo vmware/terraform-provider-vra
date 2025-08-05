@@ -117,7 +117,7 @@ func dataSourceRegionEnumerationVMCRead(ctx context.Context, d *schema.ResourceD
 		return diag.FromErr(err)
 	}
 
-	d.Set("regions", extractIDsFromRegionSpecification(getResp.Payload.ExternalRegions))
+	_ = d.Set("regions", extractIDsFromRegionSpecification(getResp.Payload.ExternalRegions))
 	d.SetId(d.Get("vcenter_hostname").(string))
 
 	return nil

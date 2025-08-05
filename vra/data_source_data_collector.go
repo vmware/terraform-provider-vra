@@ -53,9 +53,9 @@ func dataSourceDataCollectorRead(d *schema.ResourceData, meta interface{}) error
 
 	for _, dc := range dataCollectors.Content {
 		if *dc.Name == name {
-			d.Set("ip_address", dc.IPAddress)
-			d.Set("hostname", dc.HostName)
-			d.Set("status", dc.Status)
+			_ = d.Set("ip_address", dc.IPAddress)
+			_ = d.Set("hostname", dc.HostName)
+			_ = d.Set("status", dc.Status)
 			d.SetId(*dc.DcID)
 			return nil
 		}

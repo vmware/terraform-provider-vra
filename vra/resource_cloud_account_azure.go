@@ -167,15 +167,15 @@ func resourceCloudAccountAzureRead(_ context.Context, d *schema.ResourceData, m 
 	}
 
 	azureAccount := *ret.Payload
-	d.Set("application_id", azureAccount.ClientApplicationID)
-	d.Set("created_at", azureAccount.CreatedAt)
-	d.Set("description", azureAccount.Description)
-	d.Set("name", azureAccount.Name)
-	d.Set("org_id", azureAccount.OrgID)
-	d.Set("owner", azureAccount.Owner)
-	d.Set("subscription_id", azureAccount.SubscriptionID)
-	d.Set("tenant_id", azureAccount.TenantID)
-	d.Set("updated_at", azureAccount.UpdatedAt)
+	_ = d.Set("application_id", azureAccount.ClientApplicationID)
+	_ = d.Set("created_at", azureAccount.CreatedAt)
+	_ = d.Set("description", azureAccount.Description)
+	_ = d.Set("name", azureAccount.Name)
+	_ = d.Set("org_id", azureAccount.OrgID)
+	_ = d.Set("owner", azureAccount.Owner)
+	_ = d.Set("subscription_id", azureAccount.SubscriptionID)
+	_ = d.Set("tenant_id", azureAccount.TenantID)
+	_ = d.Set("updated_at", azureAccount.UpdatedAt)
 
 	if err := d.Set("links", flattenLinks(azureAccount.Links)); err != nil {
 		return diag.Errorf("error setting cloud_account_azure links - error: %#v", err)

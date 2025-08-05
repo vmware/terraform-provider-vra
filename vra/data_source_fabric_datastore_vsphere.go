@@ -141,17 +141,17 @@ func dataSourceVsphereDatastoreRead(d *schema.ResourceData, meta interface{}) er
 	}
 
 	d.SetId(*fabricVsphereDatastore.ID)
-	d.Set("cloud_account_ids", fabricVsphereDatastore.CloudAccountIds)
-	d.Set("created_at", fabricVsphereDatastore.CreatedAt)
-	d.Set("description", fabricVsphereDatastore.Description)
-	d.Set("external_id", fabricVsphereDatastore.ExternalID)
-	d.Set("external_region_id", fabricVsphereDatastore.ExternalRegionID)
-	d.Set("free_size_gb", fabricVsphereDatastore.FreeSizeGB)
-	d.Set("name", fabricVsphereDatastore.Name)
-	d.Set("org_id", fabricVsphereDatastore.OrgID)
-	d.Set("owner", fabricVsphereDatastore.Owner)
-	d.Set("type", fabricVsphereDatastore.Type)
-	d.Set("updated_at", fabricVsphereDatastore.UpdatedAt)
+	_ = d.Set("cloud_account_ids", fabricVsphereDatastore.CloudAccountIds)
+	_ = d.Set("created_at", fabricVsphereDatastore.CreatedAt)
+	_ = d.Set("description", fabricVsphereDatastore.Description)
+	_ = d.Set("external_id", fabricVsphereDatastore.ExternalID)
+	_ = d.Set("external_region_id", fabricVsphereDatastore.ExternalRegionID)
+	_ = d.Set("free_size_gb", fabricVsphereDatastore.FreeSizeGB)
+	_ = d.Set("name", fabricVsphereDatastore.Name)
+	_ = d.Set("org_id", fabricVsphereDatastore.OrgID)
+	_ = d.Set("owner", fabricVsphereDatastore.Owner)
+	_ = d.Set("type", fabricVsphereDatastore.Type)
+	_ = d.Set("updated_at", fabricVsphereDatastore.UpdatedAt)
 
 	if err := d.Set("links", flattenLinks(fabricVsphereDatastore.Links)); err != nil {
 		return fmt.Errorf("error setting vSphere fabric datastore links - error: %#v", err)

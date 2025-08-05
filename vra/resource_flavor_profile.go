@@ -142,10 +142,10 @@ func resourceFlavorProfileRead(_ context.Context, d *schema.ResourceData, m inte
 	}
 	flavor := *ret.Payload
 
-	d.Set("cloud_account_id", flavor.CloudAccountID)
-	d.Set("created_at", flavor.CreatedAt)
-	d.Set("description", flavor.Description)
-	d.Set("external_region_id", flavor.ExternalRegionID)
+	_ = d.Set("cloud_account_id", flavor.CloudAccountID)
+	_ = d.Set("created_at", flavor.CreatedAt)
+	_ = d.Set("description", flavor.Description)
+	_ = d.Set("external_region_id", flavor.ExternalRegionID)
 
 	if err := d.Set("flavor_mapping", flattenFlavors(flavor.FlavorMappings.Mapping)); err != nil {
 		return diag.Errorf("error setting flavor mapping - error: %#v", err)
@@ -155,17 +155,17 @@ func resourceFlavorProfileRead(_ context.Context, d *schema.ResourceData, m inte
 		return diag.Errorf("error setting flavor_profile links - error: %#v", err)
 	}
 
-	d.Set("name", flavor.Name)
-	d.Set("org_id", flavor.OrgID)
-	d.Set("owner", flavor.Owner)
+	_ = d.Set("name", flavor.Name)
+	_ = d.Set("org_id", flavor.OrgID)
+	_ = d.Set("owner", flavor.Owner)
 
 	if regionLink, ok := flavor.Links["region"]; ok {
 		if regionLink.Href != "" {
-			d.Set("region_id", strings.TrimPrefix(regionLink.Href, "/iaas/api/regions/"))
+			_ = d.Set("region_id", strings.TrimPrefix(regionLink.Href, "/iaas/api/regions/"))
 		}
 	}
 
-	d.Set("updated_at", flavor.UpdatedAt)
+	_ = d.Set("updated_at", flavor.UpdatedAt)
 
 	return nil
 }

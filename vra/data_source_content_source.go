@@ -168,22 +168,22 @@ func dataSourceContentSourceRead(_ context.Context, d *schema.ResourceData, m in
 	}
 
 	d.SetId(contentSource.ID.String())
-	d.Set("created_at", contentSource.CreatedAt.String())
-	d.Set("created_by", contentSource.CreatedBy)
-	d.Set("description", contentSource.Description)
-	d.Set("name", contentSource.Name)
-	d.Set("last_updated_at", contentSource.LastUpdatedAt.String())
-	d.Set("last_updated_by", contentSource.LastUpdatedBy)
-	d.Set("org_id", contentSource.OrgID)
-	d.Set("project_id", contentSource.ProjectID)
-	d.Set("sync_enabled", contentSource.SyncEnabled)
-	d.Set("type_id", contentSource.TypeID)
+	_ = d.Set("created_at", contentSource.CreatedAt.String())
+	_ = d.Set("created_by", contentSource.CreatedBy)
+	_ = d.Set("description", contentSource.Description)
+	_ = d.Set("name", contentSource.Name)
+	_ = d.Set("last_updated_at", contentSource.LastUpdatedAt.String())
+	_ = d.Set("last_updated_by", contentSource.LastUpdatedBy)
+	_ = d.Set("org_id", contentSource.OrgID)
+	_ = d.Set("project_id", contentSource.ProjectID)
+	_ = d.Set("sync_enabled", contentSource.SyncEnabled)
+	_ = d.Set("type_id", contentSource.TypeID)
 
 	config, err := flattenContentsourceRepositoryConfig(contentSource.Config)
 	if err != nil {
 		return diag.FromErr(err)
 	}
-	d.Set("config", config)
+	_ = d.Set("config", config)
 
 	return nil
 }

@@ -106,13 +106,13 @@ func dataSourceFabricStoragePolicyVsphereRead(d *schema.ResourceData, meta inter
 	}
 
 	d.SetId(*storagePolicy.ID)
-	d.Set("cloud_account_ids", storagePolicy.CloudAccountIds)
-	d.Set("created_at", storagePolicy.CreatedAt)
-	d.Set("external_id", storagePolicy.ExternalID)
-	d.Set("external_region_id", storagePolicy.ExternalRegionID)
-	d.Set("name", storagePolicy.Name)
-	d.Set("org_id", storagePolicy.OrgID)
-	d.Set("updated_at", storagePolicy.UpdatedAt)
+	_ = d.Set("cloud_account_ids", storagePolicy.CloudAccountIds)
+	_ = d.Set("created_at", storagePolicy.CreatedAt)
+	_ = d.Set("external_id", storagePolicy.ExternalID)
+	_ = d.Set("external_region_id", storagePolicy.ExternalRegionID)
+	_ = d.Set("name", storagePolicy.Name)
+	_ = d.Set("org_id", storagePolicy.OrgID)
+	_ = d.Set("updated_at", storagePolicy.UpdatedAt)
 
 	if err := d.Set("links", flattenLinks(storagePolicy.Links)); err != nil {
 		return fmt.Errorf("error setting storage policy links - error: %#v", err)

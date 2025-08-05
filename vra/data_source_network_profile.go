@@ -139,16 +139,16 @@ func dataSourceNetworkProfileRead(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	d.SetId(*networkProfile.ID)
-	d.Set("custom_properties", networkProfile.CustomProperties)
-	d.Set("description", networkProfile.Description)
-	d.Set("external_region_id", networkProfile.ExternalRegionID)
-	d.Set("isolation_type", networkProfile.IsolationType)
-	d.Set("isolated_network_domain_cidr", networkProfile.IsolationNetworkDomainCIDR)
-	d.Set("isolated_network_cidr_prefix", networkProfile.IsolatedNetworkCIDRPrefix)
-	d.Set("name", networkProfile.Name)
-	d.Set("organization_id", networkProfile.OrgID)
-	d.Set("owner", networkProfile.Owner)
-	d.Set("updated_at", networkProfile.UpdatedAt)
+	_ = d.Set("custom_properties", networkProfile.CustomProperties)
+	_ = d.Set("description", networkProfile.Description)
+	_ = d.Set("external_region_id", networkProfile.ExternalRegionID)
+	_ = d.Set("isolation_type", networkProfile.IsolationType)
+	_ = d.Set("isolated_network_domain_cidr", networkProfile.IsolationNetworkDomainCIDR)
+	_ = d.Set("isolated_network_cidr_prefix", networkProfile.IsolatedNetworkCIDRPrefix)
+	_ = d.Set("name", networkProfile.Name)
+	_ = d.Set("organization_id", networkProfile.OrgID)
+	_ = d.Set("owner", networkProfile.Owner)
+	_ = d.Set("updated_at", networkProfile.UpdatedAt)
 
 	if err := d.Set("tags", flattenTags(networkProfile.Tags)); err != nil {
 		return fmt.Errorf("error setting network profile tags - error: %v", err)
@@ -166,19 +166,19 @@ func dataSourceNetworkProfileRead(d *schema.ResourceData, meta interface{}) erro
 				fabricNetworkIDs = append(fabricNetworkIDs, strings.TrimPrefix(link, "/iaas/api/fabric-networks/"))
 			}
 
-			d.Set("fabric_network_ids", fabricNetworkIDs)
+			_ = d.Set("fabric_network_ids", fabricNetworkIDs)
 		}
 	}
 
 	if extFabricNetworkLink, ok := networkProfile.Links["isolated-external-fabric-networks"]; ok {
 		if extFabricNetworkLink.Href != "" {
-			d.Set("isolated_external_fabric_network_id", strings.TrimPrefix(extFabricNetworkLink.Href, "/iaas/api/fabric-networks/"))
+			_ = d.Set("isolated_external_fabric_network_id", strings.TrimPrefix(extFabricNetworkLink.Href, "/iaas/api/fabric-networks/"))
 		}
 	}
 
 	if networkDomainLink, ok := networkProfile.Links["network-domains"]; ok {
 		if networkDomainLink.Href != "" {
-			d.Set("isolated_network_domain_id", strings.TrimPrefix(networkDomainLink.Href, "/iaas/api/network-domains/"))
+			_ = d.Set("isolated_network_domain_id", strings.TrimPrefix(networkDomainLink.Href, "/iaas/api/network-domains/"))
 		}
 	}
 
@@ -190,13 +190,13 @@ func dataSourceNetworkProfileRead(d *schema.ResourceData, meta interface{}) erro
 				securityGroupIDs = append(securityGroupIDs, strings.TrimPrefix(link, "/iaas/api/security-groups/"))
 			}
 
-			d.Set("security_group_ids", securityGroupIDs)
+			_ = d.Set("security_group_ids", securityGroupIDs)
 		}
 	}
 
 	if regionLink, ok := networkProfile.Links["region"]; ok {
 		if regionLink.Href != "" {
-			d.Set("region_id", strings.TrimPrefix(regionLink.Href, "/iaas/api/regions/"))
+			_ = d.Set("region_id", strings.TrimPrefix(regionLink.Href, "/iaas/api/regions/"))
 		}
 	}
 
@@ -207,7 +207,7 @@ func dataSourceNetworkProfileRead(d *schema.ResourceData, meta interface{}) erro
 				networkIDs = append(networkIDs, strings.TrimPrefix(link, "/iaas/api/fabric-networks/"))
 				log.Printf("Appending network profile link %s on index %d", link, i)
 			}
-			d.Set("fabric_network_ids", networkIDs)
+			_ = d.Set("fabric_network_ids", networkIDs)
 		}
 	}
 	log.Printf("Finished reading the vra_network_profile data source with filter %s", d.Get("filter"))

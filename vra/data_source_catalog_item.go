@@ -171,23 +171,23 @@ func dataSourceCatalogItemRead(d *schema.ResourceData, meta interface{}) error {
 	catalogItem := getResp.GetPayload()
 
 	d.SetId(catalogItem.ID.String())
-	d.Set("created_at", catalogItem.CreatedAt.String())
-	d.Set("created_by", catalogItem.CreatedBy)
-	d.Set("description", catalogItem.Description)
-	d.Set("form_id", catalogItem.FormID)
-	d.Set("global", catalogItem.Global)
-	d.Set("icon_id", catalogItem.IconID)
-	d.Set("last_updated_at", catalogItem.LastUpdatedAt.String())
-	d.Set("last_updated_by", catalogItem.LastUpdatedBy)
-	d.Set("name", catalogItem.Name)
-	d.Set("project_ids", catalogItem.ProjectIds)
-	d.Set("projects", flattenResourceReferences(catalogItem.Projects))
+	_ = d.Set("created_at", catalogItem.CreatedAt.String())
+	_ = d.Set("created_by", catalogItem.CreatedBy)
+	_ = d.Set("description", catalogItem.Description)
+	_ = d.Set("form_id", catalogItem.FormID)
+	_ = d.Set("global", catalogItem.Global)
+	_ = d.Set("icon_id", catalogItem.IconID)
+	_ = d.Set("last_updated_at", catalogItem.LastUpdatedAt.String())
+	_ = d.Set("last_updated_by", catalogItem.LastUpdatedBy)
+	_ = d.Set("name", catalogItem.Name)
+	_ = d.Set("project_ids", catalogItem.ProjectIds)
+	_ = d.Set("projects", flattenResourceReferences(catalogItem.Projects))
 	schemaJSON, _ := json.Marshal(catalogItem.Schema)
-	d.Set("schema", string(schemaJSON))
-	d.Set("source_id", catalogItem.SourceID.String())
-	d.Set("source_name", catalogItem.SourceName)
-	d.Set("source_project_id", catalogItem.SourceProjectID)
-	d.Set("type", flattenResourceReference(catalogItem.Type))
+	_ = d.Set("schema", string(schemaJSON))
+	_ = d.Set("source_id", catalogItem.SourceID.String())
+	_ = d.Set("source_name", catalogItem.SourceName)
+	_ = d.Set("source_project_id", catalogItem.SourceProjectID)
+	_ = d.Set("type", flattenResourceReference(catalogItem.Type))
 
 	if d.Get("expand_versions").(bool) {
 		getVersionsResp, err := apiClient.CatalogItems.GetVersionsUsingGET2(catalog_items.NewGetVersionsUsingGET2Params().WithID(*catalogItem.ID))
@@ -195,7 +195,7 @@ func dataSourceCatalogItemRead(d *schema.ResourceData, meta interface{}) error {
 			return err
 		}
 
-		d.Set("versions", flattenCatalogItemVersions(getVersionsResp.GetPayload().Content))
+		_ = d.Set("versions", flattenCatalogItemVersions(getVersionsResp.GetPayload().Content))
 	}
 
 	return nil
