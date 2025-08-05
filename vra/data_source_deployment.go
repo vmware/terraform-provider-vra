@@ -163,7 +163,7 @@ func dataSourceDeploymentRead(_ context.Context, d *schema.ResourceData, m inter
 	}
 
 	// Get the deployment details with all the user provided flags
-	expand := []string{}
+	var expand []string
 	expandProject := d.Get("expand_project").(bool)
 	if expandProject {
 		expand = append(expand, "project")

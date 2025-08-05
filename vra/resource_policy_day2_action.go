@@ -120,7 +120,7 @@ func resourcePolicyDay2Action() *schema.Resource {
 func resourcePolicyDay2ActionCreate(ctx context.Context, d *schema.ResourceData, m any) diag.Diagnostics {
 	apiClient := m.(*Client).apiClient
 
-	actions := []string{}
+	var actions []string
 	if actionsList, ok := d.GetOk("actions"); ok {
 		if !compareUnique(actionsList.(*schema.Set).List()) {
 			return diag.Errorf("`actions` must be unique")
@@ -223,7 +223,7 @@ func resourcePolicyDay2ActionUpdate(ctx context.Context, d *schema.ResourceData,
 
 	id := d.Id()
 
-	actions := []string{}
+	var actions []string
 	if actionsList, ok := d.GetOk("actions"); ok {
 		if !compareUnique(actionsList.(*schema.Set).List()) {
 			return diag.Errorf("`actions` must be unique")

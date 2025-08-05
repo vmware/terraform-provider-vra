@@ -9,7 +9,7 @@ import (
 )
 
 func extractIDsFromRegion(regions []*models.Region) []string {
-	regionIDs := []string{}
+	var regionIDs []string
 
 	for _, region := range regions {
 		regionIDs = append(regionIDs, *region.ExternalRegionID)
@@ -19,7 +19,7 @@ func extractIDsFromRegion(regions []*models.Region) []string {
 }
 
 func extractIDsFromRegionSpecification(regions []*models.RegionSpecification) []string {
-	regionIDs := []string{}
+	var regionIDs []string
 
 	for _, region := range regions {
 		regionIDs = append(regionIDs, *region.ExternalRegionID)

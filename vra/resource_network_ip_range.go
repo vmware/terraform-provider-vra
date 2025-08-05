@@ -110,7 +110,7 @@ func resourceNetworkIPRangeCreate(ctx context.Context, d *schema.ResourceData, m
 	name := d.Get("name").(string)
 	endIPAddress := d.Get("end_ip_address").(string)
 	startIPAddress := d.Get("start_ip_address").(string)
-	fabricNetworkIDs := []string{}
+	var fabricNetworkIDs []string
 	if v, ok := d.GetOk("fabric_network_ids"); ok {
 		if !compareUnique(v.(*schema.Set).List()) {
 			return diag.FromErr(errors.New("specified fabric_network_ids are not unique"))
@@ -201,7 +201,7 @@ func resourceNetworkIPRangeUpdate(ctx context.Context, d *schema.ResourceData, m
 	name := d.Get("name").(string)
 	endIPAddress := d.Get("end_ip_address").(string)
 	startIPAddress := d.Get("start_ip_address").(string)
-	fabricNetworkIDs := []string{}
+	var fabricNetworkIDs []string
 	if v, ok := d.GetOk("fabric_network_ids"); ok {
 		if !compareUnique(v.(*schema.Set).List()) {
 			return diag.FromErr(errors.New("specified fabric_network_ids are not unique"))
