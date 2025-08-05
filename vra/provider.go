@@ -47,7 +47,7 @@ func Provider() *schema.Provider {
 				DefaultFunc: schema.MultiEnvDefaultFunc([]string{"VRA_INSECURE", "VRA7_INSECURE"}, nil),
 				Optional:    true,
 				Description: "Specify whether to validate TLS certificates.",
-				ValidateDiagFunc: schema.SchemaValidateDiagFunc(func(_ interface{}, _ cty.Path) diag.Diagnostics {
+				ValidateDiagFunc: func(_ interface{}, _ cty.Path) diag.Diagnostics {
 					var diags diag.Diagnostics
 					if envVar, ok := os.LookupEnv("VRA7_INSECURE"); ok && envVar != "" {
 						diags = append(diags, diag.Diagnostic{
@@ -57,14 +57,14 @@ func Provider() *schema.Provider {
 						})
 					}
 					return diags
-				}),
+				},
 			},
 			"reauthorize_timeout": {
 				Type:        schema.TypeString,
 				DefaultFunc: schema.MultiEnvDefaultFunc([]string{"VRA_REAUTHORIZE_TIMEOUT", "VRA7_REAUTHORIZE_TIMEOUT"}, nil),
 				Optional:    true,
 				Description: "Specify timeout for how often to reauthorize the access token.",
-				ValidateDiagFunc: schema.SchemaValidateDiagFunc(func(_ interface{}, _ cty.Path) diag.Diagnostics {
+				ValidateDiagFunc: func(_ interface{}, _ cty.Path) diag.Diagnostics {
 					var diags diag.Diagnostics
 					if envVar, ok := os.LookupEnv("VRA7_REAUTHORIZE_TIMEOUT"); ok && envVar != "" {
 						diags = append(diags, diag.Diagnostic{
@@ -74,7 +74,7 @@ func Provider() *schema.Provider {
 						})
 					}
 					return diags
-				}),
+				},
 			},
 			"api_timeout": {
 				Type:        schema.TypeInt,
