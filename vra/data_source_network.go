@@ -32,6 +32,12 @@ func dataSourceNetwork() *schema.Resource {
 				Computed:      true,
 				Description:   "The human-friendly name of the network instance",
 			},
+			"return_first": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Computed:    true,
+				Description: "Return the first matching network instance when set to true",
+			},
 			"filter": {
 				Type:          schema.TypeString,
 				ConflictsWith: []string{"id", "name"},
@@ -113,6 +119,7 @@ func dataSourceNetworkRead(d *schema.ResourceData, meta interface{}) error {
 	id, idOk := d.GetOk("id")
 	name, nameOk := d.GetOk("name")
 	filter, filterOK := d.GetOk("filter")
+	return_first, _ := d.Get("return_first").(bool)
 
 	if !idOk && !nameOk && !filterOK {
 		return errors.New("one of id, name or filter must be assigned")
@@ -144,7 +151,7 @@ func dataSourceNetworkRead(d *schema.ResourceData, meta interface{}) error {
 			return err
 		}
 		networks := getResp.GetPayload()
-		if len(networks.Content) > 1 {
+		if len(networks.Content) > 1 && !return_first {
 			if nameOk {
 				return fmt.Errorf("there are more than one network with name '%s'", name)
 			}
