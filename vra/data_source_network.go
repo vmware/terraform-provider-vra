@@ -119,7 +119,7 @@ func dataSourceNetworkRead(d *schema.ResourceData, meta interface{}) error {
 	id, idOk := d.GetOk("id")
 	name, nameOk := d.GetOk("name")
 	filter, filterOK := d.GetOk("filter")
-	return_first, _ := d.Get("return_first").(bool)
+	returnFirst, _ := d.Get("return_first").(bool)
 
 	if !idOk && !nameOk && !filterOK {
 		return errors.New("one of id, name or filter must be assigned")
@@ -151,7 +151,7 @@ func dataSourceNetworkRead(d *schema.ResourceData, meta interface{}) error {
 			return err
 		}
 		networks := getResp.GetPayload()
-		if len(networks.Content) > 1 && !return_first {
+		if len(networks.Content) > 1 && !returnFirst {
 			if nameOk {
 				return fmt.Errorf("there are more than one network with name '%s'", name)
 			}
