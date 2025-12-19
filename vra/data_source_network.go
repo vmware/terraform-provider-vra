@@ -32,17 +32,17 @@ func dataSourceNetwork() *schema.Resource {
 				Computed:      true,
 				Description:   "The human-friendly name of the network instance",
 			},
-			"return_first": {
-				Type:        schema.TypeBool,
-				Optional:    true,
-				Computed:    true,
-				Description: "Return the first matching network instance when set to true",
-			},
 			"filter": {
 				Type:          schema.TypeString,
 				ConflictsWith: []string{"id", "name"},
 				Optional:      true,
 				Description:   "The search criteria to narrow down the network instance",
+			},
+			"return_first": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Default:     false,
+				Description: "Return the first matching network instance when set to true",
 			},
 			"cidr": {
 				Type:        schema.TypeString,

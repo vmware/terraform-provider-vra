@@ -42,6 +42,8 @@ data "vra_network" "test-network" {
 
 * `filter` - (Optional) The search criteria to narrow down the network instance. Only one of `id`, `name`, or `filter` must be specified.
 
+* `return_first` - (Optional) Return the first matching network instance when set to `true`.
+
 ## Attribute Reference
 
 * `cidr` - IPv4 address range of the network in CIDR format.
