@@ -209,7 +209,7 @@ func dataSourceDeploymentRead(_ context.Context, d *schema.ResourceData, m inter
 		return diag.Errorf("error setting deployment expense - error: %#v", err)
 	}
 
-	if err := d.Set("inputs", expandInputs(deployment.Inputs)); err != nil {
+	if err := d.Set("inputs", expandInputsToString(deployment.Inputs)); err != nil {
 		return diag.Errorf("error setting deployment inputs - error: %#v", err)
 	}
 
