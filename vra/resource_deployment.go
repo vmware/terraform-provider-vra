@@ -1275,37 +1275,3 @@ func decodeInputValue(inputName string, inputValue interface{}, inputTypesMap ma
 		return fmt.Sprint(inputValue)
 	}
 }
-// suppressEquivalentInputDiffs normalizes JSON and Go format strings for comparison
-// This fixes drift detection for array/object inputs where vRA returns Go format but expects JSON
-func suppressEquivalentInputDiffs(k, old, new string, d *schema.ResourceData) bool {
-	// Normalize both values by trying to parse as JSON
-	oldNormalized := normalizeInputValue(old)
-	newNormalized := normalizeInputValue(new)
-	
-	suppressed := oldNormalized == newNormalized
-	if suppressed {
-		log.Printf("[DEBUG] Suppressing diff for %s: old=%s, new=%s (normalized to %s)", k, old, new, oldNormalized)
-	}
-	return suppressed
-}
-
-// normalizeInputValue attempts to parse a value as JSON and return canonical form
-// If it's valid JSON (array or object), returns the canonical JSON representation
-// Otherwise returns the original string
-func normalizeInputValue(value string) string {
-	// Try to parse as JSON
-	var parsed interface{}
-	if err := json.Unmarshal([]byte(value), &parsed); err == nil {
-		// Successfully parsed as JSON - check if it's array or object
-		switch parsed.(type) {
-		case []interface{}, map[string]interface{}:
-			// Re-marshal to get canonical form
-			if canonical, err := json.Marshal(parsed); err == nil {
-				return string(canonical)
-			}
-		}
-	}
-	
-	// Not JSON array/object, return as-is
-	return value
-}
