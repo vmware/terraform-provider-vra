@@ -107,7 +107,7 @@ func expandInputs(configInputs interface{}) map[string]interface{} {
 
 // expandInputsToString will convert the interface into a map of string:string.
 // For array and object types, this function marshals them to JSON to ensure consistent
-// format comparison. vRA returns deployment inputs as Go native types ([]interface{}, 
+// format comparison. vRA returns deployment inputs as Go native types ([]interface{},
 // map[string]interface{}), but the provider sends them as JSON-encoded strings during
 // create/update operations. Without JSON marshaling, fmt.Sprint produces Go format
 // strings like "[map[key:value]]" which don't match the JSON input "[\"{\"key\":\"value\"}\"]",
