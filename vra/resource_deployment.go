@@ -1236,17 +1236,23 @@ func updateUserInputs(allInputs, userInputs map[string]interface{}, inputTypesMa
 	return inputs
 }
 
+// decodeInputValue converts a deployment input value from vRA's native format
+// to the string representation expected by Terraform state. For array and object
+// types, this marshals to JSON to maintain consistency with how values are sent
+// to vRA during create/update operations.
+//
+// This function handles two scenarios:
+// 1. When inputTypesMap contains the input name and type from blueprint/catalog schema
+// 2. When inputTypesMap is empty or missing entries (auto-detection fallback)
 func decodeInputValue(inputName string, inputValue interface{}, inputTypesMap map[string]string) interface{} {
+	// Check if we have type information from blueprint/catalog schema
 	if t, ok := inputTypesMap[inputName]; ok {
-		log.Printf("input_key: %s, type: %#v, value: %#v", inputName, t, inputValue)
+		log.Printf("[DEBUG] input_key: %s, schema_type: %s, value: %#v", inputName, t, inputValue)
 		switch strings.ToLower(t) {
-		case "array":
-			fallthrough
-		case "object":
-			log.Printf("Converting input '%v' of type '%v'", inputName, t)
+		case "array", "object":
 			value, err := json.Marshal(inputValue)
 			if err != nil {
-				log.Printf("cannot convert input '%v' value '%v' into type '%v'. %#v", inputName, inputValue, t, err)
+				log.Printf("[ERROR] Cannot marshal input '%s' to JSON: %v", inputName, err)
 				return fmt.Sprint(inputValue)
 			}
 			return string(value)
@@ -1255,5 +1261,17 @@ func decodeInputValue(inputName string, inputValue interface{}, inputTypesMap ma
 		}
 	}
 
-	return fmt.Sprint(inputValue)
+	// Fallback: Auto-detect arrays and objects when schema type information is unavailable.
+	// This handles cases where catalog item or blueprint schema lookup fails.
+	switch inputValue.(type) {
+	case []interface{}, map[string]interface{}:
+		value, err := json.Marshal(inputValue)
+		if err != nil {
+			log.Printf("[ERROR] Cannot auto-marshal input '%s' to JSON: %v", inputName, err)
+			return fmt.Sprint(inputValue)
+		}
+		return string(value)
+	default:
+		return fmt.Sprint(inputValue)
+	}
 }
