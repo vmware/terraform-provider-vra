@@ -5,7 +5,9 @@
 package vra
 
 import (
+	"encoding/json"
 	"fmt"
+	"log"
 	"strings"
 
 	"github.com/vmware/vra-sdk-go/pkg/models"
@@ -103,7 +105,13 @@ func expandInputs(configInputs interface{}) map[string]interface{} {
 	return inputs
 }
 
-// expandInputsToString will convert the interface  into a map of string:string
+// expandInputsToString will convert the interface into a map of string:string.
+// For array and object types, this function marshals them to JSON to ensure consistent
+// format comparison. vRA returns deployment inputs as Go native types ([]interface{}, 
+// map[string]interface{}), but the provider sends them as JSON-encoded strings during
+// create/update operations. Without JSON marshaling, fmt.Sprint produces Go format
+// strings like "[map[key:value]]" which don't match the JSON input "[\"{\"key\":\"value\"}\"]",
+// causing perpetual drift detection.
 func expandInputsToString(configInputs interface{}) map[string]string {
 	if configInputs == nil {
 		return nil
@@ -112,7 +120,19 @@ func expandInputsToString(configInputs interface{}) map[string]string {
 	inputs := make(map[string]string)
 	for key, value := range configInputs.(map[string]interface{}) {
 		if value != nil {
-			inputs[key] = fmt.Sprint(value)
+			// Detect arrays and objects by Go type and marshal to JSON
+			switch v := value.(type) {
+			case []interface{}, map[string]interface{}:
+				jsonBytes, err := json.Marshal(v)
+				if err != nil {
+					log.Printf("[WARN] Failed to marshal input '%s' to JSON: %v", key, err)
+					inputs[key] = fmt.Sprint(value)
+				} else {
+					inputs[key] = string(jsonBytes)
+				}
+			default:
+				inputs[key] = fmt.Sprint(value)
+			}
 		}
 	}
 
