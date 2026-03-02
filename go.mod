@@ -9,7 +9,7 @@ require (
 	github.com/hashicorp/go-version v1.7.0
 	github.com/hashicorp/terraform-plugin-sdk/v2 v2.36.1
 	github.com/hashicorp/terraform-plugin-testing v1.12.0
-	github.com/vmware/vra-sdk-go v0.6.4
+	github.com/vmware/vra-sdk-go v0.6.5
 )
 
 require (
