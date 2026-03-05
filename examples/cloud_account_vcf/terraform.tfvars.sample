@@ -1,0 +1,18 @@
+refresh_token = ""
+url = ""
+insecure =
+data_collector_name = ""
+
+nsx_hostname = ""
+nsx_password = ""
+nsx_username = ""
+
+vcenter_hostname = ""
+vcenter_password = ""
+vcenter_username = ""
+
+workload_domain_id = ""
+workload_domain_name = ""
+sddc_manager_id = ""
+
+regions = [""]

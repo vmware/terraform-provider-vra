@@ -37,6 +37,7 @@ The provider accepts either a `refresh_token` or an `access_token` to interact w
 For more information on obtaining a `refresh_token` for the provider configuration the provider, refer [Get Your Refresh Token for the VMware Aria Automation API](docs/refresh_token.md).
 
 Examples on the use of the provider configuration, resources, and data sources can be found in the project's `examples` directory.
+For a VCF cloud account setup, see `examples/cloud_account_vcf`.
 
 ## Upgrading the Provider
 

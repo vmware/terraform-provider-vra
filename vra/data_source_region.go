@@ -108,6 +108,7 @@ func dataSourceRegionRead(d *schema.ResourceData, meta interface{}) error {
 
 	if idOk {
 		// config includes id, using id to get region details
+		log.Printf("id provided, using it to find region: %s", id.(string))
 		getResp, err := apiClient.Location.GetRegion(location.NewGetRegionParams().WithID(id.(string)))
 		if err != nil {
 			switch err.(type) {
@@ -124,6 +125,7 @@ func dataSourceRegionRead(d *schema.ResourceData, meta interface{}) error {
 
 	if filterOk {
 		// config includes filter.
+		log.Printf("filter provided without id, cloud account, or region. Using filter to find region: %s", filter.(string))
 		getResp, err := apiClient.Location.GetRegions(location.NewGetRegionsParams().WithDollarFilter(withString(filter.(string))))
 		if err != nil {
 			return err
@@ -168,6 +170,7 @@ func dataSourceRegionRead(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	if cloudAccountIDOk && regionOk {
+		log.Printf("cloud account and region provided, using them to find region: %s, %s", cloudAccountID.(string), region.(string))
 		getResp, err := apiClient.CloudAccount.GetCloudAccount(cloud_account.NewGetCloudAccountParams().WithID(cloudAccountID.(string)))
 		if err != nil {
 			switch err.(type) {
