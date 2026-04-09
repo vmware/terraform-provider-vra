@@ -18,7 +18,7 @@ This provider supports VMware Aria Automation 8.
 
   For general information about Terraform, visit [developer.hashicorp.com][terraform-install] and [the project][terraform-github] on GitHub.
 
-- [Go 1.23.2][golang-install]
+- [Go 1.25.8][golang-install]
 
   Required if building the provider.
 
