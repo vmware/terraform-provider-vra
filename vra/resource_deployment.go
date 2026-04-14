@@ -300,11 +300,15 @@ func resourceDeploymentCreate(ctx context.Context, d *schema.ResourceData, m int
 		}
 
 		if v, ok := d.GetOk("inputs"); ok {
-			// If the inputs are provided, get the schema from blueprint to convert the provided input values
-			// to the type defined in the schema.
-			inputs, err = getBlueprintInputsByType(apiClient, blueprintID, blueprintVersion, v)
-			if err != nil {
-				return diag.FromErr(err)
+			if blueprintContent != "" && blueprintID == "" {
+				inputs = expandInputs(v)
+			} else {
+				// If the inputs are provided, get the schema from blueprint to convert the provided input values
+				// to the type defined in the schema.
+				inputs, err = getBlueprintInputsByType(apiClient, blueprintID, blueprintVersion, v)
+				if err != nil {
+					return diag.FromErr(err)
+				}
 			}
 		}
 		blueprintRequest.Inputs = inputs
@@ -465,7 +469,9 @@ func resourceDeploymentUpdate(ctx context.Context, d *schema.ResourceData, m int
 	log.Printf("Starting to update the vra_deployment resource with name %s", d.Get("name"))
 	apiClient := m.(*Client).apiClient
 
-	if d.HasChange("blueprint_id") || d.HasChange("blueprint_version") || d.HasChange("blueprint_content") {
+	_, blueprintContentExists := d.GetOk("blueprint_content")
+
+	if d.HasChange("blueprint_id") || d.HasChange("blueprint_version") || blueprintContentExists {
 		err := updateDeploymentWithNewBlueprint(ctx, d, m, apiClient)
 		if err.HasError() {
 			return err
@@ -732,6 +738,23 @@ func updateDeploymentWithNewBlueprint(ctx context.Context, d *schema.ResourceDat
 		blueprintContent = v.(string)
 	}
 
+	// Use GetRawConfig to distinguish between values in the user's configuration of the resource vs state.
+	// This allows for migration between using blueprint_id and blueprint_content when values are already present (user specified config takes precedence).
+	configValue := d.GetRawConfig()
+
+	configHasBlueprintID := !configValue.GetAttr("blueprint_id").IsNull()
+	configHasBlueprintContent := !configValue.GetAttr("blueprint_content").IsNull()
+
+	// Empty blueprintContent if the user has specified blueprintID and not blueprintContent.
+	if configHasBlueprintID && !configHasBlueprintContent {
+		blueprintContent = ""
+	}
+
+	// Empty blueprintID if the user has specified blueprintContent and not blueprintID.
+	if configHasBlueprintContent && !configHasBlueprintID {
+		blueprintID = ""
+	}
+
 	if blueprintID != "" && blueprintContent != "" {
 		if blueprintID == "inline-blueprint" {
 			blueprintID = ""
@@ -768,13 +791,17 @@ func updateDeploymentWithNewBlueprint(ctx context.Context, d *schema.ResourceDat
 	}
 
 	if v, ok := d.GetOk("inputs"); ok {
-		// If the inputs are provided, get the schema from blueprint to convert the provided input values
-		// to the type defined in the schema.
-		inputs, err := getBlueprintInputsByType(apiClient, blueprintID, blueprintVersion, v)
-		if err != nil {
-			return diag.FromErr(err)
+		if blueprintContent != "" {
+			blueprintRequest.Inputs = expandInputs(v)
+		} else {
+			// If the inputs are provided, get the schema from blueprint to convert the provided input values
+			// to the type defined in the schema.
+			inputs, err := getBlueprintInputsByType(apiClient, blueprintID, blueprintVersion, v)
+			if err != nil {
+				return diag.FromErr(err)
+			}
+			blueprintRequest.Inputs = inputs
 		}
-		blueprintRequest.Inputs = inputs
 	} else {
 		blueprintRequest.Inputs = make(map[string]interface{})
 	}
