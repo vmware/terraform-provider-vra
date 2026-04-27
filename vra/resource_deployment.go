@@ -11,6 +11,7 @@ import (
 	"fmt"
 	"log"
 	"reflect"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -35,6 +36,13 @@ const (
 	PowerOffDeploymentActionName    = "PowerOff"
 	PowerOnDeploymentActionName     = "PowerOn"
 	UpdateDeploymentActionName      = "update"
+
+	// resourceActionModifyKeyword matches Day2 resource-action IDs that represent write/modify intent.
+	// Combined with UpdateDeploymentActionName, these filter out read-only display actions.
+	resourceActionModifyKeyword = "modify"
+
+	// deploymentUpdateReason is the reason string attached to all Day2 Update actions.
+	deploymentUpdateReason = "Updated deployment inputs from vRA provider for Terraform."
 )
 
 func resourceDeployment() *schema.Resource {
@@ -421,9 +429,52 @@ func resourceDeploymentRead(_ context.Context, d *schema.ResourceData, m interfa
 	}
 
 	allInputs := expandInputs(deployment.Inputs)
+
+	// Collect user-managed input keys so overlayLastRequestInputs can update them.
+	var userManagedKeys map[string]bool
+	if v, ok := d.GetOk("inputs"); ok {
+		if um, ok2 := v.(map[string]interface{}); ok2 {
+			userManagedKeys = make(map[string]bool, len(um))
+			for k := range um {
+				userManagedKeys[k] = true
+			}
+		}
+	}
+
+	lastRequestWasResourceLevel := false
+	if deployment.LastRequest != nil && deployment.LastRequest.Status == models.RequestStatusSUCCESSFUL {
+		if lastReqInputs, ok := deployment.LastRequest.Inputs.(map[string]interface{}); ok {
+			overlayLastRequestInputs(allInputs, lastReqInputs, userManagedKeys)
+		}
+		if len(deployment.LastRequest.ResourceIds) > 0 && deployment.LastRequest.ActionID != "" {
+			lastRequestWasResourceLevel = true
+			log.Printf("[DEBUG] last request %s was resource-level (actionId=%s, resourceIds=%v); deployment.Inputs may be stale",
+				deployment.LastRequest.ID, deployment.LastRequest.ActionID, deployment.LastRequest.ResourceIds)
+		}
+	}
+
 	if v, ok := d.GetOk("inputs"); ok {
 		userInputs := v.(map[string]interface{})
-		if err := d.Set("inputs", updateUserInputs(allInputs, userInputs, inputTypesMap)); err != nil {
+		updatedInputs := updateUserInputs(allInputs, userInputs, inputTypesMap)
+
+		// After a resource-level action, deployment.Inputs is stale because the
+		// platform only updates the individual resource, not deployment-level inputs.
+		// We preserve Terraform state values when the last request was resource-level
+		// because:
+		//   1. Resource-level actions are only submitted by this provider (not the UI)
+		//   2. External changes via the vRA UI create deployment-level requests,
+		//      which would set lastRequestWasResourceLevel=false, allowing drift
+		//      to be reported normally on the next plan.
+		if lastRequestWasResourceLevel && updatedInputs != nil {
+			for k, stateVal := range userInputs {
+				if platformVal, exists := updatedInputs[k]; exists && stateVal != nil && fmt.Sprint(platformVal) != fmt.Sprint(stateVal) {
+					log.Printf("[DEBUG] preserving Terraform state value for %q after resource-level action (platform=%v is stale, state=%v)", k, platformVal, stateVal)
+					updatedInputs[k] = stateVal
+				}
+			}
+		}
+
+		if err := d.Set("inputs", updatedInputs); err != nil {
 			return diag.Errorf("error setting deployment inputs - error: %#v", err)
 		}
 	}
@@ -487,9 +538,13 @@ func resourceDeploymentUpdate(ctx context.Context, d *schema.ResourceData, m int
 		}
 
 		if d.HasChange("inputs") {
-			err := runDeploymentUpdateAction(ctx, d, apiClient, deploymentUUID)
-			if err != nil {
-				return diag.FromErr(err)
+			_, updateErr := runDeploymentUpdateAction(ctx, d, apiClient, deploymentUUID)
+			if updateErr != nil {
+				// Restore prior inputs so a failed update doesn't persist planned values.
+				if oldInputs, _ := d.GetChange("inputs"); oldInputs != nil {
+					_ = d.Set("inputs", oldInputs)
+				}
+				return diag.FromErr(updateErr)
 			}
 		}
 
@@ -520,6 +575,7 @@ func resourceDeploymentUpdate(ctx context.Context, d *schema.ResourceData, m int
 	}
 
 	log.Printf("Finished updating the vra_deployment resource with name %s", d.Get("name"))
+
 	return resourceDeploymentRead(ctx, d, m)
 }
 
@@ -882,35 +938,41 @@ func updateDeploymentMetadata(d *schema.ResourceData, apiClient *client.API, dep
 	return nil
 }
 
-func runDeploymentUpdateAction(ctx context.Context, d *schema.ResourceData, apiClient *client.API, deploymentUUID strfmt.UUID) error {
-	log.Printf("Noticed changes to inputs. Starting to update deployment with inputs")
+// runDeploymentUpdateAction attempts a deployment-level Update Day2 action.
+// If no valid deployment-level action is found it falls back to running Update
+// actions on individual deployment resources.
+// Returns usedResourceActions=true when the fallback resource-level path was used.
+func runDeploymentUpdateAction(ctx context.Context, d *schema.ResourceData, apiClient *client.API, deploymentUUID strfmt.UUID) (usedResourceActions bool, err error) {
+	log.Printf("[DEBUG] Noticed changes to inputs. Starting to update deployment with inputs")
 	// Get the deployment actions
 	deploymentActions, err := apiClient.DeploymentActions.GetDeploymentActionsUsingGET2(deployment_actions.
 		NewGetDeploymentActionsUsingGET2Params().WithDeploymentID(deploymentUUID))
 	if err != nil {
-		return err
+		return false, err
 	}
 
-	updateAvailable := false
 	actionID := ""
 	for _, action := range deploymentActions.Payload {
-		if strings.Contains(strings.ToLower(action.ID), strings.ToLower("Update")) {
+		if strings.Contains(strings.ToLower(action.ID), UpdateDeploymentActionName) {
 			if action.Valid {
-				log.Printf("[DEBUG] update action is available on the deployment")
-				updateAvailable = true
 				actionID = action.ID
-				break
 			}
-			return fmt.Errorf("noticed changes to inputs, but 'Update' action is not supported based on the current state of the deployment")
+			break
 		}
 	}
 
-	name := d.Get("name")
-	if !updateAvailable {
-		return fmt.Errorf("noticed changes to inputs, but 'Update' action is not supported based on the current state of the deployment %s", name)
+	if actionID == "" {
+		// No valid deployment-level Update action; fall back to running Day2 actions
+		// on individual resources, which some catalog items use instead.
+		log.Printf("[DEBUG] no valid deployment-level Update action found, falling back to resource-level")
+		oldInputsRaw, newInputsRaw := d.GetChange("inputs")
+		changedKeys := computeChangedKeys(oldInputsRaw, newInputsRaw)
+		return true, runResourceLevelUpdateActions(ctx, d, apiClient, deploymentUUID, changedKeys)
 	}
+	log.Printf("[DEBUG] running deployment-level Update action %q", actionID)
 
 	// Continue if update action is available.
+	name := d.Get("name")
 	var inputs = make(map[string]interface{})
 	blueprintID, catalogItemID := "", ""
 	if v, ok := d.GetOk("catalog_item_id"); ok {
@@ -941,14 +1003,12 @@ func runDeploymentUpdateAction(ctx context.Context, d *schema.ResourceData, apiC
 				log.Printf("Error while getting catalog item inputs. Checking with update action instead")
 
 				if deploymentUUID != "" && actionID != "" {
-					// Get the schema from update action to convert the provided input values
-					// to the type defined in the schema.
 					inputs, err = getDeploymentActionInputsByType(apiClient, deploymentUUID, actionID, v)
 					if err != nil {
-						return err
+						return false, err
 					}
 				} else {
-					return err
+					return false, err
 				}
 			}
 		}
@@ -963,20 +1023,19 @@ func runDeploymentUpdateAction(ctx context.Context, d *schema.ResourceData, apiC
 			// to the type defined in the schema.
 			inputs, err = getBlueprintInputsByType(apiClient, blueprintID, blueprintVersion, v)
 			if err != nil {
-				return err
+				return false, err
 			}
 		}
 	}
 
-	reason := "Updated deployment inputs from vRA provider for Terraform."
+	reason := deploymentUpdateReason
 	err = runAction(ctx, d, apiClient, deploymentUUID, actionID, inputs, reason)
 	if err != nil {
-		return err
+		return false, err
 	}
 
 	log.Printf("Finished updating vra_deployment %s with inputs", name)
-
-	return nil
+	return false, nil
 }
 
 func getInputsByType(inputs map[string]interface{}, inputTypesMap map[string]string) (map[string]interface{}, error) {
@@ -1021,12 +1080,28 @@ func getInputsByType(inputs map[string]interface{}, inputTypesMap map[string]str
 }
 
 // Returns a map of string, string with input variables and their types defined in the given schema map.
-// Used for getting map of inputs and their types for Catalog item and Deployment actions
+// Used for getting map of inputs and their types for Catalog item and Deployment actions.
+// Properties without a simple "type" string are skipped rather than panicking.
 func getInputTypesMapFromSchema(schema map[string]interface{}) (map[string]string, error) {
 	log.Printf("Getting the map of inputs and their types")
 	inputTypesMap := make(map[string]string, len(schema))
 	for k, v := range schema {
-		inputTypesMap[k] = (v.(map[string]interface{}))["type"].(string)
+		propMap, ok := v.(map[string]interface{})
+		if !ok {
+			log.Printf("[DEBUG] schema property %q is not a map; skipping", k)
+			continue
+		}
+		rawType, hasType := propMap["type"]
+		if !hasType {
+			log.Printf("[DEBUG] schema property %q has no 'type' field; skipping", k)
+			continue
+		}
+		typeStr, ok := rawType.(string)
+		if !ok {
+			log.Printf("[DEBUG] schema property %q 'type' is %T, not a string; skipping", k, rawType)
+			continue
+		}
+		inputTypesMap[k] = typeStr
 	}
 	return inputTypesMap, nil
 }
@@ -1117,6 +1192,644 @@ func getDeploymentActionInputTypesMap(apiClient *client.API, deploymentUUID strf
 		return nil, err
 	}
 	return inputTypesMap, nil
+}
+
+// overlayLastRequestInputs merges lastRequest.Inputs into allInputs for keys already
+// known to Terraform, so that stale deployment.Inputs are updated after Day2 actions.
+func overlayLastRequestInputs(allInputs map[string]interface{}, lastReqInputs map[string]interface{}, userManagedKeys map[string]bool) {
+	for k, v := range lastReqInputs {
+		if _, exists := allInputs[k]; exists || userManagedKeys[k] {
+			allInputs[k] = v
+		}
+	}
+}
+
+// selectBestWriteAction returns the valid write-intent Day2 action whose schema
+// overlaps the most with changedKeys, or ("", nil) if none match.
+func selectBestWriteAction(apiClient *client.API, deploymentUUID strfmt.UUID, resourceID strfmt.UUID, actions []*models.ResourceAction, changedKeys map[string]bool) (string, map[string]interface{}) {
+	bestID := ""
+	bestScore := 0
+	var bestSchema map[string]interface{}
+	for _, action := range actions {
+		if !action.Valid {
+			continue
+		}
+		id := strings.ToLower(action.ID)
+		if !strings.Contains(id, UpdateDeploymentActionName) && !strings.Contains(id, resourceActionModifyKeyword) {
+			continue
+		}
+		actionSchema, schemaErr := getResourceActionSchema(apiClient, deploymentUUID, resourceID, action.ID)
+		if schemaErr != nil {
+			log.Printf("[DEBUG] could not fetch schema for action %s: %v", action.ID, schemaErr)
+			continue
+		}
+		score := 0
+		for k := range changedKeys {
+			if _, ok := actionSchema[k]; ok {
+				score++
+			}
+		}
+		if score > bestScore {
+			bestID = action.ID
+			bestScore = score
+			bestSchema = actionSchema
+		}
+	}
+	return bestID, bestSchema
+}
+
+// runUpdateActionsForResource runs one or more best-matching write actions on a
+// single resource until all changed keys are handled (or no more matching actions
+// remain). This handles cases where ports and IPs require separate Day2 actions.
+// Returns whether any action ran, which keys were handled, and any error.
+func runUpdateActionsForResource(ctx context.Context, d *schema.ResourceData, apiClient *client.API, deploymentUUID strfmt.UUID, resource *models.DeploymentResource, enrichedInputs map[string]interface{}, changedKeys map[string]bool) (bool, map[string]bool, error) {
+	actionsResp, err := apiClient.DeploymentActions.GetResourceActionsUsingGET4(
+		deployment_actions.NewGetResourceActionsUsingGET4Params().
+			WithAPIVersion(withString(DeploymentsAPIVersion)).
+			WithDeploymentID(deploymentUUID).
+			WithResourceID(resource.ID))
+	if err != nil {
+		log.Printf("[WARN] failed to list actions for resource %s (%s): %v; skipping", *resource.Name, resource.ID, err)
+		return false, nil, nil
+	}
+
+	allHandledKeys := make(map[string]bool)
+	localRemaining := make(map[string]bool, len(changedKeys))
+	for k := range changedKeys {
+		localRemaining[k] = true
+	}
+
+	anyRan := false
+	for len(localRemaining) > 0 {
+		bestActionID, bestSchema := selectBestWriteAction(apiClient, deploymentUUID, resource.ID, actionsResp.Payload, localRemaining)
+		if bestActionID == "" {
+			break
+		}
+
+		handledKeys := make(map[string]bool)
+		for k := range localRemaining {
+			if _, ok := bestSchema[k]; ok {
+				handledKeys[k] = true
+			}
+		}
+
+		inputs, buildErr := buildResourceActionInputs(bestSchema, resource, bestActionID, enrichedInputs)
+		if buildErr != nil {
+			return anyRan, allHandledKeys, fmt.Errorf("failed to build inputs for resource action %s on %s: %w", bestActionID, *resource.Name, buildErr)
+		}
+		log.Printf("[DEBUG] running resource-level action %q on resource %s (%s) for keys %v", bestActionID, *resource.Name, resource.ID, handledKeys)
+		if runErr := runResourceAction(ctx, d, apiClient, deploymentUUID, resource.ID, bestActionID, inputs); runErr != nil {
+			return anyRan, allHandledKeys, runErr
+		}
+
+		anyRan = true
+		for k := range handledKeys {
+			allHandledKeys[k] = true
+			delete(localRemaining, k)
+		}
+	}
+
+	return anyRan, allHandledKeys, nil
+}
+
+// runResourceLevelUpdateActions runs Update Day2 actions on individual resources
+// as a fallback when no deployment-level Update action is available.
+func runResourceLevelUpdateActions(ctx context.Context, d *schema.ResourceData, apiClient *client.API, deploymentUUID strfmt.UUID, changedKeys map[string]bool) error {
+	name := d.Get("name")
+	log.Printf("[DEBUG] attempting resource-level Update actions for deployment %s", name)
+
+	resourcesResp, err := apiClient.Deployments.GetDeploymentResourcesUsingGET2(
+		deployments.NewGetDeploymentResourcesUsingGET2Params().
+			WithAPIVersion(withString(DeploymentsAPIVersion)).
+			WithDeploymentID(deploymentUUID).
+			WithDollarTop(withInt32(DefaultDollarTop)))
+	if err != nil {
+		return fmt.Errorf("failed to list resources for deployment %s: %w", name, err)
+	}
+
+	// Build enriched inputs once: merge Terraform inputs with API-stored deployment inputs.
+	terraformInputs, _ := d.GetOk("inputs")
+	rawInputs, _ := terraformInputs.(map[string]interface{})
+	depResp, depErr := apiClient.Deployments.GetDeploymentByIDV3UsingGET(
+		deployments.NewGetDeploymentByIDV3UsingGETParams().
+			WithDeploymentID(deploymentUUID).
+			WithAPIVersion(withString(DeploymentsAPIVersion)))
+	if depErr == nil && depResp.Payload != nil {
+		if apiInputs, ok := depResp.Payload.Inputs.(map[string]interface{}); ok {
+			enriched := make(map[string]interface{}, len(apiInputs)+len(rawInputs))
+			for k, v := range apiInputs {
+				enriched[k] = v
+			}
+			for k, v := range rawInputs {
+				enriched[k] = v
+			}
+			rawInputs = enriched
+		}
+	}
+
+	remainingKeys := make(map[string]bool, len(changedKeys))
+	for k := range changedKeys {
+		remainingKeys[k] = true
+	}
+	updatedCount := 0
+	for _, resource := range resourcesResp.Payload.Content {
+		ran, handledKeys, runErr := runUpdateActionsForResource(ctx, d, apiClient, deploymentUUID, resource, rawInputs, remainingKeys)
+		if runErr != nil {
+			return runErr
+		}
+		if ran {
+			updatedCount++
+			for k := range handledKeys {
+				delete(remainingKeys, k)
+			}
+		}
+	}
+
+	if updatedCount == 0 {
+		return fmt.Errorf("'Update' action is not supported at deployment or resource level for deployment %s", name)
+	}
+
+	log.Printf("[DEBUG] submitted Update action for %d resource(s) in deployment %s", updatedCount, name)
+	return nil
+}
+
+func getResourceActionSchema(apiClient *client.API, deploymentUUID strfmt.UUID, resourceID strfmt.UUID, actionID string) (map[string]interface{}, error) {
+	log.Printf("[DEBUG] getting schema for resource action %s on resource %s in deployment %s", actionID, resourceID, deploymentUUID)
+	action, err := apiClient.DeploymentActions.GetResourceActionUsingGET4(
+		deployment_actions.NewGetResourceActionUsingGET4Params().
+			WithAPIVersion(withString(DeploymentsAPIVersion)).
+			WithDeploymentID(deploymentUUID).
+			WithResourceID(resourceID).
+			WithActionID(actionID))
+	if err != nil {
+		return nil, err
+	}
+
+	actionSchema := action.GetPayload().Schema
+	if actionSchema != nil {
+		schemaMap, ok := actionSchema.(map[string]interface{})
+		if !ok {
+			log.Printf("[DEBUG] action %q schema is %T, not map; treating as empty", actionID, actionSchema)
+			return make(map[string]interface{}), nil
+		}
+		if props, ok := schemaMap["properties"]; ok && props != nil {
+			schemaProps, ok := props.(map[string]interface{})
+			if !ok {
+				log.Printf("[DEBUG] action %q schema properties is %T, not map; treating as empty", actionID, props)
+				return make(map[string]interface{}), nil
+			}
+			if b, err := json.Marshal(schemaProps); err == nil {
+				log.Printf("[DEBUG] action %q schema properties for resource %s: %s", actionID, resourceID, b)
+			}
+			return schemaProps, nil
+		}
+	}
+	log.Printf("[DEBUG] action %q returned empty/nil schema for resource %s", actionID, resourceID)
+	return make(map[string]interface{}), nil
+}
+
+// computeChangedKeys returns keys whose values differ between old and new input maps.
+func computeChangedKeys(oldRaw, newRaw interface{}) map[string]bool {
+	changed := make(map[string]bool)
+	oldMap, _ := oldRaw.(map[string]interface{})
+	newMap, _ := newRaw.(map[string]interface{})
+	for k, newV := range newMap {
+		if !reflect.DeepEqual(oldMap[k], newV) {
+			changed[k] = true
+		}
+	}
+	for k := range oldMap {
+		if _, ok := newMap[k]; !ok {
+			changed[k] = true
+		}
+	}
+	return changed
+}
+
+// isLiteralDefault returns true if v is a usable literal default (not nil, not a map).
+func isLiteralDefault(v interface{}) bool {
+	if v == nil {
+		return false
+	}
+	_, isMap := v.(map[string]interface{})
+	return !isMap
+}
+
+// nativePlatformID returns the platform identifier for a resource (providerId or uuid).
+func nativePlatformID(props map[string]interface{}) string {
+	if id, _ := props["providerId"].(string); id != "" {
+		return id
+	}
+	if id, _ := props["uuid"].(string); id != "" {
+		return id
+	}
+	return ""
+}
+
+// pickFieldValue returns the best value for a schema field, checking in order:
+// deployment inputs, resource properties, literal schema default, then self-referential
+// resource ID (derived from the resource name, e.g. "Pool" → "poolId").
+func pickFieldValue(k, fieldType string, typedInputs, currentProps map[string]interface{}, propDefault interface{}, platformID, selfRefIDKey string) interface{} {
+	if v := typedInputs[k]; v != nil {
+		return v
+	}
+	if v := currentProps[k]; v != nil {
+		return v
+	}
+	if isLiteralDefault(propDefault) {
+		return propDefault
+	}
+	if fieldType == "string" && platformID != "" && selfRefIDKey != "" && strings.EqualFold(k, selfRefIDKey) {
+		return platformID
+	}
+	return nil
+}
+
+// resolveUnmatchedArrayFields matches unresolved array-of-object schema fields to
+// deployment inputs by comparing the schema's items.properties keys against the
+// object keys in JSON-encoded input values (structural matching for renamed fields).
+func resolveUnmatchedArrayFields(schemaMap map[string]interface{}, inputTypesMap map[string]string, rawInputs map[string]interface{}, result map[string]interface{}) {
+	for k := range inputTypesMap {
+		if _, matched := result[k]; matched {
+			continue
+		}
+		if inputTypesMap[k] != "array" {
+			continue
+		}
+		propMap, _ := schemaMap[k].(map[string]interface{})
+		if propMap == nil {
+			continue
+		}
+		itemsMap, _ := propMap["items"].(map[string]interface{})
+		if itemsMap == nil {
+			continue
+		}
+		itemType, _ := itemsMap["type"].(string)
+		if itemType != "object" {
+			continue
+		}
+		itemProps, _ := itemsMap["properties"].(map[string]interface{})
+		if len(itemProps) == 0 {
+			continue
+		}
+		schemaKeys := make(map[string]bool, len(itemProps))
+		for pk := range itemProps {
+			schemaKeys[pk] = true
+		}
+		// Sort input names for deterministic matching when multiple inputs
+		// have identically-structured JSON arrays.
+		sortedInputNames := make([]string, 0, len(rawInputs))
+		for inputName := range rawInputs {
+			sortedInputNames = append(sortedInputNames, inputName)
+		}
+		sort.Strings(sortedInputNames)
+		for _, inputName := range sortedInputNames {
+			inputVal := rawInputs[inputName]
+			if _, used := result[inputName]; used {
+				continue
+			}
+			str, isStr := inputVal.(string)
+			if !isStr || len(str) == 0 || str[0] != '[' {
+				continue
+			}
+			var parsed []interface{}
+			if err := json.Unmarshal([]byte(str), &parsed); err != nil || len(parsed) == 0 {
+				continue
+			}
+			firstObj, ok := parsed[0].(map[string]interface{})
+			if !ok {
+				continue
+			}
+			if len(firstObj) != len(schemaKeys) {
+				continue
+			}
+			allMatch := true
+			for pk := range schemaKeys {
+				if _, ok := firstObj[pk]; !ok {
+					allMatch = false
+					break
+				}
+			}
+			if allMatch {
+				result[k] = parsed
+				log.Printf("[DEBUG] structurally matched deployment input %q to schema field %q", inputName, k)
+				break
+			}
+		}
+	}
+}
+
+// resolveByTitle matches unresolved schema fields that have $dynamicDefault or $data
+// to deployment inputs by normalizing the field's title (lowercase, no spaces) and
+// looking up a matching input name.
+func resolveByTitle(schemaMap map[string]interface{}, rawInputs map[string]interface{}, inputTypesMap map[string]string, result map[string]interface{}) {
+	inputsByLower := make(map[string]interface{}, len(rawInputs))
+	for name, val := range rawInputs {
+		inputsByLower[strings.ToLower(name)] = val
+	}
+
+	for k := range inputTypesMap {
+		if _, matched := result[k]; matched {
+			continue
+		}
+		propMap, _ := schemaMap[k].(map[string]interface{})
+		if propMap == nil {
+			continue
+		}
+		if ro, _ := propMap["readOnly"].(bool); ro {
+			continue
+		}
+		_, hasDynamic := propMap["$dynamicDefault"]
+		_, hasData := propMap["$data"]
+		if !hasDynamic && !hasData {
+			continue
+		}
+		title, _ := propMap["title"].(string)
+		if title == "" {
+			continue
+		}
+		normalizedTitle := strings.ToLower(strings.ReplaceAll(title, " ", ""))
+		v, ok := inputsByLower[normalizedTitle]
+		if !ok {
+			continue
+		}
+		fieldType := inputTypesMap[k]
+		switch strings.ToLower(fieldType) {
+		case "array":
+			if s, isStr := v.(string); isStr && len(s) > 0 && s[0] == '[' {
+				var parsed interface{}
+				if err := json.Unmarshal([]byte(s), &parsed); err == nil {
+					result[k] = parsed
+					log.Printf("[DEBUG] title-matched deployment input %q to schema field %q (title %q)", normalizedTitle, k, title)
+					continue
+				}
+			}
+		case "boolean":
+			if s, isStr := v.(string); isStr {
+				if b, err := strconv.ParseBool(s); err == nil {
+					result[k] = b
+					log.Printf("[DEBUG] title-matched deployment input %q to schema field %q (title %q)", normalizedTitle, k, title)
+					continue
+				}
+			}
+		case "integer":
+			if s, isStr := v.(string); isStr {
+				if n, err := strconv.Atoi(s); err == nil {
+					result[k] = n
+					log.Printf("[DEBUG] title-matched deployment input %q to schema field %q (title %q)", normalizedTitle, k, title)
+					continue
+				}
+			}
+		case "number":
+			if s, isStr := v.(string); isStr {
+				if f, err := strconv.ParseFloat(s, 64); err == nil {
+					result[k] = f
+					log.Printf("[DEBUG] title-matched deployment input %q to schema field %q (title %q)", normalizedTitle, k, title)
+					continue
+				}
+			}
+		default:
+			result[k] = v
+			log.Printf("[DEBUG] title-matched deployment input %q to schema field %q (title %q)", normalizedTitle, k, title)
+		}
+	}
+}
+
+// resolveFromResourceProperties populates unresolved array-of-string schema fields
+// from the resource's current properties. It matches fields (without $dynamicDefault)
+// whose title keywords appear as keys in resource property arrays.
+func resolveFromResourceProperties(schemaMap map[string]interface{}, inputTypesMap map[string]string, currentProps map[string]interface{}, result map[string]interface{}) {
+	for k := range inputTypesMap {
+		if _, matched := result[k]; matched {
+			continue
+		}
+		if inputTypesMap[k] != "array" {
+			continue
+		}
+		propMap, _ := schemaMap[k].(map[string]interface{})
+		if propMap == nil {
+			continue
+		}
+		if ro, _ := propMap["readOnly"].(bool); ro {
+			continue
+		}
+		itemsMap, _ := propMap["items"].(map[string]interface{})
+		if itemsMap != nil {
+			if itemType, _ := itemsMap["type"].(string); itemType == "object" {
+				continue
+			}
+		}
+		if _, hasDyn := propMap["$dynamicDefault"]; hasDyn {
+			continue
+		}
+		if _, hasData := propMap["$data"]; hasData {
+			continue
+		}
+		title, _ := propMap["title"].(string)
+		if title == "" {
+			continue
+		}
+		values := extractValuesFromProperties(title, currentProps)
+		if len(values) > 0 {
+			result[k] = values
+			log.Printf("[DEBUG] populated schema field %q (title %q) from resource properties: %v", k, title, values)
+		}
+	}
+}
+
+// fieldNameMatchesTitle returns true if fieldName appears as a word-prefix in
+// any word of the title. This handles plurals (field "port" matches title word
+// "Ports") while rejecting substring matches ("port" does not match "transport"
+// because "transport" does not start with "port").
+func fieldNameMatchesTitle(fieldName, title string) bool {
+	fieldLower := strings.ToLower(fieldName)
+	for _, word := range strings.Fields(title) {
+		wordLower := strings.ToLower(word)
+		if strings.HasPrefix(wordLower, fieldLower) {
+			return true
+		}
+	}
+	return false
+}
+
+// extractValuesFromProperties scans resource property arrays for fields whose name
+// appears in the given title, and returns their string values.
+func extractValuesFromProperties(title string, props map[string]interface{}) []interface{} {
+	// Sort property keys for deterministic matching.
+	sortedPropKeys := make([]string, 0, len(props))
+	for k := range props {
+		sortedPropKeys = append(sortedPropKeys, k)
+	}
+	sort.Strings(sortedPropKeys)
+	for _, propKey := range sortedPropKeys {
+		propVal := props[propKey]
+		arr, ok := propVal.([]interface{})
+		if !ok || len(arr) == 0 {
+			continue
+		}
+		firstObj, ok := arr[0].(map[string]interface{})
+		if !ok {
+			continue
+		}
+		// Sort field names for deterministic matching.
+		sortedFields := make([]string, 0, len(firstObj))
+		for fn := range firstObj {
+			sortedFields = append(sortedFields, fn)
+		}
+		sort.Strings(sortedFields)
+		for _, fieldName := range sortedFields {
+			// Match field names as word prefixes in the title to handle plurals
+			// (e.g. field "port" matches title word "Ports") while avoiding false
+			// positives from substring matches (e.g. "port" must not match "transport").
+			if !fieldNameMatchesTitle(fieldName, title) {
+				continue
+			}
+			var values []interface{}
+			for _, item := range arr {
+				if obj, ok := item.(map[string]interface{}); ok {
+					if v, exists := obj[fieldName]; exists {
+						values = append(values, fmt.Sprint(v))
+					}
+				}
+			}
+			if len(values) > 0 {
+				return values
+			}
+		}
+	}
+	return nil
+}
+
+// buildResourceActionInputs constructs the input map for a resource-level Day2 action
+// by merging deployment inputs, resource properties, schema defaults, and heuristics
+// for fields with auto-generated IDs. The schemaMap parameter should be the pre-fetched
+// action schema from selectBestWriteAction to avoid a redundant API call.
+// The enrichedInputs parameter should already contain both Terraform and API-stored
+// deployment inputs, merged by the caller.
+func buildResourceActionInputs(schemaMap map[string]interface{}, resource *models.DeploymentResource, actionID string, enrichedInputs map[string]interface{}) (map[string]interface{}, error) {
+
+	inputTypesMap, err := getInputTypesMapFromSchema(schemaMap)
+	if err != nil {
+		return nil, err
+	}
+	if len(inputTypesMap) == 0 {
+		return make(map[string]interface{}), nil
+	}
+
+	currentProps, _ := resource.Properties.(map[string]interface{})
+	if currentProps == nil {
+		currentProps = make(map[string]interface{})
+	}
+
+	rawInputs := enrichedInputs
+	log.Printf("[DEBUG] buildResourceActionInputs: %d enriched input keys", len(rawInputs))
+	filtered := make(map[string]interface{}, len(inputTypesMap))
+	for k := range inputTypesMap {
+		if v, ok := rawInputs[k]; ok {
+			filtered[k] = v
+		}
+	}
+	typedInputs, castErr := getInputsByType(filtered, inputTypesMap)
+	if castErr != nil {
+		log.Printf("[WARN] type conversion failed for resource action %q inputs: %v; using raw values", actionID, castErr)
+		typedInputs = filtered
+	}
+
+	platformID := nativePlatformID(currentProps)
+	selfRefIDKey := ""
+	if resource.Name != nil && len(*resource.Name) > 0 {
+		n := *resource.Name
+		candidate := strings.ToLower(n[:1]) + n[1:] + "Id"
+		// Only use the heuristic if the schema actually contains this key.
+		if _, exists := schemaMap[candidate]; exists {
+			selfRefIDKey = candidate
+		}
+	}
+	result := make(map[string]interface{}, len(schemaMap))
+	for k, fieldType := range inputTypesMap {
+		propMap, _ := schemaMap[k].(map[string]interface{})
+		if ro, _ := propMap["readOnly"].(bool); ro {
+			continue
+		}
+		if v := pickFieldValue(k, fieldType, typedInputs, currentProps, propMap["default"], platformID, selfRefIDKey); v != nil {
+			result[k] = v
+		}
+	}
+
+	resolveUnmatchedArrayFields(schemaMap, inputTypesMap, rawInputs, result)
+
+	resolveByTitle(schemaMap, rawInputs, inputTypesMap, result)
+
+	resolveFromResourceProperties(schemaMap, inputTypesMap, currentProps, result)
+
+	// Handle properties without a simple "type" that getInputTypesMapFromSchema skipped.
+	for k, propRaw := range schemaMap {
+		if _, handled := inputTypesMap[k]; handled {
+			continue
+		}
+		if _, exists := result[k]; exists {
+			continue
+		}
+		propMap, _ := propRaw.(map[string]interface{})
+		if propMap != nil {
+			if ro, _ := propMap["readOnly"].(bool); ro {
+				continue
+			}
+		}
+		if v, ok := rawInputs[k]; ok {
+			if str, isStr := v.(string); isStr && len(str) > 0 && (str[0] == '[' || str[0] == '{') {
+				var parsed interface{}
+				if err := json.Unmarshal([]byte(str), &parsed); err == nil {
+					result[k] = parsed
+					continue
+				}
+			}
+			result[k] = v
+			continue
+		}
+		if v := currentProps[k]; v != nil {
+			result[k] = v
+		}
+	}
+
+	if b, err := json.Marshal(result); err == nil {
+		log.Printf("[DEBUG] resource action %q inputs for %q: %s", actionID, *resource.Name, b)
+	}
+	return result, nil
+}
+
+// runResourceAction submits a Day2 action on a specific resource and waits for completion.
+func runResourceAction(ctx context.Context, d *schema.ResourceData, apiClient *client.API, deploymentUUID strfmt.UUID, resourceID strfmt.UUID, actionID string, inputs map[string]interface{}) error {
+	resourceActionRequest := models.ResourceActionRequest{
+		ActionID: actionID,
+		Reason:   deploymentUpdateReason,
+		Inputs:   inputs,
+	}
+
+	resp, err := apiClient.DeploymentActions.SubmitResourceActionRequestUsingPOST4(
+		deployment_actions.NewSubmitResourceActionRequestUsingPOST4Params().
+			WithAPIVersion(withString(DeploymentsAPIVersion)).
+			WithDeploymentID(deploymentUUID).
+			WithResourceID(resourceID).
+			WithActionRequest(&resourceActionRequest))
+	if err != nil {
+		return err
+	}
+
+	requestID := resp.GetPayload().ID
+
+	stateChangeFunc := retry.StateChangeConf{
+		Delay:      5 * time.Second,
+		Pending:    []string{models.RequestStatusPENDING, models.RequestStatusINITIALIZATION, models.RequestStatusCHECKINGAPPROVAL, models.RequestStatusAPPROVALPENDING, models.RequestStatusINPROGRESS},
+		Refresh:    deploymentActionStatusRefreshFunc(*apiClient, deploymentUUID, requestID),
+		Target:     []string{models.RequestStatusCOMPLETION, models.RequestStatusAPPROVALREJECTED, models.RequestStatusABORTED, models.RequestStatusSUCCESSFUL, models.RequestStatusFAILED},
+		Timeout:    d.Timeout(schema.TimeoutUpdate),
+		MinTimeout: 5 * time.Second,
+	}
+	if _, err = stateChangeFunc.WaitForStateContext(ctx); err != nil {
+		return err
+	}
+	return nil
 }
 
 func runChangeOwnerDeploymentAction(ctx context.Context, d *schema.ResourceData, apiClient *client.API, deploymentUUID strfmt.UUID) error {
@@ -1247,6 +1960,8 @@ func deploymentDeleteStatusRefreshFunc(apiClient client.API, id string) retry.St
 	}
 }
 
+// updateUserInputs reconciles Terraform's known inputs with platform-reported values.
+// Platform values are preferred; user values are kept only for keys the platform doesn't expose.
 func updateUserInputs(allInputs, userInputs map[string]interface{}, inputTypesMap map[string]string) map[string]interface{} {
 	if allInputs == nil || userInputs == nil {
 		return nil
@@ -1255,7 +1970,12 @@ func updateUserInputs(allInputs, userInputs map[string]interface{}, inputTypesMa
 	inputs := make(map[string]interface{})
 	for name, value := range userInputs {
 		if value != nil {
-			inputs[name] = decodeInputValue(name, allInputs[name], inputTypesMap)
+			platformVal := allInputs[name]
+			if platformVal == nil {
+				inputs[name] = value
+			} else {
+				inputs[name] = decodeInputValue(name, platformVal, inputTypesMap)
+			}
 		}
 		log.Printf("Converted incoming value to string: Key: %v, Value: %v, Converted value: %#v", name, allInputs[name], inputs[name])
 	}
@@ -1263,16 +1983,9 @@ func updateUserInputs(allInputs, userInputs map[string]interface{}, inputTypesMa
 	return inputs
 }
 
-// decodeInputValue converts a deployment input value from vRA's native format
-// to the string representation expected by Terraform state. For array and object
-// types, this marshals to JSON to maintain consistency with how values are sent
-// to vRA during create/update operations.
-//
-// This function handles two scenarios:
-// 1. When inputTypesMap contains the input name and type from blueprint/catalog schema
-// 2. When inputTypesMap is empty or missing entries (auto-detection fallback)
+// decodeInputValue converts a platform input value to the string representation
+// expected by Terraform state, marshaling arrays/objects to JSON.
 func decodeInputValue(inputName string, inputValue interface{}, inputTypesMap map[string]string) interface{} {
-	// Check if we have type information from blueprint/catalog schema
 	if t, ok := inputTypesMap[inputName]; ok {
 		log.Printf("[DEBUG] input_key: %s, schema_type: %s, value: %#v", inputName, t, inputValue)
 		switch strings.ToLower(t) {
@@ -1288,8 +2001,6 @@ func decodeInputValue(inputName string, inputValue interface{}, inputTypesMap ma
 		}
 	}
 
-	// Fallback: Auto-detect arrays and objects when schema type information is unavailable.
-	// This handles cases where catalog item or blueprint schema lookup fails.
 	switch inputValue.(type) {
 	case []interface{}, map[string]interface{}:
 		value, err := json.Marshal(inputValue)
