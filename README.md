@@ -18,7 +18,7 @@ This provider supports VMware Aria Automation 8.
 
   For general information about Terraform, visit [developer.hashicorp.com][terraform-install] and [the project][terraform-github] on GitHub.
 
-- [Go 1.23.2][golang-install]
+- [Go 1.25.8][golang-install]
 
   Required if building the provider.
 
@@ -53,6 +53,10 @@ The Terraform Provider for VMware Aria Automation is the work of many contributo
 If you discover a bug or would like to suggest an enhancement, submit [an issue][provider-issues].
 
 If you would like to submit a pull request, please read the [contribution guidelines][provider-contributing] to get started. In case of enhancement or feature contribution, we kindly ask you to open an issue to discuss it beforehand.
+
+## Support
+
+Because this Terraform provider is developed as an open-source project and follows standard GitHub community practices, we encourage customers to submit bug reports and enhancement requests directly in the project's GitHub repository. However, we recognize that some situations may require formal technical support through our Global Support Services (GSS) process. In those cases, please open a case through the Broadcom support portal, referencing the provider, the provider version, and any related GitHub issue(s). When opening your case, please select VMware ESXi as the Product and choose VCF Terraform from the components drop-down menu.
 
 ## License
 
