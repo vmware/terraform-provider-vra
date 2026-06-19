@@ -116,6 +116,7 @@ func resourceDeployment() *schema.Resource {
 			"inputs": {
 				Type:        schema.TypeMap,
 				Optional:    true,
+				Computed:    true,
 				Description: "Inputs provided by the user. For inputs including those with default values, refer to inputs_including_defaults.",
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
