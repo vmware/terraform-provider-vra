@@ -491,23 +491,23 @@ func resourceDeploymentUpdate(ctx context.Context, d *schema.ResourceData, m int
 			if err != nil {
 				return diag.FromErr(err)
 			}
-		}
 
-		stateChangeFunc := retry.StateChangeConf{
-			Delay:      5 * time.Second,
-			Pending:    []string{models.DeploymentStatusCREATEINPROGRESS, models.DeploymentStatusUPDATEINPROGRESS},
-			Refresh:    deploymentStatusRefreshFunc(*apiClient, d.Id()),
-			Target:     []string{models.DeploymentStatusCREATESUCCESSFUL, models.DeploymentStatusUPDATESUCCESSFUL},
-			Timeout:    d.Timeout(schema.TimeoutCreate),
-			MinTimeout: 5 * time.Second,
-		}
-
-		if _, err := stateChangeFunc.WaitForStateContext(ctx); err != nil {
-			readErrors := resourceDeploymentRead(ctx, d, m)
-			if readErrors.HasError() {
-				return append(readErrors, diag.Errorf("failed to create deployment: %v", err.Error())...)
+			stateChangeFunc := retry.StateChangeConf{
+				Delay:      5 * time.Second,
+				Pending:    []string{models.DeploymentStatusCREATEINPROGRESS, models.DeploymentStatusUPDATEINPROGRESS},
+				Refresh:    deploymentStatusRefreshFunc(*apiClient, d.Id()),
+				Target:     []string{models.DeploymentStatusCREATESUCCESSFUL, models.DeploymentStatusUPDATESUCCESSFUL},
+				Timeout:    d.Timeout(schema.TimeoutCreate),
+				MinTimeout: 5 * time.Second,
 			}
-			return diag.FromErr(err)
+
+			if _, err := stateChangeFunc.WaitForStateContext(ctx); err != nil {
+				readErrors := resourceDeploymentRead(ctx, d, m)
+				if readErrors.HasError() {
+					return append(readErrors, diag.Errorf("failed to update deployment: %v", err.Error())...)
+				}
+				return diag.FromErr(err)
+			}
 		}
 	}
 
