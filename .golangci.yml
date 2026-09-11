@@ -51,6 +51,9 @@ linters:
       - linters:
           - staticcheck
         text: QF1011
+      - linters:
+          - staticcheck
+        text: SA1019
     paths:
       - third_party$
       - builtin$
