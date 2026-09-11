@@ -34,8 +34,10 @@ func resourceCloudAccountVMC() *schema.Resource {
 		Schema: map[string]*schema.Schema{
 			// Required arguments
 			"api_token": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Sensitive:   true,
+				Description: "VMC API access key.",
 			},
 			"name": {
 				Type:        schema.TypeString,

@@ -29,6 +29,7 @@ func dataSourceRegionEnumerationVMC() *schema.Resource {
 			"api_token": {
 				Type:        schema.TypeString,
 				Required:    true,
+				Sensitive:   true,
 				Description: "VMC API access key.",
 			},
 			"dc_id": {
