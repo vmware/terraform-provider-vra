@@ -7,6 +7,8 @@ The Terraform provider for VMware Aria Automation accepts either a `refresh_toke
 * Refresh token are valid for **90 days**, when using the API.
 * Access tokens are valid for **8 hours**, but times out after **25 minutes** of inactivity.
 
+> Note: For VMware Cloud Foundation Automation, see [Get Your Refresh Token for the VMware Cloud Foundation Automation API](./refresh_token_vcfa.md).
+
 ## Procedures
 
 ### UI Procedure
