@@ -17,6 +17,7 @@ import (
 
 	"github.com/go-openapi/strfmt"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/vmware/vra-sdk-go/pkg/client"
@@ -37,12 +38,43 @@ const (
 	UpdateDeploymentActionName      = "update"
 )
 
+// parse timestamp in API response. Helper for resourceDeployment
+func getParsedTime(d *schema.ResourceDiff, key string) (time.Time, bool) {
+	timeStr, ok := d.GetOk(key)
+	if !ok {
+		log.Printf("[INFO] Missing or invalid time string for key %s: %#v", key, timeStr)
+		return time.Time{}, false
+	}
+	parsedTime, err := strfmt.ParseDateTime(timeStr.(string))
+	if err != nil {
+		log.Printf("[INFO] Failed to parse DateTime for key %s: %#v", key, timeStr)
+		return time.Time{}, false
+	}
+	return time.Time(parsedTime), true
+}
+
 func resourceDeployment() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceDeploymentCreate,
 		ReadContext:   resourceDeploymentRead,
 		UpdateContext: resourceDeploymentUpdate,
 		DeleteContext: resourceDeploymentDelete,
+
+		CustomizeDiff: customdiff.ForceNewIf(
+			"recreate_if_expired_at",
+			func(_ context.Context, d *schema.ResourceDiff, _ interface{}) bool {
+				planTime, valid := getParsedTime(d, "recreate_if_expired_at")
+				if !valid {
+					return false
+				}
+				expirationTime, valid := getParsedTime(d, "lease_expire_at")
+				if !valid {
+					return false
+				}
+				return expirationTime.Before(planTime)
+			},
+		),
+
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
@@ -178,6 +210,13 @@ func resourceDeployment() *schema.Resource {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: "The status of the deployment with respect to its life cycle operations.",
+			},
+
+			"recreate_if_expired_at": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Default:     nil,
+				Description: "If set to `plantimestamp()`, then the deployment will be recreated when it has expired.",
 			},
 		},
 
