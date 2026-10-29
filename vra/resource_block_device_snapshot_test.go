@@ -5,15 +5,143 @@
 package vra
 
 import (
+	"context"
+	"errors"
 	"fmt"
+	"net/http"
+	"net/http/httptest"
 	"os"
+	"strings"
 	"testing"
 
+	httptransport "github.com/go-openapi/runtime/client"
+	"github.com/go-openapi/strfmt"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
+	"github.com/vmware/vra-sdk-go/pkg/client"
 	"github.com/vmware/vra-sdk-go/pkg/client/disk"
 )
+
+func TestBlockDeviceSnapshotCreate(t *testing.T) {
+	for _, tc := range []struct {
+		name       string
+		statusCode int
+		body       string
+		wantID     string
+		wantError  string
+	}{
+		{
+			name:       "empty snapshot list",
+			statusCode: http.StatusOK,
+			body:       `[]`,
+			wantError:  "failed to find the created snapshot",
+		},
+		{
+			name:       "no current snapshot",
+			statusCode: http.StatusOK,
+			body:       `[{"id":"old-snapshot","snapshotProperties":{"isCurrent":"false"}}]`,
+			wantError:  "failed to find the created snapshot",
+		},
+		{
+			name:       "snapshot list API error",
+			statusCode: http.StatusForbidden,
+			body:       `{"message":"snapshot access denied","statusCode":403}`,
+			wantError:  "snapshot access denied",
+		},
+		{
+			name:       "current snapshot found",
+			statusCode: http.StatusOK,
+			body:       `[{"id":"old-snapshot","snapshotProperties":{"isCurrent":"false"}},{"id":"test-snapshot","snapshotProperties":{"isCurrent":"true"}}]`,
+			wantID:     "test-snapshot",
+		},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+			meta := newBlockDeviceSnapshotTestClient(t, func(w http.ResponseWriter, r *http.Request) {
+				w.Header().Set("Content-Type", "application/json")
+				switch r.Method + " " + r.URL.Path {
+				case "POST /iaas/api/block-devices/test-disk/operations/snapshots":
+					w.WriteHeader(http.StatusAccepted)
+					fmt.Fprint(w, `{"id":"test-request","status":"INPROGRESS"}`)
+				case "GET /iaas/api/request-tracker/test-request":
+					fmt.Fprint(w, `{"id":"test-request","status":"FINISHED"}`)
+				case "GET /iaas/api/block-devices/test-disk/snapshots":
+					w.WriteHeader(tc.statusCode)
+					fmt.Fprint(w, tc.body)
+				case "GET /iaas/api/block-devices/test-disk/snapshots/test-snapshot":
+					fmt.Fprint(w, `{"id":"test-snapshot","desc":"test snapshot","snapshotProperties":{"isCurrent":"true"}}`)
+				default:
+					t.Errorf("unexpected request: %s %s", r.Method, r.URL.Path)
+					http.NotFound(w, r)
+				}
+			})
+			d := schema.TestResourceDataRaw(t, resourceBlockDeviceSnapshot().Schema, map[string]interface{}{
+				"block_device_id": "test-disk",
+				"description":     "test snapshot",
+			})
+
+			diags := resourceBlockDeviceSnapshotCreate(context.Background(), d, meta)
+			if tc.wantError != "" {
+				if !diags.HasError() {
+					t.Fatalf("expected an error containing %q, got %v", tc.wantError, diags)
+				}
+				if !strings.Contains(diags[0].Summary, tc.wantError) || !strings.Contains(diags[0].Summary, "test-disk") {
+					t.Errorf("expected diagnostic to include %q and the block device ID, got %v", tc.wantError, diags)
+				}
+			} else {
+				if diags.HasError() {
+					t.Fatalf("unexpected create error: %v", diags)
+				}
+				if current := d.Get("is_current"); current != true {
+					t.Errorf("expected current snapshot to be read into state, got is_current=%v", current)
+				}
+				if description := d.Get("description"); description != "test snapshot" {
+					t.Errorf("expected snapshot description to be read into state, got %q", description)
+				}
+			}
+			if d.Id() != tc.wantID {
+				t.Errorf("expected snapshot ID %q, got %q", tc.wantID, d.Id())
+			}
+		})
+	}
+}
+
+func TestFindCreatedBlockDeviceSnapshotAPIError(t *testing.T) {
+	meta := newBlockDeviceSnapshotTestClient(t, func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodGet || r.URL.Path != "/iaas/api/block-devices/test-disk/snapshots" {
+			t.Errorf("unexpected request: %s %s", r.Method, r.URL.Path)
+		}
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusForbidden)
+		fmt.Fprint(w, `{"message":"snapshot access denied","statusCode":403}`)
+	})
+
+	id, err := findCreatedBlockDeviceSnapshot("test-disk", meta)
+	if err == nil {
+		t.Fatal("expected snapshot lookup to fail")
+	}
+	if id != "" {
+		t.Errorf("expected an empty snapshot ID, got %q", id)
+	}
+	if !strings.Contains(err.Error(), "test-disk") || !strings.Contains(err.Error(), "snapshot access denied") {
+		t.Errorf("expected block device ID and API error details, got %v", err)
+	}
+	var forbidden *disk.GetDiskSnapshotsForbidden
+	if !errors.As(err, &forbidden) {
+		t.Errorf("expected wrapped GetDiskSnapshotsForbidden error, got %T: %v", err, err)
+	}
+}
+
+func newBlockDeviceSnapshotTestClient(t *testing.T, handler http.HandlerFunc) *Client {
+	t.Helper()
+	server := httptest.NewServer(handler)
+	t.Cleanup(server.Close)
+	transport := httptransport.New(strings.TrimPrefix(server.URL, "http://"), "/", []string{"http"})
+	transport.SetDebug(false)
+	return &Client{apiClient: client.New(transport, strfmt.Default)}
+}
 
 func TestAccVRABlockDeviceSnapshotBasic(t *testing.T) {
 	rInt := acctest.RandInt()

@@ -108,11 +108,10 @@ func resourceBlockDeviceSnapshotCreate(ctx context.Context, d *schema.ResourceDa
 	log.Printf("Finished to create vra_block_device_snapshot resource with for vra_block_device: %s", blockDeviceID)
 
 	snapshotID, err := findCreatedBlockDeviceSnapshot(blockDeviceID, m)
-	d.SetId(snapshotID)
-
 	if err != nil {
-		return nil
+		return diag.FromErr(err)
 	}
+	d.SetId(snapshotID)
 
 	return resourceBlockDeviceSnapshotRead(ctx, d, m)
 }
@@ -148,7 +147,7 @@ func findCreatedBlockDeviceSnapshot(blockDeviceID string, m interface{}) (string
 
 	resp, err := apiClient.Disk.GetDiskSnapshots(disk.NewGetDiskSnapshotsParams().WithID(blockDeviceID))
 	if err != nil {
-		return "", fmt.Errorf(errMsg, blockDeviceID)
+		return "", fmt.Errorf(errMsg+": %w", blockDeviceID, err)
 	}
 
 	diskSnapshots := resp.Payload
