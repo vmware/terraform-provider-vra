@@ -7,6 +7,7 @@ package vra
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -271,6 +272,14 @@ func resourceProjectUpdate(ctx context.Context, d *schema.ResourceData, m interf
 		return diag.FromErr(err)
 	}
 
+	// The iaas API merges customProperties, so removed keys must be dropped via the project-service API.
+	oldProps, newProps := d.GetChange("custom_properties")
+	if removedCustomProperties(oldProps.(map[string]interface{}), newProps.(map[string]interface{})) {
+		if err := replaceProjectCustomProperties(id, customProperties, apiClient.Project); err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
 	return resourceProjectRead(ctx, d, m)
 }
 
@@ -398,4 +407,53 @@ func flattenProjectConstraints(projectConstraints map[string][]models.Constraint
 
 	result = append(result, helper)
 	return result
+}
+
+// TODO: remove this workaround once PATCH /iaas/api/projects/{id} replaces (instead of merges) customProperties.
+//
+// The iaas-api project PATCH merges customProperties, so removed keys are never deleted. The project-service
+// PATCH (/project-service/api/projects/{id}) replaces the whole properties map, so it is used to remove them.
+
+// removedCustomProperties reports whether any key present in old is missing from new.
+func removedCustomProperties(oldProps, newProps map[string]interface{}) bool {
+	for k := range oldProps {
+		if _, ok := newProps[k]; !ok {
+			return true
+		}
+	}
+
+	return false
+}
+
+// buildProjectProperties keeps the internal ("__" prefixed) properties of the current project and
+// replaces everything else with the desired custom properties.
+func buildProjectProperties(current, desired map[string]string) map[string]string {
+	result := make(map[string]string, len(current)+len(desired))
+
+	for k, v := range current {
+		if strings.HasPrefix(k, "__") {
+			result[k] = v
+		}
+	}
+
+	for k, v := range desired {
+		result[k] = v
+	}
+
+	return result
+}
+
+// replaceProjectCustomProperties sets the project's custom properties through the project-service API.
+func replaceProjectCustomProperties(id string, desired map[string]string, c project.ClientService) error {
+	current, err := c.GetProjectUsingGET(project.NewGetProjectUsingGETParams().WithID(id))
+	if err != nil {
+		return err
+	}
+
+	_, err = c.ModifyProjectUsingPATCH(project.NewModifyProjectUsingPATCHParams().WithID(id).
+		WithProject(&models.UpdateProjectSpecification{
+			Properties: buildProjectProperties(current.Payload.Properties, desired),
+		}))
+
+	return err
 }
