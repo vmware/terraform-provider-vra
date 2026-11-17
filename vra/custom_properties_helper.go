@@ -13,3 +13,16 @@ func expandCustomProperties(configCustomProperties map[string]interface{}) map[s
 
 	return customProperties
 }
+
+// removedCustomPropertyKeys returns the keys present in the old custom properties but absent from the new ones.
+func removedCustomPropertyKeys(oldCustomProperties, newCustomProperties map[string]interface{}) []string {
+	removed := make([]string, 0)
+
+	for key := range oldCustomProperties {
+		if _, ok := newCustomProperties[key]; !ok {
+			removed = append(removed, key)
+		}
+	}
+
+	return removed
+}

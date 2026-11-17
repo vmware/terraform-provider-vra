@@ -141,6 +141,43 @@ func TestAccVRAProjectBasic(t *testing.T) {
 	})
 }
 
+func TestAccVRAProjectCustomProperties(t *testing.T) {
+	rInt := acctest.RandInt()
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckVRAProjectDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCheckVRAProjectCustomPropertiesConfig(rInt, `
+		prop_1 = "val1"
+		prop_2 = "val2"`),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					testAccCheckVRAProjectExists("vra_project.my-project"),
+					resource.TestCheckResourceAttr("vra_project.my-project", "custom_properties.%", "2"),
+					resource.TestCheckResourceAttr("vra_project.my-project", "custom_properties.prop_1", "val1"),
+					resource.TestCheckResourceAttr("vra_project.my-project", "custom_properties.prop_2", "val2"),
+				),
+			},
+			{
+				Config: testAccCheckVRAProjectCustomPropertiesConfig(rInt, `
+		prop_1 = "val1"`),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("vra_project.my-project", "custom_properties.%", "1"),
+					resource.TestCheckResourceAttr("vra_project.my-project", "custom_properties.prop_1", "val1"),
+					resource.TestCheckNoResourceAttr("vra_project.my-project", "custom_properties.prop_2"),
+				),
+			},
+			{
+				Config: testAccCheckVRAProjectCustomPropertiesConfig(rInt, ""),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("vra_project.my-project", "custom_properties.%", "0"),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckVRAProjectExists(n string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
@@ -268,4 +305,15 @@ func testAccCheckVRAProjectConfig(rInt int) string {
 		name = "my-project-%d"
 		description = "test project"
 	 }`, rInt)
+}
+
+func testAccCheckVRAProjectCustomPropertiesConfig(rInt int, customProperties string) string {
+	return fmt.Sprintf(`
+	resource "vra_project" "my-project" {
+		name = "my-project-%d"
+		description = "test project"
+
+		custom_properties = {%s
+		}
+	 }`, rInt, customProperties)
 }

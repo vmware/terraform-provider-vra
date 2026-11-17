@@ -252,6 +252,13 @@ func resourceProjectUpdate(ctx context.Context, d *schema.ResourceData, m interf
 	sharedResources := d.Get("shared_resources").(bool)
 	zoneAssignment := expandZoneAssignment(d.Get("zone_assignments").(*schema.Set).List())
 
+	if d.HasChange("custom_properties") {
+		oldCustomProperties, newCustomProperties := d.GetChange("custom_properties")
+		for _, key := range removedCustomPropertyKeys(oldCustomProperties.(map[string]interface{}), newCustomProperties.(map[string]interface{})) {
+			customProperties[key] = ""
+		}
+	}
+
 	_, err := apiClient.Project.UpdateProject(project.NewUpdateProjectParams().WithID(id).WithBody(&models.IaaSProjectSpecification{
 		Administrators:               administrators,
 		Constraints:                  constraints,
