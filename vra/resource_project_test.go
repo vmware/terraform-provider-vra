@@ -17,6 +17,7 @@ import (
 	"fmt"
 	"math/rand"
 	"os"
+	"reflect"
 	"strconv"
 	"testing"
 )
@@ -268,4 +269,23 @@ func testAccCheckVRAProjectConfig(rInt int) string {
 		name = "my-project-%d"
 		description = "test project"
 	 }`, rInt)
+}
+
+func TestBuildProjectProperties(t *testing.T) {
+	current := map[string]string{"__namingTemplate": "n", "prop1": "v1", "prop2": "v2"}
+	got := buildProjectProperties(current, map[string]string{"prop1": "v1"})
+	want := map[string]string{"__namingTemplate": "n", "prop1": "v1"}
+	if !reflect.DeepEqual(got, want) {
+		t.Fatalf("got %v, want %v", got, want)
+	}
+}
+
+func TestRemovedCustomProperties(t *testing.T) {
+	old := map[string]interface{}{"a": "1", "b": "2"}
+	if !removedCustomProperties(old, map[string]interface{}{"a": "1"}) {
+		t.Fatal("expected removal")
+	}
+	if removedCustomProperties(old, map[string]interface{}{"a": "9", "b": "2", "c": "3"}) {
+		t.Fatal("unexpected removal")
+	}
 }
